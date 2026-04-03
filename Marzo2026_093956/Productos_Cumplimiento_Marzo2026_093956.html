@@ -1,0 +1,349 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Productos – Marzo2026_09 3956</title>
+<style>
+:root{
+  --red:   #c0392b; --amber: #e67e22; --green: #27ae60;
+  --dark:  #1a2a3a; --mid:   #2c3e50; --light: #ecf0f1;
+  --bg:    #f4f6f9; --white: #ffffff;
+  --purple:#6c3483; --teal:  #0e6655;
+}
+*{box-sizing:border-box;margin:0;padding:0;}
+body{font-family:Arial,sans-serif;background:var(--bg);color:#333;}
+
+/* HEADER */
+.header{background:var(--dark);color:#fff;padding:16px 20px;display:flex;align-items:center;justify-content:space-between;flex-wrap:wrap;gap:8px;}
+.header h1{font-size:16px;font-weight:700;letter-spacing:.5px;}
+.header .sub{font-size:12px;opacity:.7;}
+
+/* KPI BAR */
+.kpi-bar{display:flex;gap:12px;padding:14px 16px;background:#fff;border-bottom:1px solid #dde;flex-wrap:wrap;}
+.kpi{flex:1;min-width:100px;background:var(--bg);border-radius:8px;padding:10px 14px;text-align:center;}
+.kpi .num{font-size:24px;font-weight:700;}
+.kpi .lbl{font-size:10px;text-transform:uppercase;letter-spacing:.5px;color:#666;margin-top:2px;}
+.kpi.red  .num{color:var(--red);}
+.kpi.amber .num{color:var(--amber);}
+.kpi.green .num{color:var(--green);}
+.kpi.total .num{color:var(--dark);}
+
+/* FILTROS */
+.filters{padding:10px 16px;background:#fff;border-bottom:1px solid #dde;display:flex;gap:8px;flex-wrap:wrap;align-items:center;}
+.filters label{font-size:11px;color:#666;}
+.filter-btn{padding:5px 12px;border:1.5px solid #ccc;border-radius:20px;font-size:11px;cursor:pointer;background:#fff;transition:all .15s;}
+.filter-btn.active{background:var(--dark);color:#fff;border-color:var(--dark);}
+.filter-btn.f-red.active   {background:var(--red);border-color:var(--red);}
+.filter-btn.f-amber.active {background:var(--amber);border-color:var(--amber);}
+.filter-btn.f-green.active {background:var(--green);border-color:var(--green);}
+
+/* CONTENEDOR RUBROS */
+.rubros-wrap{padding:14px 16px;display:flex;flex-direction:column;gap:10px;}
+
+/* CARD RUBRO */
+.rubro-card{background:#fff;border-radius:10px;box-shadow:0 1px 4px rgba(0,0,0,.08);overflow:hidden;}
+.rubro-header{
+  display:flex;align-items:center;gap:10px;padding:12px 16px;
+  cursor:pointer;user-select:none;border-left:4px solid #ccc;
+  transition:background .1s;
+}
+.rubro-header:hover{background:#f8f8f8;}
+.rubro-header.red   {border-color:var(--red);}
+.rubro-header.amber {border-color:var(--amber);}
+.rubro-header.green {border-color:var(--green);}
+.rubro-name{font-size:13px;font-weight:700;flex:1;}
+.rubro-stats{display:flex;gap:10px;align-items:center;flex-wrap:wrap;}
+.rubro-badge{
+  font-size:10px;padding:3px 8px;border-radius:12px;font-weight:600;
+  white-space:nowrap;
+}
+.badge-red   {background:#fdecea;color:var(--red);}
+.badge-amber {background:#fef3e2;color:#b7660a;}
+.badge-green {background:#e8f8f0;color:#1a7a3c;}
+.badge-gray  {background:#f0f0f0;color:#666;}
+.rubro-count{font-size:11px;color:#888;white-space:nowrap;}
+.chevron{font-size:13px;color:#aaa;transition:transform .2s;margin-left:4px;}
+.rubro-card.open .chevron{transform:rotate(180deg);}
+
+/* TABLA PRODUCTOS */
+.prod-table-wrap{overflow-x:auto;display:none;}
+.rubro-card.open .prod-table-wrap{display:block;}
+.prod-table{width:100%;border-collapse:collapse;font-size:12px;}
+.prod-table thead th{
+  background:#f0f2f5;color:#555;font-size:10px;text-transform:uppercase;
+  letter-spacing:.4px;padding:7px 10px;text-align:left;white-space:nowrap;
+  position:sticky;top:0;
+}
+.prod-table thead th.r{text-align:right;}
+.prod-table tbody tr{border-top:1px solid #eee;transition:background .1s;}
+.prod-table tbody tr:hover{background:#f7f9fc;}
+.prod-table td{padding:8px 10px;vertical-align:middle;white-space:nowrap;}
+.prod-table td.desc{white-space:normal;max-width:260px;font-size:11px;line-height:1.4;}
+.prod-table td.r{text-align:right;}
+
+/* BAR EN TABLA */
+.mini-bar-wrap{min-width:100px;position:relative;}
+.mini-bar-track{height:8px;background:#eee;border-radius:4px;overflow:hidden;position:relative;}
+.mini-bar-proj{height:100%;position:absolute;top:0;left:0;opacity:.25;border-radius:4px;}
+.mini-bar-fill{height:100%;position:absolute;top:0;left:0;border-radius:4px;transition:width .4s;}
+.mini-bar-100{position:absolute;top:-3px;bottom:-3px;width:1px;background:rgba(0,0,0,.15);left:100%;}
+.mini-pct{font-size:10px;margin-top:2px;font-weight:600;}
+
+/* BADGES STATUS */
+.status-badge{
+  font-size:10px;padding:3px 7px;border-radius:10px;white-space:nowrap;font-weight:600;
+}
+.s-red   {background:#fdecea;color:var(--red);}
+.s-amber {background:#fef3e2;color:#b7660a;}
+.s-green {background:#e8f8f0;color:#1a7a3c;}
+.s-over  {background:#eaf0fb;color:#1a5276;}
+
+/* COBERTURA */
+.cob-warn{color:var(--red);font-weight:700;}
+.cob-ok  {color:#666;}
+
+/* TEXTOS COLOR */
+.c-red  {color:var(--red);font-weight:600;}
+.c-amb  {color:var(--amber);font-weight:600;}
+.c-grn  {color:var(--green);font-weight:600;}
+
+/* COLLAPSE ALL BTN */
+.toolbar{padding:8px 16px;display:flex;gap:8px;align-items:center;}
+.tool-btn{padding:4px 12px;border:1px solid #ccc;border-radius:6px;font-size:11px;cursor:pointer;background:#fff;}
+.tool-btn:hover{background:#f0f0f0;}
+
+/* RESPONSIVE */
+@media(max-width:600px){
+  .kpi{min-width:calc(50% - 6px);}
+  .prod-table thead{display:none;}
+  .prod-table td{display:block;padding:3px 10px;}
+  .prod-table td::before{content:attr(data-label)": ";font-weight:600;color:#555;font-size:10px;}
+  .prod-table tbody tr{padding:8px 0;display:block;}
+  .prod-table td.desc{font-size:12px;}
+}
+</style>
+</head>
+<body>
+
+<div class="header">
+  <div>
+    <div class="h1" style="font-size:16px;font-weight:700;">📦 Cumplimiento por Producto</div>
+    <div class="sub">Marzo2026_09 3956 — día 12 de 31</div>
+  </div>
+  <div style="font-size:11px;opacity:.6;">Actualizado: 12/03/2026 12:31</div>
+</div>
+
+<div class="kpi-bar">
+  <div class="kpi total">
+    <div class="num">47</div>
+    <div class="lbl">Productos con objetivo</div>
+  </div>
+  <div class="kpi red">
+    <div class="num">8</div>
+    <div class="lbl">🔴 No cumple proy.</div>
+  </div>
+  <div class="kpi amber">
+    <div class="num">5</div>
+    <div class="lbl">⚠️ En riesgo proy.</div>
+  </div>
+  <div class="kpi green">
+    <div class="num">32</div>
+    <div class="lbl">✅ Cumple / sobre rinde</div>
+  </div>
+</div>
+
+<div class="filters">
+  <span style="font-size:11px;color:#666;">Filtrar:</span>
+  <button class="filter-btn active" data-f="all" onclick="setFilter('all',this)">Todos</button>
+  <button class="filter-btn f-red"   data-f="red"   onclick="setFilter('red',this)">🔴 No cumple</button>
+  <button class="filter-btn f-amber" data-f="amber" onclick="setFilter('amber',this)">⚠️ Riesgo</button>
+  <button class="filter-btn f-green" data-f="green" onclick="setFilter('green',this)">✅ Cumple+</button>
+</div>
+
+<div class="toolbar">
+  <button class="tool-btn" onclick="toggleAll(true)">▼ Expandir todo</button>
+  <button class="tool-btn" onclick="toggleAll(false)">▶ Colapsar todo</button>
+</div>
+
+<div class="rubros-wrap" id="rubros-wrap">
+  <!-- generado por JS -->
+</div>
+
+<script>
+var DATA = [{"sector": "EQUIPAM.", "rubro": "AMASADORAS RAPIDAS", "art": 16160, "desc": "PANETTI AMASADORA RAPIDA 12KG HARINA HS30 WG30L", "venta_u": 3, "obj_mes": 8.3, "pct_cumpl": 36.0, "alameda": 2, "grupo_b": 1, "pct_alam": 66.7, "stock": 63, "cobertura": 21.0, "clasif": "🔴 NO CUMPLE", "proyeccion": 7, "pct_proy": 93.0, "venta_ytd": 3, "obj_ytd": 8.3, "pct_ytd": 36.0}, {"sector": "EQUIPAM.", "rubro": "AMASADORAS RAPIDAS", "art": 16158, "desc": "PANETTI AMASADORA RAPIDA 4KG HARINA H10 WG10L", "venta_u": 1, "obj_mes": 16.7, "pct_cumpl": 6.0, "alameda": 0, "grupo_b": 1, "pct_alam": 0.0, "stock": 47, "cobertura": 47.0, "clasif": "🔴 NO CUMPLE", "proyeccion": 2, "pct_proy": 15.5, "venta_ytd": 1, "obj_ytd": 16.7, "pct_ytd": 6.0}, {"sector": "EQUIPAM.", "rubro": "BATEACARNICERA", "art": 15715, "desc": "BESTCOLD BATEA 2000 CM VIDRIO RECTO EQUIPADA 1.2 H", "venta_u": 3, "obj_mes": 5.0, "pct_cumpl": 60.0, "alameda": 0, "grupo_b": 3, "pct_alam": 0.0, "stock": 11, "cobertura": 3.7, "clasif": "🔴 NO CUMPLE", "proyeccion": 7, "pct_proy": 155.0, "venta_ytd": 3, "obj_ytd": 5.0, "pct_ytd": 60.0}, {"sector": "EQUIPAM.", "rubro": "COCINA GASTRONOMICA", "art": 15167, "desc": "MORELLI COCINA MR CHEF 1100 6 HORNALLAS FUND LIV P", "venta_u": 1, "obj_mes": 2.0, "pct_cumpl": 50.0, "alameda": 0, "grupo_b": 1, "pct_alam": 0.0, "stock": 5, "cobertura": 5.0, "clasif": "🔴 NO CUMPLE", "proyeccion": 2, "pct_proy": 129.2, "venta_ytd": 1, "obj_ytd": 2.0, "pct_ytd": 50.0}, {"sector": "EQUIPAM.", "rubro": "COCINAS", "art": 15846, "desc": "DEPAOLO COCINA 2 HORN Y PLANCHA CON TOSTADOR RF CI", "venta_u": 1, "obj_mes": 1.7, "pct_cumpl": 60.0, "alameda": 0, "grupo_b": 1, "pct_alam": 0.0, "stock": 3, "cobertura": 3.0, "clasif": "🔴 NO CUMPLE", "proyeccion": 2, "pct_proy": 155.0, "venta_ytd": 1, "obj_ytd": 1.7, "pct_ytd": 60.0}, {"sector": "EQUIPAM.", "rubro": "COCINAS", "art": 12017, "desc": "DEPAOLO COCINA 6H CIEGA REJ FUNDICION 900MM  ART13", "venta_u": 1, "obj_mes": 2.0, "pct_cumpl": 50.0, "alameda": 0, "grupo_b": 1, "pct_alam": 0.0, "stock": 5, "cobertura": 5.0, "clasif": "🔴 NO CUMPLE", "proyeccion": 2, "pct_proy": 129.2, "venta_ytd": 1, "obj_ytd": 2.0, "pct_ytd": 50.0}, {"sector": "EQUIPAM.", "rubro": "COCINAS", "art": 14845, "desc": "MORELLI COCINA FORZA 600 P CIEGA R F VITRI LIVIAN", "venta_u": 1, "obj_mes": 2.3, "pct_cumpl": 42.9, "alameda": 0, "grupo_b": 1, "pct_alam": 0.0, "stock": 6, "cobertura": 6.0, "clasif": "🔴 NO CUMPLE", "proyeccion": 2, "pct_proy": 110.7, "venta_ytd": 1, "obj_ytd": 2.3, "pct_ytd": 42.9}, {"sector": "EQUIPAM.", "rubro": "COCINAS", "art": 15844, "desc": "MORELLI COCINA VINTAGE 900 CON PLACA DIGITAL NEGRA", "venta_u": 1, "obj_mes": 3.7, "pct_cumpl": 27.3, "alameda": 1, "grupo_b": 0, "pct_alam": 100.0, "stock": 7, "cobertura": 7.0, "clasif": "🔴 NO CUMPLE", "proyeccion": 2, "pct_proy": 70.5, "venta_ytd": 1, "obj_ytd": 3.7, "pct_ytd": 27.3}, {"sector": "EQUIPAM.", "rubro": "FREEZER", "art": 16217, "desc": "BRIKET FREZEER TRIAL FR3322 1 PUERTA 295LT INVERTE", "venta_u": 1, "obj_mes": 4.2, "pct_cumpl": 24.0, "alameda": 1, "grupo_b": 0, "pct_alam": 100.0, "stock": 20, "cobertura": 20.0, "clasif": "🔴 NO CUMPLE", "proyeccion": 2, "pct_proy": 62.0, "venta_ytd": 1, "obj_ytd": 4.2, "pct_ytd": 24.0}, {"sector": "EQUIPAM.", "rubro": "FREEZER", "art": 15737, "desc": "FAM FREEZER TIPO ARCON F12000B CONDEN DIN 2 A 20BJ", "venta_u": 2, "obj_mes": 9.3, "pct_cumpl": 21.4, "alameda": 0, "grupo_b": 2, "pct_alam": 0.0, "stock": 8, "cobertura": 4.0, "clasif": "🔴 NO CUMPLE", "proyeccion": 5, "pct_proy": 55.4, "venta_ytd": 2, "obj_ytd": 9.3, "pct_ytd": 21.4}, {"sector": "EQUIPAM.", "rubro": "FREEZER", "art": 15534, "desc": "INELRO FREEZER FIH350 DUAL 1 PUERTA CIEGA 280LT IN", "venta_u": 20, "obj_mes": 33.3, "pct_cumpl": 60.0, "alameda": 5, "grupo_b": 15, "pct_alam": 25.0, "stock": 37, "cobertura": 1.9, "clasif": "🔴 NO CUMPLE", "proyeccion": 51, "pct_proy": 155.0, "venta_ytd": 20, "obj_ytd": 33.3, "pct_ytd": 60.0}, {"sector": "EQUIPAM.", "rubro": "FREEZER", "art": 5352, "desc": "INELRO FREEZER FIH350 PI PLUS TAPA VIDRIO INCLINAD", "venta_u": 11, "obj_mes": 18.0, "pct_cumpl": 61.1, "alameda": 3, "grupo_b": 8, "pct_alam": 27.3, "stock": 19, "cobertura": 1.7, "clasif": "🔴 NO CUMPLE", "proyeccion": 28, "pct_proy": 157.9, "venta_ytd": 11, "obj_ytd": 18.0, "pct_ytd": 61.1}, {"sector": "EQUIPAM.", "rubro": "FREEZER", "art": 6773, "desc": "INELRO FREEZER FIH550 DUAL 2PUERTAS CIEGAS 460LT I", "venta_u": 10, "obj_mes": 30.0, "pct_cumpl": 33.3, "alameda": 4, "grupo_b": 6, "pct_alam": 40.0, "stock": 30, "cobertura": 3.0, "clasif": "🔴 NO CUMPLE", "proyeccion": 25, "pct_proy": 86.1, "venta_ytd": 10, "obj_ytd": 30.0, "pct_ytd": 33.3}, {"sector": "EQUIPAM.", "rubro": "FREEZER", "art": 15566, "desc": "INELRO FREEZER FIH550 PI PLUS TAPA VIDRIO INCLINAD", "venta_u": 6, "obj_mes": 16.7, "pct_cumpl": 36.0, "alameda": 3, "grupo_b": 3, "pct_alam": 50.0, "stock": 12, "cobertura": 2.0, "clasif": "🔴 NO CUMPLE", "proyeccion": 15, "pct_proy": 93.0, "venta_ytd": 6, "obj_ytd": 16.7, "pct_ytd": 36.0}, {"sector": "EQUIPAM.", "rubro": "FREEZER", "art": 12464, "desc": "INELRO FREEZER FIH700 DUAL 2 PUERTAS CIEGAS 695LT", "venta_u": 2, "obj_mes": 5.0, "pct_cumpl": 40.0, "alameda": 0, "grupo_b": 2, "pct_alam": 0.0, "stock": 29, "cobertura": 14.5, "clasif": "🔴 NO CUMPLE", "proyeccion": 5, "pct_proy": 103.3, "venta_ytd": 2, "obj_ytd": 5.0, "pct_ytd": 40.0}, {"sector": "EQUIPAM.", "rubro": "FREIDORA AUTOMATICA", "art": 11022, "desc": "MORELLI FREIDOR 30LT 2 CANASTOS FMATIC30 10020.1", "venta_u": 2, "obj_mes": 5.0, "pct_cumpl": 40.0, "alameda": 1, "grupo_b": 1, "pct_alam": 50.0, "stock": 8, "cobertura": 4.0, "clasif": "🔴 NO CUMPLE", "proyeccion": 5, "pct_proy": 103.3, "venta_ytd": 2, "obj_ytd": 5.0, "pct_ytd": 40.0}, {"sector": "EQUIPAM.", "rubro": "FREIDORAS", "art": 7528, "desc": "SOL REAL FREIDORA 18LT 1CANASTO TACHO ENLOZ 24X24X", "venta_u": 2, "obj_mes": 5.2, "pct_cumpl": 38.1, "alameda": 2, "grupo_b": 0, "pct_alam": 100.0, "stock": 11, "cobertura": 5.5, "clasif": "🔴 NO CUMPLE", "proyeccion": 5, "pct_proy": 98.4, "venta_ytd": 2, "obj_ytd": 5.2, "pct_ytd": 38.1}, {"sector": "EQUIPAM.", "rubro": "FREIDORAS ELECTRICAS", "art": 15139, "desc": "MORETTI FREIDORA 11LT 1CANASTO 33X44X35 3500W ELEC", "venta_u": 0, "obj_mes": 3.0, "pct_cumpl": 0.0, "alameda": 0, "grupo_b": 0, "pct_alam": 0.0, "stock": 8, "cobertura": null, "clasif": "🔴 NO CUMPLE", "proyeccion": 0, "pct_proy": 0.0, "venta_ytd": 0, "obj_ytd": 3.0, "pct_ytd": 0.0}, {"sector": "EQUIPAM.", "rubro": "HELADERABAJOMESADA", "art": 4301, "desc": "FRIDER MOSTRADOR CIEGO REFRIG 1.91 MT 3 PUERTAS EQ", "venta_u": 1, "obj_mes": 2.0, "pct_cumpl": 50.0, "alameda": 0, "grupo_b": 1, "pct_alam": 0.0, "stock": 4, "cobertura": 4.0, "clasif": "🔴 NO CUMPLE", "proyeccion": 2, "pct_proy": 129.2, "venta_ytd": 1, "obj_ytd": 2.0, "pct_ytd": 50.0}, {"sector": "EQUIPAM.", "rubro": "HELVITRINA", "art": 16305, "desc": "DIACO HELADERA VITRINA MANDY 1800MT VR TRES PUERTA", "venta_u": 1, "obj_mes": 1.7, "pct_cumpl": 60.0, "alameda": 0, "grupo_b": 1, "pct_alam": 0.0, "stock": 18, "cobertura": 18.0, "clasif": "🔴 NO CUMPLE", "proyeccion": 2, "pct_proy": 155.0, "venta_ytd": 1, "obj_ytd": 1.7, "pct_ytd": 60.0}, {"sector": "EQUIPAM.", "rubro": "HELVITRINA", "art": 15902, "desc": "NUSELUJ HELADERA VITRINA AMIGA 1.6 MT VR TERCIO HP", "venta_u": 4, "obj_mes": 10.0, "pct_cumpl": 40.0, "alameda": 0, "grupo_b": 4, "pct_alam": 0.0, "stock": 9, "cobertura": 2.2, "clasif": "🔴 NO CUMPLE", "proyeccion": 10, "pct_proy": 103.3, "venta_ytd": 4, "obj_ytd": 10.0, "pct_ytd": 40.0}, {"sector": "EQUIPAM.", "rubro": "HELVITRINA", "art": 16389, "desc": "NUSELUJ HELADERA VITRINA AMIGA 1.6 MT VR TERCIO HP", "venta_u": 2, "obj_mes": 3.3, "pct_cumpl": 60.0, "alameda": 1, "grupo_b": 1, "pct_alam": 50.0, "stock": 39, "cobertura": 19.5, "clasif": "🔴 NO CUMPLE", "proyeccion": 5, "pct_proy": 155.0, "venta_ytd": 2, "obj_ytd": 3.3, "pct_ytd": 60.0}, {"sector": "EQUIPAM.", "rubro": "HELVITRINA", "art": 5076, "desc": "NUSELUJ HELADERA VITRINA AMIGA 2.4 MT VR MEDIO HP", "venta_u": 4, "obj_mes": 10.0, "pct_cumpl": 40.0, "alameda": 1, "grupo_b": 3, "pct_alam": 25.0, "stock": 16, "cobertura": 4.0, "clasif": "🔴 NO CUMPLE", "proyeccion": 10, "pct_proy": 103.3, "venta_ytd": 4, "obj_ytd": 10.0, "pct_ytd": 40.0}, {"sector": "EQUIPAM.", "rubro": "HELVITRINA", "art": 7387, "desc": "SAN AGUSTIN HELADERA VITRINA 200 TERCIO HP", "venta_u": 0, "obj_mes": 30.0, "pct_cumpl": 0.0, "alameda": 0, "grupo_b": 0, "pct_alam": 0.0, "stock": 0, "cobertura": null, "clasif": "🔴 NO CUMPLE", "proyeccion": 0, "pct_proy": 0.0, "venta_ytd": 0, "obj_ytd": 30.0, "pct_ytd": 0.0}, {"sector": "EQUIPAM.", "rubro": "HORNOS CONVECTORES", "art": 16137, "desc": "PANETTI HORNO CONVECTOR ELECTRICO 4 BANDEJAS HEB60", "venta_u": 13, "obj_mes": 25.0, "pct_cumpl": 52.0, "alameda": 7, "grupo_b": 6, "pct_alam": 53.8, "stock": 146, "cobertura": 11.2, "clasif": "🔴 NO CUMPLE", "proyeccion": 33, "pct_proy": 134.3, "venta_ytd": 13, "obj_ytd": 25.0, "pct_ytd": 52.0}, {"sector": "EQUIPAM.", "rubro": "HORNOS CONVECTORES", "art": 11359, "desc": "SANTINI HORNO ELECTRICO MC600 CONVECTOR", "venta_u": 2, "obj_mes": 15.0, "pct_cumpl": 13.3, "alameda": 0, "grupo_b": 2, "pct_alam": 0.0, "stock": 9, "cobertura": 4.5, "clasif": "🔴 NO CUMPLE", "proyeccion": 5, "pct_proy": 34.4, "venta_ytd": 2, "obj_ytd": 15.0, "pct_ytd": 13.3}, {"sector": "EQUIPAM.", "rubro": "HORNOS PIZZEROS", "art": 1139, "desc": "SOL REAL HORNO 12 PIZZAS ACERO 068", "venta_u": 2, "obj_mes": 10.0, "pct_cumpl": 20.0, "alameda": 1, "grupo_b": 1, "pct_alam": 50.0, "stock": 8, "cobertura": 4.0, "clasif": "🔴 NO CUMPLE", "proyeccion": 5, "pct_proy": 51.7, "venta_ytd": 2, "obj_ytd": 10.0, "pct_ytd": 20.0}, {"sector": "EQUIPAM.", "rubro": "HORNOS PIZZEROS", "art": 6925, "desc": "SOL REAL HORNO 12 PIZZAS GAUCHITO INOX. 608I", "venta_u": 6, "obj_mes": 27.5, "pct_cumpl": 21.8, "alameda": 1, "grupo_b": 5, "pct_alam": 16.7, "stock": 22, "cobertura": 3.7, "clasif": "🔴 NO CUMPLE", "proyeccion": 15, "pct_proy": 56.4, "venta_ytd": 6, "obj_ytd": 27.5, "pct_ytd": 21.8}, {"sector": "EQUIPAM.", "rubro": "HORNOS PIZZEROS", "art": 1528, "desc": "SOL REAL HORNO 6 PIZZAS ACERO 067", "venta_u": 3, "obj_mes": 10.0, "pct_cumpl": 30.0, "alameda": 2, "grupo_b": 1, "pct_alam": 66.7, "stock": 7, "cobertura": 2.3, "clasif": "🔴 NO CUMPLE", "proyeccion": 7, "pct_proy": 77.5, "venta_ytd": 3, "obj_ytd": 10.0, "pct_ytd": 30.0}, {"sector": "EQUIPAM.", "rubro": "HORNOS PIZZEROS", "art": 1135, "desc": "SOL REAL HORNO 6 PIZZAS GAUCHITO INOX. 607I", "venta_u": 16, "obj_mes": 27.5, "pct_cumpl": 58.2, "alameda": 7, "grupo_b": 9, "pct_alam": 43.8, "stock": 32, "cobertura": 2.0, "clasif": "🔴 NO CUMPLE", "proyeccion": 41, "pct_proy": 150.3, "venta_ytd": 16, "obj_ytd": 27.5, "pct_ytd": 58.2}, {"sector": "EQUIPAM.", "rubro": "VERTICAL CONGELADOS", "art": 15075, "desc": "FAM EXHIBIDORA VERTICAL CONG MENOS12 A 20 FAMV420B", "venta_u": 3, "obj_mes": 7.5, "pct_cumpl": 40.0, "alameda": 3, "grupo_b": 0, "pct_alam": 100.0, "stock": 18, "cobertura": 6.0, "clasif": "🔴 NO CUMPLE", "proyeccion": 7, "pct_proy": 103.3, "venta_ytd": 3, "obj_ytd": 7.5, "pct_ytd": 40.0}, {"sector": "EQUIPAM.", "rubro": "VERTICALES", "art": 10, "desc": "BRIKET EXHIBIDORA VERTICAL MASTER 5000 BLANCA 500L", "venta_u": 37, "obj_mes": 62.5, "pct_cumpl": 59.2, "alameda": 10, "grupo_b": 27, "pct_alam": 27.0, "stock": 30, "cobertura": 0.8, "clasif": "🔴 NO CUMPLE", "proyeccion": 95, "pct_proy": 152.9, "venta_ytd": 37, "obj_ytd": 62.5, "pct_ytd": 59.2}, {"sector": "EQUIPAM.", "rubro": "VERTICALES", "art": 16049, "desc": "INELRO EXHIBIDORA VERTICAL MT14 SIN CENEFA BLANCA", "venta_u": 1, "obj_mes": 5.0, "pct_cumpl": 20.0, "alameda": 0, "grupo_b": 1, "pct_alam": 0.0, "stock": 13, "cobertura": 13.0, "clasif": "🔴 NO CUMPLE", "proyeccion": 2, "pct_proy": 51.7, "venta_ytd": 1, "obj_ytd": 5.0, "pct_ytd": 20.0}, {"sector": "EQUIPAM.", "rubro": "VERTICALES", "art": 16003, "desc": "INELRO EXHIBIDORA VERTICAL MT17 SIN CENEFA BLANCA", "venta_u": 16, "obj_mes": 49.1, "pct_cumpl": 32.6, "alameda": 4, "grupo_b": 12, "pct_alam": 25.0, "stock": 60, "cobertura": 3.8, "clasif": "🔴 NO CUMPLE", "proyeccion": 41, "pct_proy": 84.2, "venta_ytd": 16, "obj_ytd": 49.1, "pct_ytd": 32.6}, {"sector": "EQUIPAM.", "rubro": "VERTICALES", "art": 14233, "desc": "INELRO EXHIBIDORA VERTICAL MT19  SIN CENEFA BLANCA", "venta_u": 5, "obj_mes": 10.0, "pct_cumpl": 50.0, "alameda": 0, "grupo_b": 5, "pct_alam": 0.0, "stock": 10, "cobertura": 2.0, "clasif": "🔴 NO CUMPLE", "proyeccion": 12, "pct_proy": 129.2, "venta_ytd": 5, "obj_ytd": 10.0, "pct_ytd": 50.0}, {"sector": "EQUIPAM.", "rubro": "COCINAS", "art": 16075, "desc": "MORELLI COCINA CAPRI 550 P CIEGA RFV LIVIANA 18044", "venta_u": 3, "obj_mes": 4.2, "pct_cumpl": 72.0, "alameda": 0, "grupo_b": 3, "pct_alam": 0.0, "stock": 5, "cobertura": 1.7, "clasif": "⚠️ RIESGO", "proyeccion": 7, "pct_proy": 186.0, "venta_ytd": 3, "obj_ytd": 4.2, "pct_ytd": 72.0}, {"sector": "EQUIPAM.", "rubro": "FREIDORAS", "art": 1144, "desc": "SOL REAL FREIDORA 33LT 2 CANASTOS TACHO ENLOZ 24X1", "venta_u": 6, "obj_mes": 8.0, "pct_cumpl": 75.0, "alameda": 1, "grupo_b": 5, "pct_alam": 16.7, "stock": 13, "cobertura": 2.2, "clasif": "⚠️ RIESGO", "proyeccion": 15, "pct_proy": 193.8, "venta_ytd": 6, "obj_ytd": 8.0, "pct_ytd": 75.0}, {"sector": "EQUIPAM.", "rubro": "VERTICAL CONGELADOS", "art": 15225, "desc": "FAM EXHIBIDORA VERTICAL CONG MENOS12 A 20 FAMV420B", "venta_u": 7, "obj_mes": 10.0, "pct_cumpl": 70.0, "alameda": 2, "grupo_b": 5, "pct_alam": 28.6, "stock": 12, "cobertura": 1.7, "clasif": "⚠️ RIESGO", "proyeccion": 18, "pct_proy": 180.8, "venta_ytd": 7, "obj_ytd": 10.0, "pct_ytd": 70.0}, {"sector": "EQUIPAM.", "rubro": "VERTICALES", "art": 15260, "desc": "BRIKET EXHIBIDORA VERTICAL MASTER 4300 BLANCA 417L", "venta_u": 11, "obj_mes": 13.3, "pct_cumpl": 82.5, "alameda": 6, "grupo_b": 5, "pct_alam": 54.5, "stock": 38, "cobertura": 3.5, "clasif": "⚠️ RIESGO", "proyeccion": 28, "pct_proy": 213.1, "venta_ytd": 11, "obj_ytd": 13.3, "pct_ytd": 82.5}, {"sector": "EQUIPAM.", "rubro": "HORNOS CONVECTORES", "art": 16203, "desc": "PANETTI HORNO CONVECTOR ELECTRICO 6.4KW HEB840.", "venta_u": 5, "obj_mes": 5.0, "pct_cumpl": 100.0, "alameda": 0, "grupo_b": 5, "pct_alam": 0.0, "stock": 72, "cobertura": 14.4, "clasif": "✅ CUMPLE", "proyeccion": 12, "pct_proy": 258.3, "venta_ytd": 5, "obj_ytd": 5.0, "pct_ytd": 100.0}, {"sector": "EQUIPAM.", "rubro": "VERTICALES", "art": 16112, "desc": "BRIKET EXHIBIDORA VERTICAL MASTER 10000 BLANCA 971", "venta_u": 3, "obj_mes": 3.0, "pct_cumpl": 100.0, "alameda": 0, "grupo_b": 3, "pct_alam": 0.0, "stock": 8, "cobertura": 2.7, "clasif": "✅ CUMPLE", "proyeccion": 7, "pct_proy": 258.3, "venta_ytd": 3, "obj_ytd": 3.0, "pct_ytd": 100.0}, {"sector": "EQUIPAM.", "rubro": "COCINA GASTRONOMICA", "art": 15776, "desc": "SOL REAL COCINA 6 HORNALLAS REJA FUNDICION 123CM 7", "venta_u": 1, "obj_mes": 0.5, "pct_cumpl": 200.0, "alameda": 1, "grupo_b": 0, "pct_alam": 100.0, "stock": 1, "cobertura": 1.0, "clasif": "📈 SOBRE RINDE", "proyeccion": 2, "pct_proy": 516.7, "venta_ytd": 1, "obj_ytd": 0.5, "pct_ytd": 200.0}, {"sector": "EQUIPAM.", "rubro": "FREIDORAS ELECTRICAS", "art": 15140, "desc": "MORETTI FREIDORA 16LT 2 TACHOS DOBLE BACHA ELEC FR", "venta_u": 5, "obj_mes": 3.3, "pct_cumpl": 150.0, "alameda": 4, "grupo_b": 1, "pct_alam": 80.0, "stock": 11, "cobertura": 2.2, "clasif": "📈 SOBRE RINDE", "proyeccion": 12, "pct_proy": 387.5, "venta_ytd": 5, "obj_ytd": 3.3, "pct_ytd": 150.0}, {"sector": "EQUIPAM.", "rubro": "HELVITRINA", "art": 16391, "desc": "NUSELUJ HELADERA VITRINA AMIGA 2.0MT TERCIO HP NEG", "venta_u": 5, "obj_mes": 4.2, "pct_cumpl": 120.0, "alameda": 2, "grupo_b": 3, "pct_alam": 40.0, "stock": 33, "cobertura": 6.6, "clasif": "📈 SOBRE RINDE", "proyeccion": 12, "pct_proy": 310.0, "venta_ytd": 5, "obj_ytd": 4.2, "pct_ytd": 120.0}, {"sector": "EQUIPAM.", "rubro": "VERTICAL CONGELADOS", "art": 16048, "desc": "FAM EXHIBIDORA VERTICAL CONG MENOS12 A 20 FAMV420B", "venta_u": 5, "obj_mes": 3.0, "pct_cumpl": 166.7, "alameda": 0, "grupo_b": 5, "pct_alam": 0.0, "stock": 8, "cobertura": 1.6, "clasif": "📈 SOBRE RINDE", "proyeccion": 12, "pct_proy": 430.6, "venta_ytd": 5, "obj_ytd": 3.0, "pct_ytd": 166.7}, {"sector": "EQUIPAM.", "rubro": "VERTICAL CONGELADOS", "art": 16347, "desc": "INELRO CONSERVADORA VERTICAL CONGE BT 577LT NEGRO", "venta_u": 3, "obj_mes": 0.0, "pct_cumpl": null, "alameda": 3, "grupo_b": 0, "pct_alam": 100.0, "stock": 9, "cobertura": 3.0, "clasif": "📈 SOBRE RINDE", "proyeccion": 7, "pct_proy": null, "venta_ytd": 3, "obj_ytd": 0.0, "pct_ytd": null}, {"sector": "EQUIPAM.", "rubro": "VERTICAL CONGELADOS", "art": 16345, "desc": "INELRO EXHIBIDORA VERTICAL BT57 NEGRO 580LTS FSGPF", "venta_u": 1, "obj_mes": 0.0, "pct_cumpl": null, "alameda": 1, "grupo_b": 0, "pct_alam": 100.0, "stock": 6, "cobertura": 6.0, "clasif": "📈 SOBRE RINDE", "proyeccion": 2, "pct_proy": null, "venta_ytd": 1, "obj_ytd": 0.0, "pct_ytd": null}];
+
+// Agrupar por rubro respetando el orden del servidor (peor primero)
+var RUBRO_ORDER = ["AMASADORAS RAPIDAS", "HORNOS PIZZEROS", "FREEZER", "FREIDORA AUTOMATICA", "HELADERABAJOMESADA", "COCINAS", "HELVITRINA", "HORNOS CONVECTORES", "FREIDORAS", "VERTICALES", "BATEACARNICERA", "FREIDORAS ELECTRICAS", "VERTICAL CONGELADOS", "COCINA GASTRONOMICA"];
+
+function fmtPct(v){
+  if(v===null||v===undefined) return '—';
+  return v.toFixed(1)+'%';
+}
+function fmtU(v){
+  if(v===null||v===undefined||v==='—') return '—';
+  return Number(v).toLocaleString('es-AR');
+}
+function colorClass(pct){
+  if(pct===null||pct===undefined) return '';
+  if(pct>=90) return 'c-grn';
+  if(pct>=60) return 'c-amb';
+  return 'c-red';
+}
+function barColor(pct){
+  if(pct===null||pct===undefined) return '#aaa';
+  if(pct>=90) return '#27ae60';
+  if(pct>=60) return '#e67e22';
+  return '#c0392b';
+}
+function rubroColorClass(avgPct){
+  if(avgPct>=90) return 'green';
+  if(avgPct>=60) return 'amber';
+  return 'red';
+}
+function statusBadge(pct, label){
+  if(pct===null||pct===undefined) return '<span class="status-badge badge-gray">—</span>';
+  if(pct>=120) return '<span class="status-badge s-over">📈 '+label+'</span>';
+  if(pct>=90)  return '<span class="status-badge s-green">✅ '+label+'</span>';
+  if(pct>=60)  return '<span class="status-badge s-amber">⚠️ '+label+'</span>';
+  return              '<span class="status-badge s-red">🔴 '+label+'</span>';
+}
+function proyStatusBadge(pct){
+  return statusBadge(pct, 'Proyección');
+}
+
+var currentFilter = 'all';
+
+function prodMatchFilter(prod){
+  if(currentFilter==='all') return true;
+  var p = prod.pct_proy;
+  if(currentFilter==='red')   return p!==null && p<60;
+  if(currentFilter==='amber') return p!==null && p>=60 && p<90;
+  if(currentFilter==='green') return p!==null && p>=90;
+  return true;
+}
+
+function renderAll(){
+  var wrap = document.getElementById('rubros-wrap');
+  var html = '';
+
+  for(var ri=0;ri<RUBRO_ORDER.length;ri++){
+    var rubro = RUBRO_ORDER[ri];
+    var prods = DATA.filter(function(p){return p.rubro===rubro && prodMatchFilter(p);});
+    if(prods.length===0) continue;
+
+    // Métricas del rubro
+    var vals  = prods.map(function(p){return p.pct_proy;}).filter(function(v){return v!==null;});
+    var avg   = vals.length ? vals.reduce(function(a,b){return a+b;},0)/vals.length : null;
+    var cc    = rubroColorClass(avg);
+    var n_nc  = prods.filter(function(p){return p.pct_proy!==null && p.pct_proy<60;}).length;
+    var n_rsk = prods.filter(function(p){return p.pct_proy!==null && p.pct_proy>=60 && p.pct_proy<90;}).length;
+    var n_ok  = prods.filter(function(p){return p.pct_proy!==null && p.pct_proy>=90;}).length;
+    var totalU= prods.reduce(function(a,p){return a+(p.venta_u||0);},0);
+    var totalO= prods.reduce(function(a,p){return a+(p.obj_mes||0);},0);
+
+    html += '<div class="rubro-card open" id="rc-'+ri+'">';
+
+    // Header del rubro
+    html += '<div class="rubro-header '+cc+'" onclick="toggleCard('rc-'+ri+'')">';
+    html +=   '<span class="rubro-name">'+rubro+'</span>';
+    html +=   '<span class="rubro-stats">';
+    html +=     '<span class="rubro-count">'+totalU+' / '+totalO.toFixed(0)+' u</span>';
+    if(n_nc>0)  html += '<span class="rubro-badge badge-red">'+n_nc+' sin cumplir</span>';
+    if(n_rsk>0) html += '<span class="rubro-badge badge-amber">'+n_rsk+' en riesgo</span>';
+    if(n_ok>0)  html += '<span class="rubro-badge badge-green">'+n_ok+' ok</span>';
+    html +=   '</span>';
+    html +=   '<span class="chevron">▼</span>';
+    html += '</div>';
+
+    // Tabla de productos
+    html += '<div class="prod-table-wrap">';
+    html += '<table class="prod-table">';
+    html += '<thead><tr>';
+    html += '<th>Art.</th>';
+    html += '<th>Descripción</th>';
+    html += '<th class="r">Venta</th>';
+    html += '<th class="r">Objetivo</th>';
+    html += '<th>Cumpl. actual</th>';
+    html += '<th>Proyección</th>';
+    html += '<th class="r">Stock</th>';
+    html += '<th class="r">Cob. (m)</th>';
+    html += '</tr></thead>';
+    html += '<tbody>';
+
+    // Ordenar productos: peor proyección primero
+    prods.sort(function(a,b){
+      var pa = a.pct_proy!==null?a.pct_proy:999;
+      var pb = b.pct_proy!==null?b.pct_proy:999;
+      return pa-pb;
+    });
+
+    for(var pi=0;pi<prods.length;pi++){
+      var p    = prods[pi];
+      var bc   = barColor(p.pct_proy);
+      var barW = Math.min(p.pct_cumpl||0, 100);
+      var prjW = Math.min(p.pct_proy||0, 100);
+      var ccPc = colorClass(p.pct_cumpl);
+      var ccPp = colorClass(p.pct_proy);
+      var cobCls = (p.cobertura!==null && p.cobertura<1.5) ? 'cob-warn' : 'cob-ok';
+      var cobTxt = p.cobertura!==null ? p.cobertura.toFixed(1) : '—';
+      if(p.cobertura!==null && p.cobertura<1.5) cobTxt += ' ⚠️';
+
+      html += '<tr>';
+      html += '<td data-label="Art">'+p.art+'</td>';
+      html += '<td class="desc" data-label="Descripción">'+p.desc+'</td>';
+      html += '<td class="r" data-label="Venta"><span class="'+ccPc+'">'+fmtU(p.venta_u)+'</span></td>';
+      html += '<td class="r" data-label="Obj">'+fmtU(p.obj_mes)+'</td>';
+
+      // Barra mini
+      html += '<td data-label="Cumpl.">';
+      html +=   '<div class="mini-bar-wrap">';
+      html +=     '<div class="mini-bar-track">';
+      html +=       '<div class="mini-bar-proj" style="width:'+prjW+'%;background:'+bc+'"></div>';
+      html +=       '<div class="mini-bar-fill" style="width:'+barW+'%;background:'+bc+'"></div>';
+      if(barW<100) html += '<div class="mini-bar-100"></div>';
+      html +=     '</div>';
+      html +=     '<div class="mini-pct '+ccPc+'">'+fmtPct(p.pct_cumpl)+'</div>';
+      html +=   '</div>';
+      html += '</td>';
+
+      // Proyección
+      html += '<td data-label="Proyección">'+proyStatusBadge(p.pct_proy)+'<br>';
+      html +=   '<span style="font-size:10px;color:#888;">'+fmtU(p.proyeccion)+' u proy.</span></td>';
+
+      html += '<td class="r" data-label="Stock">'+fmtU(p.stock)+'</td>';
+      html += '<td class="r" data-label="Cobertura"><span class="'+cobCls+'">'+cobTxt+'</span></td>';
+      html += '</tr>';
+    }
+
+    html += '</tbody></table>';
+    html += '</div>'; // prod-table-wrap
+    html += '</div>'; // rubro-card
+  }
+
+  wrap.innerHTML = html;
+}
+
+function setFilter(f, btn){
+  currentFilter = f;
+  document.querySelectorAll('.filter-btn').forEach(function(b){b.classList.remove('active');});
+  btn.classList.add('active');
+  renderAll();
+}
+
+function toggleCard(id){
+  var card = document.getElementById(id);
+  if(card) card.classList.toggle('open');
+}
+
+function toggleAll(open){
+  document.querySelectorAll('.rubro-card').forEach(function(c){
+    if(open) c.classList.add('open');
+    else c.classList.remove('open');
+  });
+}
+
+renderAll();
+</script>
+</body>
+</html>
