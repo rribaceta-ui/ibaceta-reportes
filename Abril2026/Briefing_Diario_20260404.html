@@ -1,0 +1,224 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>Briefing Diario — 04/04/2026 · IBACETA</title>
+<link href="https://fonts.googleapis.com/css2?family=Montserrat:wght@400;600;700;800&display=swap" rel="stylesheet">
+<style>
+:root {
+  --bg:     #0d1117;
+  --bg2:    #161b22;
+  --bg3:    #1c2128;
+  --border: #30363d;
+  --text:   #e6edf3;
+  --muted:  #8b949e;
+}
+* { margin:0; padding:0; box-sizing:border-box; }
+body {
+  background:var(--bg);
+  color:var(--text);
+  font-family:'Montserrat',Arial,sans-serif;
+  font-size:14px;
+  line-height:1.7;
+  min-height:100vh;
+}
+
+/* HEADER */
+.header {
+  background:var(--bg2);
+  border-bottom:1px solid var(--border);
+  padding:16px 32px;
+  display:flex;
+  align-items:center;
+  gap:16px;
+  position:sticky; top:0; z-index:100;
+}
+.logo { font-size:22px; font-weight:800; letter-spacing:1px; color:#e6edf3; }
+.logo span { color:#F1891B; }
+.header-badge {
+  background:var(--bg3);
+  border:1px solid var(--border);
+  border-radius:6px;
+  padding:4px 12px;
+  font-size:11px;
+  color:var(--muted);
+}
+.header-date { margin-left:auto; font-size:11px; color:var(--muted); }
+
+/* CONTENIDO */
+.container { max-width:860px; margin:0 auto; padding:32px 24px; }
+
+.titulo-briefing {
+  font-size:20px;
+  font-weight:800;
+  color:#e6edf3;
+  margin-bottom:24px;
+  padding-bottom:12px;
+  border-bottom:2px solid #F1891B;
+}
+
+/* SECCIONES */
+.seccion {
+  background:var(--bg2);
+  border:1px solid var(--border);
+  border-left:4px solid var(--sec-color, #00b4d8);
+  border-radius:8px;
+  margin-bottom:20px;
+  overflow:hidden;
+}
+.sec-header {
+  display:flex;
+  align-items:center;
+  gap:10px;
+  padding:12px 20px;
+  background:var(--bg3);
+  border-bottom:1px solid var(--border);
+}
+.sec-icon { font-size:18px; }
+.sec-title {
+  font-size:12px;
+  font-weight:800;
+  text-transform:uppercase;
+  letter-spacing:1px;
+  color:var(--sec-color, #00b4d8);
+}
+.sec-body {
+  padding:16px 20px;
+}
+
+/* TEXTO */
+p { margin-bottom:10px; color:#c9d1d9; }
+strong { color:#e6edf3; font-weight:700; }
+em { color:#8b949e; }
+code {
+  background:#1c2128;
+  border:1px solid #30363d;
+  border-radius:4px;
+  padding:1px 6px;
+  font-size:12px;
+  font-family:monospace;
+  color:#79c0ff;
+}
+
+/* LISTA */
+.lista {
+  list-style:none;
+  padding:0;
+  margin:0;
+}
+.lista li {
+  padding:8px 0 8px 16px;
+  border-bottom:1px solid var(--border);
+  color:#c9d1d9;
+  position:relative;
+}
+.lista li:last-child { border-bottom:none; }
+.lista li::before {
+  content:'›';
+  position:absolute;
+  left:0;
+  color:var(--sec-color, #8b949e);
+  font-weight:700;
+}
+
+.subtitulo {
+  font-size:13px;
+  font-weight:700;
+  color:#8b949e;
+  margin:12px 0 6px;
+  text-transform:uppercase;
+  letter-spacing:.5px;
+}
+
+.sep { height:6px; }
+
+/* FOOTER */
+.footer {
+  text-align:center;
+  padding:24px;
+  font-size:11px;
+  color:var(--muted);
+  border-top:1px solid var(--border);
+  margin-top:32px;
+}
+.footer b { color:#F1891B; }
+</style>
+</head>
+<body>
+
+<div class="header">
+  <div class="logo">IBA<span>CETA</span></div>
+  <div class="header-badge">📋 Briefing Diario</div>
+  <div class="header-date">Generado: 04/04/2026 09:26</div>
+</div>
+
+<div class="container">
+<h1 class="titulo-briefing">BRIEFING INTERPRETADO — 02/04/2026 00:15</h1>
+<div class="sep"></div>
+<div class="seccion" style="--sec-color:#00b4d8"><div class="sec-header"><span class="sec-icon">📊</span><span class="sec-title">SITUACIÓN GENERAL</span></div><div class="sec-body">
+<div class="sep"></div>
+<p>Abril arranca con solo 2 días de actividad y $315.6M facturados sobre objetivos mensuales que superan ampliamente ese nivel en cada salón. El mes viene después de un marzo muy sólido ($2.11B, +77% YoY), lo que eleva la vara de comparación. Sin dato YoY disponible aún para abril, el foco debe estar en el ritmo de arranque, y ese ritmo hoy es mayoritariamente preocupante.</p>
+<div class="sep"></div>
+</div></div>
+<div class="sep"></div>
+<div class="seccion" style="--sec-color:#f85149"><div class="sec-header"><span class="sec-icon">🚨</span><span class="sec-title">ALERTAS CRÍTICAS</span></div><div class="sec-body">
+<div class="sep"></div>
+<ul class="lista">
+<li><strong>El canal Web está en terreno negativo</strong>: facturación de -$602K MTD es una señal de anomalía operativa, no simplemente bajo rendimiento. Puede indicar devoluciones, notas de crédito o un error de carga. Requiere revisión inmediata antes de cualquier otra lectura.</li>
+</ul>
+<div class="sep"></div>
+<ul class="lista">
+<li><strong>San Martín, Río Cuarto, Villa Krause, San Rafael, San Luis y Villa Mercedes están todos en rojo profundo</strong>, con ritmos entre 0.34 y 0.70. No es solo "día 2": San Martín con ritmo 0.34 proyecta a menos de la mitad del objetivo mensual. Varios de estos salones ni siquiera superan su punto de equilibrio proyectado al ritmo actual.</li>
+</ul>
+<div class="sep"></div>
+<ul class="lista">
+<li><strong>28 de 29 rubros en riesgo en unidades</strong>, y ninguno cumplido. Calefacción (1.7%), Ventiladores (2.7%) y Microondas (5.6%) están prácticamente sin movimiento, lo cual puede ser estacional en algunos casos, pero la amplitud del problema es estructural para el mes.</li>
+</ul>
+<div class="sep"></div>
+<ul class="lista">
+<li><strong>Cocina Gastronómica registra -1 unidad</strong>: venta negativa en un rubro de equipamiento de alto valor. Devolución o reversión que debe identificarse y resolverse hoy.</li>
+</ul>
+<div class="sep"></div>
+<ul class="lista">
+<li><strong>San Juan no cubre su punto de equilibrio</strong> ($25.5M vs $270.0M requerido) y además su único vendedor destacado, JVILLARRUEL, concentra prácticamente toda la facturación del salón. Alta dependencia de un solo operador.</li>
+</ul>
+<div class="sep"></div>
+</div></div>
+<div class="sep"></div>
+<div class="seccion" style="--sec-color:#3fb950"><div class="sec-header"><span class="sec-icon">✅</span><span class="sec-title">PUNTOS DESTACADOS</span></div><div class="sec-body">
+<div class="sep"></div>
+<ul class="lista">
+<li><strong>Mercado Libre es el único canal en verde</strong>, con ritmo 1.61 y margen del 34.3%, el más alto de toda la red excepto Web (cuyo dato es distorsionado). CPELLEGRINUZZI lidera con $31.1M y 32 operaciones, mostrando consistencia y volumen. El canal digital sano compensa en parte el arrastre de los físicos.</li>
+</ul>
+<div class="sep"></div>
+<ul class="lista">
+<li><strong>Hornos Convectores tiene el margen más alto de los top rubros (44.4%)</strong> y ya acumula $14.3M. A pesar de estar en riesgo en unidades, el mix precio/margen es muy favorable: cada operación que se cierre en este rubro impacta significativamente en el resultado.</li>
+</ul>
+<div class="sep"></div>
+<ul class="lista">
+<li><strong>FMURUA en Alameda</strong> con $48.3M, 24 operaciones y ticket promedio de $2.0M es el referente individual del período. El salón Alameda, aunque en amarillo, es el que más se acerca al ritmo esperado y sostiene el consolidado de la cadena.</li>
+</ul>
+<div class="sep"></div>
+</div></div>
+<div class="sep"></div>
+<div class="seccion" style="--sec-color:#f8961e"><div class="sec-header"><span class="sec-icon">📦</span><span class="sec-title">STOCK Y COMPRAS</span></div><div class="sec-body">
+<div class="sep"></div>
+<p>Dos artículos requieren atención antes de que el mes tome velocidad: el <strong>Horno Convector HC 470 Gas</strong> (sin cobertura registrada) y el <strong>Mostrador Ciego Frider 2.41mt</strong> (cobertura de solo 0.5 días). Dado que Hornos Convectores es uno de los rubros con mejor margen del período, quedarse sin stock en esta categoría tiene costo directo en rentabilidad. La compra del HC 470 debería gestionarse hoy.</p>
+<div class="sep"></div>
+</div></div>
+<div class="sep"></div>
+<div class="seccion" style="--sec-color:#7209b7"><div class="sec-header"><span class="sec-icon">🎯</span><span class="sec-title">FOCO DEL DÍA</span></div><div class="sec-body">
+<div class="sep"></div>
+<p><strong>1. Investigar y resolver la situación del canal Web</strong> ($-602K): determinar si es un error de registro, una devolución puntual o un problema operativo mayor. Este número contamina el consolidado y puede estar ocultando una incidencia real.</p>
+<div class="sep"></div>
+<p>**2. Activar alerta comercial en</p>
+<div class="sep"></div>
+</div></div>
+<p><em>Generado automáticamente por generar_contexto.py · 02/04/2026 00:15</em></p>
+<div class="sep"></div>
+</div>
+
+<div class="footer">IBACETA &mdash; <b>Gerente Comercial Digital</b> &middot; Briefing Automático</div>
+</body>
+</html>
