@@ -200,11 +200,11 @@ body { background:var(--bg); color:var(--text); font-family:'Segoe UI',Arial,san
 <div class="header">
   <div class="header-left">
     <h1>🏪 Vendedores IBACETA — Abril 2026</h1>
-    <p>Generado 04/04/2026 21:40</p>
+    <p>Generado 04/04/2026 22:05</p>
   </div>
   <div class="header-right" style="flex-direction:column;align-items:flex-end;gap:8px">
     <div style="display:flex;gap:10px;align-items:center">
-      <div class="gen-badge">Generado: 04/04/2026 21:40</div>
+      <div class="gen-badge">Generado: 04/04/2026 22:05</div>
       <div class="period-toggle">
         <button class="period-btn active" onclick="setModo('mtd')">Período</button>
         <button class="period-btn"        onclick="setModo('ytd')">Acumulado</button>
@@ -493,11 +493,11 @@ function renderSalonFilterList() {
   var html = '<div class="sf-item sf-all" onclick="salonFilterToggleAll()">';
   html += '<input type="checkbox" id="sf-chk-all"' + (allChecked ? ' checked' : '') + ' onclick="event.stopPropagation();salonFilterToggleAll()">';
   html += '<label for="sf-chk-all" style="cursor:pointer">Seleccionar todos</label></div>';
-  salones.forEach(function(nombre) {
+  salones.forEach(function(nombre, idx) {
     var chk = SALON_MULTI_FILTER.size === 0 || SALON_MULTI_FILTER.has(nombre);
-    var id = 'sf-chk-' + nombre.replace(/\s+/g,'_');
-    html += '<div class="sf-item" onclick="salonFilterToggle('' + nombre.replace(/'/g,"\'") + '')">';
-    html += '<input type="checkbox" id="' + id + '"' + (chk ? ' checked' : '') + ' onclick="event.stopPropagation();salonFilterToggle('' + nombre.replace(/'/g,"\'") + '')">';
+    var id = 'sf-chk-' + idx;
+    html += '<div class="sf-item" data-nom="' + nombre + '" onclick="salonFilterToggle(this.dataset.nom)">';
+    html += '<input type="checkbox" id="' + id + '"' + (chk ? ' checked' : '') + ' onclick="event.stopPropagation();salonFilterToggle(this.parentElement.dataset.nom)">';
     html += '<label for="' + id + '" style="cursor:pointer">' + nombre + '</label></div>';
   });
   document.getElementById('sf-list').innerHTML = html;
