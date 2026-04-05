@@ -155,6 +155,43 @@ body { background:var(--bg); color:var(--text); font-family:'Segoe UI',Arial,san
   .grid-2, .grid-3, .grid-2-1, .grid-1-2 { grid-template-columns:1fr; }
   .header { flex-direction:column; gap:10px; align-items:flex-start; }
 }
+/* ── FILTRO SALÓN (Power BI style) ── */
+.salon-filter-wrap { position:relative; display:inline-block; margin-bottom:12px; }
+.salon-filter-btn {
+  background:var(--bg3); border:1px solid var(--border); border-radius:6px;
+  padding:7px 14px; font-size:12px; font-weight:600; color:var(--text);
+  cursor:pointer; display:flex; align-items:center; gap:8px; min-width:220px;
+  font-family:inherit;
+}
+.salon-filter-btn:hover { border-color:var(--accent); }
+.salon-filter-btn .sf-arrow { margin-left:auto; font-size:10px; transition:transform .2s; }
+.salon-filter-btn.open .sf-arrow { transform:rotate(180deg); }
+.salon-filter-dropdown {
+  display:none; position:absolute; top:calc(100% + 4px); left:0; z-index:200;
+  background:var(--bg2); border:1px solid var(--border); border-radius:8px;
+  min-width:240px; max-height:320px; overflow:hidden;
+  box-shadow:0 8px 24px rgba(0,0,0,.4);
+}
+.salon-filter-dropdown.open { display:flex; flex-direction:column; }
+.sf-search {
+  padding:8px 10px; border:none; border-bottom:1px solid var(--border);
+  background:var(--bg3); color:var(--text); font-size:12px; outline:none;
+  font-family:inherit;
+}
+.sf-list { overflow-y:auto; max-height:240px; padding:4px 0; }
+.sf-item {
+  display:flex; align-items:center; gap:8px;
+  padding:7px 12px; cursor:pointer; font-size:12px; color:var(--text);
+}
+.sf-item:hover { background:var(--bg3); }
+.sf-item input[type=checkbox] { accent-color:var(--accent); width:14px; height:14px; cursor:pointer; }
+.sf-item.sf-all { border-bottom:1px solid var(--border); font-weight:700; color:var(--accent); }
+.sf-badge {
+  display:inline-block; background:var(--accent); color:#000;
+  border-radius:10px; font-size:10px; font-weight:800;
+  padding:1px 7px; margin-left:4px;
+}
+.kpi-filter-active { border-color:var(--accent) !important; }
 </style>
 </head>
 <body>
@@ -163,11 +200,11 @@ body { background:var(--bg); color:var(--text); font-family:'Segoe UI',Arial,san
 <div class="header">
   <div class="header-left">
     <h1>🏪 Vendedores IBACETA — Abril 2026</h1>
-    <p>Generado 04/04/2026 21:05</p>
+    <p>Generado 04/04/2026 21:40</p>
   </div>
   <div class="header-right" style="flex-direction:column;align-items:flex-end;gap:8px">
     <div style="display:flex;gap:10px;align-items:center">
-      <div class="gen-badge">Generado: 04/04/2026 21:05</div>
+      <div class="gen-badge">Generado: 04/04/2026 21:40</div>
       <div class="period-toggle">
         <button class="period-btn active" onclick="setModo('mtd')">Período</button>
         <button class="period-btn"        onclick="setModo('ytd')">Acumulado</button>
@@ -188,6 +225,20 @@ body { background:var(--bg); color:var(--text); font-family:'Segoe UI',Arial,san
 
 <!-- ══════════════════ TAB: RESUMEN ══════════════════ -->
 <div class="tab-panel active" id="panel-resumen">
+  <div style="display:flex;align-items:center;gap:12px;margin-bottom:4px">
+    <div class="salon-filter-wrap" id="salon-filter-wrap">
+      <button class="salon-filter-btn" id="salon-filter-btn" onclick="toggleSalonFilter()">
+        <span>🏪</span>
+        <span id="sf-btn-label">Todos los salones</span>
+        <span class="sf-arrow">▼</span>
+      </button>
+      <div class="salon-filter-dropdown" id="salon-filter-dropdown">
+        <input class="sf-search" id="sf-search" placeholder="🔍  Buscar salón..." oninput="renderSalonFilterList()" />
+        <div class="sf-list" id="sf-list"></div>
+      </div>
+    </div>
+    <div id="sf-active-label" style="font-size:11px;color:var(--muted)"></div>
+  </div>
   <div class="kpi-grid" id="kpi-grid"></div>
   <div class="grid-2-1" style="margin-bottom:16px">
     <div class="card">
@@ -409,10 +460,127 @@ function switchTab(tab, btn) {
   btn.classList.add('active');
 }
 
+// ── FILTRO MULTI-SALÓN ────────────────────────────────────────────────────
+var SALON_MULTI_FILTER = new Set(); // vacío = todos
+
+function toggleSalonFilter() {
+  var btn = document.getElementById('salon-filter-btn');
+  var dd  = document.getElementById('salon-filter-dropdown');
+  btn.classList.toggle('open');
+  dd.classList.toggle('open');
+  if (dd.classList.contains('open')) {
+    renderSalonFilterList();
+    document.getElementById('sf-search').focus();
+  }
+}
+
+// Cerrar al hacer click fuera
+document.addEventListener('click', function(e) {
+  var wrap = document.getElementById('salon-filter-wrap');
+  if (wrap && !wrap.contains(e.target)) {
+    document.getElementById('salon-filter-btn').classList.remove('open');
+    document.getElementById('salon-filter-dropdown').classList.remove('open');
+  }
+});
+
+function renderSalonFilterList() {
+  var d = getData();
+  var q = (document.getElementById('sf-search').value || '').toLowerCase();
+  var salones = d.salones.map(function(s) { return s.SALON; }).filter(function(n) {
+    return !q || n.toLowerCase().indexOf(q) >= 0;
+  });
+  var allChecked = SALON_MULTI_FILTER.size === 0;
+  var html = '<div class="sf-item sf-all" onclick="salonFilterToggleAll()">';
+  html += '<input type="checkbox" id="sf-chk-all"' + (allChecked ? ' checked' : '') + ' onclick="event.stopPropagation();salonFilterToggleAll()">';
+  html += '<label for="sf-chk-all" style="cursor:pointer">Seleccionar todos</label></div>';
+  salones.forEach(function(nombre) {
+    var chk = SALON_MULTI_FILTER.size === 0 || SALON_MULTI_FILTER.has(nombre);
+    var id = 'sf-chk-' + nombre.replace(/\s+/g,'_');
+    html += '<div class="sf-item" onclick="salonFilterToggle('' + nombre.replace(/'/g,"\'") + '')">';
+    html += '<input type="checkbox" id="' + id + '"' + (chk ? ' checked' : '') + ' onclick="event.stopPropagation();salonFilterToggle('' + nombre.replace(/'/g,"\'") + '')">';
+    html += '<label for="' + id + '" style="cursor:pointer">' + nombre + '</label></div>';
+  });
+  document.getElementById('sf-list').innerHTML = html;
+}
+
+function salonFilterToggleAll() {
+  SALON_MULTI_FILTER.clear();
+  renderSalonFilterList();
+  applyFiltroDeSalon();
+}
+
+function salonFilterToggle(nombre) {
+  var d = getData();
+  var todos = d.salones.map(function(s) { return s.SALON; });
+  // Si estaba en "todos", pasar a "todos excepto este"
+  if (SALON_MULTI_FILTER.size === 0) {
+    todos.forEach(function(n) { if (n !== nombre) SALON_MULTI_FILTER.add(n); });
+  } else if (SALON_MULTI_FILTER.has(nombre)) {
+    SALON_MULTI_FILTER.delete(nombre);
+    if (SALON_MULTI_FILTER.size === 0) SALON_MULTI_FILTER.clear(); // ninguno = todos
+  } else {
+    SALON_MULTI_FILTER.add(nombre);
+    // Si ahora están todos, volver a "todos"
+    if (SALON_MULTI_FILTER.size === todos.length) SALON_MULTI_FILTER.clear();
+  }
+  renderSalonFilterList();
+  applyFiltroDeSalon();
+}
+
+function applyFiltroDeSalon() {
+  var n = SALON_MULTI_FILTER.size;
+  var btn = document.getElementById('salon-filter-btn');
+  var lbl = document.getElementById('sf-btn-label');
+  var act = document.getElementById('sf-active-label');
+  if (n === 0) {
+    lbl.textContent = 'Todos los salones';
+    btn.classList.remove('kpi-filter-active');
+    act.textContent = '';
+  } else {
+    lbl.textContent = n === 1 ? Array.from(SALON_MULTI_FILTER)[0] : n + ' salones seleccionados';
+    btn.classList.add('kpi-filter-active');
+    act.textContent = 'Mostrando KPIs filtrados';
+  }
+  renderKPIs();
+  renderHbarSalones();
+}
+
+function getFilteredKPI() {
+  var d = getData();
+  if (SALON_MULTI_FILTER.size === 0) return d.kpi;
+  var filtered = d.salones.filter(function(s) { return SALON_MULTI_FILTER.has(s.SALON); });
+  var total    = filtered.reduce(function(a,s) { return a+(s.total||0); }, 0);
+  var base_all = filtered.reduce(function(a,s) { return a+(s.base_all||0); }, 0);
+  var costo    = filtered.reduce(function(a,s) { return a+(s.costo||0); }, 0);
+  var uds      = filtered.reduce(function(a,s) { return a+(s.uds||0); }, 0);
+  var tickets  = filtered.reduce(function(a,s) { return a+(s.tickets||0); }, 0);
+  var intereses= filtered.reduce(function(a,s) { return a+(s.intereses||0); }, 0);
+  var iva      = filtered.reduce(function(a,s) { return a+(s.iva||0); }, 0);
+  var base_mup = filtered.reduce(function(a,s) { return a+(s.base||0); }, 0);
+  var costo_mup= filtered.reduce(function(a,s) { return a+(s.costo_mup||0); }, 0);
+  var margen   = base_all - costo;
+  return {
+    total:      total,
+    costo:      costo,
+    margen:     margen,
+    margen_pct: base_all > 0 ? margen/base_all : 0,
+    uds:        uds,
+    tickets:    tickets,
+    ticket_prom:tickets > 0 ? total/tickets : 0,
+    mup:        costo_mup > 0 ? Math.round(base_mup/costo_mup*100)/100 : 0,
+    iva:        iva,
+    intereses:  intereses,
+    tarjeta_pct:total > 0 ? intereses/total : 0,
+    vendedores: filtered.reduce(function(a,s) { return a+(s.vendedores||0); }, 0),
+    delta_venta: null,
+    delta_margen:null,
+  };
+}
+
 // ── RENDER KPIs ───────────────────────────────────────────────────────────
 function renderKPIs() {
   var d = getData();
-  var k = d.kpi;
+  var k = getFilteredKPI();
   var cards = [
     { label:'VENTA',         value:fmtM(k.total),      delta:null,            sub:'con IVA e intereses',   color:'#6a0dad' },
     { label:'VENTA NETA SF', value:fmtM(k.total-(k.iva||0)-(k.intereses||0)), delta:k.delta_venta, sub:'sin IVA, sin intereses · YoY vs 2025', color:'#00b4d8' },
@@ -447,7 +615,9 @@ function renderHbarSalones() {
     var sv = s.total||s.venta;
     var pct = max_v ? (sv/max_v*100) : 0;
     var c = salonColor(s.SALON);
-    html += '<div class="hbar-row">';
+    var activo = SALON_MULTI_FILTER.size === 0 || SALON_MULTI_FILTER.has(s.SALON);
+    var opacity = activo ? '1' : '0.25';
+    html += '<div class="hbar-row" style="opacity:'+opacity+'">';
     html += '<div class="hbar-rank">'+s.rank+'</div>';
     html += '<div class="hbar-label" title="'+s.SALON+'">'+s.SALON+'</div>';
     html += '<div class="hbar-track"><div class="hbar-fill" style="width:'+pct+'%;background:'+c+'"></div></div>';
