@@ -34,13 +34,20 @@ body { background:var(--bg); color:var(--text); font-family:'Segoe UI',Arial,san
 .period-btn { padding:6px 16px; font-size:12px; font-weight:600; cursor:pointer; border:none; background:transparent; color:var(--muted); transition:all .2s; }
 .period-btn.active { background:var(--accent); color:#000; }
 
-/* ── PERIOD SELECTOR (Ibaceta periods) ── */
-.per-selector { display:flex; gap:4px; flex-wrap:wrap; align-items:center; }
-.per-pill { padding:4px 12px; font-size:11px; font-weight:600; cursor:pointer; border:1.5px solid var(--border); border-radius:20px; background:transparent; color:var(--muted); transition:all .15s; font-family:inherit; }
-.per-pill:hover { border-color:var(--accent); color:var(--accent); }
-.per-pill.active { background:var(--accent); border-color:var(--accent); color:#000; font-weight:700; }
-.per-pill.cerrado { opacity:.75; }
-.per-pill.actual::after { content:' ●'; font-size:8px; vertical-align:super; }
+/* ── PERIOD MULTI-SELECT FILTER ── */
+.per-filter-wrap { position:relative; display:inline-block; }
+.per-filter-btn { display:flex; align-items:center; gap:8px; padding:6px 14px; background:var(--bg3); border:1.5px solid var(--border); border-radius:20px; color:var(--text); font-size:11px; font-weight:600; cursor:pointer; font-family:inherit; transition:all .15s; white-space:nowrap; }
+.per-filter-btn:hover { border-color:var(--accent); }
+.per-filter-btn.open { border-color:var(--accent); }
+.per-filter-btn.multi-active { border-color:var(--accent); background:rgba(0,180,216,.12); color:var(--accent); }
+.per-filter-btn .pf-arrow { margin-left:8px; font-size:10px; transition:transform .2s; }
+.per-filter-btn.open .pf-arrow { transform:rotate(180deg); }
+.per-filter-dropdown2 { display:none; position:absolute; top:calc(100% + 6px); right:0; min-width:220px; background:var(--bg2); border:1.5px solid var(--border); border-radius:8px; z-index:300; box-shadow:0 8px 24px rgba(0,0,0,.5); overflow-y:auto; max-height:300px; }
+.per-filter-dropdown2.open { display:block; }
+.pf-item { display:flex; align-items:center; gap:8px; padding:8px 12px; cursor:pointer; font-size:12px; color:var(--text); }
+.pf-item:hover { background:var(--bg3); }
+.pf-item input[type=checkbox] { accent-color:var(--accent); width:14px; height:14px; cursor:pointer; flex-shrink:0; }
+.pf-item.pf-actual { font-weight:700; color:var(--accent); }
 
 /* ── TABS ── */
 .tabs { background:var(--bg2); border-bottom:1px solid var(--border); padding:0 24px; display:flex; gap:0; }
@@ -200,17 +207,24 @@ body { background:var(--bg); color:var(--text); font-family:'Segoe UI',Arial,san
 <div class="header">
   <div class="header-left">
     <h1>🏪 Vendedores IBACETA — Abril 2026</h1>
-    <p>Generado 04/04/2026 22:05</p>
+    <p>Generado 04/04/2026 22:56</p>
   </div>
   <div class="header-right" style="flex-direction:column;align-items:flex-end;gap:8px">
     <div style="display:flex;gap:10px;align-items:center">
-      <div class="gen-badge">Generado: 04/04/2026 22:05</div>
+      <div class="gen-badge">Generado: 04/04/2026 22:56</div>
       <div class="period-toggle">
         <button class="period-btn active" onclick="setModo('mtd')">Período</button>
         <button class="period-btn"        onclick="setModo('ytd')">Acumulado</button>
       </div>
     </div>
-    <div class="per-selector" id="per-selector"></div>
+    <div class="per-filter-wrap" id="per-filter-wrap">
+      <button class="per-filter-btn" id="per-filter-btn" onclick="togglePeriodoFilter()">
+        <span>📅</span><span id="pf-btn-label">Cargando...</span><span class="pf-arrow">▼</span>
+      </button>
+      <div class="per-filter-dropdown2" id="per-filter-dropdown2">
+        <div id="pf-list"></div>
+      </div>
+    </div>
   </div>
 </div>
 
@@ -406,9 +420,8 @@ const SALON_COLORS = {"Alameda": "#00b4d8", "San Juan": "#f72585", "San Martín"
 const SECTOR_COLORS = ["#00b4d8", "#7209b7", "#f72585", "#4cc9f0", "#f8961e", "#43aa8b", "#90be6d", "#577590"];
 const MESES_ES = {"1": "Enero", "2": "Febrero", "3": "Marzo", "4": "Abril", "5": "Mayo", "6": "Junio", "7": "Julio", "8": "Agosto", "9": "Septiembre", "10": "Octubre", "11": "Noviembre", "12": "Diciembre"};
 
-let _periodo_sel = 'Abril';
 let _modo = 'mtd';
-let D = TODOS_PERIODOS[_periodo_sel]?.[_modo] || Object.values(TODOS_PERIODOS)[0]?.mtd || {};
+var PERIODO_MULTI_FILTER = new Set(['Abril']);
 var CUR_SALON_FILTER = 'all';
 var CUR_SECTOR_FILTER = 'all';
 
@@ -433,22 +446,198 @@ function deltaHtml(d) {
   return '<span class="'+d.cls+'">'+d.txt+'</span>';
 }
 
-function getData() { return D; }
+// ── AGREGACIÓN MULTI-PERÍODO ──────────────────────────────────────────────
+function groupSum(arr, keyFields, sumFields) {
+  var map = {};
+  arr.forEach(function(row) {
+    var key = keyFields.map(function(f) { return (row[f] != null ? row[f] : ''); }).join('||');
+    if (!map[key]) {
+      var obj = {};
+      keyFields.forEach(function(f) { obj[f] = row[f]; });
+      sumFields.forEach(function(f) { obj[f] = 0; });
+      map[key] = obj;
+    }
+    sumFields.forEach(function(f) { map[key][f] += (row[f] || 0); });
+  });
+  return Object.values(map);
+}
 
-// ── PERIOD TOGGLE ─────────────────────────────────────────────────────────
+function getAggregatedData() {
+  var keys = Array.from(PERIODO_MULTI_FILTER);
+  if (keys.length === 0) return {};
+  var datasets = keys.map(function(k) {
+    return TODOS_PERIODOS[k] && TODOS_PERIODOS[k][_modo] ? TODOS_PERIODOS[k][_modo] : null;
+  }).filter(Boolean);
+  if (datasets.length === 0) return {};
+  if (datasets.length === 1) return datasets[0];
+
+  function kpiSum(f) { return datasets.reduce(function(a,ds) { return a + ((ds.kpi && ds.kpi[f] != null ? ds.kpi[f] : 0)); }, 0); }
+  var total     = kpiSum('total');
+  var costo     = kpiSum('costo');
+  var uds       = kpiSum('uds');
+  var tickets   = kpiSum('tickets');
+  var iva       = kpiSum('iva');
+  var intereses = kpiSum('intereses');
+  var base_all  = total - iva - intereses;
+  var margen    = base_all - costo;
+
+  var base_mup  = datasets.reduce(function(a,ds) { return a + (ds.salones||[]).reduce(function(b,s) { return b+(s.base||0); },0); },0);
+  var costo_mup = datasets.reduce(function(a,ds) { return a + (ds.salones||[]).reduce(function(b,s) { return b+(s.costo_mup||0); },0); },0);
+
+  var salonMerged = [];
+  datasets.forEach(function(ds) { salonMerged = salonMerged.concat(ds.salones || []); });
+  var salonAgg = groupSum(salonMerged, ['SALON'], ['total','base_all','base','costo','costo_mup','uds','tickets','intereses','iva']);
+  salonAgg.forEach(function(s) {
+    s.margen     = s.base_all - s.costo;
+    s.margen_pct = s.base_all > 0 ? s.margen / s.base_all : 0;
+    s.mup        = s.costo_mup > 0 ? s.base / s.costo_mup : 0;
+    s.ticket_prom= s.tickets > 0 ? s.total / s.tickets : 0;
+    s.tarjeta_pct= s.total > 0 ? s.intereses / s.total : 0;
+  });
+  salonAgg.sort(function(a,b) { return b.total - a.total; });
+  var totalSalon = salonAgg.reduce(function(a,s) { return a+s.total; },0);
+  salonAgg.forEach(function(s,i) { s.rank = i+1; s.share_venta = totalSalon>0 ? s.total/totalSalon : 0; });
+
+  var evol26Merged = [];
+  datasets.forEach(function(ds) { evol26Merged = evol26Merged.concat(ds.evol26 || []); });
+  var evol26Agg = groupSum(evol26Merged, ['MES'], ['venta','total','margen']);
+  evol26Agg.sort(function(a,b) { return a.MES - b.MES; });
+
+  var evol25Merged = [];
+  datasets.forEach(function(ds) { evol25Merged = evol25Merged.concat(ds.evol25 || []); });
+  var evol25Agg = groupSum(evol25Merged, ['MES'], ['total_prev','venta_prev']);
+  evol25Agg.sort(function(a,b) { return a.MES - b.MES; });
+
+  var rubrosMerged = [];
+  datasets.forEach(function(ds) { rubrosMerged = rubrosMerged.concat(ds.rubros || []); });
+  var rubrosAgg = groupSum(rubrosMerged, ['DESCRIPCION_RUBRO'], ['venta','costo','uds']);
+  rubrosAgg.forEach(function(r) { r.margen = r.venta - r.costo; r.margen_pct = r.venta > 0 ? r.margen/r.venta : 0; });
+  rubrosAgg.sort(function(a,b) { return b.venta - a.venta; });
+
+  var sectoresMerged = [];
+  datasets.forEach(function(ds) { sectoresMerged = sectoresMerged.concat(ds.sectores || []); });
+  var sectoresAgg = groupSum(sectoresMerged, ['DESCRIPCION_SECTOR'], ['venta','costo','uds']);
+  sectoresAgg.forEach(function(s) { s.margen = s.venta - s.costo; s.margen_pct = s.venta > 0 ? s.margen/s.venta : 0; });
+  sectoresAgg.sort(function(a,b) { return b.venta - a.venta; });
+
+  var productosMerged = [];
+  datasets.forEach(function(ds) { productosMerged = productosMerged.concat(ds.productos || []); });
+  var productosAgg = groupSum(productosMerged, ['ARTICULO'], ['venta','base','costo','uds']);
+  productosAgg.forEach(function(p) { p.margen = p.base - p.costo; p.margen_pct = p.base > 0 ? p.margen/p.base : 0; });
+  productosAgg.sort(function(a,b) { return b.venta - a.venta; });
+  productosAgg = productosAgg.slice(0, 30);
+
+  var vendMerged = [];
+  datasets.forEach(function(ds) { vendMerged = vendMerged.concat(ds.vendedores || []); });
+  var vendAgg = groupSum(vendMerged, ['NOMBRE_VENDEDOR','SALON'], ['venta','total','base_all','costo','uds','tickets']);
+  vendAgg.forEach(function(v) {
+    v.margen     = v.base_all - v.costo;
+    v.margen_pct = v.base_all > 0 ? v.margen / v.base_all : 0;
+    v.ticket_prom= v.tickets > 0 ? v.venta / v.tickets : 0;
+  });
+  vendAgg.sort(function(a,b) { return b.total - a.total; });
+  vendAgg.forEach(function(v,i) { v.rank = i+1; });
+
+  var svMerged = [];
+  datasets.forEach(function(ds) { svMerged = svMerged.concat(ds.salon_vend || []); });
+  var svAgg = groupSum(svMerged, ['SALON','NOMBRE_VENDEDOR'], ['venta','margen','uds','tickets']);
+  svAgg.forEach(function(v) { v.margen_pct = v.venta > 0 ? v.margen/v.venta : 0; v.ticket_prom = v.tickets > 0 ? v.venta/v.tickets : 0; });
+
+  var vrMerged = [];
+  datasets.forEach(function(ds) { vrMerged = vrMerged.concat(ds.vend_rubros || []); });
+  var vrAgg = groupSum(vrMerged, ['NOMBRE_VENDEDOR','DESCRIPCION_RUBRO'], ['VENTA_NETO']);
+  vrAgg.sort(function(a,b) { return b.VENTA_NETO - a.VENTA_NETO; });
+
+  return {
+    kpi: {
+      total: total, costo: costo, uds: uds, tickets: tickets, iva: iva, intereses: intereses,
+      margen: margen, margen_pct: base_all > 0 ? margen/base_all : 0,
+      ticket_prom: tickets > 0 ? total/tickets : 0,
+      mup: costo_mup > 0 ? Math.round(base_mup/costo_mup * 100)/100 : 0,
+      tarjeta_pct: total > 0 ? intereses/total : 0,
+      vendedores: vendAgg.length,
+      delta_venta: null, delta_margen: null,
+    },
+    salones:    salonAgg,
+    evol26:     evol26Agg,
+    evol25:     evol25Agg,
+    rubros:     rubrosAgg,
+    productos:  productosAgg,
+    sectores:   sectoresAgg,
+    vendedores: vendAgg,
+    salon_vend: svAgg,
+    vend_rubros: vrAgg,
+  };
+}
+
+function getData() { return getAggregatedData(); }
+
+// ── PERIOD TOGGLE (MTD/Acumulado) ─────────────────────────────────────────
 function setModo(modo) {
   _modo = modo;
-  D = TODOS_PERIODOS[_periodo_sel]?.[modo] || {};
-  document.querySelectorAll('.period-btn').forEach((b,i) =>
-    b.classList.toggle('active', (i===0 && modo==='mtd') || (i===1 && modo==='ytd')));
+  document.querySelectorAll('.period-btn').forEach(function(b,i) {
+    b.classList.toggle('active', (i===0 && modo==='mtd') || (i===1 && modo==='ytd'));
+  });
   renderAll();
 }
 
-function setPerSel(nombre) {
-  _periodo_sel = nombre;
-  D = TODOS_PERIODOS[nombre]?.[_modo] || {};
-  document.querySelectorAll('.per-pill').forEach(p =>
-    p.classList.toggle('active', p.getAttribute('data-per') === nombre));
+// ── FILTRO MULTI-PERÍODO ──────────────────────────────────────────────────
+function togglePeriodoFilter() {
+  var btn = document.getElementById('per-filter-btn');
+  var dd  = document.getElementById('per-filter-dropdown2');
+  btn.classList.toggle('open');
+  dd.classList.toggle('open');
+  if (dd.classList.contains('open')) renderPeriodoFilterList();
+}
+
+document.addEventListener('click', function(e) {
+  var wrap = document.getElementById('per-filter-wrap');
+  if (wrap && !wrap.contains(e.target)) {
+    var btn = document.getElementById('per-filter-btn');
+    var dd  = document.getElementById('per-filter-dropdown2');
+    if (btn) btn.classList.remove('open');
+    if (dd)  dd.classList.remove('open');
+  }
+});
+
+function renderPeriodoFilterList() {
+  var keys = Object.keys(TODOS_PERIODOS);
+  var html = '';
+  keys.forEach(function(nombre, idx) {
+    var chk = PERIODO_MULTI_FILTER.has(nombre);
+    var isActual = TODOS_PERIODOS[nombre] && TODOS_PERIODOS[nombre].es_actual;
+    var cls = 'pf-item' + (isActual ? ' pf-actual' : '');
+    var id = 'pf-chk-' + idx;
+    html += '<div class="' + cls + '" data-nom="' + nombre + '" onclick="periodoFilterToggle(this.dataset.nom)">';
+    html += '<input type="checkbox" id="' + id + '"' + (chk ? ' checked' : '') + ' onclick="event.stopPropagation();periodoFilterToggle(this.parentElement.dataset.nom)">';
+    html += '<label for="' + id + '" style="cursor:pointer">' + nombre + (isActual ? ' ●' : '') + '</label></div>';
+  });
+  document.getElementById('pf-list').innerHTML = html;
+}
+
+function periodoFilterToggle(nombre) {
+  if (PERIODO_MULTI_FILTER.has(nombre)) {
+    if (PERIODO_MULTI_FILTER.size > 1) PERIODO_MULTI_FILTER.delete(nombre);
+  } else {
+    PERIODO_MULTI_FILTER.add(nombre);
+  }
+  renderPeriodoFilterList();
+  applyFiltroDePeriodo();
+}
+
+function applyFiltroDePeriodo() {
+  var keys = Array.from(PERIODO_MULTI_FILTER);
+  var lbl = document.getElementById('pf-btn-label');
+  var btn = document.getElementById('per-filter-btn');
+  if (keys.length === 1) {
+    lbl.textContent = keys[0];
+    btn.classList.remove('multi-active');
+  } else {
+    lbl.textContent = keys.length + ' períodos';
+    btn.classList.add('multi-active');
+  }
+  SALON_MULTI_FILTER.clear();
+  applyFiltroDeSalon();
   renderAll();
 }
 
@@ -1119,22 +1308,11 @@ function renderAll() {
 
 renderAll();
 
-// Build period selector pills
+// Inicializar label del filtro de período
 (function() {
-  const sel = document.getElementById('per-selector');
-  if (!sel) return;
-  Object.entries(TODOS_PERIODOS).forEach(([nombre, data]) => {
-    const btn = document.createElement('button');
-    const classes = ['per-pill'];
-    if (data.es_actual) classes.push('actual');
-    else classes.push('cerrado');
-    if (nombre === _periodo_sel) classes.push('active');
-    btn.className = classes.join(' ');
-    btn.setAttribute('data-per', nombre);
-    btn.textContent = nombre;
-    btn.onclick = () => setPerSel(nombre);
-    sel.appendChild(btn);
-  });
+  var keys = Array.from(PERIODO_MULTI_FILTER);
+  var lbl  = document.getElementById('pf-btn-label');
+  if (lbl && keys.length > 0) lbl.textContent = keys[0];
 })();
 </script>
 </body>
