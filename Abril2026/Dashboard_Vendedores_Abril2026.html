@@ -207,11 +207,11 @@ body { background:var(--bg); color:var(--text); font-family:'Segoe UI',Arial,san
 <div class="header">
   <div class="header-left">
     <h1>🏪 Vendedores IBACETA — Abril 2026</h1>
-    <p>Generado 04/04/2026 22:56</p>
+    <p>Generado 04/04/2026 23:39</p>
   </div>
   <div class="header-right" style="flex-direction:column;align-items:flex-end;gap:8px">
     <div style="display:flex;gap:10px;align-items:center">
-      <div class="gen-badge">Generado: 04/04/2026 22:56</div>
+      <div class="gen-badge">Generado: 04/04/2026 23:39</div>
       <div class="period-toggle">
         <button class="period-btn active" onclick="setModo('mtd')">Período</button>
         <button class="period-btn"        onclick="setModo('ytd')">Acumulado</button>
@@ -652,6 +652,10 @@ function switchTab(tab, btn) {
 // ── FILTRO MULTI-SALÓN ────────────────────────────────────────────────────
 var SALON_MULTI_FILTER = new Set(); // vacío = todos
 
+function salonAllowed(s) {
+  return SALON_MULTI_FILTER.size === 0 || SALON_MULTI_FILTER.has(s);
+}
+
 function toggleSalonFilter() {
   var btn = document.getElementById('salon-filter-btn');
   var dd  = document.getElementById('salon-filter-dropdown');
@@ -730,8 +734,8 @@ function applyFiltroDeSalon() {
     btn.classList.add('kpi-filter-active');
     act.textContent = 'Mostrando KPIs filtrados';
   }
-  renderKPIs();
-  renderHbarSalones();
+  CUR_SALON_FILTER = 'all';
+  renderAll();
 }
 
 function getFilteredKPI() {
@@ -942,7 +946,7 @@ function renderTblSalonesResumen() {
 // ── RENDER SALON FILTER PILLS ─────────────────────────────────────────────
 var _SALON_LIST = null;
 function getSalonList() {
-  _SALON_LIST = ['all'].concat(getData().salones.map(function(s){ return s.SALON; }));
+  _SALON_LIST = ['all'].concat(getData().salones.filter(function(s){ return salonAllowed(s.SALON); }).map(function(s){ return s.SALON; }));
   return _SALON_LIST;
 }
 function renderSalonPills() {
@@ -969,7 +973,7 @@ function setSalonFilter(idx) {
 // ── RENDER HBAR VENDEDORES ────────────────────────────────────────────────
 function renderHbarVendedores() {
   var d = getData();
-  var list = d.vendedores.filter(function(v) { return CUR_SALON_FILTER==='all' || v.SALON===CUR_SALON_FILTER; });
+  var list = d.vendedores.filter(function(v) { return salonAllowed(v.SALON) && (CUR_SALON_FILTER==='all' || v.SALON===CUR_SALON_FILTER); });
   list = list.slice(0,12);
   var max_v = list.length ? Math.max.apply(null, list.map(function(v) { return v.total||0; })) : 1;
   var html = '';
@@ -989,7 +993,7 @@ function renderHbarVendedores() {
 
 function renderHbarVendMargen() {
   var d = getData();
-  var list = d.vendedores.filter(function(v) { return CUR_SALON_FILTER==='all' || v.SALON===CUR_SALON_FILTER; });
+  var list = d.vendedores.filter(function(v) { return salonAllowed(v.SALON) && (CUR_SALON_FILTER==='all' || v.SALON===CUR_SALON_FILTER); });
   list = list.filter(function(v) { return v.margen_pct != null && v.venta > 1e6; });
   list = list.sort(function(a,b) { return (b.margen_pct||0)-(a.margen_pct||0); }).slice(0,10);
   var max_v = list.length ? Math.max.apply(null, list.map(function(v){ return v.margen_pct||0; })) : 1;
@@ -1011,7 +1015,7 @@ function renderHbarVendMargen() {
 // ── RENDER TABLE VENDEDORES ───────────────────────────────────────────────
 function renderTblVendedores() {
   var d = getData();
-  var list = d.vendedores.filter(function(v) { return CUR_SALON_FILTER==='all' || v.SALON===CUR_SALON_FILTER; });
+  var list = d.vendedores.filter(function(v) { return salonAllowed(v.SALON) && (CUR_SALON_FILTER==='all' || v.SALON===CUR_SALON_FILTER); });
   var html = '';
   list.forEach(function(v, i) {
     var mpct = v.margen_pct;
@@ -1037,7 +1041,7 @@ function renderTblVendedores() {
 var _VEND_LIST_CACHE = null;
 function getVendList() {
   var d = getData();
-  _VEND_LIST_CACHE = d.vendedores.filter(function(v) { return CUR_SALON_FILTER==='all' || v.SALON===CUR_SALON_FILTER; });
+  _VEND_LIST_CACHE = d.vendedores.filter(function(v) { return salonAllowed(v.SALON) && (CUR_SALON_FILTER==='all' || v.SALON===CUR_SALON_FILTER); });
   return _VEND_LIST_CACHE;
 }
 function showVendRubros(idx) {
@@ -1073,7 +1077,7 @@ function showVendRubros(idx) {
 function renderSalonCards() {
   var d = getData();
   var html = '';
-  d.salones.forEach(function(s) {
+  d.salones.filter(function(s) { return salonAllowed(s.SALON); }).forEach(function(s) {
     var c = salonColor(s.SALON);
     var svend = d.salon_vend.filter(function(v) { return v.SALON===s.SALON; }).sort(function(a,b){ return (b.venta||0)-(a.venta||0); });
     html += '<div class="salon-detail-card">';
