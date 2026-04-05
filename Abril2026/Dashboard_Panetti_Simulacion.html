@@ -1,0 +1,658 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>PANETTI — Dashboard Marca Propia · IBACETA</title>
+<style>
+:root {
+  --bg:     #0d1117;
+  --bg2:    #161b22;
+  --bg3:    #21262d;
+  --border: #30363d;
+  --text:   #e6edf3;
+  --muted:  #8b949e;
+  --accent: #c65911;
+  --accent2: #f08040;
+  --up:     #3fb950;
+  --down:   #f85149;
+  --warn:   #f8961e;
+  --c-tiendas:  #00b4d8;
+  --c-meli:     #f59e0b;
+  --c-mayorista: #10b981;
+}
+* { box-sizing: border-box; margin: 0; padding: 0; }
+body { background: var(--bg); color: var(--text); font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif; font-size: 13px; }
+
+/* ── HEADER ── */
+.header {
+  background: var(--bg2);
+  border-bottom: 1px solid var(--border);
+  padding: 12px 24px;
+  display: flex;
+  align-items: center;
+  gap: 20px;
+  flex-wrap: wrap;
+}
+.brand-bar {
+  width: 6px; height: 40px;
+  background: linear-gradient(180deg, var(--accent) 0%, var(--accent2) 100%);
+  border-radius: 3px; flex-shrink: 0;
+}
+.brand-info h1 { font-size: 18px; font-weight: 800; letter-spacing: -.3px; color: var(--text); }
+.brand-info p  { font-size: 11px; color: var(--muted); margin-top: 2px; }
+.header-mid { flex: 1; display: flex; align-items: center; gap: 10px; justify-content: center; }
+.period-badge {
+  background: rgba(198,89,17,.15);
+  border: 1.5px solid rgba(198,89,17,.4);
+  color: var(--accent2);
+  border-radius: 20px;
+  padding: 4px 14px;
+  font-size: 12px; font-weight: 700;
+}
+.sim-badge {
+  background: rgba(248,150,30,.12);
+  border: 1.5px solid rgba(248,150,30,.35);
+  color: var(--warn);
+  border-radius: 6px;
+  padding: 3px 10px;
+  font-size: 10px; font-weight: 700; letter-spacing: .5px;
+}
+.header-right { display: flex; align-items: center; gap: 10px; }
+
+/* ── CANAL FILTER ── */
+.canal-filter { display: flex; align-items: center; gap: 6px; }
+.canal-lbl { font-size: 11px; color: var(--muted); }
+.canal-pill {
+  padding: 5px 14px; border-radius: 20px; border: 1.5px solid var(--border);
+  background: transparent; color: var(--muted); font-size: 11px; font-weight: 700;
+  cursor: pointer; font-family: inherit; transition: all .15s;
+}
+.canal-pill:hover { border-color: var(--accent2); color: var(--accent2); }
+.canal-pill.active-all  { background: rgba(198,89,17,.2); border-color: var(--accent); color: var(--accent2); }
+.canal-pill.active-t    { background: rgba(0,180,216,.15);  border-color: #00b4d8; color: #00b4d8; }
+.canal-pill.active-m    { background: rgba(245,158,11,.15); border-color: #f59e0b; color: #f59e0b; }
+.canal-pill.active-may  { background: rgba(16,185,129,.15); border-color: #10b981; color: #10b981; }
+
+/* ── MAIN LAYOUT ── */
+.main { padding: 20px 24px; display: flex; flex-direction: column; gap: 16px; }
+
+/* ── KPI GRID ── */
+.kpi-grid { display: grid; grid-template-columns: repeat(5, 1fr); gap: 12px; }
+.kpi-card {
+  background: var(--bg2); border: 1px solid var(--border);
+  border-radius: 10px; padding: 14px 16px;
+  border-top: 3px solid var(--accent-color, var(--accent));
+  position: relative; overflow: hidden;
+}
+.kpi-card::before {
+  content: ''; position: absolute; top: 0; right: 0;
+  width: 60px; height: 60px;
+  background: radial-gradient(circle at top right, var(--accent-color, var(--accent)) 0%, transparent 70%);
+  opacity: .08; border-radius: 50%;
+}
+.kpi-label { font-size: 10px; font-weight: 700; color: var(--muted); text-transform: uppercase; letter-spacing: .6px; margin-bottom: 6px; }
+.kpi-value { font-size: 22px; font-weight: 800; color: var(--text); line-height: 1; margin-bottom: 4px; }
+.kpi-sub   { font-size: 10px; color: var(--muted); }
+.kpi-canal-chip {
+  display: inline-flex; align-items: center; gap: 4px;
+  font-size: 9px; font-weight: 700; padding: 2px 7px;
+  border-radius: 10px; margin-top: 6px;
+  background: rgba(198,89,17,.12); color: var(--accent2); border: 1px solid rgba(198,89,17,.3);
+}
+
+/* ── GRID LAYOUTS ── */
+.grid-2   { display: grid; grid-template-columns: 1fr 1fr; gap: 16px; }
+.grid-3   { display: grid; grid-template-columns: 1fr 1fr 1fr; gap: 16px; }
+.grid-2-1 { display: grid; grid-template-columns: 2fr 1fr; gap: 16px; }
+.grid-1-2 { display: grid; grid-template-columns: 1fr 2fr; gap: 16px; }
+
+/* ── CARD ── */
+.card {
+  background: var(--bg2); border: 1px solid var(--border); border-radius: 10px; padding: 16px;
+}
+.card-title {
+  font-size: 11px; font-weight: 700; color: var(--muted);
+  text-transform: uppercase; letter-spacing: .6px; margin-bottom: 14px;
+  display: flex; align-items: center; justify-content: space-between;
+}
+.card-title span { font-size: 10px; font-weight: 400; color: var(--muted); text-transform: none; letter-spacing: 0; }
+
+/* ── CANAL COMPARISON BARS ── */
+.canal-row {
+  display: flex; align-items: center; gap: 10px; padding: 8px 0;
+  border-bottom: 1px solid var(--border);
+}
+.canal-row:last-child { border-bottom: none; }
+.canal-name { width: 90px; font-size: 12px; font-weight: 700; flex-shrink: 0; }
+.canal-track { flex: 1; height: 10px; background: var(--bg3); border-radius: 5px; overflow: hidden; }
+.canal-fill  { height: 100%; border-radius: 5px; transition: width .4s ease; }
+.canal-val   { width: 72px; text-align: right; font-size: 12px; font-weight: 700; }
+.canal-pct   { width: 52px; text-align: right; font-size: 11px; }
+.canal-chip  {
+  display: inline-block; padding: 2px 8px; border-radius: 10px;
+  font-size: 10px; font-weight: 700; margin-left: 6px;
+}
+
+/* ── DONUT ── */
+.donut-wrap { display: flex; align-items: center; gap: 16px; }
+.donut-svg  { flex-shrink: 0; }
+.donut-legend { display: flex; flex-direction: column; gap: 10px; }
+.leg-item   { display: flex; align-items: center; gap: 8px; font-size: 12px; }
+.leg-dot    { width: 10px; height: 10px; border-radius: 50%; flex-shrink: 0; }
+.leg-name   { color: var(--muted); flex: 1; }
+.leg-val    { font-weight: 700; }
+
+/* ── HBARS ── */
+.hbar-row {
+  display: flex; align-items: center; gap: 8px; padding: 5px 0;
+  border-bottom: 1px solid rgba(48,54,61,.5);
+}
+.hbar-row:last-child { border-bottom: none; }
+.hbar-rank  { width: 20px; text-align: right; font-size: 10px; color: var(--muted); flex-shrink: 0; }
+.hbar-label { width: 180px; font-size: 11px; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+.hbar-track { flex: 1; height: 8px; background: var(--bg3); border-radius: 4px; overflow: hidden; }
+.hbar-fill  { height: 100%; border-radius: 4px; transition: width .4s; }
+.hbar-val   { width: 65px; text-align: right; font-size: 11px; font-weight: 700; }
+.hbar-extra { width: 50px; text-align: right; font-size: 10px; color: var(--muted); }
+
+/* ── CANAL MINI-BARS ── */
+.mini-canal { display: flex; gap: 3px; margin-top: 3px; }
+.mini-bar-wrap { flex: 1; height: 4px; background: var(--bg3); border-radius: 2px; overflow: hidden; }
+.mini-bar { height: 100%; border-radius: 2px; }
+
+/* ── MARGEN SEMAFORO ── */
+.mg-green  { color: #3fb950; }
+.mg-orange { color: #f8961e; }
+.mg-red    { color: #f85149; }
+
+/* ── TABLE ── */
+.tbl-wrap { overflow-x: auto; }
+.data-table { width: 100%; border-collapse: collapse; font-size: 11px; }
+.data-table th {
+  background: var(--bg3); color: var(--muted); font-weight: 700;
+  text-transform: uppercase; font-size: 9px; letter-spacing: .5px;
+  padding: 8px 10px; text-align: left; border-bottom: 1px solid var(--border);
+  white-space: nowrap; cursor: pointer; user-select: none;
+}
+.data-table th:hover { color: var(--accent2); }
+.data-table td { padding: 7px 10px; border-bottom: 1px solid rgba(48,54,61,.4); vertical-align: middle; }
+.data-table tr:hover td { background: rgba(33,38,45,.8); }
+.data-table .r { text-align: right; }
+.rubro-chip {
+  display: inline-block; padding: 2px 7px; border-radius: 6px;
+  font-size: 9px; font-weight: 700; background: rgba(198,89,17,.12);
+  color: var(--accent2); border: 1px solid rgba(198,89,17,.25);
+  white-space: nowrap;
+}
+.canal-cell { display: flex; flex-direction: column; align-items: flex-end; gap: 1px; }
+.canal-u { font-size: 10px; color: var(--muted); }
+.canal-v { font-size: 11px; font-weight: 700; }
+.rank-cell { font-size: 10px; color: var(--muted); width: 28px; text-align: right; }
+
+/* ── FILTER BAR (rubros) ── */
+.filter-pills { display: flex; gap: 6px; flex-wrap: wrap; margin-bottom: 12px; }
+.pill {
+  padding: 3px 12px; border-radius: 14px; border: 1.5px solid var(--border);
+  background: transparent; color: var(--muted); font-size: 10px; font-weight: 600;
+  cursor: pointer; font-family: inherit; transition: all .15s;
+}
+.pill:hover { border-color: var(--accent2); color: var(--accent2); }
+.pill.active { background: var(--accent); border-color: var(--accent); color: #fff; font-weight: 700; }
+
+/* ── SECTION HEADER ── */
+.section-label {
+  font-size: 10px; font-weight: 700; color: var(--accent);
+  text-transform: uppercase; letter-spacing: 1px;
+  border-left: 3px solid var(--accent); padding-left: 8px;
+  margin-bottom: 12px;
+}
+
+/* ── MAYORISTA ALERT ── */
+.alert-banner {
+  background: rgba(248,81,73,.08); border: 1.5px solid rgba(248,81,73,.25);
+  border-radius: 8px; padding: 10px 16px;
+  display: flex; align-items: center; gap: 10px; font-size: 11px; color: #f85149;
+  margin-bottom: 4px;
+}
+.alert-icon { font-size: 16px; flex-shrink: 0; }
+</style>
+</head>
+<body>
+
+<!-- ══ HEADER ══════════════════════════════════════════════════════════ -->
+<div class="header">
+  <div class="brand-bar"></div>
+  <div class="brand-info">
+    <h1>🔧 PANETTI</h1>
+    <p>Marca Propia IBACETA — Análisis Multi-Canal</p>
+  </div>
+  <div class="header-mid">
+    <div class="period-badge">📅 Marzo 2026</div>
+    <div class="sim-badge">⚡ SIMULACIÓN</div>
+  </div>
+  <div class="header-right">
+    <div class="canal-filter">
+      <span class="canal-lbl">Canal:</span>
+      <button class="canal-pill active-all" id="pill-all" onclick="setCanal('all')">Todos</button>
+      <button class="canal-pill" id="pill-t"   onclick="setCanal('t')"  style="--hc:#00b4d8">🏬 Tiendas</button>
+      <button class="canal-pill" id="pill-m"   onclick="setCanal('m')"  style="--hc:#f59e0b">🛒 MELI</button>
+      <button class="canal-pill" id="pill-may" onclick="setCanal('may')" style="--hc:#10b981">🏭 Mayorista</button>
+    </div>
+  </div>
+</div>
+
+<!-- ══ MAIN ═════════════════════════════════════════════════════════════ -->
+<div class="main">
+
+  <!-- ALERTA MAYORISTA -->
+  <div class="alert-banner" id="alert-mayorista" style="display:none">
+    <span class="alert-icon">⚠️</span>
+    <strong>Mayorista:</strong>&nbsp;Margen negativo (−19.8%). El precio de venta no cubre el costo. Requiere revisión de precios de lista.
+  </div>
+  <div class="alert-banner" id="alert-global" style="">
+    <span class="alert-icon">⚠️</span>
+    <strong>Alerta Mayorista:</strong>&nbsp;El canal Mayorista opera con margen negativo (−19.8%), arrastrando el margen global de 17.5% hacia abajo. Sin Mayorista, el margen sería ~27.2%.
+  </div>
+
+  <!-- KPI CARDS -->
+  <div class="kpi-grid" id="kpi-grid"></div>
+
+  <!-- FILA 2: Canal comparison + Donut -->
+  <div class="grid-2-1">
+    <div class="card">
+      <div class="card-title">COMPARATIVA POR CANAL — VENTA NETA <span id="canal-title-lbl">Todos los canales</span></div>
+      <div id="canal-bars"></div>
+    </div>
+    <div class="card">
+      <div class="card-title">MIX DE VENTA</div>
+      <div class="donut-wrap">
+        <svg class="donut-svg" width="110" height="110" viewBox="0 0 110 110" id="donut-svg"></svg>
+        <div class="donut-legend" id="donut-legend"></div>
+      </div>
+    </div>
+  </div>
+
+  <!-- FILA 3: Rubros -->
+  <div class="grid-2">
+    <div class="card">
+      <div class="card-title">TOP RUBROS — VENTA NETA <span id="rubro-canal-lbl">Todos</span></div>
+      <div id="hbar-rubros-venta" class="hbar-list"></div>
+    </div>
+    <div class="card">
+      <div class="card-title">TOP RUBROS — MARGEN % <span style="color:#8b949e">(sobre Venta Neta)</span></div>
+      <div id="hbar-rubros-margen" class="hbar-list"></div>
+    </div>
+  </div>
+
+  <!-- FILA 4: Tabla productos -->
+  <div class="card">
+    <div class="card-title">
+      DETALLE DE PRODUCTOS
+      <span id="prod-count-lbl" style="color:#8b949e"></span>
+    </div>
+    <div class="filter-pills" id="rubro-pills"></div>
+    <div class="tbl-wrap">
+      <table class="data-table" id="tbl-productos">
+        <thead><tr>
+          <th>#</th>
+          <th onclick="sortTbl(1)">RUBRO ↕</th>
+          <th onclick="sortTbl(2)">PRODUCTO ↕</th>
+          <th class="r" onclick="sortTbl(3)">TOTAL U ↕</th>
+          <th class="r" onclick="sortTbl(4)">VENTA NETA ↕</th>
+          <th class="r" onclick="sortTbl(5)">MARGEN $ ↕</th>
+          <th class="r" onclick="sortTbl(6)">MARGEN % ↕</th>
+          <th class="r" onclick="sortTbl(7)">TIENDAS ↕</th>
+          <th class="r" onclick="sortTbl(8)">MELI ↕</th>
+          <th class="r" onclick="sortTbl(9)">MAYORISTA ↕</th>
+        </tr></thead>
+        <tbody id="tbody-productos"></tbody>
+      </table>
+    </div>
+  </div>
+
+</div><!-- /main -->
+
+<script>
+// ══════════════════════════════════════════════════════
+// DATA — Datos reales Marzo 2026
+// ══════════════════════════════════════════════════════
+const CANALES = {
+  t:   { label:'Tiendas',   color:'#00b4d8', uds:164, venta:129583621, costo:95473646,  margen:34109976,  margen_pct:0.2632, mup:0.357 },
+  m:   { label:'MELI',      color:'#f59e0b', uds:85,  venta:96734120,  costo:68357609,  margen:28376512,  margen_pct:0.2933, mup:0.415 },
+  may: { label:'Mayorista', color:'#10b981', uds:83,  venta:61004892,  costo:73069326,  margen:-12064434, margen_pct:-0.1978, mup:-0.165 }
+};
+const TOTAL = { uds:332, venta:287322634, costo:236900580, margen:50422054, margen_pct:0.1755, mup:0.213 };
+
+const PRODS = [
+  {r:'HORNOS CONVECTORES',    d:'HORNO CONVECTOR 4 BANDEJAS HEB600 4F',      u:73,  v:40478284, mg:4234547,  mp:0.1046, tu:29,v_t:18988434, mu:9,  v_m:6716977,  mau:35, v_ma:14772873},
+  {r:'HORNOS CONVECTORES',    d:'HORNO CONVECTOR 6.4KW HEB840',               u:34,  v:30691368, mg:1645746,  mp:0.0536, tu:12,v_t:12760833, mu:4,  v_m:4847784,  mau:18, v_ma:13082752},
+  {r:'CORTADORA FIAMBRES',    d:'CORTADORA DE FIAMBRE B300A SEMIAUTO 250W',   u:26,  v:20410152, mg:3830387,  mp:0.1877, tu:21,v_t:16959106, mu:4,  v_m:3098104,  mau:1,  v_ma:352941},
+  {r:'BATIDORAS',             d:'BATIDORA 20LT B20B WGB20F',                  u:9,   v:15536582, mg:4400480,  mp:0.2832, tu:4, v_t:7349122,  mu:3,  v_m:5768400,  mau:2,  v_ma:2419059},
+  {r:'AMASADORAS RAPIDAS',    d:'AMASADORA RAPIDA 4KG HARINA H10 WG10L',      u:15,  v:15068130, mg:-513063,  mp:-0.0340, tu:1,v_t:1613746,  mu:2,  v_m:3441947,  mau:12, v_ma:10012437},
+  {r:'PICADORAS DE CARNE',    d:'PICADORA 32. 4HP. QL 32',                    u:10,  v:14159825, mg:4249164,  mp:0.3001, tu:5, v_t:6727033,  mu:5,  v_m:7432791,  mau:0,  v_ma:0},
+  {r:'AMASADORAS RAPIDAS',    d:'AMASADORA RAPIDA 8KG HARINA HS20 WG20L',     u:9,   v:13138173, mg:331620,   mp:0.0252, tu:0, v_t:0,        mu:3,  v_m:6280290,  mau:6,  v_ma:6857883},
+  {r:'BATIDORAS',             d:'BATIDORA 10LT B10B WGB10F',                  u:10,  v:12871953, mg:3591802,  mp:0.2790, tu:3, v_t:4131772,  mu:7,  v_m:8740181,  mau:0,  v_ma:0},
+  {r:'AMASADORAS RAPIDAS',    d:'AMASADORA RAPIDA 25KG DOBLEVELOC 220V',      u:5,   v:12372547, mg:-779671,  mp:-0.0630, tu:0,v_t:0,        mu:1,  v_m:4259026,  mau:4,  v_ma:8113520},
+  {r:'AMASADORAS RAPIDAS',    d:'AMASADORA RAPIDA 12KG HARINA HS30 WG30L',    u:5,   v:12366888, mg:4324108,  mp:0.3497, tu:4, v_t:9076042,  mu:1,  v_m:3290846,  mau:0,  v_ma:0},
+  {r:'MAQUINAS DE PASTAS',    d:'LAMINADORA ELECTRICA PARA FIDEOS 220V',      u:14,  v:8550954,  mg:2636442,  mp:0.3083, tu:3, v_t:1685482,  mu:11, v_m:6865472,  mau:0,  v_ma:0},
+  {r:'CORTADORA FIAMBRES',    d:'CORTADORA DE FIAMBRE B300C AUTO 220V',       u:2,   v:8091330,  mg:2006769,  mp:0.2480, tu:1, v_t:4350461,  mu:1,  v_m:3740869,  mau:0,  v_ma:0},
+  {r:'BATIDORAS',             d:'BATIDORA MIXER 7LT TRIPLE B7S',              u:12,  v:6950286,  mg:1370557,  mp:0.1972, tu:4, v_t:2507023,  mu:5,  v_m:3098693,  mau:3,  v_ma:1344570},
+  {r:'MAQUINAS EMBUTIDOS',    d:'EMBUTIDORA ELECTRICA 15LT 260W HD.15',       u:4,   v:5577192,  mg:1846745,  mp:0.3311, tu:1, v_t:1366462,  mu:3,  v_m:4210729,  mau:0,  v_ma:0},
+  {r:'PROCESADORAS',          d:'PROCESADORA VEGETALES 220V VC.65MS',         u:4,   v:4840977,  mg:642896,   mp:0.1328, tu:2, v_t:2551385,  mu:2,  v_m:2289593,  mau:0,  v_ma:0},
+  {r:'SPIEDO',                d:'HORNO AL SPIEDO ELECTRICO 12.16 POLLOS HEJ', u:2,   v:4556433,  mg:1368016,  mp:0.3002, tu:1, v_t:2279718,  mu:1,  v_m:2276715,  mau:0,  v_ma:0},
+  {r:'HORNOS PIZZEROS',       d:'HORNO PIZZERO CINTA 156X76X36 10.3KW HEP18', u:1,   v:4103491,  mg:915075,   mp:0.2230, tu:1, v_t:4103491,  mu:0,  v_m:0,        mau:0,  v_ma:0},
+  {r:'MESAS DE TRABAJO',      d:'MESA DE TRABAJO 180X70X90 C.ZOCALO 18070',   u:6,   v:3704897,  mg:1077930,  mp:0.2909, tu:3, v_t:1798133,  mu:3,  v_m:1906764,  mau:0,  v_ma:0},
+  {r:'CUTTER',                d:'CUTTER 6LT AW6L',                            u:5,   v:3698034,  mg:1351097,  mp:0.3654, tu:2, v_t:1294118,  mu:3,  v_m:2403916,  mau:0,  v_ma:0},
+  {r:'HORNOS CONVECTORES',    d:'HORNO CONVECTOR 380V CON PATAS ACER',        u:1,   v:3649548,  mg:-136697,  mp:-0.0375, tu:0,v_t:0,        mu:0,  v_m:0,        mau:1,  v_ma:3649548},
+  {r:'MESAS DE TRABAJO',      d:'MESA DE TRABAJO 220X70X90 22070',            u:5,   v:3582669,  mg:1256739,  mp:0.3508, tu:3, v_t:1913579,  mu:2,  v_m:1669091,  mau:0,  v_ma:0},
+  {r:'HAMBURGUESERO',         d:'HAMBURGUESERO MANUAL 3 EN 1 ASY3IN1',        u:8,   v:3534024,  mg:675078,   mp:0.1910, tu:7, v_t:3040667,  mu:1,  v_m:493357,   mau:0,  v_ma:0},
+  {r:'MESAS DE TRABAJO',      d:'MESA DE TRABAJO 150X70X90 C.ZOCALO 15070',   u:6,   v:3265651,  mg:939684,   mp:0.2877, tu:6, v_t:3265651,  mu:0,  v_m:0,        mau:0,  v_ma:0},
+  {r:'LICUADORAS',            d:'LICUADORA BLENDER 2LT 1500W BL767',          u:20,  v:3117307,  mg:1054828,  mp:0.3384, tu:20,v_t:3117307,  mu:0,  v_m:0,        mau:0,  v_ma:0},
+  {r:'COCINAS',               d:'COCINA ELECTRICA DE PASTA 6 HUECOS',         u:5,   v:2755896,  mg:862774,   mp:0.3131, tu:1, v_t:487199,   mu:4,  v_m:2268697,  mau:0,  v_ma:0},
+  {r:'SIERRAS CARNICERAS',    d:'SIERRA CARNICERA INOX 1100W HD.210',         u:2,   v:2728881,  mg:794576,   mp:0.2912, tu:1, v_t:1331189,  mu:1,  v_m:1397692,  mau:0,  v_ma:0},
+  {r:'MESAS DE TRABAJO',      d:'MESA DE TRABAJO 180X70X90 18070',            u:5,   v:2692618,  mg:731504,   mp:0.2717, tu:5, v_t:2692618,  mu:0,  v_m:0,        mau:0,  v_ma:0},
+  {r:'SIERRAS CARNICERAS',    d:'SIERRA CARNICERA INOX 750W HD.130',          u:2,   v:2394707,  mg:1018374,  mp:0.4253, tu:0, v_t:0,        mu:2,  v_m:2394707,  mau:0,  v_ma:0},
+  {r:'BATIDORAS',             d:'BATIDORA 30LT B30B WGB30F',                  u:1,   v:2208145,  mg:723724,   mp:0.3278, tu:1, v_t:2208145,  mu:0,  v_m:0,        mau:0,  v_ma:0},
+  {r:'DESHIDRATADORES',       d:'HORNO DESHIDRATADOR 16 BANDEJAS 220V',       u:2,   v:1536933,  mg:458186,   mp:0.2981, tu:2, v_t:1536933,  mu:0,  v_m:0,        mau:0,  v_ma:0},
+  {r:'ESTANTERIAS',           d:'ESTANTERIA 4 EST 150X50X155 RSH15050',       u:4,   v:1873733,  mg:560249,   mp:0.2990, tu:3, v_t:1356947,  mu:1,  v_m:516786,   mau:0,  v_ma:0},
+  {r:'ESTANTERIAS',           d:'ESTANTERIA 4 EST 120X50X155 RSH12050',       u:4,   v:1769480,  mg:601923,   mp:0.3402, tu:3, v_t:1366042,  mu:1,  v_m:403438,   mau:0,  v_ma:0},
+];
+
+// ══════════════════════════════════════════════════════
+// STATE
+// ══════════════════════════════════════════════════════
+var CUR_CANAL = 'all';
+var CUR_RUBRO = 'all';
+var _sortCol = -1, _sortAsc = true;
+
+// ══════════════════════════════════════════════════════
+// HELPERS
+// ══════════════════════════════════════════════════════
+function fmtM(v) {
+  if (v == null || isNaN(v)) return '—';
+  var abs = Math.abs(v), sign = v < 0 ? '-' : '';
+  if (abs >= 1e9) return sign + '$' + (abs/1e9).toFixed(1) + 'B';
+  if (abs >= 1e6) return sign + '$' + (abs/1e6).toFixed(1) + 'M';
+  if (abs >= 1e3) return sign + '$' + (abs/1e3).toFixed(0) + 'K';
+  return sign + '$' + abs.toFixed(0);
+}
+function fmtPct(v) { return v == null || isNaN(v) ? '—' : (v >= 0 ? '' : '') + (v*100).toFixed(1) + '%'; }
+function fmtN(v)   { return v == null || isNaN(v) ? '—' : Math.round(v).toLocaleString('es-AR'); }
+function mgClass(p) { return p >= 0.25 ? 'mg-green' : p >= 0.15 ? 'mg-orange' : 'mg-red'; }
+function mgColor(p) { return p >= 0.25 ? '#3fb950' : p >= 0.15 ? '#f8961e' : '#f85149'; }
+
+function getKPI() {
+  if (CUR_CANAL === 'all') return TOTAL;
+  var c = CANALES[CUR_CANAL];
+  return { uds: c.uds, venta: c.venta, costo: c.costo, margen: c.margen, margen_pct: c.margen_pct, mup: c.mup };
+}
+
+function getProdsFiltered() {
+  return PRODS.filter(function(p) {
+    var rubroOk = CUR_RUBRO === 'all' || p.r === CUR_RUBRO;
+    return rubroOk;
+  }).map(function(p) {
+    if (CUR_CANAL === 'all') return { r:p.r, d:p.d, u:p.u, v:p.v, mg:p.mg, mp:p.mp, t_u:p.tu, t_v:p.v_t, m_u:p.mu, m_v:p.v_m, ma_u:p.mau, ma_v:p.v_ma };
+    if (CUR_CANAL === 't')   return { r:p.r, d:p.d, u:p.tu,  v:p.v_t,  mg: p.tu>0  ? p.mg*(p.v_t/p.v||0)  : 0, mp: p.tu>0  ? p.mp : null, t_u:p.tu, t_v:p.v_t, m_u:p.mu, m_v:p.v_m, ma_u:p.mau, ma_v:p.v_ma };
+    if (CUR_CANAL === 'm')   return { r:p.r, d:p.d, u:p.mu,  v:p.v_m,  mg: p.mu>0  ? p.mg*(p.v_m/p.v||0)  : 0, mp: p.mu>0  ? p.mp : null, t_u:p.tu, t_v:p.v_t, m_u:p.mu, m_v:p.v_m, ma_u:p.mau, ma_v:p.v_ma };
+    if (CUR_CANAL === 'may') return { r:p.r, d:p.d, u:p.mau, v:p.v_ma, mg: p.mau>0 ? p.mg*(p.v_ma/p.v||0) : 0, mp: p.mau>0 ? p.mp : null, t_u:p.tu, t_v:p.v_t, m_u:p.mu, m_v:p.v_m, ma_u:p.mau, ma_v:p.v_ma };
+    return p;
+  }).filter(function(p) { return p.v !== 0 || CUR_CANAL === 'all'; });
+}
+
+function getRubrosAgg() {
+  var map = {};
+  PRODS.forEach(function(p) {
+    var r = p.r;
+    if (!map[r]) map[r] = { r:r, u:0, v:0, mg:0 };
+    var canal = CUR_CANAL;
+    if (canal === 'all') { map[r].u += p.u;   map[r].v += p.v;   map[r].mg += p.mg; }
+    else if (canal === 't')   { map[r].u += p.tu;  map[r].v += p.v_t; }
+    else if (canal === 'm')   { map[r].u += p.mu;  map[r].v += p.v_m; }
+    else if (canal === 'may') { map[r].u += p.mau; map[r].v += p.v_ma; }
+  });
+  return Object.values(map).filter(function(r){ return r.v > 0; }).sort(function(a,b){ return b.v - a.v; });
+}
+
+// ══════════════════════════════════════════════════════
+// CANAL SELECTOR
+// ══════════════════════════════════════════════════════
+function setCanal(c) {
+  CUR_CANAL = c;
+  document.querySelectorAll('.canal-pill').forEach(function(p) { p.className = 'canal-pill'; });
+  var cls = c === 'all' ? 'active-all' : c === 't' ? 'active-t' : c === 'm' ? 'active-m' : 'active-may';
+  document.getElementById('pill-' + c).classList.add(cls);
+
+  // Show/hide mayorista alert
+  document.getElementById('alert-global').style.display = (c === 'may') ? '' : (c === 'all') ? '' : 'none';
+  document.getElementById('alert-mayorista').style.display = (c === 'may') ? '' : 'none';
+  document.getElementById('alert-global').style.display = (c === 'all' || c === 'may') ? '' : 'none';
+
+  var lbl = c === 'all' ? 'Todos los canales' : CANALES[c].label;
+  document.getElementById('canal-title-lbl').textContent = lbl;
+  document.getElementById('rubro-canal-lbl').textContent = lbl;
+
+  renderAll();
+}
+
+// ══════════════════════════════════════════════════════
+// RENDER KPIs
+// ══════════════════════════════════════════════════════
+function renderKPIs() {
+  var k = getKPI();
+  var canalLabel = CUR_CANAL === 'all' ? 'Todos los canales' : CANALES[CUR_CANAL].label;
+  var canalColor = CUR_CANAL === 'all' ? '#c65911' : CANALES[CUR_CANAL].color;
+  var mc = mgColor(k.margen_pct);
+
+  var cards = [
+    { label:'VENTA NETA',  value:fmtM(k.venta),       sub:'sin IVA',         color:'#c65911' },
+    { label:'UNIDADES',    value:fmtN(k.uds),          sub:'equipos vendidos', color:'#00b4d8' },
+    { label:'COSTO NETO',  value:fmtM(k.costo),        sub:'costo de venta',  color:'#7209b7' },
+    { label:'MARGEN $',    value:fmtM(k.margen),       sub:'Venta − Costo',   color: k.margen >= 0 ? '#3fb950' : '#f85149' },
+    { label:'MARGEN %',    value:fmtPct(k.margen_pct), sub:'s/ Venta Neta',   color: mc },
+  ];
+  var html = '';
+  cards.forEach(function(c) {
+    html += '<div class="kpi-card" style="--accent-color:' + c.color + '">';
+    html += '<div class="kpi-label">' + c.label + '</div>';
+    html += '<div class="kpi-value" style="color:' + c.color + '">' + c.value + '</div>';
+    html += '<div class="kpi-sub">' + c.sub + '</div>';
+    html += '<div class="kpi-canal-chip">' + canalLabel + '</div>';
+    html += '</div>';
+  });
+  document.getElementById('kpi-grid').innerHTML = html;
+}
+
+// ══════════════════════════════════════════════════════
+// RENDER CANAL BARS
+// ══════════════════════════════════════════════════════
+function renderCanalBars() {
+  var maxV = Math.max(CANALES.t.venta, CANALES.m.venta, CANALES.may.venta);
+  var canales = ['t','m','may'];
+  var html = '';
+  canales.forEach(function(k) {
+    var c = CANALES[k];
+    var pct = (c.venta / maxV * 100).toFixed(1);
+    var isActive = CUR_CANAL === 'all' || CUR_CANAL === k;
+    var opacity = isActive ? 1 : 0.3;
+    var mc = mgColor(c.margen_pct);
+    html += '<div class="canal-row" style="opacity:' + opacity + '">';
+    html += '<div class="canal-name" style="color:' + c.color + '">' + c.label + '</div>';
+    html += '<div class="canal-track"><div class="canal-fill" style="width:' + pct + '%;background:' + c.color + '"></div></div>';
+    html += '<div class="canal-val">' + fmtM(c.venta) + '</div>';
+    html += '<div class="canal-pct"><span style="font-size:11px;font-weight:700;color:' + mc + '">' + fmtPct(c.margen_pct) + '</span></div>';
+    html += '<div class="canal-pct"><span style="font-size:10px;color:#8b949e">' + fmtN(c.uds) + ' u</span></div>';
+    html += '</div>';
+  });
+  document.getElementById('canal-bars').innerHTML = html;
+}
+
+// ══════════════════════════════════════════════════════
+// RENDER DONUT
+// ══════════════════════════════════════════════════════
+function renderDonut() {
+  var items = [
+    { label:'Tiendas',   value:CANALES.t.venta,   color:'#00b4d8' },
+    { label:'MELI',      value:CANALES.m.venta,   color:'#f59e0b' },
+    { label:'Mayorista', value:CANALES.may.venta, color:'#10b981' },
+  ];
+  var total = items.reduce(function(a,i){return a+i.value;},0);
+  var cx = 55, cy = 55, r = 42, r2 = 22;
+  var angle = -Math.PI/2;
+  var svg = '';
+  items.forEach(function(item) {
+    var slice = (item.value / total) * Math.PI * 2;
+    var x1 = cx + r * Math.cos(angle);
+    var y1 = cy + r * Math.sin(angle);
+    var x2 = cx + r * Math.cos(angle + slice);
+    var y2 = cy + r * Math.sin(angle + slice);
+    var xi1 = cx + r2 * Math.cos(angle + slice);
+    var yi1 = cy + r2 * Math.sin(angle + slice);
+    var xi2 = cx + r2 * Math.cos(angle);
+    var yi2 = cy + r2 * Math.sin(angle);
+    var large = slice > Math.PI ? 1 : 0;
+    var isActive = CUR_CANAL === 'all' || (CUR_CANAL === 't' && item.label === 'Tiendas') ||
+                   (CUR_CANAL === 'm' && item.label === 'MELI') || (CUR_CANAL === 'may' && item.label === 'Mayorista');
+    var op = isActive ? 1 : 0.2;
+    svg += '<path d="M'+x1+','+y1+' A'+r+','+r+' 0 '+large+',1 '+x2+','+y2+' L'+xi1+','+yi1+' A'+r2+','+r2+' 0 '+large+',0 '+xi2+','+yi2+' Z" fill="'+item.color+'" opacity="'+op+'"/>';
+    angle += slice;
+  });
+  document.getElementById('donut-svg').innerHTML = svg;
+
+  var leg = '';
+  items.forEach(function(item) {
+    var pct = (item.value / total * 100).toFixed(1);
+    leg += '<div class="leg-item">';
+    leg += '<div class="leg-dot" style="background:'+item.color+'"></div>';
+    leg += '<span class="leg-name">'+item.label+'</span>';
+    leg += '<span class="leg-val" style="color:'+item.color+'">'+pct+'%</span>';
+    leg += '</div>';
+  });
+  document.getElementById('donut-legend').innerHTML = leg;
+}
+
+// ══════════════════════════════════════════════════════
+// RENDER RUBROS
+// ══════════════════════════════════════════════════════
+function renderRubros() {
+  var rubros = getRubrosAgg();
+  var maxV = rubros.length ? rubros[0].v : 1;
+  var accentColor = CUR_CANAL === 'all' ? '#c65911' : CANALES[CUR_CANAL].color;
+  var html = '';
+  rubros.slice(0,10).forEach(function(r, i) {
+    var pct = (r.v / maxV * 100).toFixed(1);
+    html += '<div class="hbar-row">';
+    html += '<div class="hbar-rank">'+(i+1)+'</div>';
+    html += '<div class="hbar-label" style="width:190px" title="'+r.r+'">'+r.r+'</div>';
+    html += '<div class="hbar-track"><div class="hbar-fill" style="width:'+pct+'%;background:'+accentColor+'"></div></div>';
+    html += '<div class="hbar-val">'+fmtM(r.v)+'</div>';
+    html += '<div class="hbar-extra">'+fmtN(r.u)+' u</div>';
+    html += '</div>';
+  });
+  document.getElementById('hbar-rubros-venta').innerHTML = html;
+
+  // Rubros por margen %  - usando TOTAL (no por canal, no hay margen detallado por canal en el dato)
+  var byMargen = PRODS.reduce(function(acc, p) {
+    if (!acc[p.r]) acc[p.r] = { r:p.r, v:0, mg:0 };
+    acc[p.r].v  += p.v;
+    acc[p.r].mg += p.mg;
+    return acc;
+  }, {});
+  var rubrosMg = Object.values(byMargen).map(function(r) {
+    r.mp = r.v > 0 ? r.mg / r.v : 0;
+    return r;
+  }).filter(function(r){ return r.v > 500000; }).sort(function(a,b){ return b.mp - a.mp; });
+  var maxM = rubrosMg.length ? Math.max.apply(null, rubrosMg.map(function(r){ return Math.abs(r.mp); })) : 1;
+  var html2 = '';
+  rubrosMg.slice(0,10).forEach(function(r, i) {
+    var c = mgColor(r.mp);
+    var pct = (Math.abs(r.mp) / maxM * 100).toFixed(1);
+    html2 += '<div class="hbar-row">';
+    html2 += '<div class="hbar-rank">'+(i+1)+'</div>';
+    html2 += '<div class="hbar-label" style="width:190px" title="'+r.r+'">'+r.r+'</div>';
+    html2 += '<div class="hbar-track"><div class="hbar-fill" style="width:'+pct+'%;background:'+c+'"></div></div>';
+    html2 += '<div class="hbar-val" style="color:'+c+'">'+fmtPct(r.mp)+'</div>';
+    html2 += '</div>';
+  });
+  document.getElementById('hbar-rubros-margen').innerHTML = html2;
+}
+
+// ══════════════════════════════════════════════════════
+// RENDER RUBRO PILLS
+// ══════════════════════════════════════════════════════
+function renderRubroPills() {
+  var rubros = ['all'].concat(PRODS.map(function(p){ return p.r; }).filter(function(v,i,a){ return a.indexOf(v)===i; }));
+  var html = rubros.map(function(r) {
+    var lbl = r === 'all' ? 'Todos' : r;
+    var active = CUR_RUBRO === r ? 'active' : '';
+    return '<button class="pill '+active+'" data-r="'+r+'" onclick="setRubro(this.dataset.r)">'+lbl+'</button>';
+  }).join('');
+  document.getElementById('rubro-pills').innerHTML = html;
+}
+
+function setRubro(r) {
+  CUR_RUBRO = r;
+  document.querySelectorAll('#rubro-pills .pill').forEach(function(p){
+    p.classList.toggle('active', p.dataset.r === r);
+  });
+  renderProductos();
+}
+
+// ══════════════════════════════════════════════════════
+// RENDER TABLA PRODUCTOS
+// ══════════════════════════════════════════════════════
+function renderProductos() {
+  var list = getProdsFiltered();
+  if (_sortCol > 0) {
+    list.sort(function(a, b) {
+      var vals = [null, a.r, a.d, a.u, a.v, a.mg, a.mp, a.t_v, a.m_v, a.ma_v];
+      var valb = [null, b.r, b.d, b.u, b.v, b.mg, b.mp, b.t_v, b.m_v, b.ma_v];
+      var va = vals[_sortCol], vb = valb[_sortCol];
+      if (typeof va === 'string') return _sortAsc ? va.localeCompare(vb) : vb.localeCompare(va);
+      return _sortAsc ? (va||0)-(vb||0) : (vb||0)-(va||0);
+    });
+  }
+  var html = '';
+  list.forEach(function(p, i) {
+    var mc = p.mp != null ? mgColor(p.mp) : '#8b949e';
+    var mpStr = p.mp != null ? fmtPct(p.mp) : '—';
+    html += '<tr>';
+    html += '<td class="rank-cell">#'+(i+1)+'</td>';
+    html += '<td><span class="rubro-chip">'+p.r+'</span></td>';
+    html += '<td style="max-width:280px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis" title="PANETTI '+p.d+'">'+p.d+'</td>';
+    html += '<td class="r">'+fmtN(p.u)+'</td>';
+    html += '<td class="r" style="font-weight:700">'+fmtM(p.v)+'</td>';
+    html += '<td class="r" style="color:'+(p.mg>=0?'#3fb950':'#f85149')+'">'+fmtM(p.mg)+'</td>';
+    html += '<td class="r" style="color:'+mc+';font-weight:700">'+mpStr+'</td>';
+    html += '<td class="r"><div class="canal-cell"><span class="canal-v" style="color:#00b4d8">'+(p.t_v?fmtM(p.t_v):'—')+'</span><span class="canal-u">'+(p.t_u?p.t_u+'u':'')+'</span></div></td>';
+    html += '<td class="r"><div class="canal-cell"><span class="canal-v" style="color:#f59e0b">'+(p.m_v?fmtM(p.m_v):'—')+'</span><span class="canal-u">'+(p.m_u?p.m_u+'u':'')+'</span></div></td>';
+    html += '<td class="r"><div class="canal-cell"><span class="canal-v" style="color:#10b981">'+(p.ma_v?fmtM(p.ma_v):'—')+'</span><span class="canal-u">'+(p.ma_u?p.ma_u+'u':'')+'</span></div></td>';
+    html += '</tr>';
+  });
+  document.getElementById('tbody-productos').innerHTML = html;
+  document.getElementById('prod-count-lbl').textContent = list.length + ' productos';
+}
+
+function sortTbl(col) {
+  if (_sortCol === col) _sortAsc = !_sortAsc;
+  else { _sortCol = col; _sortAsc = false; }
+  renderProductos();
+}
+
+// ══════════════════════════════════════════════════════
+// RENDER ALL
+// ══════════════════════════════════════════════════════
+function renderAll() {
+  renderKPIs();
+  renderCanalBars();
+  renderDonut();
+  renderRubros();
+  renderRubroPills();
+  renderProductos();
+}
+
+renderAll();
+</script>
+</body>
+</html>
