@@ -163,11 +163,11 @@ body { background:var(--bg); color:var(--text); font-family:'Segoe UI',Arial,san
 <div class="header">
   <div class="header-left">
     <h1>🏪 Vendedores IBACETA — Abril 2026</h1>
-    <p>Generado 04/04/2026 08:42</p>
+    <p>Generado 04/04/2026 21:05</p>
   </div>
   <div class="header-right" style="flex-direction:column;align-items:flex-end;gap:8px">
     <div style="display:flex;gap:10px;align-items:center">
-      <div class="gen-badge">Generado: 04/04/2026 08:42</div>
+      <div class="gen-badge">Generado: 04/04/2026 21:05</div>
       <div class="period-toggle">
         <button class="period-btn active" onclick="setModo('mtd')">Período</button>
         <button class="period-btn"        onclick="setModo('ytd')">Acumulado</button>
@@ -191,7 +191,7 @@ body { background:var(--bg); color:var(--text); font-family:'Segoe UI',Arial,san
   <div class="kpi-grid" id="kpi-grid"></div>
   <div class="grid-2-1" style="margin-bottom:16px">
     <div class="card">
-      <div class="card-title">VENTAS POR SALÓN <span id="ev-period-label">Marzo 2026</span></div>
+      <div class="card-title">VENTAS POR SALÓN — con IVA e intereses <span id="ev-period-label">Marzo 2026</span></div>
       <div class="hbar-list" id="hbar-salones"></div>
     </div>
     <div class="card">
@@ -201,7 +201,7 @@ body { background:var(--bg); color:var(--text); font-family:'Segoe UI',Arial,san
   </div>
   <div class="grid-2" style="margin-bottom:16px">
     <div class="card">
-      <div class="card-title">EVOLUCIÓN MENSUAL — VENTA</div>
+      <div class="card-title">EVOLUCIÓN MENSUAL — VENTA con IVA e intereses</div>
       <div class="sparkbar-wrap" id="spark-venta"></div>
       <div class="spark-labels" id="spark-labels-venta"></div>
     </div>
@@ -212,7 +212,7 @@ body { background:var(--bg); color:var(--text); font-family:'Segoe UI',Arial,san
   </div>
   <div class="card">
     <div class="card-title">RANKING SALONES — RESUMEN COMPLETO</div>
-    <div style="font-size:11px;color:var(--muted);margin-bottom:6px">Venta = con IVA e intereses &nbsp;·&nbsp; IVA = Venta − Precio s/IVA &nbsp;·&nbsp; Intereses = Precio s/IVA − Precio base &nbsp;·&nbsp; Margen s/ Venta Neta SF</div>
+    <div style="font-size:11px;color:var(--muted);margin-bottom:6px">Venta = con IVA e intereses &nbsp;·&nbsp; Venta Neta SF = sin IVA, sin intereses de financiación &nbsp;·&nbsp; Margen calculado s/ Venta Neta SF</div>
     <div class="tbl-wrap">
       <table class="data-table" id="tbl-salones-resumen">
         <thead><tr>
@@ -224,7 +224,7 @@ body { background:var(--bg); color:var(--text); font-family:'Segoe UI',Arial,san
           <th class="r" onclick="sortTable('tbl-salones-resumen',5)">MARGEN % ↕</th>
           <th class="r" onclick="sortTable('tbl-salones-resumen',6)">MUP ↕</th>
           <th class="r" onclick="sortTable('tbl-salones-resumen',7)">IVA ↕</th>
-          <th class="r" onclick="sortTable('tbl-salones-resumen',8)">INTERESES ↕</th>
+          <th class="r" onclick="sortTable('tbl-salones-resumen',8)">INT. FINANC. ↕</th>
           <th class="r" onclick="sortTable('tbl-salones-resumen',9)">TARJETA % ↕</th>
           <th class="r" onclick="sortTable('tbl-salones-resumen',10)">UDS ↕</th>
           <th class="r" onclick="sortTable('tbl-salones-resumen',11)">TICKET PROM ↕</th>
@@ -241,7 +241,7 @@ body { background:var(--bg); color:var(--text); font-family:'Segoe UI',Arial,san
   <div class="filter-pills" id="salon-filter-pills"></div>
   <div class="grid-2-1" style="margin-bottom:16px">
     <div class="card">
-      <div class="card-title">TOP VENDEDORES — VENTA TOTAL (c/IVA)</div>
+      <div class="card-title">TOP VENDEDORES — VENTA TOTAL con IVA e intereses</div>
       <div class="hbar-list" id="hbar-vendedores"></div>
     </div>
     <div class="card">
@@ -287,7 +287,7 @@ body { background:var(--bg); color:var(--text); font-family:'Segoe UI',Arial,san
   <div class="filter-pills" id="sector-filter-pills"></div>
   <div class="grid-2" style="margin-bottom:16px">
     <div class="card">
-      <div class="card-title">TOP 15 RUBROS — VENTA NETA</div>
+      <div class="card-title">TOP 15 RUBROS — VENTA NETA SF (sin IVA, sin intereses)</div>
       <div class="hbar-list" id="hbar-rubros-venta"></div>
     </div>
     <div class="card">
@@ -318,7 +318,7 @@ body { background:var(--bg); color:var(--text); font-family:'Segoe UI',Arial,san
 <div class="tab-panel" id="panel-productos">
   <div class="grid-2" style="margin-bottom:16px">
     <div class="card">
-      <div class="card-title">TOP 15 PRODUCTOS — VENTA NETA</div>
+      <div class="card-title">TOP 15 PRODUCTOS — VENTA NETA SF (sin IVA, sin intereses)</div>
       <div class="hbar-list" id="hbar-productos-venta"></div>
     </div>
     <div class="card">
@@ -415,13 +415,13 @@ function renderKPIs() {
   var k = d.kpi;
   var cards = [
     { label:'VENTA',         value:fmtM(k.total),      delta:null,            sub:'con IVA e intereses',   color:'#6a0dad' },
-    { label:'VENTA NETA INT.',value:fmtM(k.venta),     delta:k.delta_venta,  sub:'YoY vs 2025', color:'#00b4d8' },
+    { label:'VENTA NETA SF', value:fmtM(k.total-(k.iva||0)-(k.intereses||0)), delta:k.delta_venta, sub:'sin IVA, sin intereses · YoY vs 2025', color:'#00b4d8' },
     { label:'COSTO',         value:fmtM(k.costo),      delta:null,            sub:'costo neto',            color:'#7209b7' },
     { label:'MARGEN BRUTO',  value:fmtM(k.margen),     delta:k.delta_margen, sub:fmtPct(k.margen_pct)+' s/ Venta Neta SF', color:'#3fb950' },
     { label:'MARGEN %',      value:fmtPct(k.margen_pct),delta:null,           sub:'sobre Venta Neta SF (sin IVA, sin financ.)', color:'#43aa8b' },
     { label:'MUP',           value:(k.mup||0).toFixed(2), delta:null,         sub:'Venta SF / Costo (filas c/costo>0)', color:'#b5e48c' },
     { label:'IVA',           value:fmtM(k.iva||0),     delta:null,            sub:fmtPct((k.iva||0)/(k.total||1))+' de la Venta', color:'#9d8df1' },
-    { label:'INTERESES',     value:fmtM(k.intereses||0),delta:null,           sub:fmtPct(k.tarjeta_pct||0)+' de la Venta · costo tarjetas', color:'#f4a261' },
+    { label:'INT. FINANCIACIÓN', value:fmtM(k.intereses||0),delta:null,       sub:fmtPct(k.tarjeta_pct||0)+' de la Venta · intereses de financiación al cliente', color:'#f4a261' },
     { label:'UNIDADES',      value:fmtN(k.uds),        delta:null,            sub:'vendidas',              color:'#f8961e' },
     { label:'TICKET PROM.',  value:fmtM(k.ticket_prom),delta:null,            sub:fmtN(k.tickets)+' transacciones', color:'#f72585' },
     { label:'VENDEDORES',    value:k.vendedores,       delta:null,            sub:'activos en el período', color:'#4cc9f0' },
@@ -721,17 +721,17 @@ function renderSalonCards() {
     html += '<div class="salon-detail-header" style="background:'+c+'22;border-bottom:1px solid '+c+'44">';
     html += '<div class="salon-detail-name" style="color:'+c+'">'+s.SALON+'</div>';
     html += '<div style="font-size:18px;font-weight:800;color:'+c+'">'+fmtM(s.total)+'</div>';
-    html += '<div style="font-size:11px;color:var(--muted);margin-top:2px">Venta (c/IVA e intereses)</div>';
+    html += '<div style="font-size:11px;color:var(--muted);margin-top:2px">Venta con IVA e intereses</div>';
     html += '</div>';
     html += '<div class="salon-detail-body">';
     html += '<div class="metric-row"><span class="metric-lbl">Costo</span><span class="metric-val">'+fmtM(s.costo)+'</span></div>';
     html += '<div class="metric-row"><span class="metric-lbl">Margen $</span><span class="metric-val" style="color:#3fb950">'+fmtM(s.margen)+'</span></div>';
     var mc = s.margen_pct>=0.25?'#3fb950':s.margen_pct>=0.22?'#f8961e':'#f85149';
-    html += '<div class="metric-row"><span class="metric-lbl">Margen % (sf)</span><span class="metric-val" style="color:'+mc+'">'+fmtPct(s.margen_pct)+'</span></div>';
+    html += '<div class="metric-row"><span class="metric-lbl">Margen % s/IVA s/Int.</span><span class="metric-val" style="color:'+mc+'">'+fmtPct(s.margen_pct)+'</span></div>';
     var smup = s.mup != null ? s.mup.toFixed(2) : '—';
     html += '<div class="metric-row"><span class="metric-lbl">MUP</span><span class="metric-val" style="color:#b5e48c">'+smup+'</span></div>';
     html += '<div class="metric-row"><span class="metric-lbl">IVA</span><span class="metric-val" style="color:#9d8df1">'+fmtM(s.iva||0)+'</span></div>';
-    html += '<div class="metric-row"><span class="metric-lbl">Intereses</span><span class="metric-val" style="color:#f4a261">'+fmtM(s.intereses||0)+'</span></div>';
+    html += '<div class="metric-row"><span class="metric-lbl">Int. financiación</span><span class="metric-val" style="color:#f4a261">'+fmtM(s.intereses||0)+'</span></div>';
     var stpct = s.tarjeta_pct != null ? fmtPct(s.tarjeta_pct) : '—';
     html += '<div class="metric-row"><span class="metric-lbl">Tarjeta %</span><span class="metric-val" style="color:#f4a261">'+stpct+'</span></div>';
     html += '<div class="metric-row"><span class="metric-lbl">Unidades</span><span class="metric-val">'+fmtN(s.uds)+'</span></div>';
