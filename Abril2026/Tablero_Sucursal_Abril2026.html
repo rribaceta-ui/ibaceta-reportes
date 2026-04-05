@@ -663,7 +663,7 @@ function renderGlbInmov(){
   if(sec) items=items.filter(x=>x.sd&&x.sd.toUpperCase().includes(sec));
   if(tnd) items=items.filter(x=>x.tienda===tnd);
   if(srch) items=items.filter(x=>(x.d||'').toLowerCase().includes(srch)||(x.c||'').toLowerCase().includes(srch));
-  items=sortArr(items,_tsort.gi.col,_tsort.gi.asc);
+  items=applyN(sortArr(items,_tsort.gi.col,_tsort.gi.asc));
   const em='<tr><td colspan="6" class="em">Sin resultados</td></tr>';
   $('glb-inmov-tbody').innerHTML=items.length?items.map(x=>`
     <tr>
@@ -686,7 +686,7 @@ function renderGlbOpps(){
   if(sec) items=items.filter(x=>x.sd&&x.sd.toUpperCase().includes(sec));
   if(tnd) items=items.filter(x=>x.tienda===tnd);
   if(srch) items=items.filter(x=>(x.d||'').toLowerCase().includes(srch));
-  items=sortArr(items,_tsort.go.col,_tsort.go.asc);
+  items=applyN(sortArr(items,_tsort.go.col,_tsort.go.asc));
   const em='<tr><td colspan="7" class="em">Sin oportunidades para la selección</td></tr>';
   $('glb-opps-tbody').innerHTML=items.length?items.map(x=>`
     <tr>
