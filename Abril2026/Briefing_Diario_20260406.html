@@ -1,0 +1,212 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>Briefing Diario — 06/04/2026 · IBACETA</title>
+<link href="https://fonts.googleapis.com/css2?family=Montserrat:wght@400;600;700;800&display=swap" rel="stylesheet">
+<style>
+:root {
+  --bg:     #0d1117;
+  --bg2:    #161b22;
+  --bg3:    #1c2128;
+  --border: #30363d;
+  --text:   #e6edf3;
+  --muted:  #8b949e;
+}
+* { margin:0; padding:0; box-sizing:border-box; }
+body {
+  background:var(--bg);
+  color:var(--text);
+  font-family:'Montserrat',Arial,sans-serif;
+  font-size:14px;
+  line-height:1.7;
+  min-height:100vh;
+}
+
+/* HEADER */
+.header {
+  background:var(--bg2);
+  border-bottom:1px solid var(--border);
+  padding:16px 32px;
+  display:flex;
+  align-items:center;
+  gap:16px;
+  position:sticky; top:0; z-index:100;
+}
+.logo { font-size:22px; font-weight:800; letter-spacing:1px; color:#e6edf3; }
+.logo span { color:#F1891B; }
+.header-badge {
+  background:var(--bg3);
+  border:1px solid var(--border);
+  border-radius:6px;
+  padding:4px 12px;
+  font-size:11px;
+  color:var(--muted);
+}
+.header-date { margin-left:auto; font-size:11px; color:var(--muted); }
+
+/* CONTENIDO */
+.container { max-width:860px; margin:0 auto; padding:32px 24px; }
+
+.titulo-briefing {
+  font-size:20px;
+  font-weight:800;
+  color:#e6edf3;
+  margin-bottom:24px;
+  padding-bottom:12px;
+  border-bottom:2px solid #F1891B;
+}
+
+/* SECCIONES */
+.seccion {
+  background:var(--bg2);
+  border:1px solid var(--border);
+  border-left:4px solid var(--sec-color, #00b4d8);
+  border-radius:8px;
+  margin-bottom:20px;
+  overflow:hidden;
+}
+.sec-header {
+  display:flex;
+  align-items:center;
+  gap:10px;
+  padding:12px 20px;
+  background:var(--bg3);
+  border-bottom:1px solid var(--border);
+}
+.sec-icon { font-size:18px; }
+.sec-title {
+  font-size:12px;
+  font-weight:800;
+  text-transform:uppercase;
+  letter-spacing:1px;
+  color:var(--sec-color, #00b4d8);
+}
+.sec-body {
+  padding:16px 20px;
+}
+
+/* TEXTO */
+p { margin-bottom:10px; color:#c9d1d9; }
+strong { color:#e6edf3; font-weight:700; }
+em { color:#8b949e; }
+code {
+  background:#1c2128;
+  border:1px solid #30363d;
+  border-radius:4px;
+  padding:1px 6px;
+  font-size:12px;
+  font-family:monospace;
+  color:#79c0ff;
+}
+
+/* LISTA */
+.lista {
+  list-style:none;
+  padding:0;
+  margin:0;
+}
+.lista li {
+  padding:8px 0 8px 16px;
+  border-bottom:1px solid var(--border);
+  color:#c9d1d9;
+  position:relative;
+}
+.lista li:last-child { border-bottom:none; }
+.lista li::before {
+  content:'›';
+  position:absolute;
+  left:0;
+  color:var(--sec-color, #8b949e);
+  font-weight:700;
+}
+
+.subtitulo {
+  font-size:13px;
+  font-weight:700;
+  color:#8b949e;
+  margin:12px 0 6px;
+  text-transform:uppercase;
+  letter-spacing:.5px;
+}
+
+.sep { height:6px; }
+
+/* FOOTER */
+.footer {
+  text-align:center;
+  padding:24px;
+  font-size:11px;
+  color:var(--muted);
+  border-top:1px solid var(--border);
+  margin-top:32px;
+}
+.footer b { color:#F1891B; }
+</style>
+</head>
+<body>
+
+<div class="header">
+  <div class="logo">IBA<span>CETA</span></div>
+  <div class="header-badge">📋 Briefing Diario</div>
+  <div class="header-date">Generado: 06/04/2026 09:11</div>
+</div>
+
+<div class="container">
+<h1 class="titulo-briefing">BRIEFING INTERPRETADO — 06/04/2026 09:11</h1>
+<div class="sep"></div>
+<div class="seccion" style="--sec-color:#00b4d8"><div class="sec-header"><span class="sec-icon">📊</span><span class="sec-title">SITUACIÓN GENERAL</span></div><div class="sec-body">
+<div class="sep"></div>
+<p>Abril arranca con un ritmo comercial marcadamente por debajo de lo esperado: a día 6, con el 25.7% del mes transcurrido, prácticamente ningún salón físico supera ese umbral de avance. El contexto YoY no es comparable para este mes (sin dato 2025), pero los meses anteriores mostraban crecimientos del 50-77%, lo que genera una base de expectativa alta. El volumen global de $394.5M en 6 días no es menor, pero la distribución y el ritmo interno encenden señales de alerta claras.</p>
+<div class="sep"></div>
+</div></div>
+<div class="sep"></div>
+<div class="seccion" style="--sec-color:#f85149"><div class="sec-header"><span class="sec-icon">🚨</span><span class="sec-title">ALERTAS CRÍTICAS</span></div><div class="sec-body">
+<div class="sep"></div>
+<ul class="lista">
+<li><strong>Colapso de ritmo en todos los salones físicos:</strong> 11 de 12 puntos de venta están en rojo, con ritmos entre 0.05 (Web) y 0.68 (Maipú). Esto no es ruido estadístico de inicio de mes: la brecha es demasiado pronunciada para recuperarse sin acción deliberada. San Martín y Web son los casos más extremos.</li>
+</ul>
+<div class="sep"></div>
+<ul class="lista">
+<li><strong>Web es una emergencia operativa:</strong> $1.7M vendidos contra un objetivo de $144.8M y un ritmo de 0.05. No se trata solo de retraso; algo estructural no está funcionando en el canal digital. Requiere revisión inmediata.</li>
+</ul>
+<div class="sep"></div>
+<ul class="lista">
+<li><strong>San Juan no cubre ni su punto de equilibrio:</strong> Con $31.9M vendidos y un punto de equilibrio de $270M, este salón opera hoy en zona de pérdida. Su margen del 22.2% es además uno de los más bajos de la red, agravando la situación.</li>
+</ul>
+<div class="sep"></div>
+<ul class="lista">
+<li><strong>Objetivos de unidades: 31 de 32 rubros en riesgo, con cero cumplidos.</strong> Calefacción (3.4%), ventiladores (4.1%) y microondas (8.4%) son los más críticos. Algunos rubros de equipamiento gastronómico —como Cocina Gastronómica con unidades negativas— muestran devoluciones o errores de carga que deben verificarse hoy.</li>
+</ul>
+<div class="sep"></div>
+<ul class="lista">
+<li><strong>Stock crítico en Horno Convector HC 470:</strong> El único artículo en alerta de compra urgente es un producto que figura entre los rubros de mayor venta y margen (Hornos Convectores: 38.7%). Quedarse sin stock en el rubro estrella del mes es un riesgo de facturación directo.</li>
+</ul>
+<div class="sep"></div>
+</div></div>
+<div class="sep"></div>
+<div class="seccion" style="--sec-color:#3fb950"><div class="sec-header"><span class="sec-icon">✅</span><span class="sec-title">PUNTOS DESTACADOS</span></div><div class="sec-body">
+<div class="sep"></div>
+<ul class="lista">
+<li><strong>Mercado Libre es el único canal en verde</strong>, con ritmo 1.22 y el mejor margen de toda la red (33.6%, MUP 1.50). CPELLEGRINUZZI lidera con $42.2M en 39 operaciones. El canal online B2C está traccionando con fuerza y debe sostenerse con stock y atención.</li>
+</ul>
+<div class="sep"></div>
+<ul class="lista">
+<li><strong>Márgenes saludables donde hay volumen:</strong> Alameda —el salón ancla con $130.5M— mantiene un margen del 25.3% y lidera en volumen absoluto. FMURUA con $54.4M es el vendedor más productivo de la red, con margen superior al promedio. Mercado Libre, Villa Krause y San Luis Calle también están por encima del 26%, señal de que la política de precios es sólida donde se aplica bien.</li>
+</ul>
+<div class="sep"></div>
+</div></div>
+<div class="sep"></div>
+<div class="seccion" style="--sec-color:#f8961e"><div class="sec-header"><span class="sec-icon">📦</span><span class="sec-title">STOCK Y COMPRAS</span></div><div class="sec-body">
+<div class="sep"></div>
+<p>La cobertura general es razonablemente estable (45 de 56 artículos en verde), pero hay dos puntos críticos que no deben postergarse. El Horno Convector HC 470 Gas no tiene cobertura registrada —debe gestionarse una orden de compra hoy, dado que los hornos convectores son el segundo rubro en venta y el de mayor margen (38.7%). Los artículos en monitoreo con cobertura de 1 mes —Cocina Depaolo, Mostrador Frider 2.41m y Horno HC 1070— están a un paso de la ruptura; con el ritmo actual de equipamiento, una semana sin reposición puede traducirse en ventas perdidas en rubros de ticket</p>
+<div class="sep"></div>
+</div></div>
+<p><em>Generado automáticamente por generar_contexto.py · 06/04/2026 09:11</em></p>
+<div class="sep"></div>
+</div>
+
+<div class="footer">IBACETA &mdash; <b>Gerente Comercial Digital</b> &middot; Briefing Automático</div>
+</body>
+</html>
