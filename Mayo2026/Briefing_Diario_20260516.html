@@ -1,0 +1,220 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>Briefing Diario — 16/05/2026 · IBACETA</title>
+<link href="https://fonts.googleapis.com/css2?family=Montserrat:wght@400;600;700;800&display=swap" rel="stylesheet">
+<style>
+:root {
+  --bg:     #0d1117;
+  --bg2:    #161b22;
+  --bg3:    #1c2128;
+  --border: #30363d;
+  --text:   #e6edf3;
+  --muted:  #8b949e;
+}
+* { margin:0; padding:0; box-sizing:border-box; }
+body {
+  background:var(--bg);
+  color:var(--text);
+  font-family:'Montserrat',Arial,sans-serif;
+  font-size:14px;
+  line-height:1.7;
+  min-height:100vh;
+}
+
+/* HEADER */
+.header {
+  background:var(--bg2);
+  border-bottom:1px solid var(--border);
+  padding:16px 32px;
+  display:flex;
+  align-items:center;
+  gap:16px;
+  position:sticky; top:0; z-index:100;
+}
+.logo { font-size:22px; font-weight:800; letter-spacing:1px; color:#e6edf3; }
+.logo span { color:#F1891B; }
+.header-badge {
+  background:var(--bg3);
+  border:1px solid var(--border);
+  border-radius:6px;
+  padding:4px 12px;
+  font-size:11px;
+  color:var(--muted);
+}
+.header-date { margin-left:auto; font-size:11px; color:var(--muted); }
+
+/* CONTENIDO */
+.container { max-width:860px; margin:0 auto; padding:32px 24px; }
+
+.titulo-briefing {
+  font-size:20px;
+  font-weight:800;
+  color:#e6edf3;
+  margin-bottom:24px;
+  padding-bottom:12px;
+  border-bottom:2px solid #F1891B;
+}
+
+/* SECCIONES */
+.seccion {
+  background:var(--bg2);
+  border:1px solid var(--border);
+  border-left:4px solid var(--sec-color, #00b4d8);
+  border-radius:8px;
+  margin-bottom:20px;
+  overflow:hidden;
+}
+.sec-header {
+  display:flex;
+  align-items:center;
+  gap:10px;
+  padding:12px 20px;
+  background:var(--bg3);
+  border-bottom:1px solid var(--border);
+}
+.sec-icon { font-size:18px; }
+.sec-title {
+  font-size:12px;
+  font-weight:800;
+  text-transform:uppercase;
+  letter-spacing:1px;
+  color:var(--sec-color, #00b4d8);
+}
+.sec-body {
+  padding:16px 20px;
+}
+
+/* TEXTO */
+p { margin-bottom:10px; color:#c9d1d9; }
+strong { color:#e6edf3; font-weight:700; }
+em { color:#8b949e; }
+code {
+  background:#1c2128;
+  border:1px solid #30363d;
+  border-radius:4px;
+  padding:1px 6px;
+  font-size:12px;
+  font-family:monospace;
+  color:#79c0ff;
+}
+
+/* LISTA */
+.lista {
+  list-style:none;
+  padding:0;
+  margin:0;
+}
+.lista li {
+  padding:8px 0 8px 16px;
+  border-bottom:1px solid var(--border);
+  color:#c9d1d9;
+  position:relative;
+}
+.lista li:last-child { border-bottom:none; }
+.lista li::before {
+  content:'›';
+  position:absolute;
+  left:0;
+  color:var(--sec-color, #8b949e);
+  font-weight:700;
+}
+
+.subtitulo {
+  font-size:13px;
+  font-weight:700;
+  color:#8b949e;
+  margin:12px 0 6px;
+  text-transform:uppercase;
+  letter-spacing:.5px;
+}
+
+.sep { height:6px; }
+
+/* FOOTER */
+.footer {
+  text-align:center;
+  padding:24px;
+  font-size:11px;
+  color:var(--muted);
+  border-top:1px solid var(--border);
+  margin-top:32px;
+}
+.footer b { color:#F1891B; }
+</style>
+</head>
+<body>
+
+<div class="header">
+  <div class="logo">IBA<span>CETA</span></div>
+  <div class="header-badge">📋 Briefing Diario</div>
+  <div class="header-date">Generado: 16/05/2026 10:32</div>
+</div>
+
+<div class="container">
+<h1 class="titulo-briefing">BRIEFING INTERPRETADO — 16/05/2026 10:32</h1>
+<div class="sep"></div>
+<div class="seccion" style="--sec-color:#00b4d8"><div class="sec-header"><span class="sec-icon">📊</span><span class="sec-title">SITUACIÓN GENERAL</span></div><div class="sec-body">
+<div class="sep"></div>
+<p>Mayo arranca con un ritmo comercial preocupante: al día 16 (exactamente el 50% del mes), prácticamente toda la red de salones está por debajo del avance esperado. Sin comparativo YoY disponible para mayo, el contexto de referencia son los meses previos de 2026, todos con crecimiento fuerte sobre 2025, lo que eleva la vara de expectativa. El mes no está perdido, pero requiere acción inmediata y focalizada.</p>
+<div class="sep"></div>
+</div></div>
+<div class="sep"></div>
+<div class="seccion" style="--sec-color:#f85149"><div class="sec-header"><span class="sec-icon">🚨</span><span class="sec-title">ALERTAS CRÍTICAS</span></div><div class="sec-body">
+<div class="sep"></div>
+<ul class="lista">
+<li><strong>San Luis y Villa Mercedes en colapso comercial.</strong> Con ritmos de 0.52 y 0.55 respectivamente, están vendiendo apenas la mitad de lo que deberían llevar a esta altura. Ninguno alcanza siquiera su punto de equilibrio mensual con la proyección actual. Son los dos focos de mayor urgencia.</li>
+</ul>
+<div class="sep"></div>
+<ul class="lista">
+<li><strong>Alameda, el salón ancla, está en rojo severo.</strong> Con un ritmo de 0.75 sobre un objetivo de $672M, el desvío en términos absolutos es el más grande de toda la cadena. Que el salón de mayor volumen esté tan rezagado arrastra el número global de forma determinante.</li>
+</ul>
+<div class="sep"></div>
+<ul class="lista">
+<li><strong>El Canal Mayorista destruye margen: -15% de margen bruto.</strong> Está vendiendo por debajo del costo. Con $72M facturados y margen negativo, este canal está generando pérdida real. Necesita revisión urgente de política de precios o condiciones de venta antes de seguir operando en estas condiciones.</li>
+</ul>
+<div class="sep"></div>
+<ul class="lista">
+<li><strong>25 de 35 rubros en riesgo en unidades, varios en niveles críticos.</strong> Ventiladores al 4%, Aires Acondicionados al 8%, Lavarropas al 25%, Heladeras Familiares al 25%. No se trata de uno o dos rubros flojos: es una debilidad estructural del mes en volumen de unidades.</li>
+</ul>
+<div class="sep"></div>
+<ul class="lista">
+<li><strong>Tres artículos requieren compra urgente</strong> con coberturas de 0.5 a 0.8 semanas, especialmente el Horno MC600 de Santini y la Cocina Depaolo. Si no se reponen hoy, se pierden ventas en rubros que ya están bajos.</li>
+</ul>
+<div class="sep"></div>
+</div></div>
+<div class="sep"></div>
+<div class="seccion" style="--sec-color:#3fb950"><div class="sec-header"><span class="sec-icon">✅</span><span class="sec-title">PUNTOS DESTACADOS</span></div><div class="sec-body">
+<div class="sep"></div>
+<ul class="lista">
+<li><strong>Mercado Libre es la estrella del mes:</strong> 103% de cumplimiento al día 16, ritmo 2.06, y el margen más alto de los canales digitales (33.4%). Un solo operador —CPELLEGRINUZZI— mueve $117.5M con ese margen. Canal que merece potenciarse activamente.</li>
+</ul>
+<div class="sep"></div>
+<ul class="lista">
+<li><strong>Mayorista en volumen, San Martín y Villa Krause en equilibrio.</strong> El canal Mayorista, pese al problema de margen, superó ya el 72% de su objetivo. San Martín y Villa Krause son los únicos salones físicos que van a ritmo o levemente por encima, y San Martín muestra uno de los mejores márgenes de la red (29.5%).</li>
+</ul>
+<div class="sep"></div>
+<ul class="lista">
+<li><strong>Los rubros de Equipamiento de alto margen traccionan bien en valor.</strong> Vertical Congelados (32.5%), Hornos Pizzeros (37.1%), Amasadoras (32.3%) y Bateas Carniceras (29.7%) muestran solidez en rentabilidad, lo que sostiene el margen global del negocio pese al bajo volumen de unidades.</li>
+</ul>
+<div class="sep"></div>
+</div></div>
+<div class="sep"></div>
+<div class="seccion" style="--sec-color:#f8961e"><div class="sec-header"><span class="sec-icon">📦</span><span class="sec-title">STOCK Y COMPRAS</span></div><div class="sec-body">
+<div class="sep"></div>
+<p>La situación de stock es manejable en términos generales (55 de 75 productos en OK), pero los 3 artículos críticos concentran rubros que ya están en riesgo de cumplimiento: hornos y cocinas. Con el nivel de cumplimiento actual en esas categorías, no tener stock es directamente venta perdida. Los 15 artículos en monitoreo incluyen varios con cobertura de 1 semana exacta —cualquier pico de demanda los deja en quiebre. Se recomienda adelantar órdenes esta semana, no esperar al fin de mes.</p>
+<div class="sep"></div>
+</div></div>
+<div class="sep"></div>
+<div class="seccion" style="--sec-color:#7209b7"><div class="sec-header"><span class="sec-icon">🎯</span><span class="sec-title">FOCO DE</span></div><div class="sec-body">
+<div class="sep"></div>
+</div></div>
+<p><em>Generado automáticamente por generar_contexto.py · 16/05/2026 10:32</em></p>
+<div class="sep"></div>
+</div>
+
+<div class="footer">IBACETA &mdash; <b>Gerente Comercial Digital</b> &middot; Briefing Automático</div>
+</body>
+</html>
