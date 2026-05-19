@@ -104,6 +104,7 @@ td{padding:7px 12px;border-bottom:1px solid #f0f0f0;vertical-align:middle}
 tr:nth-child(even) td{background:#fafafa}
 tr:hover td{background:#eef5fb}
 .nr{text-align:right;font-weight:600}
+.pc{font-size:10px;color:#888;font-family:monospace;margin-bottom:2px}
 .pd{font-weight:600;font-size:12px;color:var(--tx)}
 .pr{font-size:10px;color:#bbb;margin-top:1px}
 .ps{font-size:10px;color:var(--az);font-weight:700;margin-top:1px}
@@ -447,8 +448,10 @@ function fuente(f){
 }
 
 function rowBase(x,cells){
+  const codParts=(x.c||'').split('*');
+  const codArt=codParts.length===2?codParts[1]:x.c||'';
   return `<tr>
-    <td><div class="pd">${x.d||''}</div></td>
+    <td><div class="pc">${codArt}</div><div class="pd">${x.d||''}</div></td>
     <td><div class="pr">${x.r||''}</div><div class="ps">${x.sd||''}</div></td>
     ${cells}
   </tr>`;
@@ -509,15 +512,15 @@ function renderPanelD(){
   const items=applyN(sortArr(filt,_tsort.d.col,_tsort.d.asc));
   $('bd').textContent=filt.length;
   const em='<tr><td colspan="6" class="em">No hay productos a comprar detectados</td></tr>';
-  $('td2').innerHTML=items.length?items.map(x=>`
+  $('td2').innerHTML=items.length?items.map(x=>{const cp2=(x.c||'').split('*');const ca2=cp2.length===2?cp2[1]:x.c||'';return`
     <tr>
-      <td><div class="pd">${x.d||''}</div></td>
+      <td><div class="pc">${ca2}</div><div class="pd">${x.d||''}</div></td>
       <td><div class="pr">${x.r||''}</div><div class="ps">${x.sd||''}</div></td>
       <td class="nr">${x.ns||0} sucs.</td>
       <td class="sl">${(x.os||[]).slice(0,3).join(', ')}</td>
       <td class="nr">${fN(x.ts||0)} u.</td>
       <td class="nr" style="color:#6c3483;font-weight:700">${fM(x.vv||0)}</td>
-    </tr>`).join(''):em;
+    </tr>`}).join(''):em;
 }
 
 function renderPanels(pd){
