@@ -36,6 +36,10 @@ body{font-family:var(--fb);background:var(--bg);color:var(--tx);font-size:13px}
 .tab.per-active{background:var(--na);border-color:var(--na);color:#fff}
 .tab.rol-active{background:#6c3483;border-color:#6c3483;color:#fff}
 .tab.n-active{background:#555;border-color:#555;color:#fff}
+.dl-btn{padding:4px 12px;border-radius:14px;border:1.5px solid #27ae60;background:#27ae60;
+         color:#fff;font-size:11px;font-weight:700;cursor:pointer;margin-left:10px;
+         font-family:var(--fh);transition:background .15s}
+.dl-btn:hover{background:#1e8449}
 
 .nav-bar{background:#f0f6fb;border-bottom:1px solid #d8e8f4;
           padding:8px 32px;display:flex;align-items:center;gap:8px;flex-wrap:wrap}
@@ -265,7 +269,8 @@ tr:hover td{background:#eef5fb}
     <div class="panel" id="panel-d" style="display:none">
       <div class="ph"><span class="pi">📦</span>
         <span class="pt" style="color:#6c3483">D · Compras — hay demanda pero nadie tiene stock</span>
-        <span class="pb2" id="bd">0</span></div>
+        <span class="pb2" id="bd">0</span>
+        <button class="dl-btn" onclick="descargarCSV()" title="Descargar lista de compras como CSV">⬇ Descargar</button></div>
       <div class="pdesc">2+ sucursales vendían este producto pero no hay stock en toda la red (CD ni locales). Hay que comprar al proveedor.</div>
       <div class="tw"><table>
         <thead><tr id="th-d">
@@ -746,6 +751,29 @@ function setPer(per){
   activePer=per;activeSec=null;activeRub=null;
   setActive('per-tabs','.tab','data-k',per,'per-active');
   if(activeGlobal) renderGlobal(); else render();
+}
+
+function descargarCSV(){
+  const headers=['Código','Producto','Rubro','Sector','Sucs. que vendían','Quiénes','Uds. vendidas (90d)','Demanda estimada'];
+  const suc=DATA[activeSuc]?.nombre||activeSuc||'Red';
+  const per=PERIODOS[activePer]||activePer;
+  const esc=v=>'"'+String(v).replace(/"/g,'""')+'"';
+  let filt=PANEL_D;
+  if(activeSec!==null) filt=filt.filter(x=>x.sn===activeSec);
+  if(activeRub!==null) filt=filt.filter(x=>x.r===activeRub);
+  const lines=[headers.map(esc).join(',')];
+  filt.forEach(x=>{
+    const cp=(x.c||'').split('*');
+    const codArt=cp.length===2?cp[1]:x.c||'';
+    lines.push([codArt,x.d||'',x.r||'',x.sd||'',x.ns||0,(x.os||[]).join(' / '),x.ts||0,x.vv||0].map(esc).join(','));
+  });
+  const filename=`Compras_${suc}_${per}.csv`.replace(/\s+/g,'_');
+  const blob=new Blob(['﻿'+lines.join('
+')],{type:'text/csv;charset=utf-8'});
+  const url=URL.createObjectURL(blob);
+  const a=document.createElement('a');
+  a.href=url;a.download=filename;a.click();
+  URL.revokeObjectURL(url);
 }
 
 document.addEventListener('DOMContentLoaded',()=>{
