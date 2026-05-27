@@ -170,7 +170,10 @@ body{ background:var(--bg); color:var(--text); font-family:-apple-system,BlinkMa
 .canal-name{ width:80px; font-size:13px; font-weight:700; flex-shrink:0; }
 .canal-track{ flex:1; height:12px; background:var(--bg3); border-radius:6px; overflow:hidden; }
 .canal-fill{ height:100%; border-radius:6px; transition:width .5s ease; }
-.canal-val{ width:70px; text-align:right; font-size:13px; font-weight:700; }
+.canal-vals{ display:flex; flex-direction:column; align-items:flex-end; gap:1px; min-width:110px; }
+.canal-val{ text-align:right; font-size:13px; font-weight:700; white-space:nowrap; }
+.canal-val-sf{ text-align:right; font-size:11px; color:var(--muted); white-space:nowrap; }
+.canal-tag{ font-size:9px; font-weight:400; color:var(--muted); margin-left:4px; text-transform:uppercase; letter-spacing:.5px; }
 .canal-pct{ width:44px; text-align:right; font-size:11px; color:var(--muted); }
 
 /* ── Donut ── */
@@ -252,7 +255,7 @@ body{ background:var(--bg); color:var(--text); font-family:-apple-system,BlinkMa
   </div>
 
   <div class="header-center">
-    <div class="gen-badge">Generado: 26/05/2026 20:57</div>
+    <div class="gen-badge">Generado: 26/05/2026 21:12</div>
   </div>
 
   <div class="header-right">
@@ -781,16 +784,19 @@ function renderCanalBars(d) {
     { key:'m',   nom:'MELI',      col:'var(--c-m)',   icon:'🛒' },
     { key:'may', nom:'Mayorista', col:'var(--c-may)', icon:'🏭' },
   ];
-  var total = d.canal_data.all.venta || 1;
+  var totalBruto = d.canal_data.all.total || 1;
   var html = '';
   canales.forEach(function(c) {
     var cd = d.canal_data[c.key];
-    var pct = cd.venta / total;
+    var pct = cd.total / totalBruto;
     var barW = Math.max(0, Math.min(100, pct * 100));
     html += '<div class="canal-row">' +
       '<div class="canal-name">' + c.icon + ' ' + c.nom + '</div>' +
       '<div class="canal-track"><div class="canal-fill" style="width:' + barW + '%;background:' + c.col + '"></div></div>' +
-      '<div class="canal-val" style="color:' + c.col + '">' + fmtM(cd.venta) + '</div>' +
+      '<div class="canal-vals">' +
+        '<div class="canal-val" style="color:' + c.col + '">' + fmtM(cd.total) + '<span class="canal-tag">c/IVA</span></div>' +
+        '<div class="canal-val-sf">' + fmtM(cd.base) + '<span class="canal-tag">s/IVA s/fin.</span></div>' +
+      '</div>' +
       '<div class="canal-pct">' + fmtP(pct) + '</div>' +
       '</div>';
   });
