@@ -1,0 +1,623 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>Tablero Venta Calle — Junio 2026 — Ibaceta</title>
+<link href="https://fonts.googleapis.com/css2?family=Montserrat:wght@400;600;700;800&family=Open+Sans:wght@400;600&display=swap" rel="stylesheet">
+<style>
+:root {
+  --az: #00548A;
+  --na: #F1891B;
+  --bg: #F5F5F5;
+  --sur: #FFFFFF;
+  --tx: #333333;
+  --r: 6px;
+  --sh: 0 2px 8px rgba(0,0,0,.08);
+}
+* { box-sizing: border-box; margin: 0; padding: 0; }
+body {
+  font-family: 'Open Sans', sans-serif;
+  background: var(--bg);
+  color: var(--tx);
+  font-size: 13px;
+}
+.container {
+  max-width: 1200px;
+  margin: 0 auto;
+  padding: 24px 20px 40px;
+}
+.footer {
+  text-align: center;
+  color: #aaa;
+  font-size: 11px;
+  padding: 20px 0 40px;
+  border-top: 1px solid #ddd;
+  margin-top: 10px;
+}
+</style>
+</head>
+<body>
+
+<!-- HEADER -->
+<div style="background:#00548A;color:#fff;padding:18px 32px;
+            display:flex;align-items:center;gap:16px;
+            box-shadow:0 3px 12px rgba(0,0,0,.15)">
+  <div style="font-family:'Montserrat',sans-serif;font-size:22px;font-weight:800;letter-spacing:1px">
+    IBA<span style="color:#F1891B">CETA</span>
+  </div>
+  <div style="width:1px;height:30px;background:rgba(255,255,255,.25)"></div>
+  <div>
+    <div style="font-family:'Montserrat',sans-serif;font-size:15px;font-weight:800;letter-spacing:.5px">
+      TABLERO VENTA CALLE — JUNIO 2026
+    </div>
+    <div style="font-size:11px;opacity:.75;margin-top:2px">Período Junio 2026: 31/05/2026 → 27/06/2026 · Día 10 de 28</div>
+  </div>
+  <div style="margin-left:auto;text-align:right;font-size:11px;opacity:.7;line-height:1.8">
+    Actualizado: 09/06/2026 10:08
+  </div>
+</div>
+
+<!-- RESUMEN GENERAL -->
+<div style="background:#00548A;padding:0 32px 20px">
+  <div style="display:flex;gap:16px;flex-wrap:wrap;max-width:1200px;margin:0 auto">
+    <div style="background:rgba(255,255,255,.12);border-radius:6px;padding:14px 20px;flex:1;min-width:160px;border-left:4px solid #F1891B">
+      <div style="font-family:'Montserrat',sans-serif;font-size:9px;font-weight:800;
+                  text-transform:uppercase;letter-spacing:.8px;color:rgba(255,255,255,.65)">Venta total calle</div>
+      <div style="font-family:'Montserrat',sans-serif;font-size:28px;font-weight:800;
+                  color:#fff;margin-top:4px">$89.3M</div>
+    </div>
+    <div style="background:rgba(255,255,255,.12);border-radius:6px;padding:14px 20px;flex:1;min-width:160px">
+      <div style="font-family:'Montserrat',sans-serif;font-size:9px;font-weight:800;
+                  text-transform:uppercase;letter-spacing:.8px;color:rgba(255,255,255,.65)">Objetivo consolidado</div>
+      <div style="font-family:'Montserrat',sans-serif;font-size:28px;font-weight:800;
+                  color:#F1891B;margin-top:4px">Sin objetivo</div>
+    </div>
+    <div style="background:rgba(255,255,255,.12);border-radius:6px;padding:14px 20px;flex:1;min-width:160px;border-left:4px solid #D0312D">
+      <div style="font-family:'Montserrat',sans-serif;font-size:9px;font-weight:800;
+                  text-transform:uppercase;letter-spacing:.8px;color:rgba(255,255,255,.65)">Cumplimiento total</div>
+      <div style="font-family:'Montserrat',sans-serif;font-size:28px;font-weight:800;
+                  color:#fff;margin-top:4px">—</div>
+    </div>
+    <div style="background:rgba(255,255,255,.12);border-radius:6px;padding:14px 20px;flex:1;min-width:160px">
+      <div style="font-family:'Montserrat',sans-serif;font-size:9px;font-weight:800;
+                  text-transform:uppercase;letter-spacing:.8px;color:rgba(255,255,255,.65)">Unidades</div>
+      <div style="font-family:'Montserrat',sans-serif;font-size:28px;font-weight:800;
+                  color:#fff;margin-top:4px">235</div>
+    </div>
+    <div style="background:rgba(255,255,255,.12);border-radius:6px;padding:14px 20px;flex:1;min-width:160px">
+      <div style="font-family:'Montserrat',sans-serif;font-size:9px;font-weight:800;
+                  text-transform:uppercase;letter-spacing:.8px;color:rgba(255,255,255,.65)">Operaciones</div>
+      <div style="font-family:'Montserrat',sans-serif;font-size:28px;font-weight:800;
+                  color:#fff;margin-top:4px">127</div>
+    </div>
+  </div>
+</div>
+
+<!-- CARDS POR UNIDAD -->
+<div class="container">
+  
+<div style="background:#fff;border-radius:8px;box-shadow:0 2px 12px rgba(0,0,0,.08);
+            margin-bottom:28px;overflow:hidden">
+
+  <!-- Encabezado de unidad -->
+  <div style="background:#00548A;color:#fff;padding:14px 22px;display:flex;align-items:center;gap:12px">
+    <div style="font-family:'Montserrat',sans-serif;font-size:17px;font-weight:800;letter-spacing:.5px">Mendoza Calle</div>
+    <div style="margin-left:auto;font-size:12px;opacity:.8">55 operaciones · 55 unidades</div>
+  </div>
+
+  <div style="padding:20px 22px">
+
+    <!-- KPI cards -->
+    <div style="display:grid;grid-template-columns:repeat(auto-fill,minmax(170px,1fr));gap:14px;margin-bottom:20px">
+
+      <!-- Total -->
+      <div style="background:#f8f9fa;border-radius:6px;padding:14px 16px;border-left:4px solid #00548A">
+        <div style="font-family:'Montserrat',sans-serif;font-size:9px;font-weight:800;
+                    text-transform:uppercase;letter-spacing:.8px;color:#bbb">Venta Total MTD</div>
+        <div style="font-family:'Montserrat',sans-serif;font-size:26px;font-weight:800;
+                    color:#00548A;margin-top:4px;line-height:1">$44.7M</div>
+        <div style="font-size:10px;color:#aaa;margin-top:4px">
+          Contado: <b>$10.9M</b> &nbsp;+&nbsp; Calle: <b>$33.8M</b>
+        </div>
+      </div>
+
+      <div style="background:#f8f9fa;border-radius:6px;padding:14px 16px;border-left:4px solid #F1891B">
+        <div style="font-family:'Montserrat',sans-serif;font-size:9px;font-weight:800;
+                    text-transform:uppercase;letter-spacing:.8px;color:#bbb">Objetivo mes</div>
+        <div style="font-family:'Montserrat',sans-serif;font-size:26px;font-weight:800;
+                    color:#F1891B;margin-top:4px;line-height:1">Sin objetivo</div>
+        <div style="font-size:10px;color:#aaa;margin-top:3px">Ajustado por inflación</div>
+      </div>
+
+      <div style="background:#f8f9fa;border-radius:6px;padding:14px 16px;border-left:4px solid #D0312D">
+        <div style="font-family:'Montserrat',sans-serif;font-size:9px;font-weight:800;
+                    text-transform:uppercase;letter-spacing:.8px;color:#bbb">% Cumplimiento</div>
+        <div style="font-family:'Montserrat',sans-serif;font-size:26px;font-weight:800;
+                    color:#D0312D;margin-top:4px;line-height:1">—</div>
+        <div style="color:#bbb;font-size:11px;margin-top:8px">Sin objetivo para calcular</div>
+      </div>
+
+      <div style="background:#f8f9fa;border-radius:6px;padding:14px 16px;border-left:4px solid #6c757d">
+        <div style="font-family:'Montserrat',sans-serif;font-size:9px;font-weight:800;
+                    text-transform:uppercase;letter-spacing:.8px;color:#bbb">Debería al día</div>
+        <div style="font-family:'Montserrat',sans-serif;font-size:26px;font-weight:800;
+                    color:#555;margin-top:4px;line-height:1">—</div>
+        <div style="font-size:10px;color:#aaa;margin-top:3px">Ritmo: <span style="font-weight:700;color:#D0312D">—</span></div>
+      </div>
+
+    </div>
+
+    <!-- Tabla por sector -->
+    <div style="margin-bottom:20px">
+      <div style="font-family:'Montserrat',sans-serif;font-size:11px;font-weight:800;
+                  text-transform:uppercase;letter-spacing:.6px;color:#00548A;
+                  margin-bottom:8px;padding-bottom:6px;border-bottom:2px solid #F1891B">
+        Venta por sector
+      </div>
+      <div style="overflow-x:auto">
+        <table style="width:100%;border-collapse:collapse">
+          <thead>
+            <tr>
+              <th style="background:#00548A;color:#fff;font-family:'Montserrat',sans-serif;
+                         font-size:9px;font-weight:800;text-transform:uppercase;letter-spacing:.5px;
+                         padding:8px 10px;text-align:left">Sector</th>
+              <th style="background:#00548A;color:#fff;font-family:'Montserrat',sans-serif;
+                         font-size:9px;font-weight:800;text-transform:uppercase;letter-spacing:.5px;
+                         padding:8px 10px;text-align:right">Total</th>
+              <th style="background:#00548A;color:#fff;font-family:'Montserrat',sans-serif;
+                         font-size:9px;font-weight:800;text-transform:uppercase;letter-spacing:.5px;
+                         padding:8px 10px;text-align:right">Contado</th>
+              <th style="background:#00548A;color:#fff;font-family:'Montserrat',sans-serif;
+                         font-size:9px;font-weight:800;text-transform:uppercase;letter-spacing:.5px;
+                         padding:8px 10px;text-align:right">Calle</th>
+              <th style="background:#00548A;color:#fff;font-family:'Montserrat',sans-serif;
+                         font-size:9px;font-weight:800;text-transform:uppercase;letter-spacing:.5px;
+                         padding:8px 10px;text-align:right">% Obj.</th>
+              <th style="background:#00548A;color:#fff;font-family:'Montserrat',sans-serif;
+                         font-size:9px;font-weight:800;text-transform:uppercase;letter-spacing:.5px;
+                         padding:8px 10px;text-align:right">Unidades</th>
+            </tr>
+          </thead>
+          <tbody>
+<tr>
+  <td style="padding:7px 10px;border-bottom:1px solid #f0f0f0;font-size:12px;font-weight:600">EQUIPAMIENTO</td>
+  <td style="padding:7px 10px;border-bottom:1px solid #f0f0f0;font-size:12px;text-align:right;font-weight:700;color:#00548A">$8.8M</td>
+  <td style="padding:7px 10px;border-bottom:1px solid #f0f0f0;font-size:12px;text-align:right;color:#555">$5.4M</td>
+  <td style="padding:7px 10px;border-bottom:1px solid #f0f0f0;font-size:12px;text-align:right;color:#555">$3.4M</td>
+  <td style="padding:7px 10px;border-bottom:1px solid #f0f0f0;font-size:12px;text-align:right;color:#888">—</td>
+  <td style="padding:7px 10px;border-bottom:1px solid #f0f0f0;font-size:12px;text-align:right">11</td>
+</tr>
+<tr>
+  <td style="padding:7px 10px;border-bottom:1px solid #f0f0f0;font-size:12px;font-weight:600">USADO</td>
+  <td style="padding:7px 10px;border-bottom:1px solid #f0f0f0;font-size:12px;text-align:right;font-weight:700;color:#00548A">$0</td>
+  <td style="padding:7px 10px;border-bottom:1px solid #f0f0f0;font-size:12px;text-align:right;color:#555">$0</td>
+  <td style="padding:7px 10px;border-bottom:1px solid #f0f0f0;font-size:12px;text-align:right;color:#555">$0</td>
+  <td style="padding:7px 10px;border-bottom:1px solid #f0f0f0;font-size:12px;text-align:right;color:#888">—</td>
+  <td style="padding:7px 10px;border-bottom:1px solid #f0f0f0;font-size:12px;text-align:right">0</td>
+</tr>
+<tr>
+  <td style="padding:7px 10px;border-bottom:1px solid #f0f0f0;font-size:12px;font-weight:600">HOGAR</td>
+  <td style="padding:7px 10px;border-bottom:1px solid #f0f0f0;font-size:12px;text-align:right;font-weight:700;color:#00548A">$20.3M</td>
+  <td style="padding:7px 10px;border-bottom:1px solid #f0f0f0;font-size:12px;text-align:right;color:#555">$4.8M</td>
+  <td style="padding:7px 10px;border-bottom:1px solid #f0f0f0;font-size:12px;text-align:right;color:#555">$15.5M</td>
+  <td style="padding:7px 10px;border-bottom:1px solid #f0f0f0;font-size:12px;text-align:right;color:#888">—</td>
+  <td style="padding:7px 10px;border-bottom:1px solid #f0f0f0;font-size:12px;text-align:right">25</td>
+</tr></tbody>
+        </table>
+      </div>
+    </div>
+
+    <!-- Top 5 vendedores -->
+    <div>
+      <div style="font-family:'Montserrat',sans-serif;font-size:11px;font-weight:800;
+                  text-transform:uppercase;letter-spacing:.6px;color:#00548A;
+                  margin-bottom:8px;padding-bottom:6px;border-bottom:2px solid #F1891B">
+        Top 5 vendedores
+      </div>
+      <div style="overflow-x:auto">
+        <table style="width:100%;border-collapse:collapse">
+          <thead>
+            <tr>
+              <th style="background:#00548A;color:#fff;font-family:'Montserrat',sans-serif;
+                         font-size:9px;font-weight:800;text-transform:uppercase;letter-spacing:.5px;
+                         padding:8px 10px;text-align:left">Vendedor</th>
+              <th style="background:#00548A;color:#fff;font-family:'Montserrat',sans-serif;
+                         font-size:9px;font-weight:800;text-transform:uppercase;letter-spacing:.5px;
+                         padding:8px 10px;text-align:right">Ventas $</th>
+              <th style="background:#00548A;color:#fff;font-family:'Montserrat',sans-serif;
+                         font-size:9px;font-weight:800;text-transform:uppercase;letter-spacing:.5px;
+                         padding:8px 10px;text-align:right">Unidades</th>
+              <th style="background:#00548A;color:#fff;font-family:'Montserrat',sans-serif;
+                         font-size:9px;font-weight:800;text-transform:uppercase;letter-spacing:.5px;
+                         padding:8px 10px;text-align:right">Operaciones</th>
+            </tr>
+          </thead>
+          <tbody>
+<tr style="background:#fafafa">
+  <td style="padding:7px 10px;border-bottom:1px solid #f0f0f0;font-size:12px;font-weight:600">LBOERIS                       </td>
+  <td style="padding:7px 10px;border-bottom:1px solid #f0f0f0;font-size:12px;text-align:right;color:#00548A;font-weight:700">$12.0M</td>
+  <td style="padding:7px 10px;border-bottom:1px solid #f0f0f0;font-size:12px;text-align:right">9</td>
+  <td style="padding:7px 10px;border-bottom:1px solid #f0f0f0;font-size:12px;text-align:right">9</td>
+</tr>
+<tr style="background:#fff">
+  <td style="padding:7px 10px;border-bottom:1px solid #f0f0f0;font-size:12px;font-weight:600">PRIVAMAR                      </td>
+  <td style="padding:7px 10px;border-bottom:1px solid #f0f0f0;font-size:12px;text-align:right;color:#00548A;font-weight:700">$9.5M</td>
+  <td style="padding:7px 10px;border-bottom:1px solid #f0f0f0;font-size:12px;text-align:right">7</td>
+  <td style="padding:7px 10px;border-bottom:1px solid #f0f0f0;font-size:12px;text-align:right">9</td>
+</tr>
+<tr style="background:#fafafa">
+  <td style="padding:7px 10px;border-bottom:1px solid #f0f0f0;font-size:12px;font-weight:600">MAURIRIOS                     </td>
+  <td style="padding:7px 10px;border-bottom:1px solid #f0f0f0;font-size:12px;text-align:right;color:#00548A;font-weight:700">$7.0M</td>
+  <td style="padding:7px 10px;border-bottom:1px solid #f0f0f0;font-size:12px;text-align:right">12</td>
+  <td style="padding:7px 10px;border-bottom:1px solid #f0f0f0;font-size:12px;text-align:right">9</td>
+</tr>
+<tr style="background:#fff">
+  <td style="padding:7px 10px;border-bottom:1px solid #f0f0f0;font-size:12px;font-weight:600">LAUREANO                      </td>
+  <td style="padding:7px 10px;border-bottom:1px solid #f0f0f0;font-size:12px;text-align:right;color:#00548A;font-weight:700">$4.0M</td>
+  <td style="padding:7px 10px;border-bottom:1px solid #f0f0f0;font-size:12px;text-align:right">8</td>
+  <td style="padding:7px 10px;border-bottom:1px solid #f0f0f0;font-size:12px;text-align:right">10</td>
+</tr>
+<tr style="background:#fafafa">
+  <td style="padding:7px 10px;border-bottom:1px solid #f0f0f0;font-size:12px;font-weight:600">EBUSTAMANTE                   </td>
+  <td style="padding:7px 10px;border-bottom:1px solid #f0f0f0;font-size:12px;text-align:right;color:#00548A;font-weight:700">$2.7M</td>
+  <td style="padding:7px 10px;border-bottom:1px solid #f0f0f0;font-size:12px;text-align:right">3</td>
+  <td style="padding:7px 10px;border-bottom:1px solid #f0f0f0;font-size:12px;text-align:right">3</td>
+</tr></tbody>
+        </table>
+      </div>
+    </div>
+
+  </div>
+</div>
+
+<div style="background:#fff;border-radius:8px;box-shadow:0 2px 12px rgba(0,0,0,.08);
+            margin-bottom:28px;overflow:hidden">
+
+  <!-- Encabezado de unidad -->
+  <div style="background:#00548A;color:#fff;padding:14px 22px;display:flex;align-items:center;gap:12px">
+    <div style="font-family:'Montserrat',sans-serif;font-size:17px;font-weight:800;letter-spacing:.5px">San Juan Calle</div>
+    <div style="margin-left:auto;font-size:12px;opacity:.8">25 operaciones · 35 unidades</div>
+  </div>
+
+  <div style="padding:20px 22px">
+
+    <!-- KPI cards -->
+    <div style="display:grid;grid-template-columns:repeat(auto-fill,minmax(170px,1fr));gap:14px;margin-bottom:20px">
+
+      <!-- Total -->
+      <div style="background:#f8f9fa;border-radius:6px;padding:14px 16px;border-left:4px solid #00548A">
+        <div style="font-family:'Montserrat',sans-serif;font-size:9px;font-weight:800;
+                    text-transform:uppercase;letter-spacing:.8px;color:#bbb">Venta Total MTD</div>
+        <div style="font-family:'Montserrat',sans-serif;font-size:26px;font-weight:800;
+                    color:#00548A;margin-top:4px;line-height:1">$21.1M</div>
+        <div style="font-size:10px;color:#aaa;margin-top:4px">
+          Contado: <b>$174K</b> &nbsp;+&nbsp; Calle: <b>$21.0M</b>
+        </div>
+      </div>
+
+      <div style="background:#f8f9fa;border-radius:6px;padding:14px 16px;border-left:4px solid #F1891B">
+        <div style="font-family:'Montserrat',sans-serif;font-size:9px;font-weight:800;
+                    text-transform:uppercase;letter-spacing:.8px;color:#bbb">Objetivo mes</div>
+        <div style="font-family:'Montserrat',sans-serif;font-size:26px;font-weight:800;
+                    color:#F1891B;margin-top:4px;line-height:1">Sin objetivo</div>
+        <div style="font-size:10px;color:#aaa;margin-top:3px">Ajustado por inflación</div>
+      </div>
+
+      <div style="background:#f8f9fa;border-radius:6px;padding:14px 16px;border-left:4px solid #D0312D">
+        <div style="font-family:'Montserrat',sans-serif;font-size:9px;font-weight:800;
+                    text-transform:uppercase;letter-spacing:.8px;color:#bbb">% Cumplimiento</div>
+        <div style="font-family:'Montserrat',sans-serif;font-size:26px;font-weight:800;
+                    color:#D0312D;margin-top:4px;line-height:1">—</div>
+        <div style="color:#bbb;font-size:11px;margin-top:8px">Sin objetivo para calcular</div>
+      </div>
+
+      <div style="background:#f8f9fa;border-radius:6px;padding:14px 16px;border-left:4px solid #6c757d">
+        <div style="font-family:'Montserrat',sans-serif;font-size:9px;font-weight:800;
+                    text-transform:uppercase;letter-spacing:.8px;color:#bbb">Debería al día</div>
+        <div style="font-family:'Montserrat',sans-serif;font-size:26px;font-weight:800;
+                    color:#555;margin-top:4px;line-height:1">—</div>
+        <div style="font-size:10px;color:#aaa;margin-top:3px">Ritmo: <span style="font-weight:700;color:#D0312D">—</span></div>
+      </div>
+
+    </div>
+
+    <!-- Tabla por sector -->
+    <div style="margin-bottom:20px">
+      <div style="font-family:'Montserrat',sans-serif;font-size:11px;font-weight:800;
+                  text-transform:uppercase;letter-spacing:.6px;color:#00548A;
+                  margin-bottom:8px;padding-bottom:6px;border-bottom:2px solid #F1891B">
+        Venta por sector
+      </div>
+      <div style="overflow-x:auto">
+        <table style="width:100%;border-collapse:collapse">
+          <thead>
+            <tr>
+              <th style="background:#00548A;color:#fff;font-family:'Montserrat',sans-serif;
+                         font-size:9px;font-weight:800;text-transform:uppercase;letter-spacing:.5px;
+                         padding:8px 10px;text-align:left">Sector</th>
+              <th style="background:#00548A;color:#fff;font-family:'Montserrat',sans-serif;
+                         font-size:9px;font-weight:800;text-transform:uppercase;letter-spacing:.5px;
+                         padding:8px 10px;text-align:right">Total</th>
+              <th style="background:#00548A;color:#fff;font-family:'Montserrat',sans-serif;
+                         font-size:9px;font-weight:800;text-transform:uppercase;letter-spacing:.5px;
+                         padding:8px 10px;text-align:right">Contado</th>
+              <th style="background:#00548A;color:#fff;font-family:'Montserrat',sans-serif;
+                         font-size:9px;font-weight:800;text-transform:uppercase;letter-spacing:.5px;
+                         padding:8px 10px;text-align:right">Calle</th>
+              <th style="background:#00548A;color:#fff;font-family:'Montserrat',sans-serif;
+                         font-size:9px;font-weight:800;text-transform:uppercase;letter-spacing:.5px;
+                         padding:8px 10px;text-align:right">% Obj.</th>
+              <th style="background:#00548A;color:#fff;font-family:'Montserrat',sans-serif;
+                         font-size:9px;font-weight:800;text-transform:uppercase;letter-spacing:.5px;
+                         padding:8px 10px;text-align:right">Unidades</th>
+            </tr>
+          </thead>
+          <tbody>
+<tr>
+  <td style="padding:7px 10px;border-bottom:1px solid #f0f0f0;font-size:12px;font-weight:600">EQUIPAMIENTO</td>
+  <td style="padding:7px 10px;border-bottom:1px solid #f0f0f0;font-size:12px;text-align:right;font-weight:700;color:#00548A">$11.4M</td>
+  <td style="padding:7px 10px;border-bottom:1px solid #f0f0f0;font-size:12px;text-align:right;color:#555">$0</td>
+  <td style="padding:7px 10px;border-bottom:1px solid #f0f0f0;font-size:12px;text-align:right;color:#555">$11.4M</td>
+  <td style="padding:7px 10px;border-bottom:1px solid #f0f0f0;font-size:12px;text-align:right;color:#888">—</td>
+  <td style="padding:7px 10px;border-bottom:1px solid #f0f0f0;font-size:12px;text-align:right">16</td>
+</tr>
+<tr>
+  <td style="padding:7px 10px;border-bottom:1px solid #f0f0f0;font-size:12px;font-weight:600">USADO</td>
+  <td style="padding:7px 10px;border-bottom:1px solid #f0f0f0;font-size:12px;text-align:right;font-weight:700;color:#00548A">$0</td>
+  <td style="padding:7px 10px;border-bottom:1px solid #f0f0f0;font-size:12px;text-align:right;color:#555">$0</td>
+  <td style="padding:7px 10px;border-bottom:1px solid #f0f0f0;font-size:12px;text-align:right;color:#555">$0</td>
+  <td style="padding:7px 10px;border-bottom:1px solid #f0f0f0;font-size:12px;text-align:right;color:#888">—</td>
+  <td style="padding:7px 10px;border-bottom:1px solid #f0f0f0;font-size:12px;text-align:right">0</td>
+</tr>
+<tr>
+  <td style="padding:7px 10px;border-bottom:1px solid #f0f0f0;font-size:12px;font-weight:600">HOGAR</td>
+  <td style="padding:7px 10px;border-bottom:1px solid #f0f0f0;font-size:12px;text-align:right;font-weight:700;color:#00548A">$3.9M</td>
+  <td style="padding:7px 10px;border-bottom:1px solid #f0f0f0;font-size:12px;text-align:right;color:#555">$174K</td>
+  <td style="padding:7px 10px;border-bottom:1px solid #f0f0f0;font-size:12px;text-align:right;color:#555">$3.7M</td>
+  <td style="padding:7px 10px;border-bottom:1px solid #f0f0f0;font-size:12px;text-align:right;color:#888">—</td>
+  <td style="padding:7px 10px;border-bottom:1px solid #f0f0f0;font-size:12px;text-align:right">6</td>
+</tr></tbody>
+        </table>
+      </div>
+    </div>
+
+    <!-- Top 5 vendedores -->
+    <div>
+      <div style="font-family:'Montserrat',sans-serif;font-size:11px;font-weight:800;
+                  text-transform:uppercase;letter-spacing:.6px;color:#00548A;
+                  margin-bottom:8px;padding-bottom:6px;border-bottom:2px solid #F1891B">
+        Top 5 vendedores
+      </div>
+      <div style="overflow-x:auto">
+        <table style="width:100%;border-collapse:collapse">
+          <thead>
+            <tr>
+              <th style="background:#00548A;color:#fff;font-family:'Montserrat',sans-serif;
+                         font-size:9px;font-weight:800;text-transform:uppercase;letter-spacing:.5px;
+                         padding:8px 10px;text-align:left">Vendedor</th>
+              <th style="background:#00548A;color:#fff;font-family:'Montserrat',sans-serif;
+                         font-size:9px;font-weight:800;text-transform:uppercase;letter-spacing:.5px;
+                         padding:8px 10px;text-align:right">Ventas $</th>
+              <th style="background:#00548A;color:#fff;font-family:'Montserrat',sans-serif;
+                         font-size:9px;font-weight:800;text-transform:uppercase;letter-spacing:.5px;
+                         padding:8px 10px;text-align:right">Unidades</th>
+              <th style="background:#00548A;color:#fff;font-family:'Montserrat',sans-serif;
+                         font-size:9px;font-weight:800;text-transform:uppercase;letter-spacing:.5px;
+                         padding:8px 10px;text-align:right">Operaciones</th>
+            </tr>
+          </thead>
+          <tbody>
+<tr style="background:#fafafa">
+  <td style="padding:7px 10px;border-bottom:1px solid #f0f0f0;font-size:12px;font-weight:600">EQUIROGA 507                  </td>
+  <td style="padding:7px 10px;border-bottom:1px solid #f0f0f0;font-size:12px;text-align:right;color:#00548A;font-weight:700">$13.0M</td>
+  <td style="padding:7px 10px;border-bottom:1px solid #f0f0f0;font-size:12px;text-align:right">18</td>
+  <td style="padding:7px 10px;border-bottom:1px solid #f0f0f0;font-size:12px;text-align:right">9</td>
+</tr>
+<tr style="background:#fff">
+  <td style="padding:7px 10px;border-bottom:1px solid #f0f0f0;font-size:12px;font-weight:600">DSARTORI                      </td>
+  <td style="padding:7px 10px;border-bottom:1px solid #f0f0f0;font-size:12px;text-align:right;color:#00548A;font-weight:700">$3.2M</td>
+  <td style="padding:7px 10px;border-bottom:1px solid #f0f0f0;font-size:12px;text-align:right">5</td>
+  <td style="padding:7px 10px;border-bottom:1px solid #f0f0f0;font-size:12px;text-align:right">4</td>
+</tr>
+<tr style="background:#fafafa">
+  <td style="padding:7px 10px;border-bottom:1px solid #f0f0f0;font-size:12px;font-weight:600">MBARROS 504                   </td>
+  <td style="padding:7px 10px;border-bottom:1px solid #f0f0f0;font-size:12px;text-align:right;color:#00548A;font-weight:700">$2.9M</td>
+  <td style="padding:7px 10px;border-bottom:1px solid #f0f0f0;font-size:12px;text-align:right">6</td>
+  <td style="padding:7px 10px;border-bottom:1px solid #f0f0f0;font-size:12px;text-align:right">6</td>
+</tr>
+<tr style="background:#fff">
+  <td style="padding:7px 10px;border-bottom:1px solid #f0f0f0;font-size:12px;font-weight:600">DNIEVAS                       </td>
+  <td style="padding:7px 10px;border-bottom:1px solid #f0f0f0;font-size:12px;text-align:right;color:#00548A;font-weight:700">$2.0M</td>
+  <td style="padding:7px 10px;border-bottom:1px solid #f0f0f0;font-size:12px;text-align:right">6</td>
+  <td style="padding:7px 10px;border-bottom:1px solid #f0f0f0;font-size:12px;text-align:right">6</td>
+</tr></tbody>
+        </table>
+      </div>
+    </div>
+
+  </div>
+</div>
+
+<div style="background:#fff;border-radius:8px;box-shadow:0 2px 12px rgba(0,0,0,.08);
+            margin-bottom:28px;overflow:hidden">
+
+  <!-- Encabezado de unidad -->
+  <div style="background:#00548A;color:#fff;padding:14px 22px;display:flex;align-items:center;gap:12px">
+    <div style="font-family:'Montserrat',sans-serif;font-size:17px;font-weight:800;letter-spacing:.5px">San Luis Calle</div>
+    <div style="margin-left:auto;font-size:12px;opacity:.8">47 operaciones · 145 unidades</div>
+  </div>
+
+  <div style="padding:20px 22px">
+
+    <!-- KPI cards -->
+    <div style="display:grid;grid-template-columns:repeat(auto-fill,minmax(170px,1fr));gap:14px;margin-bottom:20px">
+
+      <!-- Total -->
+      <div style="background:#f8f9fa;border-radius:6px;padding:14px 16px;border-left:4px solid #00548A">
+        <div style="font-family:'Montserrat',sans-serif;font-size:9px;font-weight:800;
+                    text-transform:uppercase;letter-spacing:.8px;color:#bbb">Venta Total MTD</div>
+        <div style="font-family:'Montserrat',sans-serif;font-size:26px;font-weight:800;
+                    color:#00548A;margin-top:4px;line-height:1">$23.5M</div>
+        <div style="font-size:10px;color:#aaa;margin-top:4px">
+          Contado: <b>$10.5M</b> &nbsp;+&nbsp; Calle: <b>$12.9M</b>
+        </div>
+      </div>
+
+      <div style="background:#f8f9fa;border-radius:6px;padding:14px 16px;border-left:4px solid #F1891B">
+        <div style="font-family:'Montserrat',sans-serif;font-size:9px;font-weight:800;
+                    text-transform:uppercase;letter-spacing:.8px;color:#bbb">Objetivo mes</div>
+        <div style="font-family:'Montserrat',sans-serif;font-size:26px;font-weight:800;
+                    color:#F1891B;margin-top:4px;line-height:1">Sin objetivo</div>
+        <div style="font-size:10px;color:#aaa;margin-top:3px">Ajustado por inflación</div>
+      </div>
+
+      <div style="background:#f8f9fa;border-radius:6px;padding:14px 16px;border-left:4px solid #D0312D">
+        <div style="font-family:'Montserrat',sans-serif;font-size:9px;font-weight:800;
+                    text-transform:uppercase;letter-spacing:.8px;color:#bbb">% Cumplimiento</div>
+        <div style="font-family:'Montserrat',sans-serif;font-size:26px;font-weight:800;
+                    color:#D0312D;margin-top:4px;line-height:1">—</div>
+        <div style="color:#bbb;font-size:11px;margin-top:8px">Sin objetivo para calcular</div>
+      </div>
+
+      <div style="background:#f8f9fa;border-radius:6px;padding:14px 16px;border-left:4px solid #6c757d">
+        <div style="font-family:'Montserrat',sans-serif;font-size:9px;font-weight:800;
+                    text-transform:uppercase;letter-spacing:.8px;color:#bbb">Debería al día</div>
+        <div style="font-family:'Montserrat',sans-serif;font-size:26px;font-weight:800;
+                    color:#555;margin-top:4px;line-height:1">—</div>
+        <div style="font-size:10px;color:#aaa;margin-top:3px">Ritmo: <span style="font-weight:700;color:#D0312D">—</span></div>
+      </div>
+
+    </div>
+
+    <!-- Tabla por sector -->
+    <div style="margin-bottom:20px">
+      <div style="font-family:'Montserrat',sans-serif;font-size:11px;font-weight:800;
+                  text-transform:uppercase;letter-spacing:.6px;color:#00548A;
+                  margin-bottom:8px;padding-bottom:6px;border-bottom:2px solid #F1891B">
+        Venta por sector
+      </div>
+      <div style="overflow-x:auto">
+        <table style="width:100%;border-collapse:collapse">
+          <thead>
+            <tr>
+              <th style="background:#00548A;color:#fff;font-family:'Montserrat',sans-serif;
+                         font-size:9px;font-weight:800;text-transform:uppercase;letter-spacing:.5px;
+                         padding:8px 10px;text-align:left">Sector</th>
+              <th style="background:#00548A;color:#fff;font-family:'Montserrat',sans-serif;
+                         font-size:9px;font-weight:800;text-transform:uppercase;letter-spacing:.5px;
+                         padding:8px 10px;text-align:right">Total</th>
+              <th style="background:#00548A;color:#fff;font-family:'Montserrat',sans-serif;
+                         font-size:9px;font-weight:800;text-transform:uppercase;letter-spacing:.5px;
+                         padding:8px 10px;text-align:right">Contado</th>
+              <th style="background:#00548A;color:#fff;font-family:'Montserrat',sans-serif;
+                         font-size:9px;font-weight:800;text-transform:uppercase;letter-spacing:.5px;
+                         padding:8px 10px;text-align:right">Calle</th>
+              <th style="background:#00548A;color:#fff;font-family:'Montserrat',sans-serif;
+                         font-size:9px;font-weight:800;text-transform:uppercase;letter-spacing:.5px;
+                         padding:8px 10px;text-align:right">% Obj.</th>
+              <th style="background:#00548A;color:#fff;font-family:'Montserrat',sans-serif;
+                         font-size:9px;font-weight:800;text-transform:uppercase;letter-spacing:.5px;
+                         padding:8px 10px;text-align:right">Unidades</th>
+            </tr>
+          </thead>
+          <tbody>
+<tr>
+  <td style="padding:7px 10px;border-bottom:1px solid #f0f0f0;font-size:12px;font-weight:600">EQUIPAMIENTO</td>
+  <td style="padding:7px 10px;border-bottom:1px solid #f0f0f0;font-size:12px;text-align:right;font-weight:700;color:#00548A">$11.2M</td>
+  <td style="padding:7px 10px;border-bottom:1px solid #f0f0f0;font-size:12px;text-align:right;color:#555">$6.8M</td>
+  <td style="padding:7px 10px;border-bottom:1px solid #f0f0f0;font-size:12px;text-align:right;color:#555">$4.4M</td>
+  <td style="padding:7px 10px;border-bottom:1px solid #f0f0f0;font-size:12px;text-align:right;color:#888">—</td>
+  <td style="padding:7px 10px;border-bottom:1px solid #f0f0f0;font-size:12px;text-align:right">12</td>
+</tr>
+<tr>
+  <td style="padding:7px 10px;border-bottom:1px solid #f0f0f0;font-size:12px;font-weight:600">USADO</td>
+  <td style="padding:7px 10px;border-bottom:1px solid #f0f0f0;font-size:12px;text-align:right;font-weight:700;color:#00548A">$0</td>
+  <td style="padding:7px 10px;border-bottom:1px solid #f0f0f0;font-size:12px;text-align:right;color:#555">$0</td>
+  <td style="padding:7px 10px;border-bottom:1px solid #f0f0f0;font-size:12px;text-align:right;color:#555">$0</td>
+  <td style="padding:7px 10px;border-bottom:1px solid #f0f0f0;font-size:12px;text-align:right;color:#888">—</td>
+  <td style="padding:7px 10px;border-bottom:1px solid #f0f0f0;font-size:12px;text-align:right">0</td>
+</tr>
+<tr>
+  <td style="padding:7px 10px;border-bottom:1px solid #f0f0f0;font-size:12px;font-weight:600">HOGAR</td>
+  <td style="padding:7px 10px;border-bottom:1px solid #f0f0f0;font-size:12px;text-align:right;font-weight:700;color:#00548A">$3.8M</td>
+  <td style="padding:7px 10px;border-bottom:1px solid #f0f0f0;font-size:12px;text-align:right;color:#555">$717K</td>
+  <td style="padding:7px 10px;border-bottom:1px solid #f0f0f0;font-size:12px;text-align:right;color:#555">$3.1M</td>
+  <td style="padding:7px 10px;border-bottom:1px solid #f0f0f0;font-size:12px;text-align:right;color:#888">—</td>
+  <td style="padding:7px 10px;border-bottom:1px solid #f0f0f0;font-size:12px;text-align:right">7</td>
+</tr></tbody>
+        </table>
+      </div>
+    </div>
+
+    <!-- Top 5 vendedores -->
+    <div>
+      <div style="font-family:'Montserrat',sans-serif;font-size:11px;font-weight:800;
+                  text-transform:uppercase;letter-spacing:.6px;color:#00548A;
+                  margin-bottom:8px;padding-bottom:6px;border-bottom:2px solid #F1891B">
+        Top 5 vendedores
+      </div>
+      <div style="overflow-x:auto">
+        <table style="width:100%;border-collapse:collapse">
+          <thead>
+            <tr>
+              <th style="background:#00548A;color:#fff;font-family:'Montserrat',sans-serif;
+                         font-size:9px;font-weight:800;text-transform:uppercase;letter-spacing:.5px;
+                         padding:8px 10px;text-align:left">Vendedor</th>
+              <th style="background:#00548A;color:#fff;font-family:'Montserrat',sans-serif;
+                         font-size:9px;font-weight:800;text-transform:uppercase;letter-spacing:.5px;
+                         padding:8px 10px;text-align:right">Ventas $</th>
+              <th style="background:#00548A;color:#fff;font-family:'Montserrat',sans-serif;
+                         font-size:9px;font-weight:800;text-transform:uppercase;letter-spacing:.5px;
+                         padding:8px 10px;text-align:right">Unidades</th>
+              <th style="background:#00548A;color:#fff;font-family:'Montserrat',sans-serif;
+                         font-size:9px;font-weight:800;text-transform:uppercase;letter-spacing:.5px;
+                         padding:8px 10px;text-align:right">Operaciones</th>
+            </tr>
+          </thead>
+          <tbody>
+<tr style="background:#fafafa">
+  <td style="padding:7px 10px;border-bottom:1px solid #f0f0f0;font-size:12px;font-weight:600">MSAMUEL                       </td>
+  <td style="padding:7px 10px;border-bottom:1px solid #f0f0f0;font-size:12px;text-align:right;color:#00548A;font-weight:700">$7.2M</td>
+  <td style="padding:7px 10px;border-bottom:1px solid #f0f0f0;font-size:12px;text-align:right">8</td>
+  <td style="padding:7px 10px;border-bottom:1px solid #f0f0f0;font-size:12px;text-align:right">10</td>
+</tr>
+<tr style="background:#fff">
+  <td style="padding:7px 10px;border-bottom:1px solid #f0f0f0;font-size:12px;font-weight:600">CSUARES                       </td>
+  <td style="padding:7px 10px;border-bottom:1px solid #f0f0f0;font-size:12px;text-align:right;color:#00548A;font-weight:700">$5.8M</td>
+  <td style="padding:7px 10px;border-bottom:1px solid #f0f0f0;font-size:12px;text-align:right">122</td>
+  <td style="padding:7px 10px;border-bottom:1px solid #f0f0f0;font-size:12px;text-align:right">22</td>
+</tr>
+<tr style="background:#fafafa">
+  <td style="padding:7px 10px;border-bottom:1px solid #f0f0f0;font-size:12px;font-weight:600">JGUERRERO 477                 </td>
+  <td style="padding:7px 10px;border-bottom:1px solid #f0f0f0;font-size:12px;text-align:right;color:#00548A;font-weight:700">$4.2M</td>
+  <td style="padding:7px 10px;border-bottom:1px solid #f0f0f0;font-size:12px;text-align:right">4</td>
+  <td style="padding:7px 10px;border-bottom:1px solid #f0f0f0;font-size:12px;text-align:right">4</td>
+</tr>
+<tr style="background:#fff">
+  <td style="padding:7px 10px;border-bottom:1px solid #f0f0f0;font-size:12px;font-weight:600">GRICARDO                      </td>
+  <td style="padding:7px 10px;border-bottom:1px solid #f0f0f0;font-size:12px;text-align:right;color:#00548A;font-weight:700">$3.8M</td>
+  <td style="padding:7px 10px;border-bottom:1px solid #f0f0f0;font-size:12px;text-align:right">8</td>
+  <td style="padding:7px 10px;border-bottom:1px solid #f0f0f0;font-size:12px;text-align:right">8</td>
+</tr>
+<tr style="background:#fafafa">
+  <td style="padding:7px 10px;border-bottom:1px solid #f0f0f0;font-size:12px;font-weight:600">ALDANA                        </td>
+  <td style="padding:7px 10px;border-bottom:1px solid #f0f0f0;font-size:12px;text-align:right;color:#00548A;font-weight:700">$2.4M</td>
+  <td style="padding:7px 10px;border-bottom:1px solid #f0f0f0;font-size:12px;text-align:right">3</td>
+  <td style="padding:7px 10px;border-bottom:1px solid #f0f0f0;font-size:12px;text-align:right">3</td>
+</tr></tbody>
+        </table>
+      </div>
+    </div>
+
+  </div>
+</div>
+
+  <div class="footer">
+    Generado: 09/06/2026 10:08 &nbsp;—&nbsp; Datos: ERP 192.168.1.5
+    &nbsp;|&nbsp; Ibaceta &mdash; <strong>Tablero Venta Calle</strong>
+  </div>
+</div>
+
+</body>
+</html>
