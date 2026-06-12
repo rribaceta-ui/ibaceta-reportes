@@ -3,2202 +3,1961 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width,initial-scale=1.0">
-<title>Cuadrantes MUP × Venta — Meta Ads | Junio</title>
+<title>Cuadrantes MUP × Venta — Junio</title>
 <link href="https://fonts.googleapis.com/css2?family=Montserrat:wght@400;600;700;800&family=Open+Sans:wght@400;600&display=swap" rel="stylesheet">
 <style>
 *{box-sizing:border-box;margin:0;padding:0}
-body{font-family:'Open Sans',sans-serif;background:#F5F5F5;color:#333}
-header{background:#00548A;padding:15px 26px;display:flex;justify-content:space-between;align-items:center;flex-wrap:wrap;gap:8px}
-header h1{font-family:'Montserrat',sans-serif;font-size:1.05rem;font-weight:800;color:#fff}
-header .sub{font-size:.75rem;color:rgba(255,255,255,0.72);margin-top:2px}
-.pbd{background:#F1891B;color:#fff;padding:4px 13px;border-radius:18px;font-family:'Montserrat',sans-serif;font-size:.75rem;font-weight:700}
-.wrap{max-width:1440px;margin:0 auto;padding:18px 14px}
+body{font-family:'Open Sans',sans-serif;background:#F0F2F5;color:#333}
+header{background:#00548A;padding:14px 26px;display:flex;justify-content:space-between;align-items:center;flex-wrap:wrap;gap:8px}
+header h1{font-family:'Montserrat',sans-serif;font-size:1rem;font-weight:800;color:#fff}
+header .sub{font-size:.73rem;color:rgba(255,255,255,0.7);margin-top:2px}
+.pbd{background:#F1891B;color:#fff;padding:4px 13px;border-radius:18px;font-family:'Montserrat',sans-serif;font-size:.74rem;font-weight:700;white-space:nowrap}
+.wrap{max-width:1480px;margin:0 auto;padding:16px 14px}
 
-/* Eje labels */
-.matrix-wrap{position:relative;padding:0 0 0 36px}
-.axis-y{position:absolute;left:0;top:0;bottom:32px;width:32px;display:flex;align-items:center;justify-content:center}
-.axis-y-label{font-family:'Montserrat',sans-serif;font-size:.75rem;font-weight:700;color:#555;writing-mode:vertical-rl;transform:rotate(180deg);letter-spacing:1px;text-transform:uppercase}
-.axis-x{display:flex;justify-content:space-between;padding:6px 0 0 0;font-family:'Montserrat',sans-serif;font-size:.74rem;font-weight:700;color:#555;text-transform:uppercase;letter-spacing:.8px}
-.ax-left{color:#888}.ax-right{color:#00548A}
-.ax-arrow{color:#ccc;font-size:1rem}
+/* Info bar */
+.info{display:flex;gap:20px;flex-wrap:wrap;margin-bottom:14px;font-size:.78rem;color:#555;align-items:center;background:#fff;padding:10px 14px;border-radius:8px;box-shadow:0 1px 4px rgba(0,0,0,0.07)}
+.info strong{color:#333}
+.info .sep{color:#ddd}
+
+/* Leyenda sectores */
+.legend{display:flex;gap:14px;flex-wrap:wrap;font-size:.75rem;align-items:center;margin-bottom:14px}
+.ld{width:10px;height:10px;border-radius:50%;display:inline-block;margin-right:3px;vertical-align:middle}
+.pareto-leg{background:#F1891B;color:#fff;padding:1px 7px;border-radius:6px;font-size:.72rem;font-weight:700}
+
+/* Ejes labels */
+.matrix-outer{position:relative;padding-left:30px}
+.axis-y-wrap{position:absolute;left:0;top:0;bottom:34px;width:28px;display:flex;align-items:center;justify-content:center}
+.axis-y-lbl{font-family:'Montserrat',sans-serif;font-size:.7rem;font-weight:700;color:#666;writing-mode:vertical-rl;transform:rotate(180deg);letter-spacing:1.5px;text-transform:uppercase}
+.axis-y-arrow{font-size:.8rem;color:#aaa;margin-top:4px}
+.axis-x{display:flex;justify-content:space-between;padding:7px 2px 0;font-family:'Montserrat',sans-serif;font-size:.72rem;font-weight:700;color:#666;text-transform:uppercase;letter-spacing:.8px}
+.ax-l{color:#aaa}.ax-r{color:#00548A}
+
+/* Divider line label */
+.cut-label-v{text-align:center;font-size:.7rem;color:#999;padding:2px 0 6px;font-family:'Montserrat',sans-serif}
+.cut-label-h{position:absolute;left:32px;font-size:.7rem;color:#999;font-family:'Montserrat',sans-serif;line-height:1}
 
 /* Grid 2x2 */
-.matrix{display:grid;grid-template-columns:1fr 1fr;grid-template-rows:auto auto;gap:12px}
-@media(max-width:700px){.matrix{grid-template-columns:1fr}}
+.matrix{display:grid;grid-template-columns:1fr 1fr;gap:10px}
+@media(max-width:680px){.matrix{grid-template-columns:1fr}}
 
 /* Cuadrante */
-.quad{border-radius:10px;border:2px solid;padding:14px;display:flex;flex-direction:column;gap:0}
-.quad-head{margin-bottom:10px}
-.quad-title{font-family:'Montserrat',sans-serif;font-size:.85rem;font-weight:800;text-transform:uppercase;letter-spacing:.5px}
-.quad-sub{font-size:.73rem;color:#777;margin-top:2px}
-.quad-kpis{display:flex;gap:12px;margin-bottom:10px;flex-wrap:wrap}
-.qk{font-size:.72rem;color:#555}.qk strong{font-size:.88rem;font-family:'Montserrat',sans-serif;font-weight:700}
-.cards-list{display:flex;flex-direction:column;gap:6px;max-height:520px;overflow-y:auto;padding-right:4px}
-.cards-list::-webkit-scrollbar{width:4px}.cards-list::-webkit-scrollbar-thumb{background:#ddd;border-radius:2px}
+.quad{border-radius:10px;border:2px solid;padding:14px;display:flex;flex-direction:column}
+.qh{margin-bottom:10px}
+.qt{font-family:'Montserrat',sans-serif;font-size:1rem;font-weight:800;letter-spacing:.5px;text-transform:uppercase}
+.qs{font-size:.73rem;color:#777;margin-top:1px}
+.qa{font-size:.75rem;font-style:italic;margin-top:4px;opacity:.85}
+.qkpis{display:flex;gap:10px;flex-wrap:wrap;margin-bottom:10px;padding-bottom:10px;border-bottom:1px solid rgba(0,0,0,0.07)}
+.qk{font-size:.72rem;color:#555}.qk strong{font-size:.85rem;font-family:'Montserrat',sans-serif;font-weight:700}
+
+/* Cards scroll */
+.cards{display:flex;flex-direction:column;gap:5px;max-height:460px;overflow-y:auto;padding-right:3px}
+.cards::-webkit-scrollbar{width:4px}.cards::-webkit-scrollbar-thumb{background:#ddd;border-radius:2px}
 
 /* Tarjeta rubro */
-.rub-card{background:#fff;border-radius:6px;padding:8px 10px;box-shadow:0 1px 4px rgba(0,0,0,0.07);border-left-width:3px!important;border-left-style:solid}
-.rc-header{display:flex;align-items:center;gap:6px;margin-bottom:5px}
-.rc-sec{padding:1px 6px;border-radius:8px;font-size:.67rem;font-weight:700;white-space:nowrap}
-.rc-name{font-size:.8rem;font-weight:600;color:#333;line-height:1.25}
-.rc-bar-wrap{height:5px;background:#f0f0f0;border-radius:3px;margin-bottom:5px;overflow:hidden}
-.rc-bar{height:100%;border-radius:3px;opacity:.7}
-.rc-stats{display:flex;align-items:center;gap:5px;font-size:.73rem;flex-wrap:wrap}
-.rc-v{font-family:'Montserrat',sans-serif;font-weight:700;color:#333}
-.rc-mup{font-weight:700}.rc-mg{font-weight:700}
-.rc-dot{color:#ccc}
+.rc{background:#fff;border-radius:6px;padding:7px 9px;box-shadow:0 1px 3px rgba(0,0,0,0.06)}
+.rc-h{display:flex;align-items:center;gap:5px;margin-bottom:4px;flex-wrap:wrap}
+.rc-s{padding:1px 6px;border-radius:7px;font-size:.65rem;font-weight:700;white-space:nowrap}
+.rc-n{font-size:.79rem;font-weight:600;color:#333;line-height:1.2;flex:1;min-width:0}
+.rc-bw{height:4px;background:#f0f0f0;border-radius:2px;margin-bottom:4px;overflow:hidden}
+.rc-b{height:100%;border-radius:2px;opacity:.65}
+.rc-st{display:flex;align-items:center;gap:5px;font-size:.72rem;flex-wrap:wrap}
+.rc-v{font-family:'Montserrat',sans-serif;font-weight:700;color:#333;font-size:.78rem}
+.rc-dot{color:#ddd}
 
-/* Separador de ejes */
-.axis-divider{display:flex;align-items:center;gap:6px;margin:14px 0 6px;color:#aaa;font-size:.72rem}
-.axis-divider::before,.axis-divider::after{content:'';flex:1;height:1px;background:#ddd}
-
-/* Leyenda colores */
-.legend{display:flex;gap:12px;margin-bottom:14px;flex-wrap:wrap;font-size:.76rem;align-items:center}
-.ld{width:10px;height:10px;border-radius:50%;display:inline-block;margin-right:3px;vertical-align:middle}
-
-footer{background:#333;color:#bbb;text-align:center;padding:10px;font-size:.7rem;margin-top:22px}
+footer{background:#333;color:#bbb;text-align:center;padding:10px;font-size:.7rem;margin-top:20px}
 </style>
 </head>
 <body>
 <header>
   <div>
     <div class="sub">El Cristorante S.A. — Análisis Meta Ads</div>
-    <h1>Cuadrantes MUP × Venta — Priorización de Rubros para Pauta</h1>
+    <h1>Cuadrantes MUP × Venta — Nomenclatura de Rubros para Pauta</h1>
   </div>
   <span class="pbd">Junio</span>
 </header>
 
 <div class="wrap">
 
-<p style="font-size:.8rem;color:#666;margin-bottom:14px">
-  <strong>Universo analizado:</strong> 136 rubros con venta &gt; $0 y MUP &gt; 0 ·
-  Corte venta: <strong>$5.0M</strong> (alto volumen = pauta con ROI medible) ·
-  Corte MUP: <strong>1.350</strong> (alto margen = por encima del promedio 25.9%) ·
-  Sectores: Equipamiento, Hogar, Bazar
-</p>
+<div class="info">
+  <span><strong>137</strong> rubros analizados</span>
+  <span class="sep">|</span>
+  <span>Corte volumen: <strong>$5.0M/mes</strong></span>
+  <span class="sep">|</span>
+  <span>Corte MUP: <strong>1.350</strong> (margen &gt; 25.9%)</span>
+  <span class="sep">|</span>
+  <span>Sectores: Equipamiento · Hogar · Bazar</span>
+  <span class="sep">|</span>
+  <span>Venta total: <strong>$709.2M</strong></span>
+</div>
 
 <div class="legend">
   <span><span class="ld" style="background:#00548A"></span>Equipamiento</span>
   <span><span class="ld" style="background:#F1891B"></span>Hogar</span>
   <span><span class="ld" style="background:#2e7d32"></span>Bazar</span>
-  <span style="color:#999;margin-left:8px">Barra horizontal = venta relativa dentro del cuadrante</span>
+  <span style="margin-left:8px"><span class="pareto-leg">PARETO</span> = rubros que concentran el 80% de la venta</span>
+  <span style="color:#888;font-size:.72rem">Barra = venta relativa dentro del cuadrante</span>
 </div>
 
-<div class="matrix-wrap">
-  <div class="axis-y"><span class="axis-y-label">MUP ↑ alto</span></div>
+<div class="matrix-outer">
+  <div class="axis-y-wrap">
+    <span class="axis-y-lbl">MUP</span>
+    <span class="axis-y-arrow">↑ alto</span>
+  </div>
+
+  <div style="font-size:.68rem;color:#bbb;text-align:right;padding-right:2px;margin-bottom:2px;font-family:'Montserrat',sans-serif;letter-spacing:.5px">MUP ≥ 1.350</div>
 
   <div class="matrix">
-
-    <!-- P3: Bajo vol, alto MUP — arriba izquierda -->
-    <div class="quad" style="background:#fff3e0;border-color:#e65100">
-      <div class="quad-head">
-        <div class="quad-title" style="color:#e65100">&#9650; NICHO PREMIUM</div>
-        <div class="quad-sub">Bajo volumen · Alto margen</div>
-      </div>
-      <div class="quad-kpis">
-        <div class="qk"><strong style="color:#e65100">92</strong> rubros</div>
-        <div class="qk">Venta: <strong>$64.9M</strong></div>
-        <div class="qk">MUP med.: <strong>1.460</strong></div>
-        <div class="qk">Margen med.: <strong style="color:#e65100">31.5%</strong></div>
-      </div>
-      <div class="cards-list"><div class="rub-card" style="border-left:3px solid #00548A">
-  <div class="rc-header">
-    <span class="rc-sec" style="background:#cce0f0;color:#00548A">EQU</span>
-    <span class="rc-name">AMASADORAS</span>
+    <div class="quad" style="background:#fff8e1;border-color:#f57f17">
+  <div class="qh">
+    <div class="qt" style="color:#e65100">CULTIVAR</div>
+    <div class="qs">Bajo volumen · Alto margen</div>
+    <div class="qa" style="color:#e65100">Crecer audiencia con creatividad de nicho</div>
   </div>
-  <div class="rc-bar-wrap">
-    <div class="rc-bar" style="width:100%;background:#00548A"></div>
+  <div class="qkpis">
+    <span class="qk"><strong style="color:#e65100">93</strong> rubros</span>
+    <span class="qk">Venta <strong>$64.9M</strong></span>
+    <span class="qk">MUP <strong>1.460</strong></span>
+    <span class="qk">Margen <strong>31.5%</strong></span>
+    <span class="qk"><strong style="color:#F1891B">1</strong> del Pareto</span>
   </div>
-  <div class="rc-stats">
+  <div class="cards"><div class="rc" style="border-left:3px solid #00548A">
+  <div class="rc-h">
+    <span class="rc-s" style="background:#ddeef8;color:#00548A">EQU</span>
+    <span class="rc-n">AMASADORAS</span>
+  </div>
+  <div class="rc-bw"><div class="rc-b" style="width:100%;background:#00548A"></div></div>
+  <div class="rc-st">
     <span class="rc-v">$4.1M</span>
     <span class="rc-dot">·</span>
-    <span class="rc-mup" style="color:#00548A">MUP 1.397</span>
+    <span style="font-weight:700;color:#00548A">MUP 1.397</span>
     <span class="rc-dot">·</span>
-    <span class="rc-mg" style="color:#e65100">28.4%</span>
+    <span style="font-weight:700;color:#e65100">28.4%</span>
   </div>
-</div><div class="rub-card" style="border-left:3px solid #00548A">
-  <div class="rc-header">
-    <span class="rc-sec" style="background:#cce0f0;color:#00548A">EQU</span>
-    <span class="rc-name">DESHIDRATADORES</span>
+</div><div class="rc" style="border-left:3px solid #00548A">
+  <div class="rc-h">
+    <span class="rc-s" style="background:#ddeef8;color:#00548A">EQU</span>
+    <span class="rc-n">DESHIDRATADORES</span>
   </div>
-  <div class="rc-bar-wrap">
-    <div class="rc-bar" style="width:95%;background:#00548A"></div>
-  </div>
-  <div class="rc-stats">
+  <div class="rc-bw"><div class="rc-b" style="width:95%;background:#00548A"></div></div>
+  <div class="rc-st">
     <span class="rc-v">$3.9M</span>
     <span class="rc-dot">·</span>
-    <span class="rc-mup" style="color:#00548A">MUP 1.646</span>
+    <span style="font-weight:700;color:#00548A">MUP 1.646</span>
     <span class="rc-dot">·</span>
-    <span class="rc-mg" style="color:#2e7d32">39.2%</span>
+    <span style="font-weight:700;color:#2e7d32">39.2%</span>
   </div>
-</div><div class="rub-card" style="border-left:3px solid #00548A">
-  <div class="rc-header">
-    <span class="rc-sec" style="background:#cce0f0;color:#00548A">EQU</span>
-    <span class="rc-name">PANCHERA</span>
+</div><div class="rc" style="border-left:3px solid #00548A">
+  <div class="rc-h">
+    <span class="rc-s" style="background:#ddeef8;color:#00548A">EQU</span>
+    <span class="rc-n">PANCHERA</span>
   </div>
-  <div class="rc-bar-wrap">
-    <div class="rc-bar" style="width:94%;background:#00548A"></div>
-  </div>
-  <div class="rc-stats">
+  <div class="rc-bw"><div class="rc-b" style="width:94%;background:#00548A"></div></div>
+  <div class="rc-st">
     <span class="rc-v">$3.9M</span>
     <span class="rc-dot">·</span>
-    <span class="rc-mup" style="color:#00548A">MUP 1.377</span>
+    <span style="font-weight:700;color:#00548A">MUP 1.377</span>
     <span class="rc-dot">·</span>
-    <span class="rc-mg" style="color:#e65100">27.4%</span>
+    <span style="font-weight:700;color:#e65100">27.4%</span>
   </div>
-</div><div class="rub-card" style="border-left:3px solid #00548A">
-  <div class="rc-header">
-    <span class="rc-sec" style="background:#cce0f0;color:#00548A">EQU</span>
-    <span class="rc-name">ANAFES</span>
+</div><div class="rc" style="border-left:3px solid #00548A">
+  <div class="rc-h">
+    <span class="rc-s" style="background:#ddeef8;color:#00548A">EQU</span>
+    <span class="rc-n">ANAFES</span>
   </div>
-  <div class="rc-bar-wrap">
-    <div class="rc-bar" style="width:67%;background:#00548A"></div>
-  </div>
-  <div class="rc-stats">
+  <div class="rc-bw"><div class="rc-b" style="width:67%;background:#00548A"></div></div>
+  <div class="rc-st">
     <span class="rc-v">$2.8M</span>
     <span class="rc-dot">·</span>
-    <span class="rc-mup" style="color:#00548A">MUP 1.417</span>
+    <span style="font-weight:700;color:#00548A">MUP 1.417</span>
     <span class="rc-dot">·</span>
-    <span class="rc-mg" style="color:#e65100">29.4%</span>
+    <span style="font-weight:700;color:#e65100">29.4%</span>
   </div>
-</div><div class="rub-card" style="border-left:3px solid #00548A">
-  <div class="rc-header">
-    <span class="rc-sec" style="background:#cce0f0;color:#00548A">EQU</span>
-    <span class="rc-name">ESTANTERIAS</span>
+</div><div class="rc" style="border-left:3px solid #00548A">
+  <div class="rc-h">
+    <span class="rc-s" style="background:#ddeef8;color:#00548A">EQU</span>
+    <span class="rc-n">ESTANTERIAS</span>
   </div>
-  <div class="rc-bar-wrap">
-    <div class="rc-bar" style="width:64%;background:#00548A"></div>
-  </div>
-  <div class="rc-stats">
+  <div class="rc-bw"><div class="rc-b" style="width:64%;background:#00548A"></div></div>
+  <div class="rc-st">
     <span class="rc-v">$2.7M</span>
     <span class="rc-dot">·</span>
-    <span class="rc-mup" style="color:#00548A">MUP 1.426</span>
+    <span style="font-weight:700;color:#00548A">MUP 1.426</span>
     <span class="rc-dot">·</span>
-    <span class="rc-mg" style="color:#e65100">29.9%</span>
+    <span style="font-weight:700;color:#e65100">29.9%</span>
   </div>
-</div><div class="rub-card" style="border-left:3px solid #F1891B">
-  <div class="rc-header">
-    <span class="rc-sec" style="background:#fde8cc;color:#F1891B">HOG</span>
-    <span class="rc-name">CALEFONES</span>
+</div><div class="rc" style="border-left:3px solid #F1891B">
+  <div class="rc-h">
+    <span class="rc-s" style="background:#fde8cc;color:#F1891B">HOG</span>
+    <span class="rc-n">CALEFONES</span>
   </div>
-  <div class="rc-bar-wrap">
-    <div class="rc-bar" style="width:57%;background:#F1891B"></div>
-  </div>
-  <div class="rc-stats">
+  <div class="rc-bw"><div class="rc-b" style="width:57%;background:#F1891B"></div></div>
+  <div class="rc-st">
     <span class="rc-v">$2.3M</span>
     <span class="rc-dot">·</span>
-    <span class="rc-mup" style="color:#F1891B">MUP 1.413</span>
+    <span style="font-weight:700;color:#F1891B">MUP 1.413</span>
     <span class="rc-dot">·</span>
-    <span class="rc-mg" style="color:#e65100">29.2%</span>
+    <span style="font-weight:700;color:#e65100">29.2%</span>
   </div>
-</div><div class="rub-card" style="border-left:3px solid #00548A">
-  <div class="rc-header">
-    <span class="rc-sec" style="background:#cce0f0;color:#00548A">EQU</span>
-    <span class="rc-name">HORNOS PASTELEROS</span>
+</div><div class="rc" style="border-left:3px solid #00548A">
+  <div class="rc-h">
+    <span class="rc-s" style="background:#ddeef8;color:#00548A">EQU</span>
+    <span class="rc-n">HORNOS PASTELEROS</span>
   </div>
-  <div class="rc-bar-wrap">
-    <div class="rc-bar" style="width:56%;background:#00548A"></div>
-  </div>
-  <div class="rc-stats">
+  <div class="rc-bw"><div class="rc-b" style="width:56%;background:#00548A"></div></div>
+  <div class="rc-st">
     <span class="rc-v">$2.3M</span>
     <span class="rc-dot">·</span>
-    <span class="rc-mup" style="color:#00548A">MUP 1.406</span>
+    <span style="font-weight:700;color:#00548A">MUP 1.406</span>
     <span class="rc-dot">·</span>
-    <span class="rc-mg" style="color:#e65100">28.9%</span>
+    <span style="font-weight:700;color:#e65100">28.9%</span>
   </div>
-</div><div class="rub-card" style="border-left:3px solid #00548A">
-  <div class="rc-header">
-    <span class="rc-sec" style="background:#cce0f0;color:#00548A">EQU</span>
-    <span class="rc-name">CALEFACTOR IVA 10.5</span>
+</div><div class="rc" style="border-left:3px solid #00548A">
+  <div class="rc-h">
+    <span class="rc-s" style="background:#ddeef8;color:#00548A">EQU</span>
+    <span class="rc-n">CALEFACTOR IVA 10.5</span>
   </div>
-  <div class="rc-bar-wrap">
-    <div class="rc-bar" style="width:56%;background:#00548A"></div>
-  </div>
-  <div class="rc-stats">
+  <div class="rc-bw"><div class="rc-b" style="width:56%;background:#00548A"></div></div>
+  <div class="rc-st">
     <span class="rc-v">$2.3M</span>
     <span class="rc-dot">·</span>
-    <span class="rc-mup" style="color:#00548A">MUP 1.402</span>
+    <span style="font-weight:700;color:#00548A">MUP 1.402</span>
     <span class="rc-dot">·</span>
-    <span class="rc-mg" style="color:#e65100">28.7%</span>
+    <span style="font-weight:700;color:#e65100">28.7%</span>
   </div>
-</div><div class="rub-card" style="border-left:3px solid #2e7d32">
-  <div class="rc-header">
-    <span class="rc-sec" style="background:#c8e6c9;color:#2e7d32">BAZ</span>
-    <span class="rc-name">ASADERAS Y PLACAS</span>
+</div><div class="rc" style="border-left:3px solid #2e7d32">
+  <div class="rc-h">
+    <span class="rc-s" style="background:#c8e6c9;color:#2e7d32">BAZ</span>
+    <span class="rc-n">ASADERAS Y PLACAS</span>
   </div>
-  <div class="rc-bar-wrap">
-    <div class="rc-bar" style="width:54%;background:#2e7d32"></div>
-  </div>
-  <div class="rc-stats">
+  <div class="rc-bw"><div class="rc-b" style="width:54%;background:#2e7d32"></div></div>
+  <div class="rc-st">
     <span class="rc-v">$2.3M</span>
     <span class="rc-dot">·</span>
-    <span class="rc-mup" style="color:#2e7d32">MUP 1.587</span>
+    <span style="font-weight:700;color:#2e7d32">MUP 1.587</span>
     <span class="rc-dot">·</span>
-    <span class="rc-mg" style="color:#2e7d32">37.0%</span>
+    <span style="font-weight:700;color:#2e7d32">37.0%</span>
   </div>
-</div><div class="rub-card" style="border-left:3px solid #F1891B">
-  <div class="rc-header">
-    <span class="rc-sec" style="background:#fde8cc;color:#F1891B">HOG</span>
-    <span class="rc-name">MICROONDAS</span>
+</div><div class="rc" style="border-left:3px solid #F1891B">
+  <div class="rc-h">
+    <span class="rc-s" style="background:#fde8cc;color:#F1891B">HOG</span>
+    <span class="rc-n">MICROONDAS</span>
   </div>
-  <div class="rc-bar-wrap">
-    <div class="rc-bar" style="width:54%;background:#F1891B"></div>
-  </div>
-  <div class="rc-stats">
+  <div class="rc-bw"><div class="rc-b" style="width:54%;background:#F1891B"></div></div>
+  <div class="rc-st">
     <span class="rc-v">$2.3M</span>
     <span class="rc-dot">·</span>
-    <span class="rc-mup" style="color:#F1891B">MUP 1.367</span>
+    <span style="font-weight:700;color:#F1891B">MUP 1.367</span>
     <span class="rc-dot">·</span>
-    <span class="rc-mg" style="color:#e65100">26.9%</span>
+    <span style="font-weight:700;color:#e65100">26.9%</span>
   </div>
-</div><div class="rub-card" style="border-left:3px solid #00548A">
-  <div class="rc-header">
-    <span class="rc-sec" style="background:#cce0f0;color:#00548A">EQU</span>
-    <span class="rc-name">TOSTADORAS</span>
+</div><div class="rc" style="border-left:3px solid #00548A">
+  <div class="rc-h">
+    <span class="rc-s" style="background:#ddeef8;color:#00548A">EQU</span>
+    <span class="rc-n">TOSTADORAS</span>
   </div>
-  <div class="rc-bar-wrap">
-    <div class="rc-bar" style="width:49%;background:#00548A"></div>
-  </div>
-  <div class="rc-stats">
+  <div class="rc-bw"><div class="rc-b" style="width:49%;background:#00548A"></div></div>
+  <div class="rc-st">
     <span class="rc-v">$2.0M</span>
     <span class="rc-dot">·</span>
-    <span class="rc-mup" style="color:#00548A">MUP 1.368</span>
+    <span style="font-weight:700;color:#00548A">MUP 1.368</span>
     <span class="rc-dot">·</span>
-    <span class="rc-mg" style="color:#e65100">26.9%</span>
+    <span style="font-weight:700;color:#e65100">26.9%</span>
   </div>
-</div><div class="rub-card" style="border-left:3px solid #00548A">
-  <div class="rc-header">
-    <span class="rc-sec" style="background:#cce0f0;color:#00548A">EQU</span>
-    <span class="rc-name">PRENSA MASA PIZZA</span>
+</div><div class="rc" style="border-left:3px solid #00548A">
+  <div class="rc-h">
+    <span class="rc-s" style="background:#ddeef8;color:#00548A">EQU</span>
+    <span class="rc-n">PRENSA MASA PIZZA</span>
   </div>
-  <div class="rc-bar-wrap">
-    <div class="rc-bar" style="width:47%;background:#00548A"></div>
-  </div>
-  <div class="rc-stats">
+  <div class="rc-bw"><div class="rc-b" style="width:47%;background:#00548A"></div></div>
+  <div class="rc-st">
     <span class="rc-v">$2.0M</span>
     <span class="rc-dot">·</span>
-    <span class="rc-mup" style="color:#00548A">MUP 1.443</span>
+    <span style="font-weight:700;color:#00548A">MUP 1.443</span>
     <span class="rc-dot">·</span>
-    <span class="rc-mg" style="color:#2e7d32">30.7%</span>
+    <span style="font-weight:700;color:#2e7d32">30.7%</span>
   </div>
-</div><div class="rub-card" style="border-left:3px solid #F1891B">
-  <div class="rc-header">
-    <span class="rc-sec" style="background:#fde8cc;color:#F1891B">HOG</span>
-    <span class="rc-name">CAMPANAS</span>
+</div><div class="rc" style="border-left:3px solid #F1891B">
+  <div class="rc-h">
+    <span class="rc-s" style="background:#fde8cc;color:#F1891B">HOG</span>
+    <span class="rc-n">CAMPANAS</span>
   </div>
-  <div class="rc-bar-wrap">
-    <div class="rc-bar" style="width:44%;background:#F1891B"></div>
-  </div>
-  <div class="rc-stats">
+  <div class="rc-bw"><div class="rc-b" style="width:44%;background:#F1891B"></div></div>
+  <div class="rc-st">
     <span class="rc-v">$1.8M</span>
     <span class="rc-dot">·</span>
-    <span class="rc-mup" style="color:#F1891B">MUP 1.398</span>
+    <span style="font-weight:700;color:#F1891B">MUP 1.398</span>
     <span class="rc-dot">·</span>
-    <span class="rc-mg" style="color:#e65100">28.5%</span>
+    <span style="font-weight:700;color:#e65100">28.5%</span>
   </div>
-</div><div class="rub-card" style="border-left:3px solid #00548A">
-  <div class="rc-header">
-    <span class="rc-sec" style="background:#cce0f0;color:#00548A">EQU</span>
-    <span class="rc-name">FREIDORAS ELECTRICAS</span>
+</div><div class="rc" style="border-left:3px solid #00548A">
+  <div class="rc-h">
+    <span class="rc-s" style="background:#ddeef8;color:#00548A">EQU</span>
+    <span class="rc-n">FREIDORAS ELECTRICAS</span>
   </div>
-  <div class="rc-bar-wrap">
-    <div class="rc-bar" style="width:43%;background:#00548A"></div>
-  </div>
-  <div class="rc-stats">
+  <div class="rc-bw"><div class="rc-b" style="width:43%;background:#00548A"></div></div>
+  <div class="rc-st">
     <span class="rc-v">$1.8M</span>
     <span class="rc-dot">·</span>
-    <span class="rc-mup" style="color:#00548A">MUP 1.380</span>
+    <span style="font-weight:700;color:#00548A">MUP 1.380</span>
     <span class="rc-dot">·</span>
-    <span class="rc-mg" style="color:#e65100">27.5%</span>
+    <span style="font-weight:700;color:#e65100">27.5%</span>
   </div>
-</div><div class="rub-card" style="border-left:3px solid #00548A">
-  <div class="rc-header">
-    <span class="rc-sec" style="background:#cce0f0;color:#00548A">EQU</span>
-    <span class="rc-name">ACCESORIOSCOMPLEMENTARIOS</span>
+</div><div class="rc" style="border-left:3px solid #00548A">
+  <div class="rc-h">
+    <span class="rc-s" style="background:#ddeef8;color:#00548A">EQU</span>
+    <span class="rc-n">ACCESORIOSCOMPLEMENTARIOS</span>
   </div>
-  <div class="rc-bar-wrap">
-    <div class="rc-bar" style="width:42%;background:#00548A"></div>
-  </div>
-  <div class="rc-stats">
+  <div class="rc-bw"><div class="rc-b" style="width:42%;background:#00548A"></div></div>
+  <div class="rc-st">
     <span class="rc-v">$1.8M</span>
     <span class="rc-dot">·</span>
-    <span class="rc-mup" style="color:#00548A">MUP 1.353</span>
+    <span style="font-weight:700;color:#00548A">MUP 1.353</span>
     <span class="rc-dot">·</span>
-    <span class="rc-mg" style="color:#e65100">26.1%</span>
+    <span style="font-weight:700;color:#e65100">26.1%</span>
   </div>
-</div><div class="rub-card" style="border-left:3px solid #00548A">
-  <div class="rc-header">
-    <span class="rc-sec" style="background:#cce0f0;color:#00548A">EQU</span>
-    <span class="rc-name">MAQUINASEMBUTIDOS</span>
+</div><div class="rc" style="border-left:3px solid #00548A">
+  <div class="rc-h">
+    <span class="rc-s" style="background:#ddeef8;color:#00548A">EQU</span>
+    <span class="rc-n">MAQUINASEMBUTIDOS</span>
   </div>
-  <div class="rc-bar-wrap">
-    <div class="rc-bar" style="width:37%;background:#00548A"></div>
-  </div>
-  <div class="rc-stats">
+  <div class="rc-bw"><div class="rc-b" style="width:37%;background:#00548A"></div></div>
+  <div class="rc-st">
     <span class="rc-v">$1.5M</span>
     <span class="rc-dot">·</span>
-    <span class="rc-mup" style="color:#00548A">MUP 1.471</span>
+    <span style="font-weight:700;color:#00548A">MUP 1.471</span>
     <span class="rc-dot">·</span>
-    <span class="rc-mg" style="color:#2e7d32">32.0%</span>
+    <span style="font-weight:700;color:#2e7d32">32.0%</span>
   </div>
-</div><div class="rub-card" style="border-left:3px solid #F1891B">
-  <div class="rc-header">
-    <span class="rc-sec" style="background:#fde8cc;color:#F1891B">HOG</span>
-    <span class="rc-name">HORNO ELECTRICO</span>
+</div><div class="rc" style="border-left:3px solid #F1891B">
+  <div class="rc-h">
+    <span class="rc-s" style="background:#fde8cc;color:#F1891B">HOG</span>
+    <span class="rc-n">HORNO ELECTRICO</span>
   </div>
-  <div class="rc-bar-wrap">
-    <div class="rc-bar" style="width:33%;background:#F1891B"></div>
-  </div>
-  <div class="rc-stats">
+  <div class="rc-bw"><div class="rc-b" style="width:33%;background:#F1891B"></div></div>
+  <div class="rc-st">
     <span class="rc-v">$1.4M</span>
     <span class="rc-dot">·</span>
-    <span class="rc-mup" style="color:#F1891B">MUP 1.393</span>
+    <span style="font-weight:700;color:#F1891B">MUP 1.393</span>
     <span class="rc-dot">·</span>
-    <span class="rc-mg" style="color:#e65100">28.2%</span>
+    <span style="font-weight:700;color:#e65100">28.2%</span>
   </div>
-</div><div class="rub-card" style="border-left:3px solid #00548A">
-  <div class="rc-header">
-    <span class="rc-sec" style="background:#cce0f0;color:#00548A">EQU</span>
-    <span class="rc-name">BANDEJASYLATAS</span>
+</div><div class="rc" style="border-left:3px solid #00548A">
+  <div class="rc-h">
+    <span class="rc-s" style="background:#ddeef8;color:#00548A">EQU</span>
+    <span class="rc-n">BANDEJASYLATAS</span>
   </div>
-  <div class="rc-bar-wrap">
-    <div class="rc-bar" style="width:32%;background:#00548A"></div>
-  </div>
-  <div class="rc-stats">
+  <div class="rc-bw"><div class="rc-b" style="width:32%;background:#00548A"></div></div>
+  <div class="rc-st">
     <span class="rc-v">$1.3M</span>
     <span class="rc-dot">·</span>
-    <span class="rc-mup" style="color:#00548A">MUP 1.470</span>
+    <span style="font-weight:700;color:#00548A">MUP 1.470</span>
     <span class="rc-dot">·</span>
-    <span class="rc-mg" style="color:#2e7d32">32.0%</span>
+    <span style="font-weight:700;color:#2e7d32">32.0%</span>
   </div>
-</div><div class="rub-card" style="border-left:3px solid #00548A">
-  <div class="rc-header">
-    <span class="rc-sec" style="background:#cce0f0;color:#00548A">EQU</span>
-    <span class="rc-name">IMPLEMENTOSASADOR</span>
+</div><div class="rc" style="border-left:3px solid #00548A">
+  <div class="rc-h">
+    <span class="rc-s" style="background:#ddeef8;color:#00548A">EQU</span>
+    <span class="rc-n">IMPLEMENTOSASADOR</span>
   </div>
-  <div class="rc-bar-wrap">
-    <div class="rc-bar" style="width:32%;background:#00548A"></div>
-  </div>
-  <div class="rc-stats">
+  <div class="rc-bw"><div class="rc-b" style="width:32%;background:#00548A"></div></div>
+  <div class="rc-st">
     <span class="rc-v">$1.3M</span>
     <span class="rc-dot">·</span>
-    <span class="rc-mup" style="color:#00548A">MUP 1.438</span>
+    <span style="font-weight:700;color:#00548A">MUP 1.438</span>
     <span class="rc-dot">·</span>
-    <span class="rc-mg" style="color:#2e7d32">30.5%</span>
+    <span style="font-weight:700;color:#2e7d32">30.5%</span>
   </div>
-</div><div class="rub-card" style="border-left:3px solid #00548A">
-  <div class="rc-header">
-    <span class="rc-sec" style="background:#cce0f0;color:#00548A">EQU</span>
-    <span class="rc-name">CAJASYGABETAS</span>
+</div><div class="rc" style="border-left:3px solid #00548A">
+  <div class="rc-h">
+    <span class="rc-s" style="background:#ddeef8;color:#00548A">EQU</span>
+    <span class="rc-n">CAJASYGABETAS</span>
   </div>
-  <div class="rc-bar-wrap">
-    <div class="rc-bar" style="width:31%;background:#00548A"></div>
-  </div>
-  <div class="rc-stats">
+  <div class="rc-bw"><div class="rc-b" style="width:31%;background:#00548A"></div></div>
+  <div class="rc-st">
     <span class="rc-v">$1.3M</span>
     <span class="rc-dot">·</span>
-    <span class="rc-mup" style="color:#00548A">MUP 1.351</span>
+    <span style="font-weight:700;color:#00548A">MUP 1.351</span>
     <span class="rc-dot">·</span>
-    <span class="rc-mg" style="color:#e65100">26.0%</span>
+    <span style="font-weight:700;color:#e65100">26.0%</span>
   </div>
-</div><div class="rub-card" style="border-left:3px solid #F1891B">
-  <div class="rc-header">
-    <span class="rc-sec" style="background:#fde8cc;color:#F1891B">HOG</span>
-    <span class="rc-name">BATIDORAS</span>
+</div><div class="rc" style="border-left:3px solid #F1891B">
+  <div class="rc-h">
+    <span class="rc-s" style="background:#fde8cc;color:#F1891B">HOG</span>
+    <span class="rc-n">BATIDORAS</span><span style="background:#F1891B;color:#fff;padding:1px 5px;border-radius:6px;font-size:.63rem;font-weight:700;margin-left:4px">PARETO</span>
   </div>
-  <div class="rc-bar-wrap">
-    <div class="rc-bar" style="width:31%;background:#F1891B"></div>
-  </div>
-  <div class="rc-stats">
+  <div class="rc-bw"><div class="rc-b" style="width:31%;background:#F1891B"></div></div>
+  <div class="rc-st">
     <span class="rc-v">$1.3M</span>
     <span class="rc-dot">·</span>
-    <span class="rc-mup" style="color:#F1891B">MUP 1.464</span>
+    <span style="font-weight:700;color:#F1891B">MUP 1.464</span>
     <span class="rc-dot">·</span>
-    <span class="rc-mg" style="color:#2e7d32">31.7%</span>
+    <span style="font-weight:700;color:#2e7d32">31.7%</span>
   </div>
-</div><div class="rub-card" style="border-left:3px solid #00548A">
-  <div class="rc-header">
-    <span class="rc-sec" style="background:#cce0f0;color:#00548A">EQU</span>
-    <span class="rc-name">CAFETERAS</span>
+</div><div class="rc" style="border-left:3px solid #00548A">
+  <div class="rc-h">
+    <span class="rc-s" style="background:#ddeef8;color:#00548A">EQU</span>
+    <span class="rc-n">CAFETERAS</span>
   </div>
-  <div class="rc-bar-wrap">
-    <div class="rc-bar" style="width:31%;background:#00548A"></div>
-  </div>
-  <div class="rc-stats">
+  <div class="rc-bw"><div class="rc-b" style="width:31%;background:#00548A"></div></div>
+  <div class="rc-st">
     <span class="rc-v">$1.3M</span>
     <span class="rc-dot">·</span>
-    <span class="rc-mup" style="color:#00548A">MUP 1.363</span>
+    <span style="font-weight:700;color:#00548A">MUP 1.363</span>
     <span class="rc-dot">·</span>
-    <span class="rc-mg" style="color:#e65100">26.6%</span>
+    <span style="font-weight:700;color:#e65100">26.6%</span>
   </div>
-</div><div class="rub-card" style="border-left:3px solid #00548A">
-  <div class="rc-header">
-    <span class="rc-sec" style="background:#cce0f0;color:#00548A">EQU</span>
-    <span class="rc-name">CARROS PANADERIA</span>
+</div><div class="rc" style="border-left:3px solid #00548A">
+  <div class="rc-h">
+    <span class="rc-s" style="background:#ddeef8;color:#00548A">EQU</span>
+    <span class="rc-n">CARROS PANADERIA</span>
   </div>
-  <div class="rc-bar-wrap">
-    <div class="rc-bar" style="width:25%;background:#00548A"></div>
-  </div>
-  <div class="rc-stats">
+  <div class="rc-bw"><div class="rc-b" style="width:25%;background:#00548A"></div></div>
+  <div class="rc-st">
     <span class="rc-v">$1.1M</span>
     <span class="rc-dot">·</span>
-    <span class="rc-mup" style="color:#00548A">MUP 1.480</span>
+    <span style="font-weight:700;color:#00548A">MUP 1.480</span>
     <span class="rc-dot">·</span>
-    <span class="rc-mg" style="color:#2e7d32">32.4%</span>
+    <span style="font-weight:700;color:#2e7d32">32.4%</span>
   </div>
-</div><div class="rub-card" style="border-left:3px solid #00548A">
-  <div class="rc-header">
-    <span class="rc-sec" style="background:#cce0f0;color:#00548A">EQU</span>
-    <span class="rc-name">CUTTER</span>
+</div><div class="rc" style="border-left:3px solid #00548A">
+  <div class="rc-h">
+    <span class="rc-s" style="background:#ddeef8;color:#00548A">EQU</span>
+    <span class="rc-n">CUTTER</span>
   </div>
-  <div class="rc-bar-wrap">
-    <div class="rc-bar" style="width:24%;background:#00548A"></div>
-  </div>
-  <div class="rc-stats">
+  <div class="rc-bw"><div class="rc-b" style="width:24%;background:#00548A"></div></div>
+  <div class="rc-st">
     <span class="rc-v">$1.0M</span>
     <span class="rc-dot">·</span>
-    <span class="rc-mup" style="color:#00548A">MUP 1.800</span>
+    <span style="font-weight:700;color:#00548A">MUP 1.800</span>
     <span class="rc-dot">·</span>
-    <span class="rc-mg" style="color:#2e7d32">44.4%</span>
+    <span style="font-weight:700;color:#2e7d32">44.4%</span>
   </div>
-</div><div class="rub-card" style="border-left:3px solid #00548A">
-  <div class="rc-header">
-    <span class="rc-sec" style="background:#cce0f0;color:#00548A">EQU</span>
-    <span class="rc-name">LICUADORAS</span>
+</div><div class="rc" style="border-left:3px solid #00548A">
+  <div class="rc-h">
+    <span class="rc-s" style="background:#ddeef8;color:#00548A">EQU</span>
+    <span class="rc-n">LICUADORAS</span>
   </div>
-  <div class="rc-bar-wrap">
-    <div class="rc-bar" style="width:20%;background:#00548A"></div>
-  </div>
-  <div class="rc-stats">
+  <div class="rc-bw"><div class="rc-b" style="width:20%;background:#00548A"></div></div>
+  <div class="rc-st">
     <span class="rc-v">$0.9M</span>
     <span class="rc-dot">·</span>
-    <span class="rc-mup" style="color:#00548A">MUP 1.381</span>
+    <span style="font-weight:700;color:#00548A">MUP 1.381</span>
     <span class="rc-dot">·</span>
-    <span class="rc-mg" style="color:#e65100">27.6%</span>
+    <span style="font-weight:700;color:#e65100">27.6%</span>
   </div>
-</div><div class="rub-card" style="border-left:3px solid #2e7d32">
-  <div class="rc-header">
-    <span class="rc-sec" style="background:#c8e6c9;color:#2e7d32">BAZ</span>
-    <span class="rc-name">MOLDES VARIOS</span>
+</div><div class="rc" style="border-left:3px solid #2e7d32">
+  <div class="rc-h">
+    <span class="rc-s" style="background:#c8e6c9;color:#2e7d32">BAZ</span>
+    <span class="rc-n">MOLDES VARIOS</span>
   </div>
-  <div class="rc-bar-wrap">
-    <div class="rc-bar" style="width:18%;background:#2e7d32"></div>
-  </div>
-  <div class="rc-stats">
+  <div class="rc-bw"><div class="rc-b" style="width:18%;background:#2e7d32"></div></div>
+  <div class="rc-st">
     <span class="rc-v">$0.7M</span>
     <span class="rc-dot">·</span>
-    <span class="rc-mup" style="color:#2e7d32">MUP 1.566</span>
+    <span style="font-weight:700;color:#2e7d32">MUP 1.566</span>
     <span class="rc-dot">·</span>
-    <span class="rc-mg" style="color:#2e7d32">36.1%</span>
+    <span style="font-weight:700;color:#2e7d32">36.1%</span>
   </div>
-</div><div class="rub-card" style="border-left:3px solid #F1891B">
-  <div class="rc-header">
-    <span class="rc-sec" style="background:#fde8cc;color:#F1891B">HOG</span>
-    <span class="rc-name">FREEZERS</span>
+</div><div class="rc" style="border-left:3px solid #F1891B">
+  <div class="rc-h">
+    <span class="rc-s" style="background:#fde8cc;color:#F1891B">HOG</span>
+    <span class="rc-n">FREEZERS</span>
   </div>
-  <div class="rc-bar-wrap">
-    <div class="rc-bar" style="width:17%;background:#F1891B"></div>
-  </div>
-  <div class="rc-stats">
+  <div class="rc-bw"><div class="rc-b" style="width:17%;background:#F1891B"></div></div>
+  <div class="rc-st">
     <span class="rc-v">$0.7M</span>
     <span class="rc-dot">·</span>
-    <span class="rc-mup" style="color:#F1891B">MUP 1.480</span>
+    <span style="font-weight:700;color:#F1891B">MUP 1.480</span>
     <span class="rc-dot">·</span>
-    <span class="rc-mg" style="color:#2e7d32">32.4%</span>
+    <span style="font-weight:700;color:#2e7d32">32.4%</span>
   </div>
-</div><div class="rub-card" style="border-left:3px solid #F1891B">
-  <div class="rc-header">
-    <span class="rc-sec" style="background:#fde8cc;color:#F1891B">HOG</span>
-    <span class="rc-name">PAVAS</span>
+</div><div class="rc" style="border-left:3px solid #F1891B">
+  <div class="rc-h">
+    <span class="rc-s" style="background:#fde8cc;color:#F1891B">HOG</span>
+    <span class="rc-n">PAVAS</span>
   </div>
-  <div class="rc-bar-wrap">
-    <div class="rc-bar" style="width:16%;background:#F1891B"></div>
-  </div>
-  <div class="rc-stats">
+  <div class="rc-bw"><div class="rc-b" style="width:16%;background:#F1891B"></div></div>
+  <div class="rc-st">
     <span class="rc-v">$0.7M</span>
     <span class="rc-dot">·</span>
-    <span class="rc-mup" style="color:#F1891B">MUP 1.479</span>
+    <span style="font-weight:700;color:#F1891B">MUP 1.479</span>
     <span class="rc-dot">·</span>
-    <span class="rc-mg" style="color:#2e7d32">32.4%</span>
+    <span style="font-weight:700;color:#2e7d32">32.4%</span>
   </div>
-</div><div class="rub-card" style="border-left:3px solid #2e7d32">
-  <div class="rc-header">
-    <span class="rc-sec" style="background:#c8e6c9;color:#2e7d32">BAZ</span>
-    <span class="rc-name">VARIOS</span>
+</div><div class="rc" style="border-left:3px solid #2e7d32">
+  <div class="rc-h">
+    <span class="rc-s" style="background:#c8e6c9;color:#2e7d32">BAZ</span>
+    <span class="rc-n">VARIOS</span>
   </div>
-  <div class="rc-bar-wrap">
-    <div class="rc-bar" style="width:16%;background:#2e7d32"></div>
-  </div>
-  <div class="rc-stats">
+  <div class="rc-bw"><div class="rc-b" style="width:16%;background:#2e7d32"></div></div>
+  <div class="rc-st">
     <span class="rc-v">$0.7M</span>
     <span class="rc-dot">·</span>
-    <span class="rc-mup" style="color:#2e7d32">MUP 1.620</span>
+    <span style="font-weight:700;color:#2e7d32">MUP 1.620</span>
     <span class="rc-dot">·</span>
-    <span class="rc-mg" style="color:#2e7d32">38.3%</span>
+    <span style="font-weight:700;color:#2e7d32">38.3%</span>
   </div>
-</div><div class="rub-card" style="border-left:3px solid #2e7d32">
-  <div class="rc-header">
-    <span class="rc-sec" style="background:#c8e6c9;color:#2e7d32">BAZ</span>
-    <span class="rc-name">PLATOS</span>
+</div><div class="rc" style="border-left:3px solid #2e7d32">
+  <div class="rc-h">
+    <span class="rc-s" style="background:#c8e6c9;color:#2e7d32">BAZ</span>
+    <span class="rc-n">PLATOS</span>
   </div>
-  <div class="rc-bar-wrap">
-    <div class="rc-bar" style="width:15%;background:#2e7d32"></div>
-  </div>
-  <div class="rc-stats">
+  <div class="rc-bw"><div class="rc-b" style="width:15%;background:#2e7d32"></div></div>
+  <div class="rc-st">
     <span class="rc-v">$0.7M</span>
     <span class="rc-dot">·</span>
-    <span class="rc-mup" style="color:#2e7d32">MUP 1.553</span>
+    <span style="font-weight:700;color:#2e7d32">MUP 1.553</span>
     <span class="rc-dot">·</span>
-    <span class="rc-mg" style="color:#2e7d32">35.6%</span>
+    <span style="font-weight:700;color:#2e7d32">35.6%</span>
   </div>
-</div><div class="rub-card" style="border-left:3px solid #2e7d32">
-  <div class="rc-header">
-    <span class="rc-sec" style="background:#c8e6c9;color:#2e7d32">BAZ</span>
-    <span class="rc-name">PASTALINDA</span>
+</div><div class="rc" style="border-left:3px solid #2e7d32">
+  <div class="rc-h">
+    <span class="rc-s" style="background:#c8e6c9;color:#2e7d32">BAZ</span>
+    <span class="rc-n">PASTALINDA</span>
   </div>
-  <div class="rc-bar-wrap">
-    <div class="rc-bar" style="width:15%;background:#2e7d32"></div>
-  </div>
-  <div class="rc-stats">
+  <div class="rc-bw"><div class="rc-b" style="width:15%;background:#2e7d32"></div></div>
+  <div class="rc-st">
     <span class="rc-v">$0.6M</span>
     <span class="rc-dot">·</span>
-    <span class="rc-mup" style="color:#2e7d32">MUP 1.606</span>
+    <span style="font-weight:700;color:#2e7d32">MUP 1.606</span>
     <span class="rc-dot">·</span>
-    <span class="rc-mg" style="color:#2e7d32">37.7%</span>
+    <span style="font-weight:700;color:#2e7d32">37.7%</span>
   </div>
-</div><div class="rub-card" style="border-left:3px solid #00548A">
-  <div class="rc-header">
-    <span class="rc-sec" style="background:#cce0f0;color:#00548A">EQU</span>
-    <span class="rc-name">RALLADORADEPAN</span>
+</div><div class="rc" style="border-left:3px solid #00548A">
+  <div class="rc-h">
+    <span class="rc-s" style="background:#ddeef8;color:#00548A">EQU</span>
+    <span class="rc-n">RALLADORADEPAN</span>
   </div>
-  <div class="rc-bar-wrap">
-    <div class="rc-bar" style="width:15%;background:#00548A"></div>
-  </div>
-  <div class="rc-stats">
+  <div class="rc-bw"><div class="rc-b" style="width:15%;background:#00548A"></div></div>
+  <div class="rc-st">
     <span class="rc-v">$0.6M</span>
     <span class="rc-dot">·</span>
-    <span class="rc-mup" style="color:#00548A">MUP 1.359</span>
+    <span style="font-weight:700;color:#00548A">MUP 1.359</span>
     <span class="rc-dot">·</span>
-    <span class="rc-mg" style="color:#e65100">26.4%</span>
+    <span style="font-weight:700;color:#e65100">26.4%</span>
   </div>
-</div><div class="rub-card" style="border-left:3px solid #F1891B">
-  <div class="rc-header">
-    <span class="rc-sec" style="background:#fde8cc;color:#F1891B">HOG</span>
-    <span class="rc-name">CAFETERAS</span>
+</div><div class="rc" style="border-left:3px solid #F1891B">
+  <div class="rc-h">
+    <span class="rc-s" style="background:#fde8cc;color:#F1891B">HOG</span>
+    <span class="rc-n">CAFETERAS</span>
   </div>
-  <div class="rc-bar-wrap">
-    <div class="rc-bar" style="width:13%;background:#F1891B"></div>
-  </div>
-  <div class="rc-stats">
+  <div class="rc-bw"><div class="rc-b" style="width:13%;background:#F1891B"></div></div>
+  <div class="rc-st">
     <span class="rc-v">$0.6M</span>
     <span class="rc-dot">·</span>
-    <span class="rc-mup" style="color:#F1891B">MUP 1.488</span>
+    <span style="font-weight:700;color:#F1891B">MUP 1.488</span>
     <span class="rc-dot">·</span>
-    <span class="rc-mg" style="color:#2e7d32">32.8%</span>
+    <span style="font-weight:700;color:#2e7d32">32.8%</span>
   </div>
-</div><div class="rub-card" style="border-left:3px solid #00548A">
-  <div class="rc-header">
-    <span class="rc-sec" style="background:#cce0f0;color:#00548A">EQU</span>
-    <span class="rc-name">HAMBURGUESERO MANUAL</span>
+</div><div class="rc" style="border-left:3px solid #00548A">
+  <div class="rc-h">
+    <span class="rc-s" style="background:#ddeef8;color:#00548A">EQU</span>
+    <span class="rc-n">HAMBURGUESERO MANUAL</span>
   </div>
-  <div class="rc-bar-wrap">
-    <div class="rc-bar" style="width:11%;background:#00548A"></div>
-  </div>
-  <div class="rc-stats">
+  <div class="rc-bw"><div class="rc-b" style="width:11%;background:#00548A"></div></div>
+  <div class="rc-st">
     <span class="rc-v">$0.5M</span>
     <span class="rc-dot">·</span>
-    <span class="rc-mup" style="color:#00548A">MUP 1.377</span>
+    <span style="font-weight:700;color:#00548A">MUP 1.377</span>
     <span class="rc-dot">·</span>
-    <span class="rc-mg" style="color:#e65100">27.4%</span>
+    <span style="font-weight:700;color:#e65100">27.4%</span>
   </div>
-</div><div class="rub-card" style="border-left:3px solid #2e7d32">
-  <div class="rc-header">
-    <span class="rc-sec" style="background:#c8e6c9;color:#2e7d32">BAZ</span>
-    <span class="rc-name">OLLAS</span>
+</div><div class="rc" style="border-left:3px solid #2e7d32">
+  <div class="rc-h">
+    <span class="rc-s" style="background:#c8e6c9;color:#2e7d32">BAZ</span>
+    <span class="rc-n">OLLAS</span>
   </div>
-  <div class="rc-bar-wrap">
-    <div class="rc-bar" style="width:11%;background:#2e7d32"></div>
-  </div>
-  <div class="rc-stats">
+  <div class="rc-bw"><div class="rc-b" style="width:11%;background:#2e7d32"></div></div>
+  <div class="rc-st">
     <span class="rc-v">$0.5M</span>
     <span class="rc-dot">·</span>
-    <span class="rc-mup" style="color:#2e7d32">MUP 1.600</span>
+    <span style="font-weight:700;color:#2e7d32">MUP 1.600</span>
     <span class="rc-dot">·</span>
-    <span class="rc-mg" style="color:#2e7d32">37.5%</span>
+    <span style="font-weight:700;color:#2e7d32">37.5%</span>
   </div>
-</div><div class="rub-card" style="border-left:3px solid #00548A">
-  <div class="rc-header">
-    <span class="rc-sec" style="background:#cce0f0;color:#00548A">EQU</span>
-    <span class="rc-name">EXTRACTORES</span>
+</div><div class="rc" style="border-left:3px solid #00548A">
+  <div class="rc-h">
+    <span class="rc-s" style="background:#ddeef8;color:#00548A">EQU</span>
+    <span class="rc-n">EXTRACTORES</span>
   </div>
-  <div class="rc-bar-wrap">
-    <div class="rc-bar" style="width:11%;background:#00548A"></div>
-  </div>
-  <div class="rc-stats">
+  <div class="rc-bw"><div class="rc-b" style="width:11%;background:#00548A"></div></div>
+  <div class="rc-st">
     <span class="rc-v">$0.5M</span>
     <span class="rc-dot">·</span>
-    <span class="rc-mup" style="color:#00548A">MUP 1.358</span>
+    <span style="font-weight:700;color:#00548A">MUP 1.358</span>
     <span class="rc-dot">·</span>
-    <span class="rc-mg" style="color:#e65100">26.4%</span>
+    <span style="font-weight:700;color:#e65100">26.4%</span>
   </div>
-</div><div class="rub-card" style="border-left:3px solid #2e7d32">
-  <div class="rc-header">
-    <span class="rc-sec" style="background:#c8e6c9;color:#2e7d32">BAZ</span>
-    <span class="rc-name">TUPPERS Y RECIPIENTE</span>
+</div><div class="rc" style="border-left:3px solid #2e7d32">
+  <div class="rc-h">
+    <span class="rc-s" style="background:#c8e6c9;color:#2e7d32">BAZ</span>
+    <span class="rc-n">TUPPERS Y RECIPIENTE</span>
   </div>
-  <div class="rc-bar-wrap">
-    <div class="rc-bar" style="width:9%;background:#2e7d32"></div>
-  </div>
-  <div class="rc-stats">
+  <div class="rc-bw"><div class="rc-b" style="width:9%;background:#2e7d32"></div></div>
+  <div class="rc-st">
     <span class="rc-v">$0.4M</span>
     <span class="rc-dot">·</span>
-    <span class="rc-mup" style="color:#2e7d32">MUP 1.621</span>
+    <span style="font-weight:700;color:#2e7d32">MUP 1.621</span>
     <span class="rc-dot">·</span>
-    <span class="rc-mg" style="color:#2e7d32">38.3%</span>
+    <span style="font-weight:700;color:#2e7d32">38.3%</span>
   </div>
-</div><div class="rub-card" style="border-left:3px solid #F1891B">
-  <div class="rc-header">
-    <span class="rc-sec" style="background:#fde8cc;color:#F1891B">HOG</span>
-    <span class="rc-name">ACCESORIOS</span>
+</div><div class="rc" style="border-left:3px solid #F1891B">
+  <div class="rc-h">
+    <span class="rc-s" style="background:#fde8cc;color:#F1891B">HOG</span>
+    <span class="rc-n">ACCESORIOS</span>
   </div>
-  <div class="rc-bar-wrap">
-    <div class="rc-bar" style="width:9%;background:#F1891B"></div>
-  </div>
-  <div class="rc-stats">
+  <div class="rc-bw"><div class="rc-b" style="width:9%;background:#F1891B"></div></div>
+  <div class="rc-st">
     <span class="rc-v">$0.4M</span>
     <span class="rc-dot">·</span>
-    <span class="rc-mup" style="color:#F1891B">MUP 1.396</span>
+    <span style="font-weight:700;color:#F1891B">MUP 1.396</span>
     <span class="rc-dot">·</span>
-    <span class="rc-mg" style="color:#e65100">28.4%</span>
+    <span style="font-weight:700;color:#e65100">28.4%</span>
   </div>
-</div><div class="rub-card" style="border-left:3px solid #F1891B">
-  <div class="rc-header">
-    <span class="rc-sec" style="background:#fde8cc;color:#F1891B">HOG</span>
-    <span class="rc-name">LICUADORAS</span>
+</div><div class="rc" style="border-left:3px solid #F1891B">
+  <div class="rc-h">
+    <span class="rc-s" style="background:#fde8cc;color:#F1891B">HOG</span>
+    <span class="rc-n">LICUADORAS</span>
   </div>
-  <div class="rc-bar-wrap">
-    <div class="rc-bar" style="width:8%;background:#F1891B"></div>
-  </div>
-  <div class="rc-stats">
+  <div class="rc-bw"><div class="rc-b" style="width:8%;background:#F1891B"></div></div>
+  <div class="rc-st">
     <span class="rc-v">$0.4M</span>
     <span class="rc-dot">·</span>
-    <span class="rc-mup" style="color:#F1891B">MUP 1.779</span>
+    <span style="font-weight:700;color:#F1891B">MUP 1.779</span>
     <span class="rc-dot">·</span>
-    <span class="rc-mg" style="color:#2e7d32">43.8%</span>
+    <span style="font-weight:700;color:#2e7d32">43.8%</span>
   </div>
-</div><div class="rub-card" style="border-left:3px solid #2e7d32">
-  <div class="rc-header">
-    <span class="rc-sec" style="background:#c8e6c9;color:#2e7d32">BAZ</span>
-    <span class="rc-name">BANDEJAS</span>
+</div><div class="rc" style="border-left:3px solid #2e7d32">
+  <div class="rc-h">
+    <span class="rc-s" style="background:#c8e6c9;color:#2e7d32">BAZ</span>
+    <span class="rc-n">BANDEJAS</span>
   </div>
-  <div class="rc-bar-wrap">
-    <div class="rc-bar" style="width:8%;background:#2e7d32"></div>
-  </div>
-  <div class="rc-stats">
+  <div class="rc-bw"><div class="rc-b" style="width:8%;background:#2e7d32"></div></div>
+  <div class="rc-st">
     <span class="rc-v">$0.4M</span>
     <span class="rc-dot">·</span>
-    <span class="rc-mup" style="color:#2e7d32">MUP 1.566</span>
+    <span style="font-weight:700;color:#2e7d32">MUP 1.566</span>
     <span class="rc-dot">·</span>
-    <span class="rc-mg" style="color:#2e7d32">36.1%</span>
+    <span style="font-weight:700;color:#2e7d32">36.1%</span>
   </div>
-</div><div class="rub-card" style="border-left:3px solid #2e7d32">
-  <div class="rc-header">
-    <span class="rc-sec" style="background:#c8e6c9;color:#2e7d32">BAZ</span>
-    <span class="rc-name">PIZZERAS</span>
+</div><div class="rc" style="border-left:3px solid #2e7d32">
+  <div class="rc-h">
+    <span class="rc-s" style="background:#c8e6c9;color:#2e7d32">BAZ</span>
+    <span class="rc-n">PIZZERAS</span>
   </div>
-  <div class="rc-bar-wrap">
-    <div class="rc-bar" style="width:8%;background:#2e7d32"></div>
-  </div>
-  <div class="rc-stats">
+  <div class="rc-bw"><div class="rc-b" style="width:8%;background:#2e7d32"></div></div>
+  <div class="rc-st">
     <span class="rc-v">$0.4M</span>
     <span class="rc-dot">·</span>
-    <span class="rc-mup" style="color:#2e7d32">MUP 1.605</span>
+    <span style="font-weight:700;color:#2e7d32">MUP 1.605</span>
     <span class="rc-dot">·</span>
-    <span class="rc-mg" style="color:#2e7d32">37.7%</span>
+    <span style="font-weight:700;color:#2e7d32">37.7%</span>
   </div>
-</div><div class="rub-card" style="border-left:3px solid #F1891B">
-  <div class="rc-header">
-    <span class="rc-sec" style="background:#fde8cc;color:#F1891B">HOG</span>
-    <span class="rc-name">PLANCHAS</span>
+</div><div class="rc" style="border-left:3px solid #F1891B">
+  <div class="rc-h">
+    <span class="rc-s" style="background:#fde8cc;color:#F1891B">HOG</span>
+    <span class="rc-n">PLANCHAS</span>
   </div>
-  <div class="rc-bar-wrap">
-    <div class="rc-bar" style="width:7%;background:#F1891B"></div>
-  </div>
-  <div class="rc-stats">
+  <div class="rc-bw"><div class="rc-b" style="width:7%;background:#F1891B"></div></div>
+  <div class="rc-st">
     <span class="rc-v">$0.3M</span>
     <span class="rc-dot">·</span>
-    <span class="rc-mup" style="color:#F1891B">MUP 1.520</span>
+    <span style="font-weight:700;color:#F1891B">MUP 1.520</span>
     <span class="rc-dot">·</span>
-    <span class="rc-mg" style="color:#2e7d32">34.2%</span>
+    <span style="font-weight:700;color:#2e7d32">34.2%</span>
   </div>
-</div><div class="rub-card" style="border-left:3px solid #00548A">
-  <div class="rc-header">
-    <span class="rc-sec" style="background:#cce0f0;color:#00548A">EQU</span>
-    <span class="rc-name">PANINERAS</span>
+</div><div class="rc" style="border-left:3px solid #00548A">
+  <div class="rc-h">
+    <span class="rc-s" style="background:#ddeef8;color:#00548A">EQU</span>
+    <span class="rc-n">PANINERAS</span>
   </div>
-  <div class="rc-bar-wrap">
-    <div class="rc-bar" style="width:7%;background:#00548A"></div>
-  </div>
-  <div class="rc-stats">
+  <div class="rc-bw"><div class="rc-b" style="width:7%;background:#00548A"></div></div>
+  <div class="rc-st">
     <span class="rc-v">$0.3M</span>
     <span class="rc-dot">·</span>
-    <span class="rc-mup" style="color:#00548A">MUP 1.358</span>
+    <span style="font-weight:700;color:#00548A">MUP 1.358</span>
     <span class="rc-dot">·</span>
-    <span class="rc-mg" style="color:#e65100">26.4%</span>
+    <span style="font-weight:700;color:#e65100">26.4%</span>
   </div>
-</div><div class="rub-card" style="border-left:3px solid #F1891B">
-  <div class="rc-header">
-    <span class="rc-sec" style="background:#fde8cc;color:#F1891B">HOG</span>
-    <span class="rc-name">ANAFES</span>
+</div><div class="rc" style="border-left:3px solid #F1891B">
+  <div class="rc-h">
+    <span class="rc-s" style="background:#fde8cc;color:#F1891B">HOG</span>
+    <span class="rc-n">ANAFES</span>
   </div>
-  <div class="rc-bar-wrap">
-    <div class="rc-bar" style="width:7%;background:#F1891B"></div>
-  </div>
-  <div class="rc-stats">
+  <div class="rc-bw"><div class="rc-b" style="width:7%;background:#F1891B"></div></div>
+  <div class="rc-st">
     <span class="rc-v">$0.3M</span>
     <span class="rc-dot">·</span>
-    <span class="rc-mup" style="color:#F1891B">MUP 1.483</span>
+    <span style="font-weight:700;color:#F1891B">MUP 1.483</span>
     <span class="rc-dot">·</span>
-    <span class="rc-mg" style="color:#2e7d32">32.6%</span>
+    <span style="font-weight:700;color:#2e7d32">32.6%</span>
   </div>
-</div><div class="rub-card" style="border-left:3px solid #2e7d32">
-  <div class="rc-header">
-    <span class="rc-sec" style="background:#c8e6c9;color:#2e7d32">BAZ</span>
-    <span class="rc-name">BOWL ENSAL.Y FUENTES</span>
+</div><div class="rc" style="border-left:3px solid #2e7d32">
+  <div class="rc-h">
+    <span class="rc-s" style="background:#c8e6c9;color:#2e7d32">BAZ</span>
+    <span class="rc-n">BOWL ENSAL.Y FUENTES</span>
   </div>
-  <div class="rc-bar-wrap">
-    <div class="rc-bar" style="width:7%;background:#2e7d32"></div>
-  </div>
-  <div class="rc-stats">
+  <div class="rc-bw"><div class="rc-b" style="width:7%;background:#2e7d32"></div></div>
+  <div class="rc-st">
     <span class="rc-v">$0.3M</span>
     <span class="rc-dot">·</span>
-    <span class="rc-mup" style="color:#2e7d32">MUP 1.781</span>
+    <span style="font-weight:700;color:#2e7d32">MUP 1.781</span>
     <span class="rc-dot">·</span>
-    <span class="rc-mg" style="color:#2e7d32">43.8%</span>
+    <span style="font-weight:700;color:#2e7d32">43.8%</span>
   </div>
-</div><div class="rub-card" style="border-left:3px solid #2e7d32">
-  <div class="rc-header">
-    <span class="rc-sec" style="background:#c8e6c9;color:#2e7d32">BAZ</span>
-    <span class="rc-name">SARTENES Y WOKS</span>
+</div><div class="rc" style="border-left:3px solid #2e7d32">
+  <div class="rc-h">
+    <span class="rc-s" style="background:#c8e6c9;color:#2e7d32">BAZ</span>
+    <span class="rc-n">SARTENES Y WOKS</span>
   </div>
-  <div class="rc-bar-wrap">
-    <div class="rc-bar" style="width:7%;background:#2e7d32"></div>
-  </div>
-  <div class="rc-stats">
+  <div class="rc-bw"><div class="rc-b" style="width:7%;background:#2e7d32"></div></div>
+  <div class="rc-st">
     <span class="rc-v">$0.3M</span>
     <span class="rc-dot">·</span>
-    <span class="rc-mup" style="color:#2e7d32">MUP 1.600</span>
+    <span style="font-weight:700;color:#2e7d32">MUP 1.600</span>
     <span class="rc-dot">·</span>
-    <span class="rc-mg" style="color:#2e7d32">37.5%</span>
+    <span style="font-weight:700;color:#2e7d32">37.5%</span>
   </div>
-</div><div class="rub-card" style="border-left:3px solid #2e7d32">
-  <div class="rc-header">
-    <span class="rc-sec" style="background:#c8e6c9;color:#2e7d32">BAZ</span>
-    <span class="rc-name">UTENSILIOS VARIOS</span>
+</div><div class="rc" style="border-left:3px solid #2e7d32">
+  <div class="rc-h">
+    <span class="rc-s" style="background:#c8e6c9;color:#2e7d32">BAZ</span>
+    <span class="rc-n">UTENSILIOS VARIOS</span>
   </div>
-  <div class="rc-bar-wrap">
-    <div class="rc-bar" style="width:7%;background:#2e7d32"></div>
-  </div>
-  <div class="rc-stats">
+  <div class="rc-bw"><div class="rc-b" style="width:7%;background:#2e7d32"></div></div>
+  <div class="rc-st">
     <span class="rc-v">$0.3M</span>
     <span class="rc-dot">·</span>
-    <span class="rc-mup" style="color:#2e7d32">MUP 1.615</span>
+    <span style="font-weight:700;color:#2e7d32">MUP 1.615</span>
     <span class="rc-dot">·</span>
-    <span class="rc-mg" style="color:#2e7d32">38.1%</span>
+    <span style="font-weight:700;color:#2e7d32">38.1%</span>
   </div>
-</div><div class="rub-card" style="border-left:3px solid #2e7d32">
-  <div class="rc-header">
-    <span class="rc-sec" style="background:#c8e6c9;color:#2e7d32">BAZ</span>
-    <span class="rc-name">CUCHILLERIA</span>
+</div><div class="rc" style="border-left:3px solid #2e7d32">
+  <div class="rc-h">
+    <span class="rc-s" style="background:#c8e6c9;color:#2e7d32">BAZ</span>
+    <span class="rc-n">CUCHILLERIA</span>
   </div>
-  <div class="rc-bar-wrap">
-    <div class="rc-bar" style="width:6%;background:#2e7d32"></div>
-  </div>
-  <div class="rc-stats">
+  <div class="rc-bw"><div class="rc-b" style="width:6%;background:#2e7d32"></div></div>
+  <div class="rc-st">
     <span class="rc-v">$0.2M</span>
     <span class="rc-dot">·</span>
-    <span class="rc-mup" style="color:#2e7d32">MUP 1.489</span>
+    <span style="font-weight:700;color:#2e7d32">MUP 1.489</span>
     <span class="rc-dot">·</span>
-    <span class="rc-mg" style="color:#2e7d32">32.8%</span>
+    <span style="font-weight:700;color:#2e7d32">32.8%</span>
   </div>
-</div><div class="rub-card" style="border-left:3px solid #2e7d32">
-  <div class="rc-header">
-    <span class="rc-sec" style="background:#c8e6c9;color:#2e7d32">BAZ</span>
-    <span class="rc-name">CACEROLAS</span>
+</div><div class="rc" style="border-left:3px solid #2e7d32">
+  <div class="rc-h">
+    <span class="rc-s" style="background:#c8e6c9;color:#2e7d32">BAZ</span>
+    <span class="rc-n">CACEROLAS</span>
   </div>
-  <div class="rc-bar-wrap">
-    <div class="rc-bar" style="width:5%;background:#2e7d32"></div>
-  </div>
-  <div class="rc-stats">
+  <div class="rc-bw"><div class="rc-b" style="width:5%;background:#2e7d32"></div></div>
+  <div class="rc-st">
     <span class="rc-v">$0.2M</span>
     <span class="rc-dot">·</span>
-    <span class="rc-mup" style="color:#2e7d32">MUP 1.601</span>
+    <span style="font-weight:700;color:#2e7d32">MUP 1.601</span>
     <span class="rc-dot">·</span>
-    <span class="rc-mg" style="color:#2e7d32">37.5%</span>
+    <span style="font-weight:700;color:#2e7d32">37.5%</span>
   </div>
-</div><div class="rub-card" style="border-left:3px solid #F1891B">
-  <div class="rc-header">
-    <span class="rc-sec" style="background:#fde8cc;color:#F1891B">HOG</span>
-    <span class="rc-name">OTROS</span>
+</div><div class="rc" style="border-left:3px solid #F1891B">
+  <div class="rc-h">
+    <span class="rc-s" style="background:#fde8cc;color:#F1891B">HOG</span>
+    <span class="rc-n">OTROS</span>
   </div>
-  <div class="rc-bar-wrap">
-    <div class="rc-bar" style="width:5%;background:#F1891B"></div>
-  </div>
-  <div class="rc-stats">
+  <div class="rc-bw"><div class="rc-b" style="width:5%;background:#F1891B"></div></div>
+  <div class="rc-st">
     <span class="rc-v">$0.2M</span>
     <span class="rc-dot">·</span>
-    <span class="rc-mup" style="color:#F1891B">MUP 1.430</span>
+    <span style="font-weight:700;color:#F1891B">MUP 1.430</span>
     <span class="rc-dot">·</span>
-    <span class="rc-mg" style="color:#2e7d32">30.1%</span>
+    <span style="font-weight:700;color:#2e7d32">30.1%</span>
   </div>
-</div><div class="rub-card" style="border-left:3px solid #F1891B">
-  <div class="rc-header">
-    <span class="rc-sec" style="background:#fde8cc;color:#F1891B">HOG</span>
-    <span class="rc-name">HORNOS</span>
+</div><div class="rc" style="border-left:3px solid #F1891B">
+  <div class="rc-h">
+    <span class="rc-s" style="background:#fde8cc;color:#F1891B">HOG</span>
+    <span class="rc-n">HORNOS</span>
   </div>
-  <div class="rc-bar-wrap">
-    <div class="rc-bar" style="width:5%;background:#F1891B"></div>
-  </div>
-  <div class="rc-stats">
+  <div class="rc-bw"><div class="rc-b" style="width:5%;background:#F1891B"></div></div>
+  <div class="rc-st">
     <span class="rc-v">$0.2M</span>
     <span class="rc-dot">·</span>
-    <span class="rc-mup" style="color:#F1891B">MUP 1.476</span>
+    <span style="font-weight:700;color:#F1891B">MUP 1.476</span>
     <span class="rc-dot">·</span>
-    <span class="rc-mg" style="color:#2e7d32">32.3%</span>
+    <span style="font-weight:700;color:#2e7d32">32.3%</span>
   </div>
-</div><div class="rub-card" style="border-left:3px solid #2e7d32">
-  <div class="rc-header">
-    <span class="rc-sec" style="background:#c8e6c9;color:#2e7d32">BAZ</span>
-    <span class="rc-name">COLADORES</span>
+</div><div class="rc" style="border-left:3px solid #2e7d32">
+  <div class="rc-h">
+    <span class="rc-s" style="background:#c8e6c9;color:#2e7d32">BAZ</span>
+    <span class="rc-n">COLADORES</span>
   </div>
-  <div class="rc-bar-wrap">
-    <div class="rc-bar" style="width:4%;background:#2e7d32"></div>
-  </div>
-  <div class="rc-stats">
+  <div class="rc-bw"><div class="rc-b" style="width:4%;background:#2e7d32"></div></div>
+  <div class="rc-st">
     <span class="rc-v">$0.2M</span>
     <span class="rc-dot">·</span>
-    <span class="rc-mup" style="color:#2e7d32">MUP 1.600</span>
+    <span style="font-weight:700;color:#2e7d32">MUP 1.600</span>
     <span class="rc-dot">·</span>
-    <span class="rc-mg" style="color:#2e7d32">37.5%</span>
+    <span style="font-weight:700;color:#2e7d32">37.5%</span>
   </div>
-</div><div class="rub-card" style="border-left:3px solid #2e7d32">
-  <div class="rc-header">
-    <span class="rc-sec" style="background:#c8e6c9;color:#2e7d32">BAZ</span>
-    <span class="rc-name">ESCURRIDOR/SECA PLAT</span>
+</div><div class="rc" style="border-left:3px solid #2e7d32">
+  <div class="rc-h">
+    <span class="rc-s" style="background:#c8e6c9;color:#2e7d32">BAZ</span>
+    <span class="rc-n">ESCURRIDOR/SECA PLAT</span>
   </div>
-  <div class="rc-bar-wrap">
-    <div class="rc-bar" style="width:4%;background:#2e7d32"></div>
-  </div>
-  <div class="rc-stats">
+  <div class="rc-bw"><div class="rc-b" style="width:4%;background:#2e7d32"></div></div>
+  <div class="rc-st">
     <span class="rc-v">$0.2M</span>
     <span class="rc-dot">·</span>
-    <span class="rc-mup" style="color:#2e7d32">MUP 1.600</span>
+    <span style="font-weight:700;color:#2e7d32">MUP 1.600</span>
     <span class="rc-dot">·</span>
-    <span class="rc-mg" style="color:#2e7d32">37.5%</span>
+    <span style="font-weight:700;color:#2e7d32">37.5%</span>
   </div>
-</div><div class="rub-card" style="border-left:3px solid #2e7d32">
-  <div class="rc-header">
-    <span class="rc-sec" style="background:#c8e6c9;color:#2e7d32">BAZ</span>
-    <span class="rc-name">COMPLEMENTOS DE MESA</span>
+</div><div class="rc" style="border-left:3px solid #2e7d32">
+  <div class="rc-h">
+    <span class="rc-s" style="background:#c8e6c9;color:#2e7d32">BAZ</span>
+    <span class="rc-n">COMPLEMENTOS DE MESA</span>
   </div>
-  <div class="rc-bar-wrap">
-    <div class="rc-bar" style="width:4%;background:#2e7d32"></div>
-  </div>
-  <div class="rc-stats">
+  <div class="rc-bw"><div class="rc-b" style="width:4%;background:#2e7d32"></div></div>
+  <div class="rc-st">
     <span class="rc-v">$0.2M</span>
     <span class="rc-dot">·</span>
-    <span class="rc-mup" style="color:#2e7d32">MUP 1.596</span>
+    <span style="font-weight:700;color:#2e7d32">MUP 1.596</span>
     <span class="rc-dot">·</span>
-    <span class="rc-mg" style="color:#2e7d32">37.3%</span>
+    <span style="font-weight:700;color:#2e7d32">37.3%</span>
   </div>
-</div><div class="rub-card" style="border-left:3px solid #2e7d32">
-  <div class="rc-header">
-    <span class="rc-sec" style="background:#c8e6c9;color:#2e7d32">BAZ</span>
-    <span class="rc-name">ESPATULAS</span>
+</div><div class="rc" style="border-left:3px solid #2e7d32">
+  <div class="rc-h">
+    <span class="rc-s" style="background:#c8e6c9;color:#2e7d32">BAZ</span>
+    <span class="rc-n">ESPATULAS</span>
   </div>
-  <div class="rc-bar-wrap">
-    <div class="rc-bar" style="width:3%;background:#2e7d32"></div>
-  </div>
-  <div class="rc-stats">
+  <div class="rc-bw"><div class="rc-b" style="width:3%;background:#2e7d32"></div></div>
+  <div class="rc-st">
     <span class="rc-v">$0.2M</span>
     <span class="rc-dot">·</span>
-    <span class="rc-mup" style="color:#2e7d32">MUP 1.588</span>
+    <span style="font-weight:700;color:#2e7d32">MUP 1.588</span>
     <span class="rc-dot">·</span>
-    <span class="rc-mg" style="color:#2e7d32">37.0%</span>
+    <span style="font-weight:700;color:#2e7d32">37.0%</span>
   </div>
-</div><div class="rub-card" style="border-left:3px solid #2e7d32">
-  <div class="rc-header">
-    <span class="rc-sec" style="background:#c8e6c9;color:#2e7d32">BAZ</span>
-    <span class="rc-name">CUBIERTOS DE MESA</span>
+</div><div class="rc" style="border-left:3px solid #2e7d32">
+  <div class="rc-h">
+    <span class="rc-s" style="background:#c8e6c9;color:#2e7d32">BAZ</span>
+    <span class="rc-n">CUBIERTOS DE MESA</span>
   </div>
-  <div class="rc-bar-wrap">
-    <div class="rc-bar" style="width:3%;background:#2e7d32"></div>
-  </div>
-  <div class="rc-stats">
+  <div class="rc-bw"><div class="rc-b" style="width:3%;background:#2e7d32"></div></div>
+  <div class="rc-st">
     <span class="rc-v">$0.2M</span>
     <span class="rc-dot">·</span>
-    <span class="rc-mup" style="color:#2e7d32">MUP 1.617</span>
+    <span style="font-weight:700;color:#2e7d32">MUP 1.617</span>
     <span class="rc-dot">·</span>
-    <span class="rc-mg" style="color:#2e7d32">38.1%</span>
+    <span style="font-weight:700;color:#2e7d32">38.1%</span>
   </div>
-</div><div class="rub-card" style="border-left:3px solid #F1891B">
-  <div class="rc-header">
-    <span class="rc-sec" style="background:#fde8cc;color:#F1891B">HOG</span>
-    <span class="rc-name">AUDIO</span>
+</div><div class="rc" style="border-left:3px solid #F1891B">
+  <div class="rc-h">
+    <span class="rc-s" style="background:#fde8cc;color:#F1891B">HOG</span>
+    <span class="rc-n">AUDIO</span>
   </div>
-  <div class="rc-bar-wrap">
-    <div class="rc-bar" style="width:3%;background:#F1891B"></div>
-  </div>
-  <div class="rc-stats">
+  <div class="rc-bw"><div class="rc-b" style="width:3%;background:#F1891B"></div></div>
+  <div class="rc-st">
     <span class="rc-v">$0.2M</span>
     <span class="rc-dot">·</span>
-    <span class="rc-mup" style="color:#F1891B">MUP 1.480</span>
+    <span style="font-weight:700;color:#F1891B">MUP 1.480</span>
     <span class="rc-dot">·</span>
-    <span class="rc-mg" style="color:#2e7d32">32.4%</span>
+    <span style="font-weight:700;color:#2e7d32">32.4%</span>
   </div>
-</div><div class="rub-card" style="border-left:3px solid #00548A">
-  <div class="rc-header">
-    <span class="rc-sec" style="background:#cce0f0;color:#00548A">EQU</span>
-    <span class="rc-name">MAQUINASDEPASTAS</span>
+</div><div class="rc" style="border-left:3px solid #00548A">
+  <div class="rc-h">
+    <span class="rc-s" style="background:#ddeef8;color:#00548A">EQU</span>
+    <span class="rc-n">MAQUINASDEPASTAS</span>
   </div>
-  <div class="rc-bar-wrap">
-    <div class="rc-bar" style="width:3%;background:#00548A"></div>
-  </div>
-  <div class="rc-stats">
+  <div class="rc-bw"><div class="rc-b" style="width:3%;background:#00548A"></div></div>
+  <div class="rc-st">
     <span class="rc-v">$0.1M</span>
     <span class="rc-dot">·</span>
-    <span class="rc-mup" style="color:#00548A">MUP 1.368</span>
+    <span style="font-weight:700;color:#00548A">MUP 1.368</span>
     <span class="rc-dot">·</span>
-    <span class="rc-mg" style="color:#e65100">26.9%</span>
+    <span style="font-weight:700;color:#e65100">26.9%</span>
   </div>
-</div><div class="rub-card" style="border-left:3px solid #F1891B">
-  <div class="rc-header">
-    <span class="rc-sec" style="background:#fde8cc;color:#F1891B">HOG</span>
-    <span class="rc-name">HIDROLAVADORAS</span>
+</div><div class="rc" style="border-left:3px solid #F1891B">
+  <div class="rc-h">
+    <span class="rc-s" style="background:#fde8cc;color:#F1891B">HOG</span>
+    <span class="rc-n">HIDROLAVADORAS</span>
   </div>
-  <div class="rc-bar-wrap">
-    <div class="rc-bar" style="width:3%;background:#F1891B"></div>
-  </div>
-  <div class="rc-stats">
+  <div class="rc-bw"><div class="rc-b" style="width:3%;background:#F1891B"></div></div>
+  <div class="rc-st">
     <span class="rc-v">$0.1M</span>
     <span class="rc-dot">·</span>
-    <span class="rc-mup" style="color:#F1891B">MUP 1.480</span>
+    <span style="font-weight:700;color:#F1891B">MUP 1.480</span>
     <span class="rc-dot">·</span>
-    <span class="rc-mg" style="color:#2e7d32">32.4%</span>
+    <span style="font-weight:700;color:#2e7d32">32.4%</span>
   </div>
-</div><div class="rub-card" style="border-left:3px solid #F1891B">
-  <div class="rc-header">
-    <span class="rc-sec" style="background:#fde8cc;color:#F1891B">HOG</span>
-    <span class="rc-name">EXTRACTORES COCINA</span>
+</div><div class="rc" style="border-left:3px solid #F1891B">
+  <div class="rc-h">
+    <span class="rc-s" style="background:#fde8cc;color:#F1891B">HOG</span>
+    <span class="rc-n">EXTRACTORES COCINA</span>
   </div>
-  <div class="rc-bar-wrap">
-    <div class="rc-bar" style="width:3%;background:#F1891B"></div>
-  </div>
-  <div class="rc-stats">
+  <div class="rc-bw"><div class="rc-b" style="width:3%;background:#F1891B"></div></div>
+  <div class="rc-st">
     <span class="rc-v">$0.1M</span>
     <span class="rc-dot">·</span>
-    <span class="rc-mup" style="color:#F1891B">MUP 1.480</span>
+    <span style="font-weight:700;color:#F1891B">MUP 1.480</span>
     <span class="rc-dot">·</span>
-    <span class="rc-mg" style="color:#2e7d32">32.4%</span>
+    <span style="font-weight:700;color:#2e7d32">32.4%</span>
   </div>
-</div><div class="rub-card" style="border-left:3px solid #F1891B">
-  <div class="rc-header">
-    <span class="rc-sec" style="background:#fde8cc;color:#F1891B">HOG</span>
-    <span class="rc-name">PLANCHAS DE PELO</span>
+</div><div class="rc" style="border-left:3px solid #F1891B">
+  <div class="rc-h">
+    <span class="rc-s" style="background:#fde8cc;color:#F1891B">HOG</span>
+    <span class="rc-n">PLANCHAS DE PELO</span>
   </div>
-  <div class="rc-bar-wrap">
-    <div class="rc-bar" style="width:2%;background:#F1891B"></div>
-  </div>
-  <div class="rc-stats">
+  <div class="rc-bw"><div class="rc-b" style="width:2%;background:#F1891B"></div></div>
+  <div class="rc-st">
     <span class="rc-v">$0.1M</span>
     <span class="rc-dot">·</span>
-    <span class="rc-mup" style="color:#F1891B">MUP 1.480</span>
+    <span style="font-weight:700;color:#F1891B">MUP 1.480</span>
     <span class="rc-dot">·</span>
-    <span class="rc-mg" style="color:#2e7d32">32.4%</span>
+    <span style="font-weight:700;color:#2e7d32">32.4%</span>
   </div>
-</div><div class="rub-card" style="border-left:3px solid #2e7d32">
-  <div class="rc-header">
-    <span class="rc-sec" style="background:#c8e6c9;color:#2e7d32">BAZ</span>
-    <span class="rc-name">CUCHARONES/CUCHARAS</span>
+</div><div class="rc" style="border-left:3px solid #2e7d32">
+  <div class="rc-h">
+    <span class="rc-s" style="background:#c8e6c9;color:#2e7d32">BAZ</span>
+    <span class="rc-n">CUCHARONES/CUCHARAS</span>
   </div>
-  <div class="rc-bar-wrap">
-    <div class="rc-bar" style="width:2%;background:#2e7d32"></div>
-  </div>
-  <div class="rc-stats">
+  <div class="rc-bw"><div class="rc-b" style="width:2%;background:#2e7d32"></div></div>
+  <div class="rc-st">
     <span class="rc-v">$0.1M</span>
     <span class="rc-dot">·</span>
-    <span class="rc-mup" style="color:#2e7d32">MUP 1.615</span>
+    <span style="font-weight:700;color:#2e7d32">MUP 1.615</span>
     <span class="rc-dot">·</span>
-    <span class="rc-mg" style="color:#2e7d32">38.1%</span>
+    <span style="font-weight:700;color:#2e7d32">38.1%</span>
   </div>
-</div><div class="rub-card" style="border-left:3px solid #2e7d32">
-  <div class="rc-header">
-    <span class="rc-sec" style="background:#c8e6c9;color:#2e7d32">BAZ</span>
-    <span class="rc-name">BALANZAS</span>
+</div><div class="rc" style="border-left:3px solid #2e7d32">
+  <div class="rc-h">
+    <span class="rc-s" style="background:#c8e6c9;color:#2e7d32">BAZ</span>
+    <span class="rc-n">BALANZAS</span>
   </div>
-  <div class="rc-bar-wrap">
-    <div class="rc-bar" style="width:2%;background:#2e7d32"></div>
-  </div>
-  <div class="rc-stats">
+  <div class="rc-bw"><div class="rc-b" style="width:2%;background:#2e7d32"></div></div>
+  <div class="rc-st">
     <span class="rc-v">$0.1M</span>
     <span class="rc-dot">·</span>
-    <span class="rc-mup" style="color:#2e7d32">MUP 1.621</span>
+    <span style="font-weight:700;color:#2e7d32">MUP 1.621</span>
     <span class="rc-dot">·</span>
-    <span class="rc-mg" style="color:#2e7d32">38.3%</span>
+    <span style="font-weight:700;color:#2e7d32">38.3%</span>
   </div>
-</div><div class="rub-card" style="border-left:3px solid #2e7d32">
-  <div class="rc-header">
-    <span class="rc-sec" style="background:#c8e6c9;color:#2e7d32">BAZ</span>
-    <span class="rc-name">TAZAS</span>
+</div><div class="rc" style="border-left:3px solid #2e7d32">
+  <div class="rc-h">
+    <span class="rc-s" style="background:#c8e6c9;color:#2e7d32">BAZ</span>
+    <span class="rc-n">TAZAS</span>
   </div>
-  <div class="rc-bar-wrap">
-    <div class="rc-bar" style="width:2%;background:#2e7d32"></div>
-  </div>
-  <div class="rc-stats">
+  <div class="rc-bw"><div class="rc-b" style="width:2%;background:#2e7d32"></div></div>
+  <div class="rc-st">
     <span class="rc-v">$0.1M</span>
     <span class="rc-dot">·</span>
-    <span class="rc-mup" style="color:#2e7d32">MUP 1.555</span>
+    <span style="font-weight:700;color:#2e7d32">MUP 1.555</span>
     <span class="rc-dot">·</span>
-    <span class="rc-mg" style="color:#2e7d32">35.7%</span>
+    <span style="font-weight:700;color:#2e7d32">35.7%</span>
   </div>
-</div><div class="rub-card" style="border-left:3px solid #F1891B">
-  <div class="rc-header">
-    <span class="rc-sec" style="background:#fde8cc;color:#F1891B">HOG</span>
-    <span class="rc-name">JUGUERA-EXPRIMIDOR</span>
+</div><div class="rc" style="border-left:3px solid #F1891B">
+  <div class="rc-h">
+    <span class="rc-s" style="background:#fde8cc;color:#F1891B">HOG</span>
+    <span class="rc-n">JUGUERA-EXPRIMIDOR</span>
   </div>
-  <div class="rc-bar-wrap">
-    <div class="rc-bar" style="width:2%;background:#F1891B"></div>
-  </div>
-  <div class="rc-stats">
+  <div class="rc-bw"><div class="rc-b" style="width:2%;background:#F1891B"></div></div>
+  <div class="rc-st">
     <span class="rc-v">$0.1M</span>
     <span class="rc-dot">·</span>
-    <span class="rc-mup" style="color:#F1891B">MUP 1.480</span>
+    <span style="font-weight:700;color:#F1891B">MUP 1.480</span>
     <span class="rc-dot">·</span>
-    <span class="rc-mg" style="color:#2e7d32">32.4%</span>
+    <span style="font-weight:700;color:#2e7d32">32.4%</span>
   </div>
-</div><div class="rub-card" style="border-left:3px solid #2e7d32">
-  <div class="rc-header">
-    <span class="rc-sec" style="background:#c8e6c9;color:#2e7d32">BAZ</span>
-    <span class="rc-name">CUBIERTOS ACERO</span>
+</div><div class="rc" style="border-left:3px solid #2e7d32">
+  <div class="rc-h">
+    <span class="rc-s" style="background:#c8e6c9;color:#2e7d32">BAZ</span>
+    <span class="rc-n">CUBIERTOS ACERO</span>
   </div>
-  <div class="rc-bar-wrap">
-    <div class="rc-bar" style="width:1%;background:#2e7d32"></div>
-  </div>
-  <div class="rc-stats">
+  <div class="rc-bw"><div class="rc-b" style="width:1%;background:#2e7d32"></div></div>
+  <div class="rc-st">
     <span class="rc-v">$0.1M</span>
     <span class="rc-dot">·</span>
-    <span class="rc-mup" style="color:#2e7d32">MUP 1.600</span>
+    <span style="font-weight:700;color:#2e7d32">MUP 1.600</span>
     <span class="rc-dot">·</span>
-    <span class="rc-mg" style="color:#2e7d32">37.5%</span>
+    <span style="font-weight:700;color:#2e7d32">37.5%</span>
   </div>
-</div><div class="rub-card" style="border-left:3px solid #F1891B">
-  <div class="rc-header">
-    <span class="rc-sec" style="background:#fde8cc;color:#F1891B">HOG</span>
-    <span class="rc-name">MOLINILLO</span>
+</div><div class="rc" style="border-left:3px solid #F1891B">
+  <div class="rc-h">
+    <span class="rc-s" style="background:#fde8cc;color:#F1891B">HOG</span>
+    <span class="rc-n">MOLINILLO</span>
   </div>
-  <div class="rc-bar-wrap">
-    <div class="rc-bar" style="width:1%;background:#F1891B"></div>
-  </div>
-  <div class="rc-stats">
+  <div class="rc-bw"><div class="rc-b" style="width:1%;background:#F1891B"></div></div>
+  <div class="rc-st">
     <span class="rc-v">$0.1M</span>
     <span class="rc-dot">·</span>
-    <span class="rc-mup" style="color:#F1891B">MUP 1.540</span>
+    <span style="font-weight:700;color:#F1891B">MUP 1.540</span>
     <span class="rc-dot">·</span>
-    <span class="rc-mg" style="color:#2e7d32">35.1%</span>
+    <span style="font-weight:700;color:#2e7d32">35.1%</span>
   </div>
-</div><div class="rub-card" style="border-left:3px solid #2e7d32">
-  <div class="rc-header">
-    <span class="rc-sec" style="background:#c8e6c9;color:#2e7d32">BAZ</span>
-    <span class="rc-name">VASOS</span>
+</div><div class="rc" style="border-left:3px solid #2e7d32">
+  <div class="rc-h">
+    <span class="rc-s" style="background:#c8e6c9;color:#2e7d32">BAZ</span>
+    <span class="rc-n">VASOS</span>
   </div>
-  <div class="rc-bar-wrap">
-    <div class="rc-bar" style="width:1%;background:#2e7d32"></div>
-  </div>
-  <div class="rc-stats">
+  <div class="rc-bw"><div class="rc-b" style="width:1%;background:#2e7d32"></div></div>
+  <div class="rc-st">
     <span class="rc-v">$0.1M</span>
     <span class="rc-dot">·</span>
-    <span class="rc-mup" style="color:#2e7d32">MUP 1.561</span>
+    <span style="font-weight:700;color:#2e7d32">MUP 1.561</span>
     <span class="rc-dot">·</span>
-    <span class="rc-mg" style="color:#2e7d32">35.9%</span>
+    <span style="font-weight:700;color:#2e7d32">35.9%</span>
   </div>
-</div><div class="rub-card" style="border-left:3px solid #F1891B">
-  <div class="rc-header">
-    <span class="rc-sec" style="background:#fde8cc;color:#F1891B">HOG</span>
-    <span class="rc-name">TOSTADORAS/SANDWICHERAS</span>
+</div><div class="rc" style="border-left:3px solid #F1891B">
+  <div class="rc-h">
+    <span class="rc-s" style="background:#fde8cc;color:#F1891B">HOG</span>
+    <span class="rc-n">TOSTADORAS/SANDWICHERAS</span>
   </div>
-  <div class="rc-bar-wrap">
-    <div class="rc-bar" style="width:1%;background:#F1891B"></div>
-  </div>
-  <div class="rc-stats">
+  <div class="rc-bw"><div class="rc-b" style="width:1%;background:#F1891B"></div></div>
+  <div class="rc-st">
     <span class="rc-v">$0.1M</span>
     <span class="rc-dot">·</span>
-    <span class="rc-mup" style="color:#F1891B">MUP 1.480</span>
+    <span style="font-weight:700;color:#F1891B">MUP 1.480</span>
     <span class="rc-dot">·</span>
-    <span class="rc-mg" style="color:#2e7d32">32.4%</span>
+    <span style="font-weight:700;color:#2e7d32">32.4%</span>
   </div>
-</div><div class="rub-card" style="border-left:3px solid #2e7d32">
-  <div class="rc-header">
-    <span class="rc-sec" style="background:#c8e6c9;color:#2e7d32">BAZ</span>
-    <span class="rc-name">BOTELLAS Y FRASCOS</span>
+</div><div class="rc" style="border-left:3px solid #2e7d32">
+  <div class="rc-h">
+    <span class="rc-s" style="background:#c8e6c9;color:#2e7d32">BAZ</span>
+    <span class="rc-n">BOTELLAS Y FRASCOS</span>
   </div>
-  <div class="rc-bar-wrap">
-    <div class="rc-bar" style="width:1%;background:#2e7d32"></div>
-  </div>
-  <div class="rc-stats">
+  <div class="rc-bw"><div class="rc-b" style="width:1%;background:#2e7d32"></div></div>
+  <div class="rc-st">
     <span class="rc-v">$0.1M</span>
     <span class="rc-dot">·</span>
-    <span class="rc-mup" style="color:#2e7d32">MUP 1.584</span>
+    <span style="font-weight:700;color:#2e7d32">MUP 1.584</span>
     <span class="rc-dot">·</span>
-    <span class="rc-mg" style="color:#2e7d32">36.9%</span>
+    <span style="font-weight:700;color:#2e7d32">36.9%</span>
   </div>
-</div><div class="rub-card" style="border-left:3px solid #2e7d32">
-  <div class="rc-header">
-    <span class="rc-sec" style="background:#c8e6c9;color:#2e7d32">BAZ</span>
-    <span class="rc-name">PELA PAPA/PISA PAPA</span>
+</div><div class="rc" style="border-left:3px solid #2e7d32">
+  <div class="rc-h">
+    <span class="rc-s" style="background:#c8e6c9;color:#2e7d32">BAZ</span>
+    <span class="rc-n">PELA PAPA/PISA PAPA</span>
   </div>
-  <div class="rc-bar-wrap">
-    <div class="rc-bar" style="width:1%;background:#2e7d32"></div>
-  </div>
-  <div class="rc-stats">
+  <div class="rc-bw"><div class="rc-b" style="width:1%;background:#2e7d32"></div></div>
+  <div class="rc-st">
     <span class="rc-v">$0.1M</span>
     <span class="rc-dot">·</span>
-    <span class="rc-mup" style="color:#2e7d32">MUP 1.600</span>
+    <span style="font-weight:700;color:#2e7d32">MUP 1.600</span>
     <span class="rc-dot">·</span>
-    <span class="rc-mg" style="color:#2e7d32">37.5%</span>
+    <span style="font-weight:700;color:#2e7d32">37.5%</span>
   </div>
-</div><div class="rub-card" style="border-left:3px solid #2e7d32">
-  <div class="rc-header">
-    <span class="rc-sec" style="background:#c8e6c9;color:#2e7d32">BAZ</span>
-    <span class="rc-name">JARRO HERVIDOR</span>
+</div><div class="rc" style="border-left:3px solid #2e7d32">
+  <div class="rc-h">
+    <span class="rc-s" style="background:#c8e6c9;color:#2e7d32">BAZ</span>
+    <span class="rc-n">JARRO HERVIDOR</span>
   </div>
-  <div class="rc-bar-wrap">
-    <div class="rc-bar" style="width:1%;background:#2e7d32"></div>
-  </div>
-  <div class="rc-stats">
+  <div class="rc-bw"><div class="rc-b" style="width:1%;background:#2e7d32"></div></div>
+  <div class="rc-st">
     <span class="rc-v">$0.0M</span>
     <span class="rc-dot">·</span>
-    <span class="rc-mup" style="color:#2e7d32">MUP 1.600</span>
+    <span style="font-weight:700;color:#2e7d32">MUP 1.600</span>
     <span class="rc-dot">·</span>
-    <span class="rc-mg" style="color:#2e7d32">37.5%</span>
+    <span style="font-weight:700;color:#2e7d32">37.5%</span>
   </div>
-</div><div class="rub-card" style="border-left:3px solid #2e7d32">
-  <div class="rc-header">
-    <span class="rc-sec" style="background:#c8e6c9;color:#2e7d32">BAZ</span>
-    <span class="rc-name">ESPUMADERAS</span>
+</div><div class="rc" style="border-left:3px solid #2e7d32">
+  <div class="rc-h">
+    <span class="rc-s" style="background:#c8e6c9;color:#2e7d32">BAZ</span>
+    <span class="rc-n">ESPUMADERAS</span>
   </div>
-  <div class="rc-bar-wrap">
-    <div class="rc-bar" style="width:1%;background:#2e7d32"></div>
-  </div>
-  <div class="rc-stats">
+  <div class="rc-bw"><div class="rc-b" style="width:1%;background:#2e7d32"></div></div>
+  <div class="rc-st">
     <span class="rc-v">$0.0M</span>
     <span class="rc-dot">·</span>
-    <span class="rc-mup" style="color:#2e7d32">MUP 1.600</span>
+    <span style="font-weight:700;color:#2e7d32">MUP 1.600</span>
     <span class="rc-dot">·</span>
-    <span class="rc-mg" style="color:#2e7d32">37.5%</span>
+    <span style="font-weight:700;color:#2e7d32">37.5%</span>
   </div>
-</div><div class="rub-card" style="border-left:3px solid #2e7d32">
-  <div class="rc-header">
-    <span class="rc-sec" style="background:#c8e6c9;color:#2e7d32">BAZ</span>
-    <span class="rc-name">RALLADORES</span>
+</div><div class="rc" style="border-left:3px solid #2e7d32">
+  <div class="rc-h">
+    <span class="rc-s" style="background:#c8e6c9;color:#2e7d32">BAZ</span>
+    <span class="rc-n">RALLADORES</span>
   </div>
-  <div class="rc-bar-wrap">
-    <div class="rc-bar" style="width:1%;background:#2e7d32"></div>
-  </div>
-  <div class="rc-stats">
+  <div class="rc-bw"><div class="rc-b" style="width:1%;background:#2e7d32"></div></div>
+  <div class="rc-st">
     <span class="rc-v">$0.0M</span>
     <span class="rc-dot">·</span>
-    <span class="rc-mup" style="color:#2e7d32">MUP 1.600</span>
+    <span style="font-weight:700;color:#2e7d32">MUP 1.600</span>
     <span class="rc-dot">·</span>
-    <span class="rc-mg" style="color:#2e7d32">37.5%</span>
+    <span style="font-weight:700;color:#2e7d32">37.5%</span>
   </div>
-</div><div class="rub-card" style="border-left:3px solid #2e7d32">
-  <div class="rc-header">
-    <span class="rc-sec" style="background:#c8e6c9;color:#2e7d32">BAZ</span>
-    <span class="rc-name">TOSTADORAS</span>
+</div><div class="rc" style="border-left:3px solid #2e7d32">
+  <div class="rc-h">
+    <span class="rc-s" style="background:#c8e6c9;color:#2e7d32">BAZ</span>
+    <span class="rc-n">TOSTADORAS</span>
   </div>
-  <div class="rc-bar-wrap">
-    <div class="rc-bar" style="width:1%;background:#2e7d32"></div>
-  </div>
-  <div class="rc-stats">
+  <div class="rc-bw"><div class="rc-b" style="width:1%;background:#2e7d32"></div></div>
+  <div class="rc-st">
     <span class="rc-v">$0.0M</span>
     <span class="rc-dot">·</span>
-    <span class="rc-mup" style="color:#2e7d32">MUP 1.600</span>
+    <span style="font-weight:700;color:#2e7d32">MUP 1.600</span>
     <span class="rc-dot">·</span>
-    <span class="rc-mg" style="color:#2e7d32">37.5%</span>
+    <span style="font-weight:700;color:#2e7d32">37.5%</span>
   </div>
-</div><div class="rub-card" style="border-left:3px solid #2e7d32">
-  <div class="rc-header">
-    <span class="rc-sec" style="background:#c8e6c9;color:#2e7d32">BAZ</span>
-    <span class="rc-name">TERMOS</span>
+</div><div class="rc" style="border-left:3px solid #2e7d32">
+  <div class="rc-h">
+    <span class="rc-s" style="background:#c8e6c9;color:#2e7d32">BAZ</span>
+    <span class="rc-n">TERMOS</span>
   </div>
-  <div class="rc-bar-wrap">
-    <div class="rc-bar" style="width:0%;background:#2e7d32"></div>
-  </div>
-  <div class="rc-stats">
+  <div class="rc-bw"><div class="rc-b" style="width:0%;background:#2e7d32"></div></div>
+  <div class="rc-st">
     <span class="rc-v">$0.0M</span>
     <span class="rc-dot">·</span>
-    <span class="rc-mup" style="color:#2e7d32">MUP 1.600</span>
+    <span style="font-weight:700;color:#2e7d32">MUP 1.600</span>
     <span class="rc-dot">·</span>
-    <span class="rc-mg" style="color:#2e7d32">37.5%</span>
+    <span style="font-weight:700;color:#2e7d32">37.5%</span>
   </div>
-</div><div class="rub-card" style="border-left:3px solid #2e7d32">
-  <div class="rc-header">
-    <span class="rc-sec" style="background:#c8e6c9;color:#2e7d32">BAZ</span>
-    <span class="rc-name">PINZAS</span>
+</div><div class="rc" style="border-left:3px solid #2e7d32">
+  <div class="rc-h">
+    <span class="rc-s" style="background:#c8e6c9;color:#2e7d32">BAZ</span>
+    <span class="rc-n">PINZAS</span>
   </div>
-  <div class="rc-bar-wrap">
-    <div class="rc-bar" style="width:0%;background:#2e7d32"></div>
-  </div>
-  <div class="rc-stats">
+  <div class="rc-bw"><div class="rc-b" style="width:0%;background:#2e7d32"></div></div>
+  <div class="rc-st">
     <span class="rc-v">$0.0M</span>
     <span class="rc-dot">·</span>
-    <span class="rc-mup" style="color:#2e7d32">MUP 1.969</span>
+    <span style="font-weight:700;color:#2e7d32">MUP 1.969</span>
     <span class="rc-dot">·</span>
-    <span class="rc-mg" style="color:#2e7d32">49.2%</span>
+    <span style="font-weight:700;color:#2e7d32">49.2%</span>
   </div>
-</div><div class="rub-card" style="border-left:3px solid #2e7d32">
-  <div class="rc-header">
-    <span class="rc-sec" style="background:#c8e6c9;color:#2e7d32">BAZ</span>
-    <span class="rc-name">PLANCHAS</span>
+</div><div class="rc" style="border-left:3px solid #2e7d32">
+  <div class="rc-h">
+    <span class="rc-s" style="background:#c8e6c9;color:#2e7d32">BAZ</span>
+    <span class="rc-n">PLANCHAS</span>
   </div>
-  <div class="rc-bar-wrap">
-    <div class="rc-bar" style="width:0%;background:#2e7d32"></div>
-  </div>
-  <div class="rc-stats">
+  <div class="rc-bw"><div class="rc-b" style="width:0%;background:#2e7d32"></div></div>
+  <div class="rc-st">
     <span class="rc-v">$0.0M</span>
     <span class="rc-dot">·</span>
-    <span class="rc-mup" style="color:#2e7d32">MUP 1.600</span>
+    <span style="font-weight:700;color:#2e7d32">MUP 1.600</span>
     <span class="rc-dot">·</span>
-    <span class="rc-mg" style="color:#2e7d32">37.5%</span>
+    <span style="font-weight:700;color:#2e7d32">37.5%</span>
   </div>
-</div><div class="rub-card" style="border-left:3px solid #2e7d32">
-  <div class="rc-header">
-    <span class="rc-sec" style="background:#c8e6c9;color:#2e7d32">BAZ</span>
-    <span class="rc-name">JARRAS</span>
+</div><div class="rc" style="border-left:3px solid #2e7d32">
+  <div class="rc-h">
+    <span class="rc-s" style="background:#c8e6c9;color:#2e7d32">BAZ</span>
+    <span class="rc-n">JARRAS</span>
   </div>
-  <div class="rc-bar-wrap">
-    <div class="rc-bar" style="width:0%;background:#2e7d32"></div>
-  </div>
-  <div class="rc-stats">
+  <div class="rc-bw"><div class="rc-b" style="width:0%;background:#2e7d32"></div></div>
+  <div class="rc-st">
     <span class="rc-v">$0.0M</span>
     <span class="rc-dot">·</span>
-    <span class="rc-mup" style="color:#2e7d32">MUP 1.586</span>
+    <span style="font-weight:700;color:#2e7d32">MUP 1.586</span>
     <span class="rc-dot">·</span>
-    <span class="rc-mg" style="color:#2e7d32">37.0%</span>
+    <span style="font-weight:700;color:#2e7d32">37.0%</span>
   </div>
-</div><div class="rub-card" style="border-left:3px solid #2e7d32">
-  <div class="rc-header">
-    <span class="rc-sec" style="background:#c8e6c9;color:#2e7d32">BAZ</span>
-    <span class="rc-name">PALOS DE AMASAR</span>
+</div><div class="rc" style="border-left:3px solid #2e7d32">
+  <div class="rc-h">
+    <span class="rc-s" style="background:#c8e6c9;color:#2e7d32">BAZ</span>
+    <span class="rc-n">PALOS DE AMASAR</span>
   </div>
-  <div class="rc-bar-wrap">
-    <div class="rc-bar" style="width:0%;background:#2e7d32"></div>
-  </div>
-  <div class="rc-stats">
+  <div class="rc-bw"><div class="rc-b" style="width:0%;background:#2e7d32"></div></div>
+  <div class="rc-st">
     <span class="rc-v">$0.0M</span>
     <span class="rc-dot">·</span>
-    <span class="rc-mup" style="color:#2e7d32">MUP 1.600</span>
+    <span style="font-weight:700;color:#2e7d32">MUP 1.600</span>
     <span class="rc-dot">·</span>
-    <span class="rc-mg" style="color:#2e7d32">37.5%</span>
+    <span style="font-weight:700;color:#2e7d32">37.5%</span>
   </div>
-</div><div class="rub-card" style="border-left:3px solid #2e7d32">
-  <div class="rc-header">
-    <span class="rc-sec" style="background:#c8e6c9;color:#2e7d32">BAZ</span>
-    <span class="rc-name">ESPECIEROS</span>
+</div><div class="rc" style="border-left:3px solid #2e7d32">
+  <div class="rc-h">
+    <span class="rc-s" style="background:#c8e6c9;color:#2e7d32">BAZ</span>
+    <span class="rc-n">ESPECIEROS</span>
   </div>
-  <div class="rc-bar-wrap">
-    <div class="rc-bar" style="width:0%;background:#2e7d32"></div>
-  </div>
-  <div class="rc-stats">
+  <div class="rc-bw"><div class="rc-b" style="width:0%;background:#2e7d32"></div></div>
+  <div class="rc-st">
     <span class="rc-v">$0.0M</span>
     <span class="rc-dot">·</span>
-    <span class="rc-mup" style="color:#2e7d32">MUP 1.600</span>
+    <span style="font-weight:700;color:#2e7d32">MUP 1.600</span>
     <span class="rc-dot">·</span>
-    <span class="rc-mg" style="color:#2e7d32">37.5%</span>
+    <span style="font-weight:700;color:#2e7d32">37.5%</span>
   </div>
-</div><div class="rub-card" style="border-left:3px solid #2e7d32">
-  <div class="rc-header">
-    <span class="rc-sec" style="background:#c8e6c9;color:#2e7d32">BAZ</span>
-    <span class="rc-name">COMANDERAS</span>
+</div><div class="rc" style="border-left:3px solid #2e7d32">
+  <div class="rc-h">
+    <span class="rc-s" style="background:#c8e6c9;color:#2e7d32">BAZ</span>
+    <span class="rc-n">COMANDERAS</span>
   </div>
-  <div class="rc-bar-wrap">
-    <div class="rc-bar" style="width:0%;background:#2e7d32"></div>
-  </div>
-  <div class="rc-stats">
+  <div class="rc-bw"><div class="rc-b" style="width:0%;background:#2e7d32"></div></div>
+  <div class="rc-st">
     <span class="rc-v">$0.0M</span>
     <span class="rc-dot">·</span>
-    <span class="rc-mup" style="color:#2e7d32">MUP 1.600</span>
+    <span style="font-weight:700;color:#2e7d32">MUP 1.600</span>
     <span class="rc-dot">·</span>
-    <span class="rc-mg" style="color:#2e7d32">37.5%</span>
+    <span style="font-weight:700;color:#2e7d32">37.5%</span>
   </div>
-</div><div class="rub-card" style="border-left:3px solid #2e7d32">
-  <div class="rc-header">
-    <span class="rc-sec" style="background:#c8e6c9;color:#2e7d32">BAZ</span>
-    <span class="rc-name">MANGAS/PICOS</span>
+</div><div class="rc" style="border-left:3px solid #2e7d32">
+  <div class="rc-h">
+    <span class="rc-s" style="background:#c8e6c9;color:#2e7d32">BAZ</span>
+    <span class="rc-n">MANGAS/PICOS</span>
   </div>
-  <div class="rc-bar-wrap">
-    <div class="rc-bar" style="width:0%;background:#2e7d32"></div>
-  </div>
-  <div class="rc-stats">
+  <div class="rc-bw"><div class="rc-b" style="width:0%;background:#2e7d32"></div></div>
+  <div class="rc-st">
     <span class="rc-v">$0.0M</span>
     <span class="rc-dot">·</span>
-    <span class="rc-mup" style="color:#2e7d32">MUP 1.600</span>
+    <span style="font-weight:700;color:#2e7d32">MUP 1.600</span>
     <span class="rc-dot">·</span>
-    <span class="rc-mg" style="color:#2e7d32">37.5%</span>
+    <span style="font-weight:700;color:#2e7d32">37.5%</span>
   </div>
-</div><div class="rub-card" style="border-left:3px solid #2e7d32">
-  <div class="rc-header">
-    <span class="rc-sec" style="background:#c8e6c9;color:#2e7d32">BAZ</span>
-    <span class="rc-name">CHAFER Y BRASEROS</span>
+</div><div class="rc" style="border-left:3px solid #2e7d32">
+  <div class="rc-h">
+    <span class="rc-s" style="background:#c8e6c9;color:#2e7d32">BAZ</span>
+    <span class="rc-n">CHAFER Y BRASEROS</span>
   </div>
-  <div class="rc-bar-wrap">
-    <div class="rc-bar" style="width:0%;background:#2e7d32"></div>
-  </div>
-  <div class="rc-stats">
+  <div class="rc-bw"><div class="rc-b" style="width:0%;background:#2e7d32"></div></div>
+  <div class="rc-st">
     <span class="rc-v">$0.0M</span>
     <span class="rc-dot">·</span>
-    <span class="rc-mup" style="color:#2e7d32">MUP 1.600</span>
+    <span style="font-weight:700;color:#2e7d32">MUP 1.600</span>
     <span class="rc-dot">·</span>
-    <span class="rc-mg" style="color:#2e7d32">37.5%</span>
+    <span style="font-weight:700;color:#2e7d32">37.5%</span>
   </div>
-</div><div class="rub-card" style="border-left:3px solid #2e7d32">
-  <div class="rc-header">
-    <span class="rc-sec" style="background:#c8e6c9;color:#2e7d32">BAZ</span>
-    <span class="rc-name">JARRITO DE CAFE</span>
+</div><div class="rc" style="border-left:3px solid #2e7d32">
+  <div class="rc-h">
+    <span class="rc-s" style="background:#c8e6c9;color:#2e7d32">BAZ</span>
+    <span class="rc-n">JARRITO DE CAFE</span>
   </div>
-  <div class="rc-bar-wrap">
-    <div class="rc-bar" style="width:0%;background:#2e7d32"></div>
-  </div>
-  <div class="rc-stats">
+  <div class="rc-bw"><div class="rc-b" style="width:0%;background:#2e7d32"></div></div>
+  <div class="rc-st">
     <span class="rc-v">$0.0M</span>
     <span class="rc-dot">·</span>
-    <span class="rc-mup" style="color:#2e7d32">MUP 1.600</span>
+    <span style="font-weight:700;color:#2e7d32">MUP 1.600</span>
     <span class="rc-dot">·</span>
-    <span class="rc-mg" style="color:#2e7d32">37.5%</span>
+    <span style="font-weight:700;color:#2e7d32">37.5%</span>
   </div>
-</div><div class="rub-card" style="border-left:3px solid #2e7d32">
-  <div class="rc-header">
-    <span class="rc-sec" style="background:#c8e6c9;color:#2e7d32">BAZ</span>
-    <span class="rc-name">PAVAS</span>
+</div><div class="rc" style="border-left:3px solid #2e7d32">
+  <div class="rc-h">
+    <span class="rc-s" style="background:#c8e6c9;color:#2e7d32">BAZ</span>
+    <span class="rc-n">PAVAS</span>
   </div>
-  <div class="rc-bar-wrap">
-    <div class="rc-bar" style="width:0%;background:#2e7d32"></div>
-  </div>
-  <div class="rc-stats">
+  <div class="rc-bw"><div class="rc-b" style="width:0%;background:#2e7d32"></div></div>
+  <div class="rc-st">
     <span class="rc-v">$0.0M</span>
     <span class="rc-dot">·</span>
-    <span class="rc-mup" style="color:#2e7d32">MUP 1.600</span>
+    <span style="font-weight:700;color:#2e7d32">MUP 1.600</span>
     <span class="rc-dot">·</span>
-    <span class="rc-mg" style="color:#2e7d32">37.5%</span>
+    <span style="font-weight:700;color:#2e7d32">37.5%</span>
   </div>
-</div><div class="rub-card" style="border-left:3px solid #2e7d32">
-  <div class="rc-header">
-    <span class="rc-sec" style="background:#c8e6c9;color:#2e7d32">BAZ</span>
-    <span class="rc-name">BATIDOR</span>
+</div><div class="rc" style="border-left:3px solid #2e7d32">
+  <div class="rc-h">
+    <span class="rc-s" style="background:#c8e6c9;color:#2e7d32">BAZ</span>
+    <span class="rc-n">BATIDOR</span>
   </div>
-  <div class="rc-bar-wrap">
-    <div class="rc-bar" style="width:0%;background:#2e7d32"></div>
-  </div>
-  <div class="rc-stats">
+  <div class="rc-bw"><div class="rc-b" style="width:0%;background:#2e7d32"></div></div>
+  <div class="rc-st">
     <span class="rc-v">$0.0M</span>
     <span class="rc-dot">·</span>
-    <span class="rc-mup" style="color:#2e7d32">MUP 1.600</span>
+    <span style="font-weight:700;color:#2e7d32">MUP 1.600</span>
     <span class="rc-dot">·</span>
-    <span class="rc-mg" style="color:#2e7d32">37.5%</span>
+    <span style="font-weight:700;color:#2e7d32">37.5%</span>
   </div>
-</div><div class="rub-card" style="border-left:3px solid #2e7d32">
-  <div class="rc-header">
-    <span class="rc-sec" style="background:#c8e6c9;color:#2e7d32">BAZ</span>
-    <span class="rc-name">MORTEROS</span>
+</div><div class="rc" style="border-left:3px solid #2e7d32">
+  <div class="rc-h">
+    <span class="rc-s" style="background:#c8e6c9;color:#2e7d32">BAZ</span>
+    <span class="rc-n">MORTEROS</span>
   </div>
-  <div class="rc-bar-wrap">
-    <div class="rc-bar" style="width:0%;background:#2e7d32"></div>
-  </div>
-  <div class="rc-stats">
+  <div class="rc-bw"><div class="rc-b" style="width:0%;background:#2e7d32"></div></div>
+  <div class="rc-st">
     <span class="rc-v">$0.0M</span>
     <span class="rc-dot">·</span>
-    <span class="rc-mup" style="color:#2e7d32">MUP 1.600</span>
+    <span style="font-weight:700;color:#2e7d32">MUP 1.600</span>
     <span class="rc-dot">·</span>
-    <span class="rc-mg" style="color:#2e7d32">37.5%</span>
+    <span style="font-weight:700;color:#2e7d32">37.5%</span>
   </div>
-</div><div class="rub-card" style="border-left:3px solid #2e7d32">
-  <div class="rc-header">
-    <span class="rc-sec" style="background:#c8e6c9;color:#2e7d32">BAZ</span>
-    <span class="rc-name">EXPRIMIDORES</span>
+</div><div class="rc" style="border-left:3px solid #2e7d32">
+  <div class="rc-h">
+    <span class="rc-s" style="background:#c8e6c9;color:#2e7d32">BAZ</span>
+    <span class="rc-n">EXPRIMIDORES</span>
   </div>
-  <div class="rc-bar-wrap">
-    <div class="rc-bar" style="width:0%;background:#2e7d32"></div>
-  </div>
-  <div class="rc-stats">
+  <div class="rc-bw"><div class="rc-b" style="width:0%;background:#2e7d32"></div></div>
+  <div class="rc-st">
     <span class="rc-v">$0.0M</span>
     <span class="rc-dot">·</span>
-    <span class="rc-mup" style="color:#2e7d32">MUP 1.600</span>
+    <span style="font-weight:700;color:#2e7d32">MUP 1.600</span>
     <span class="rc-dot">·</span>
-    <span class="rc-mg" style="color:#2e7d32">37.5%</span>
+    <span style="font-weight:700;color:#2e7d32">37.5%</span>
   </div>
-</div><div class="rub-card" style="border-left:3px solid #2e7d32">
-  <div class="rc-header">
-    <span class="rc-sec" style="background:#c8e6c9;color:#2e7d32">BAZ</span>
-    <span class="rc-name">CREMERAS/LECHERAS</span>
+</div><div class="rc" style="border-left:3px solid #2e7d32">
+  <div class="rc-h">
+    <span class="rc-s" style="background:#c8e6c9;color:#2e7d32">BAZ</span>
+    <span class="rc-n">CREMERAS/LECHERAS</span>
   </div>
-  <div class="rc-bar-wrap">
-    <div class="rc-bar" style="width:0%;background:#2e7d32"></div>
-  </div>
-  <div class="rc-stats">
+  <div class="rc-bw"><div class="rc-b" style="width:0%;background:#2e7d32"></div></div>
+  <div class="rc-st">
     <span class="rc-v">$0.0M</span>
     <span class="rc-dot">·</span>
-    <span class="rc-mup" style="color:#2e7d32">MUP 2.720</span>
+    <span style="font-weight:700;color:#2e7d32">MUP 2.720</span>
     <span class="rc-dot">·</span>
-    <span class="rc-mg" style="color:#2e7d32">63.2%</span>
+    <span style="font-weight:700;color:#2e7d32">63.2%</span>
   </div>
-</div><div class="rub-card" style="border-left:3px solid #2e7d32">
-  <div class="rc-header">
-    <span class="rc-sec" style="background:#c8e6c9;color:#2e7d32">BAZ</span>
-    <span class="rc-name">PALAS/REMOS</span>
+</div><div class="rc" style="border-left:3px solid #2e7d32">
+  <div class="rc-h">
+    <span class="rc-s" style="background:#c8e6c9;color:#2e7d32">BAZ</span>
+    <span class="rc-n">PALAS/REMOS</span>
   </div>
-  <div class="rc-bar-wrap">
-    <div class="rc-bar" style="width:0%;background:#2e7d32"></div>
-  </div>
-  <div class="rc-stats">
+  <div class="rc-bw"><div class="rc-b" style="width:0%;background:#2e7d32"></div></div>
+  <div class="rc-st">
     <span class="rc-v">$0.0M</span>
     <span class="rc-dot">·</span>
-    <span class="rc-mup" style="color:#2e7d32">MUP 1.600</span>
+    <span style="font-weight:700;color:#2e7d32">MUP 1.600</span>
     <span class="rc-dot">·</span>
-    <span class="rc-mg" style="color:#2e7d32">37.5%</span>
+    <span style="font-weight:700;color:#2e7d32">37.5%</span>
   </div>
-</div><div class="rub-card" style="border-left:3px solid #2e7d32">
-  <div class="rc-header">
-    <span class="rc-sec" style="background:#c8e6c9;color:#2e7d32">BAZ</span>
-    <span class="rc-name">ACEITEROS/VINAGREROS</span>
+</div><div class="rc" style="border-left:3px solid #2e7d32">
+  <div class="rc-h">
+    <span class="rc-s" style="background:#c8e6c9;color:#2e7d32">BAZ</span>
+    <span class="rc-n">ACEITEROS/VINAGREROS</span>
   </div>
-  <div class="rc-bar-wrap">
-    <div class="rc-bar" style="width:0%;background:#2e7d32"></div>
-  </div>
-  <div class="rc-stats">
+  <div class="rc-bw"><div class="rc-b" style="width:0%;background:#2e7d32"></div></div>
+  <div class="rc-st">
     <span class="rc-v">$0.0M</span>
     <span class="rc-dot">·</span>
-    <span class="rc-mup" style="color:#2e7d32">MUP 1.600</span>
+    <span style="font-weight:700;color:#2e7d32">MUP 1.600</span>
     <span class="rc-dot">·</span>
-    <span class="rc-mg" style="color:#2e7d32">37.5%</span>
+    <span style="font-weight:700;color:#2e7d32">37.5%</span>
+  </div>
+</div><div class="rc" style="border-left:3px solid #F1891B">
+  <div class="rc-h">
+    <span class="rc-s" style="background:#fde8cc;color:#F1891B">HOG</span>
+    <span class="rc-n">TESOROS</span>
+  </div>
+  <div class="rc-bw"><div class="rc-b" style="width:0%;background:#F1891B"></div></div>
+  <div class="rc-st">
+    <span class="rc-v">$-0.0M</span>
+    <span class="rc-dot">·</span>
+    <span style="font-weight:700;color:#F1891B">MUP 1.480</span>
+    <span class="rc-dot">·</span>
+    <span style="font-weight:700;color:#2e7d32">32.4%</span>
   </div>
 </div></div>
-    </div>
-
-    <!-- P1: Alto vol, alto MUP — arriba derecha -->
+</div>
     <div class="quad" style="background:#e8f5e9;border-color:#2e7d32">
-      <div class="quad-head">
-        <div class="quad-title" style="color:#2e7d32">&#9733; ESCALAR CON PAUTA</div>
-        <div class="quad-sub">Alto volumen · Alto margen</div>
-      </div>
-      <div class="quad-kpis">
-        <div class="qk"><strong style="color:#2e7d32">16</strong> rubros</div>
-        <div class="qk">Venta: <strong>$214.9M</strong></div>
-        <div class="qk">MUP med.: <strong>1.433</strong></div>
-        <div class="qk">Margen med.: <strong style="color:#2e7d32">30.2%</strong></div>
-      </div>
-      <div class="cards-list"><div class="rub-card" style="border-left:3px solid #00548A">
-  <div class="rc-header">
-    <span class="rc-sec" style="background:#cce0f0;color:#00548A">EQU</span>
-    <span class="rc-name">HORNOS CONVECTORES</span>
+  <div class="qh">
+    <div class="qt" style="color:#2e7d32">ESCALAR</div>
+    <div class="qs">Alto volumen · Alto margen</div>
+    <div class="qa" style="color:#2e7d32">Máxima inversión — mejor ROI de la pauta</div>
   </div>
-  <div class="rc-bar-wrap">
-    <div class="rc-bar" style="width:100%;background:#00548A"></div>
+  <div class="qkpis">
+    <span class="qk"><strong style="color:#2e7d32">16</strong> rubros</span>
+    <span class="qk">Venta <strong>$214.9M</strong></span>
+    <span class="qk">MUP <strong>1.433</strong></span>
+    <span class="qk">Margen <strong>30.2%</strong></span>
+    <span class="qk"><strong style="color:#F1891B">10</strong> del Pareto</span>
   </div>
-  <div class="rc-stats">
+  <div class="cards"><div class="rc" style="border-left:3px solid #00548A">
+  <div class="rc-h">
+    <span class="rc-s" style="background:#ddeef8;color:#00548A">EQU</span>
+    <span class="rc-n">HORNOS CONVECTORES</span><span style="background:#F1891B;color:#fff;padding:1px 5px;border-radius:6px;font-size:.63rem;font-weight:700;margin-left:4px">PARETO</span>
+  </div>
+  <div class="rc-bw"><div class="rc-b" style="width:100%;background:#00548A"></div></div>
+  <div class="rc-st">
     <span class="rc-v">$31.1M</span>
     <span class="rc-dot">·</span>
-    <span class="rc-mup" style="color:#00548A">MUP 1.388</span>
+    <span style="font-weight:700;color:#00548A">MUP 1.388</span>
     <span class="rc-dot">·</span>
-    <span class="rc-mg" style="color:#e65100">28.0%</span>
+    <span style="font-weight:700;color:#e65100">28.0%</span>
   </div>
-</div><div class="rub-card" style="border-left:3px solid #00548A">
-  <div class="rc-header">
-    <span class="rc-sec" style="background:#cce0f0;color:#00548A">EQU</span>
-    <span class="rc-name">VERTICAL CONGELADOS</span>
+</div><div class="rc" style="border-left:3px solid #00548A">
+  <div class="rc-h">
+    <span class="rc-s" style="background:#ddeef8;color:#00548A">EQU</span>
+    <span class="rc-n">VERTICAL CONGELADOS</span><span style="background:#F1891B;color:#fff;padding:1px 5px;border-radius:6px;font-size:.63rem;font-weight:700;margin-left:4px">PARETO</span>
   </div>
-  <div class="rc-bar-wrap">
-    <div class="rc-bar" style="width:78%;background:#00548A"></div>
-  </div>
-  <div class="rc-stats">
+  <div class="rc-bw"><div class="rc-b" style="width:78%;background:#00548A"></div></div>
+  <div class="rc-st">
     <span class="rc-v">$24.5M</span>
     <span class="rc-dot">·</span>
-    <span class="rc-mup" style="color:#00548A">MUP 1.360</span>
+    <span style="font-weight:700;color:#00548A">MUP 1.360</span>
     <span class="rc-dot">·</span>
-    <span class="rc-mg" style="color:#e65100">26.5%</span>
+    <span style="font-weight:700;color:#e65100">26.5%</span>
   </div>
-</div><div class="rub-card" style="border-left:3px solid #F1891B">
-  <div class="rc-header">
-    <span class="rc-sec" style="background:#fde8cc;color:#F1891B">HOG</span>
-    <span class="rc-name">TERMOTANQUES</span>
+</div><div class="rc" style="border-left:3px solid #F1891B">
+  <div class="rc-h">
+    <span class="rc-s" style="background:#fde8cc;color:#F1891B">HOG</span>
+    <span class="rc-n">TERMOTANQUES</span><span style="background:#F1891B;color:#fff;padding:1px 5px;border-radius:6px;font-size:.63rem;font-weight:700;margin-left:4px">PARETO</span>
   </div>
-  <div class="rc-bar-wrap">
-    <div class="rc-bar" style="width:76%;background:#F1891B"></div>
-  </div>
-  <div class="rc-stats">
+  <div class="rc-bw"><div class="rc-b" style="width:76%;background:#F1891B"></div></div>
+  <div class="rc-st">
     <span class="rc-v">$23.9M</span>
     <span class="rc-dot">·</span>
-    <span class="rc-mup" style="color:#F1891B">MUP 1.356</span>
+    <span style="font-weight:700;color:#F1891B">MUP 1.356</span>
     <span class="rc-dot">·</span>
-    <span class="rc-mg" style="color:#e65100">26.2%</span>
+    <span style="font-weight:700;color:#e65100">26.2%</span>
   </div>
-</div><div class="rub-card" style="border-left:3px solid #00548A">
-  <div class="rc-header">
-    <span class="rc-sec" style="background:#cce0f0;color:#00548A">EQU</span>
-    <span class="rc-name">BATIDORAS</span>
+</div><div class="rc" style="border-left:3px solid #00548A">
+  <div class="rc-h">
+    <span class="rc-s" style="background:#ddeef8;color:#00548A">EQU</span>
+    <span class="rc-n">BATIDORAS</span><span style="background:#F1891B;color:#fff;padding:1px 5px;border-radius:6px;font-size:.63rem;font-weight:700;margin-left:4px">PARETO</span>
   </div>
-  <div class="rc-bar-wrap">
-    <div class="rc-bar" style="width:74%;background:#00548A"></div>
-  </div>
-  <div class="rc-stats">
+  <div class="rc-bw"><div class="rc-b" style="width:74%;background:#00548A"></div></div>
+  <div class="rc-st">
     <span class="rc-v">$23.2M</span>
     <span class="rc-dot">·</span>
-    <span class="rc-mup" style="color:#00548A">MUP 1.354</span>
+    <span style="font-weight:700;color:#00548A">MUP 1.354</span>
     <span class="rc-dot">·</span>
-    <span class="rc-mg" style="color:#e65100">26.2%</span>
+    <span style="font-weight:700;color:#e65100">26.2%</span>
   </div>
-</div><div class="rub-card" style="border-left:3px solid #00548A">
-  <div class="rc-header">
-    <span class="rc-sec" style="background:#cce0f0;color:#00548A">EQU</span>
-    <span class="rc-name">HORNOS PIZZEROS</span>
+</div><div class="rc" style="border-left:3px solid #00548A">
+  <div class="rc-h">
+    <span class="rc-s" style="background:#ddeef8;color:#00548A">EQU</span>
+    <span class="rc-n">HORNOS PIZZEROS</span><span style="background:#F1891B;color:#fff;padding:1px 5px;border-radius:6px;font-size:.63rem;font-weight:700;margin-left:4px">PARETO</span>
   </div>
-  <div class="rc-bar-wrap">
-    <div class="rc-bar" style="width:71%;background:#00548A"></div>
-  </div>
-  <div class="rc-stats">
+  <div class="rc-bw"><div class="rc-b" style="width:71%;background:#00548A"></div></div>
+  <div class="rc-st">
     <span class="rc-v">$22.4M</span>
     <span class="rc-dot">·</span>
-    <span class="rc-mup" style="color:#00548A">MUP 1.459</span>
+    <span style="font-weight:700;color:#00548A">MUP 1.459</span>
     <span class="rc-dot">·</span>
-    <span class="rc-mg" style="color:#2e7d32">31.5%</span>
+    <span style="font-weight:700;color:#2e7d32">31.5%</span>
   </div>
-</div><div class="rub-card" style="border-left:3px solid #00548A">
-  <div class="rc-header">
-    <span class="rc-sec" style="background:#cce0f0;color:#00548A">EQU</span>
-    <span class="rc-name">HELADERACONFITERA</span>
+</div><div class="rc" style="border-left:3px solid #00548A">
+  <div class="rc-h">
+    <span class="rc-s" style="background:#ddeef8;color:#00548A">EQU</span>
+    <span class="rc-n">HELADERACONFITERA</span><span style="background:#F1891B;color:#fff;padding:1px 5px;border-radius:6px;font-size:.63rem;font-weight:700;margin-left:4px">PARETO</span>
   </div>
-  <div class="rc-bar-wrap">
-    <div class="rc-bar" style="width:41%;background:#00548A"></div>
-  </div>
-  <div class="rc-stats">
+  <div class="rc-bw"><div class="rc-b" style="width:41%;background:#00548A"></div></div>
+  <div class="rc-st">
     <span class="rc-v">$12.9M</span>
     <span class="rc-dot">·</span>
-    <span class="rc-mup" style="color:#00548A">MUP 1.355</span>
+    <span style="font-weight:700;color:#00548A">MUP 1.355</span>
     <span class="rc-dot">·</span>
-    <span class="rc-mg" style="color:#e65100">26.2%</span>
+    <span style="font-weight:700;color:#e65100">26.2%</span>
   </div>
-</div><div class="rub-card" style="border-left:3px solid #F1891B">
-  <div class="rc-header">
-    <span class="rc-sec" style="background:#fde8cc;color:#F1891B">HOG</span>
-    <span class="rc-name">AIRES ACONDICIONADOS</span>
+</div><div class="rc" style="border-left:3px solid #F1891B">
+  <div class="rc-h">
+    <span class="rc-s" style="background:#fde8cc;color:#F1891B">HOG</span>
+    <span class="rc-n">AIRES ACONDICIONADOS</span><span style="background:#F1891B;color:#fff;padding:1px 5px;border-radius:6px;font-size:.63rem;font-weight:700;margin-left:4px">PARETO</span>
   </div>
-  <div class="rc-bar-wrap">
-    <div class="rc-bar" style="width:38%;background:#F1891B"></div>
-  </div>
-  <div class="rc-stats">
+  <div class="rc-bw"><div class="rc-b" style="width:38%;background:#F1891B"></div></div>
+  <div class="rc-st">
     <span class="rc-v">$12.0M</span>
     <span class="rc-dot">·</span>
-    <span class="rc-mup" style="color:#F1891B">MUP 2.056</span>
+    <span style="font-weight:700;color:#F1891B">MUP 2.056</span>
     <span class="rc-dot">·</span>
-    <span class="rc-mg" style="color:#2e7d32">51.4%</span>
+    <span style="font-weight:700;color:#2e7d32">51.4%</span>
   </div>
-</div><div class="rub-card" style="border-left:3px solid #00548A">
-  <div class="rc-header">
-    <span class="rc-sec" style="background:#cce0f0;color:#00548A">EQU</span>
-    <span class="rc-name">SIERRASCARNICERAS</span>
+</div><div class="rc" style="border-left:3px solid #00548A">
+  <div class="rc-h">
+    <span class="rc-s" style="background:#ddeef8;color:#00548A">EQU</span>
+    <span class="rc-n">SIERRASCARNICERAS</span><span style="background:#F1891B;color:#fff;padding:1px 5px;border-radius:6px;font-size:.63rem;font-weight:700;margin-left:4px">PARETO</span>
   </div>
-  <div class="rc-bar-wrap">
-    <div class="rc-bar" style="width:34%;background:#00548A"></div>
-  </div>
-  <div class="rc-stats">
+  <div class="rc-bw"><div class="rc-b" style="width:34%;background:#00548A"></div></div>
+  <div class="rc-st">
     <span class="rc-v">$10.8M</span>
     <span class="rc-dot">·</span>
-    <span class="rc-mup" style="color:#00548A">MUP 1.583</span>
+    <span style="font-weight:700;color:#00548A">MUP 1.583</span>
     <span class="rc-dot">·</span>
-    <span class="rc-mg" style="color:#2e7d32">36.8%</span>
+    <span style="font-weight:700;color:#2e7d32">36.8%</span>
   </div>
-</div><div class="rub-card" style="border-left:3px solid #00548A">
-  <div class="rc-header">
-    <span class="rc-sec" style="background:#cce0f0;color:#00548A">EQU</span>
-    <span class="rc-name">CAMARASDEFRIO</span>
+</div><div class="rc" style="border-left:3px solid #00548A">
+  <div class="rc-h">
+    <span class="rc-s" style="background:#ddeef8;color:#00548A">EQU</span>
+    <span class="rc-n">CAMARASDEFRIO</span><span style="background:#F1891B;color:#fff;padding:1px 5px;border-radius:6px;font-size:.63rem;font-weight:700;margin-left:4px">PARETO</span>
   </div>
-  <div class="rc-bar-wrap">
-    <div class="rc-bar" style="width:29%;background:#00548A"></div>
-  </div>
-  <div class="rc-stats">
+  <div class="rc-bw"><div class="rc-b" style="width:29%;background:#00548A"></div></div>
+  <div class="rc-st">
     <span class="rc-v">$9.3M</span>
     <span class="rc-dot">·</span>
-    <span class="rc-mup" style="color:#00548A">MUP 1.430</span>
+    <span style="font-weight:700;color:#00548A">MUP 1.430</span>
     <span class="rc-dot">·</span>
-    <span class="rc-mg" style="color:#2e7d32">30.1%</span>
+    <span style="font-weight:700;color:#2e7d32">30.1%</span>
   </div>
-</div><div class="rub-card" style="border-left:3px solid #00548A">
-  <div class="rc-header">
-    <span class="rc-sec" style="background:#cce0f0;color:#00548A">EQU</span>
-    <span class="rc-name">MESASDETRABAJO</span>
+</div><div class="rc" style="border-left:3px solid #00548A">
+  <div class="rc-h">
+    <span class="rc-s" style="background:#ddeef8;color:#00548A">EQU</span>
+    <span class="rc-n">MESASDETRABAJO</span><span style="background:#F1891B;color:#fff;padding:1px 5px;border-radius:6px;font-size:.63rem;font-weight:700;margin-left:4px">PARETO</span>
   </div>
-  <div class="rc-bar-wrap">
-    <div class="rc-bar" style="width:26%;background:#00548A"></div>
-  </div>
-  <div class="rc-stats">
+  <div class="rc-bw"><div class="rc-b" style="width:26%;background:#00548A"></div></div>
+  <div class="rc-st">
     <span class="rc-v">$8.3M</span>
     <span class="rc-dot">·</span>
-    <span class="rc-mup" style="color:#00548A">MUP 1.374</span>
+    <span style="font-weight:700;color:#00548A">MUP 1.374</span>
     <span class="rc-dot">·</span>
-    <span class="rc-mg" style="color:#e65100">27.2%</span>
+    <span style="font-weight:700;color:#e65100">27.2%</span>
   </div>
-</div><div class="rub-card" style="border-left:3px solid #00548A">
-  <div class="rc-header">
-    <span class="rc-sec" style="background:#cce0f0;color:#00548A">EQU</span>
-    <span class="rc-name">FREIDORAS</span>
+</div><div class="rc" style="border-left:3px solid #00548A">
+  <div class="rc-h">
+    <span class="rc-s" style="background:#ddeef8;color:#00548A">EQU</span>
+    <span class="rc-n">FREIDORAS</span>
   </div>
-  <div class="rc-bar-wrap">
-    <div class="rc-bar" style="width:21%;background:#00548A"></div>
-  </div>
-  <div class="rc-stats">
+  <div class="rc-bw"><div class="rc-b" style="width:21%;background:#00548A"></div></div>
+  <div class="rc-st">
     <span class="rc-v">$6.7M</span>
     <span class="rc-dot">·</span>
-    <span class="rc-mup" style="color:#00548A">MUP 1.391</span>
+    <span style="font-weight:700;color:#00548A">MUP 1.391</span>
     <span class="rc-dot">·</span>
-    <span class="rc-mg" style="color:#e65100">28.1%</span>
+    <span style="font-weight:700;color:#e65100">28.1%</span>
   </div>
-</div><div class="rub-card" style="border-left:3px solid #00548A">
-  <div class="rc-header">
-    <span class="rc-sec" style="background:#cce0f0;color:#00548A">EQU</span>
-    <span class="rc-name">CAMARA FERMENTADORA</span>
+</div><div class="rc" style="border-left:3px solid #00548A">
+  <div class="rc-h">
+    <span class="rc-s" style="background:#ddeef8;color:#00548A">EQU</span>
+    <span class="rc-n">CAMARA FERMENTADORA</span>
   </div>
-  <div class="rc-bar-wrap">
-    <div class="rc-bar" style="width:20%;background:#00548A"></div>
-  </div>
-  <div class="rc-stats">
+  <div class="rc-bw"><div class="rc-b" style="width:20%;background:#00548A"></div></div>
+  <div class="rc-st">
     <span class="rc-v">$6.3M</span>
     <span class="rc-dot">·</span>
-    <span class="rc-mup" style="color:#00548A">MUP 1.397</span>
+    <span style="font-weight:700;color:#00548A">MUP 1.397</span>
     <span class="rc-dot">·</span>
-    <span class="rc-mg" style="color:#e65100">28.4%</span>
+    <span style="font-weight:700;color:#e65100">28.4%</span>
   </div>
-</div><div class="rub-card" style="border-left:3px solid #F1891B">
-  <div class="rc-header">
-    <span class="rc-sec" style="background:#fde8cc;color:#F1891B">HOG</span>
-    <span class="rc-name">CALEFACCION</span>
+</div><div class="rc" style="border-left:3px solid #F1891B">
+  <div class="rc-h">
+    <span class="rc-s" style="background:#fde8cc;color:#F1891B">HOG</span>
+    <span class="rc-n">CALEFACCION</span>
   </div>
-  <div class="rc-bar-wrap">
-    <div class="rc-bar" style="width:20%;background:#F1891B"></div>
-  </div>
-  <div class="rc-stats">
+  <div class="rc-bw"><div class="rc-b" style="width:20%;background:#F1891B"></div></div>
+  <div class="rc-st">
     <span class="rc-v">$6.3M</span>
     <span class="rc-dot">·</span>
-    <span class="rc-mup" style="color:#F1891B">MUP 1.419</span>
+    <span style="font-weight:700;color:#F1891B">MUP 1.419</span>
     <span class="rc-dot">·</span>
-    <span class="rc-mg" style="color:#e65100">29.5%</span>
+    <span style="font-weight:700;color:#e65100">29.5%</span>
   </div>
-</div><div class="rub-card" style="border-left:3px solid #00548A">
-  <div class="rc-header">
-    <span class="rc-sec" style="background:#cce0f0;color:#00548A">EQU</span>
-    <span class="rc-name">PROCESADORAS</span>
+</div><div class="rc" style="border-left:3px solid #00548A">
+  <div class="rc-h">
+    <span class="rc-s" style="background:#ddeef8;color:#00548A">EQU</span>
+    <span class="rc-n">PROCESADORAS</span>
   </div>
-  <div class="rc-bar-wrap">
-    <div class="rc-bar" style="width:19%;background:#00548A"></div>
-  </div>
-  <div class="rc-stats">
+  <div class="rc-bw"><div class="rc-b" style="width:19%;background:#00548A"></div></div>
+  <div class="rc-st">
     <span class="rc-v">$6.1M</span>
     <span class="rc-dot">·</span>
-    <span class="rc-mup" style="color:#00548A">MUP 1.420</span>
+    <span style="font-weight:700;color:#00548A">MUP 1.420</span>
     <span class="rc-dot">·</span>
-    <span class="rc-mg" style="color:#e65100">29.6%</span>
+    <span style="font-weight:700;color:#e65100">29.6%</span>
   </div>
-</div><div class="rub-card" style="border-left:3px solid #00548A">
-  <div class="rc-header">
-    <span class="rc-sec" style="background:#cce0f0;color:#00548A">EQU</span>
-    <span class="rc-name">ACCESORIOS</span>
+</div><div class="rc" style="border-left:3px solid #00548A">
+  <div class="rc-h">
+    <span class="rc-s" style="background:#ddeef8;color:#00548A">EQU</span>
+    <span class="rc-n">ACCESORIOS</span>
   </div>
-  <div class="rc-bar-wrap">
-    <div class="rc-bar" style="width:18%;background:#00548A"></div>
-  </div>
-  <div class="rc-stats">
+  <div class="rc-bw"><div class="rc-b" style="width:18%;background:#00548A"></div></div>
+  <div class="rc-st">
     <span class="rc-v">$5.7M</span>
     <span class="rc-dot">·</span>
-    <span class="rc-mup" style="color:#00548A">MUP 1.364</span>
+    <span style="font-weight:700;color:#00548A">MUP 1.364</span>
     <span class="rc-dot">·</span>
-    <span class="rc-mg" style="color:#e65100">26.7%</span>
+    <span style="font-weight:700;color:#e65100">26.7%</span>
   </div>
-</div><div class="rub-card" style="border-left:3px solid #00548A">
-  <div class="rc-header">
-    <span class="rc-sec" style="background:#cce0f0;color:#00548A">EQU</span>
-    <span class="rc-name">CARLITEROSPLANCHAS</span>
+</div><div class="rc" style="border-left:3px solid #00548A">
+  <div class="rc-h">
+    <span class="rc-s" style="background:#ddeef8;color:#00548A">EQU</span>
+    <span class="rc-n">CARLITEROSPLANCHAS</span>
   </div>
-  <div class="rc-bar-wrap">
-    <div class="rc-bar" style="width:18%;background:#00548A"></div>
-  </div>
-  <div class="rc-stats">
+  <div class="rc-bw"><div class="rc-b" style="width:18%;background:#00548A"></div></div>
+  <div class="rc-st">
     <span class="rc-v">$5.6M</span>
     <span class="rc-dot">·</span>
-    <span class="rc-mup" style="color:#00548A">MUP 1.380</span>
+    <span style="font-weight:700;color:#00548A">MUP 1.380</span>
     <span class="rc-dot">·</span>
-    <span class="rc-mg" style="color:#e65100">27.5%</span>
+    <span style="font-weight:700;color:#e65100">27.5%</span>
   </div>
 </div></div>
-    </div>
-
-    <!-- P4: Bajo vol, bajo MUP — abajo izquierda -->
-    <div class="quad" style="background:#f5f5f5;border-color:#9e9e9e">
-      <div class="quad-head">
-        <div class="quad-title" style="color:#757575">&#9711; MONITOREAR</div>
-        <div class="quad-sub">Bajo volumen · Margen ajustado</div>
-      </div>
-      <div class="quad-kpis">
-        <div class="qk"><strong style="color:#757575">12</strong> rubros</div>
-        <div class="qk">Venta: <strong>$14.2M</strong></div>
-        <div class="qk">MUP med.: <strong>1.238</strong></div>
-        <div class="qk">Margen med.: <strong>19.2%</strong></div>
-      </div>
-      <div class="cards-list"><div class="rub-card" style="border-left:3px solid #00548A">
-  <div class="rc-header">
-    <span class="rc-sec" style="background:#cce0f0;color:#00548A">EQU</span>
-    <span class="rc-name">ENVASADORAS-SELLADOR</span>
+</div>
+    <div class="quad" style="background:#f5f5f5;border-color:#bdbdbd">
+  <div class="qh">
+    <div class="qt" style="color:#757575">PAUSAR</div>
+    <div class="qs">Bajo volumen · Margen ajustado</div>
+    <div class="qa" style="color:#757575">Sin ROI publicitario claro — no invertir ahora</div>
   </div>
-  <div class="rc-bar-wrap">
-    <div class="rc-bar" style="width:100%;background:#00548A"></div>
+  <div class="qkpis">
+    <span class="qk"><strong style="color:#757575">12</strong> rubros</span>
+    <span class="qk">Venta <strong>$14.2M</strong></span>
+    <span class="qk">MUP <strong>1.238</strong></span>
+    <span class="qk">Margen <strong>19.2%</strong></span>
+    
   </div>
-  <div class="rc-stats">
+  <div class="cards"><div class="rc" style="border-left:3px solid #00548A">
+  <div class="rc-h">
+    <span class="rc-s" style="background:#ddeef8;color:#00548A">EQU</span>
+    <span class="rc-n">ENVASADORAS-SELLADOR</span>
+  </div>
+  <div class="rc-bw"><div class="rc-b" style="width:100%;background:#00548A"></div></div>
+  <div class="rc-st">
     <span class="rc-v">$5.0M</span>
     <span class="rc-dot">·</span>
-    <span class="rc-mup" style="color:#00548A">MUP 1.348</span>
+    <span style="font-weight:700;color:#00548A">MUP 1.348</span>
     <span class="rc-dot">·</span>
-    <span class="rc-mg" style="color:#e65100">25.8%</span>
+    <span style="font-weight:700;color:#e65100">25.8%</span>
   </div>
-</div><div class="rub-card" style="border-left:3px solid #00548A">
-  <div class="rc-header">
-    <span class="rc-sec" style="background:#cce0f0;color:#00548A">EQU</span>
-    <span class="rc-name">HELADERABAJOMESADA</span>
+</div><div class="rc" style="border-left:3px solid #00548A">
+  <div class="rc-h">
+    <span class="rc-s" style="background:#ddeef8;color:#00548A">EQU</span>
+    <span class="rc-n">HELADERABAJOMESADA</span>
   </div>
-  <div class="rc-bar-wrap">
-    <div class="rc-bar" style="width:59%;background:#00548A"></div>
-  </div>
-  <div class="rc-stats">
+  <div class="rc-bw"><div class="rc-b" style="width:59%;background:#00548A"></div></div>
+  <div class="rc-st">
     <span class="rc-v">$3.0M</span>
     <span class="rc-dot">·</span>
-    <span class="rc-mup" style="color:#00548A">MUP 1.016</span>
+    <span style="font-weight:700;color:#00548A">MUP 1.016</span>
     <span class="rc-dot">·</span>
-    <span class="rc-mg" style="color:#888">1.6%</span>
+    <span style="font-weight:700;color:#888">1.6%</span>
   </div>
-</div><div class="rub-card" style="border-left:3px solid #00548A">
-  <div class="rc-header">
-    <span class="rc-sec" style="background:#cce0f0;color:#00548A">EQU</span>
-    <span class="rc-name">ARMADORASTRINCHADORAS</span>
+</div><div class="rc" style="border-left:3px solid #00548A">
+  <div class="rc-h">
+    <span class="rc-s" style="background:#ddeef8;color:#00548A">EQU</span>
+    <span class="rc-n">ARMADORASTRINCHADORAS</span>
   </div>
-  <div class="rc-bar-wrap">
-    <div class="rc-bar" style="width:36%;background:#00548A"></div>
-  </div>
-  <div class="rc-stats">
+  <div class="rc-bw"><div class="rc-b" style="width:36%;background:#00548A"></div></div>
+  <div class="rc-st">
     <span class="rc-v">$1.8M</span>
     <span class="rc-dot">·</span>
-    <span class="rc-mup" style="color:#00548A">MUP 1.135</span>
+    <span style="font-weight:700;color:#00548A">MUP 1.135</span>
     <span class="rc-dot">·</span>
-    <span class="rc-mg" style="color:#888">11.9%</span>
+    <span style="font-weight:700;color:#888">11.9%</span>
   </div>
-</div><div class="rub-card" style="border-left:3px solid #00548A">
-  <div class="rc-header">
-    <span class="rc-sec" style="background:#cce0f0;color:#00548A">EQU</span>
-    <span class="rc-name">COCINA GASTRONOMICA</span>
+</div><div class="rc" style="border-left:3px solid #00548A">
+  <div class="rc-h">
+    <span class="rc-s" style="background:#ddeef8;color:#00548A">EQU</span>
+    <span class="rc-n">COCINA GASTRONOMICA</span>
   </div>
-  <div class="rc-bar-wrap">
-    <div class="rc-bar" style="width:25%;background:#00548A"></div>
-  </div>
-  <div class="rc-stats">
+  <div class="rc-bw"><div class="rc-b" style="width:25%;background:#00548A"></div></div>
+  <div class="rc-st">
     <span class="rc-v">$1.2M</span>
     <span class="rc-dot">·</span>
-    <span class="rc-mup" style="color:#00548A">MUP 1.301</span>
+    <span style="font-weight:700;color:#00548A">MUP 1.301</span>
     <span class="rc-dot">·</span>
-    <span class="rc-mg" style="color:#e65100">23.2%</span>
+    <span style="font-weight:700;color:#e65100">23.2%</span>
   </div>
-</div><div class="rub-card" style="border-left:3px solid #00548A">
-  <div class="rc-header">
-    <span class="rc-sec" style="background:#cce0f0;color:#00548A">EQU</span>
-    <span class="rc-name">EQUIPAMIENTO</span>
+</div><div class="rc" style="border-left:3px solid #00548A">
+  <div class="rc-h">
+    <span class="rc-s" style="background:#ddeef8;color:#00548A">EQU</span>
+    <span class="rc-n">EQUIPAMIENTO</span>
   </div>
-  <div class="rc-bar-wrap">
-    <div class="rc-bar" style="width:21%;background:#00548A"></div>
-  </div>
-  <div class="rc-stats">
+  <div class="rc-bw"><div class="rc-b" style="width:21%;background:#00548A"></div></div>
+  <div class="rc-st">
     <span class="rc-v">$1.0M</span>
     <span class="rc-dot">·</span>
-    <span class="rc-mup" style="color:#00548A">MUP 1.313</span>
+    <span style="font-weight:700;color:#00548A">MUP 1.313</span>
     <span class="rc-dot">·</span>
-    <span class="rc-mg" style="color:#e65100">23.8%</span>
+    <span style="font-weight:700;color:#e65100">23.8%</span>
   </div>
-</div><div class="rub-card" style="border-left:3px solid #00548A">
-  <div class="rc-header">
-    <span class="rc-sec" style="background:#cce0f0;color:#00548A">EQU</span>
-    <span class="rc-name">MIXERS</span>
+</div><div class="rc" style="border-left:3px solid #00548A">
+  <div class="rc-h">
+    <span class="rc-s" style="background:#ddeef8;color:#00548A">EQU</span>
+    <span class="rc-n">MIXERS</span>
   </div>
-  <div class="rc-bar-wrap">
-    <div class="rc-bar" style="width:12%;background:#00548A"></div>
-  </div>
-  <div class="rc-stats">
+  <div class="rc-bw"><div class="rc-b" style="width:12%;background:#00548A"></div></div>
+  <div class="rc-st">
     <span class="rc-v">$0.6M</span>
     <span class="rc-dot">·</span>
-    <span class="rc-mup" style="color:#00548A">MUP 1.295</span>
+    <span style="font-weight:700;color:#00548A">MUP 1.295</span>
     <span class="rc-dot">·</span>
-    <span class="rc-mg" style="color:#e65100">22.8%</span>
+    <span style="font-weight:700;color:#e65100">22.8%</span>
   </div>
-</div><div class="rub-card" style="border-left:3px solid #F1891B">
-  <div class="rc-header">
-    <span class="rc-sec" style="background:#fde8cc;color:#F1891B">HOG</span>
-    <span class="rc-name">SECARROPAS</span>
+</div><div class="rc" style="border-left:3px solid #F1891B">
+  <div class="rc-h">
+    <span class="rc-s" style="background:#fde8cc;color:#F1891B">HOG</span>
+    <span class="rc-n">SECARROPAS</span>
   </div>
-  <div class="rc-bar-wrap">
-    <div class="rc-bar" style="width:12%;background:#F1891B"></div>
-  </div>
-  <div class="rc-stats">
+  <div class="rc-bw"><div class="rc-b" style="width:12%;background:#F1891B"></div></div>
+  <div class="rc-st">
     <span class="rc-v">$0.6M</span>
     <span class="rc-dot">·</span>
-    <span class="rc-mup" style="color:#F1891B">MUP 1.290</span>
+    <span style="font-weight:700;color:#F1891B">MUP 1.290</span>
     <span class="rc-dot">·</span>
-    <span class="rc-mg" style="color:#e65100">22.5%</span>
+    <span style="font-weight:700;color:#e65100">22.5%</span>
   </div>
-</div><div class="rub-card" style="border-left:3px solid #00548A">
-  <div class="rc-header">
-    <span class="rc-sec" style="background:#cce0f0;color:#00548A">EQU</span>
-    <span class="rc-name">TIERNIZADORES</span>
+</div><div class="rc" style="border-left:3px solid #00548A">
+  <div class="rc-h">
+    <span class="rc-s" style="background:#ddeef8;color:#00548A">EQU</span>
+    <span class="rc-n">TIERNIZADORES</span>
   </div>
-  <div class="rc-bar-wrap">
-    <div class="rc-bar" style="width:7%;background:#00548A"></div>
-  </div>
-  <div class="rc-stats">
+  <div class="rc-bw"><div class="rc-b" style="width:7%;background:#00548A"></div></div>
+  <div class="rc-st">
     <span class="rc-v">$0.4M</span>
     <span class="rc-dot">·</span>
-    <span class="rc-mup" style="color:#00548A">MUP 1.343</span>
+    <span style="font-weight:700;color:#00548A">MUP 1.343</span>
     <span class="rc-dot">·</span>
-    <span class="rc-mg" style="color:#e65100">25.5%</span>
+    <span style="font-weight:700;color:#e65100">25.5%</span>
   </div>
-</div><div class="rub-card" style="border-left:3px solid #00548A">
-  <div class="rc-header">
-    <span class="rc-sec" style="background:#cce0f0;color:#00548A">EQU</span>
-    <span class="rc-name">CHURRERAS MANUAL</span>
+</div><div class="rc" style="border-left:3px solid #00548A">
+  <div class="rc-h">
+    <span class="rc-s" style="background:#ddeef8;color:#00548A">EQU</span>
+    <span class="rc-n">CHURRERAS MANUAL</span>
   </div>
-  <div class="rc-bar-wrap">
-    <div class="rc-bar" style="width:6%;background:#00548A"></div>
-  </div>
-  <div class="rc-stats">
+  <div class="rc-bw"><div class="rc-b" style="width:6%;background:#00548A"></div></div>
+  <div class="rc-st">
     <span class="rc-v">$0.3M</span>
     <span class="rc-dot">·</span>
-    <span class="rc-mup" style="color:#00548A">MUP 1.346</span>
+    <span style="font-weight:700;color:#00548A">MUP 1.346</span>
     <span class="rc-dot">·</span>
-    <span class="rc-mg" style="color:#e65100">25.7%</span>
+    <span style="font-weight:700;color:#e65100">25.7%</span>
   </div>
-</div><div class="rub-card" style="border-left:3px solid #F1891B">
-  <div class="rc-header">
-    <span class="rc-sec" style="background:#fde8cc;color:#F1891B">HOG</span>
-    <span class="rc-name">VENTILADORES</span>
+</div><div class="rc" style="border-left:3px solid #F1891B">
+  <div class="rc-h">
+    <span class="rc-s" style="background:#fde8cc;color:#F1891B">HOG</span>
+    <span class="rc-n">VENTILADORES</span>
   </div>
-  <div class="rc-bar-wrap">
-    <div class="rc-bar" style="width:3%;background:#F1891B"></div>
-  </div>
-  <div class="rc-stats">
+  <div class="rc-bw"><div class="rc-b" style="width:3%;background:#F1891B"></div></div>
+  <div class="rc-st">
     <span class="rc-v">$0.2M</span>
     <span class="rc-dot">·</span>
-    <span class="rc-mup" style="color:#F1891B">MUP 1.200</span>
+    <span style="font-weight:700;color:#F1891B">MUP 1.200</span>
     <span class="rc-dot">·</span>
-    <span class="rc-mg" style="color:#888">16.7%</span>
+    <span style="font-weight:700;color:#888">16.7%</span>
   </div>
-</div><div class="rub-card" style="border-left:3px solid #2e7d32">
-  <div class="rc-header">
-    <span class="rc-sec" style="background:#c8e6c9;color:#2e7d32">BAZ</span>
-    <span class="rc-name">TETERAS Y CAFETERAS</span>
+</div><div class="rc" style="border-left:3px solid #2e7d32">
+  <div class="rc-h">
+    <span class="rc-s" style="background:#c8e6c9;color:#2e7d32">BAZ</span>
+    <span class="rc-n">TETERAS Y CAFETERAS</span>
   </div>
-  <div class="rc-bar-wrap">
-    <div class="rc-bar" style="width:2%;background:#2e7d32"></div>
-  </div>
-  <div class="rc-stats">
+  <div class="rc-bw"><div class="rc-b" style="width:2%;background:#2e7d32"></div></div>
+  <div class="rc-st">
     <span class="rc-v">$0.1M</span>
     <span class="rc-dot">·</span>
-    <span class="rc-mup" style="color:#2e7d32">MUP 1.281</span>
+    <span style="font-weight:700;color:#2e7d32">MUP 1.281</span>
     <span class="rc-dot">·</span>
-    <span class="rc-mg" style="color:#e65100">21.9%</span>
+    <span style="font-weight:700;color:#e65100">21.9%</span>
   </div>
-</div><div class="rub-card" style="border-left:3px solid #F1891B">
-  <div class="rc-header">
-    <span class="rc-sec" style="background:#fde8cc;color:#F1891B">HOG</span>
-    <span class="rc-name">MUEBLES DE COCINA</span>
+</div><div class="rc" style="border-left:3px solid #F1891B">
+  <div class="rc-h">
+    <span class="rc-s" style="background:#fde8cc;color:#F1891B">HOG</span>
+    <span class="rc-n">MUEBLES DE COCINA</span>
   </div>
-  <div class="rc-bar-wrap">
-    <div class="rc-bar" style="width:0%;background:#F1891B"></div>
-  </div>
-  <div class="rc-stats">
+  <div class="rc-bw"><div class="rc-b" style="width:0%;background:#F1891B"></div></div>
+  <div class="rc-st">
     <span class="rc-v">$0.0M</span>
     <span class="rc-dot">·</span>
-    <span class="rc-mup" style="color:#F1891B">MUP 1.154</span>
+    <span style="font-weight:700;color:#F1891B">MUP 1.154</span>
     <span class="rc-dot">·</span>
-    <span class="rc-mg" style="color:#888">13.3%</span>
+    <span style="font-weight:700;color:#888">13.3%</span>
   </div>
 </div></div>
-    </div>
-
-    <!-- P2: Alto vol, bajo MUP — abajo derecha -->
+</div>
     <div class="quad" style="background:#e3f2fd;border-color:#1565c0">
-      <div class="quad-head">
-        <div class="quad-title" style="color:#1565c0">&#9654; PAUTA CON ESTRATEGIA</div>
-        <div class="quad-sub">Alto volumen · Margen ajustado</div>
-      </div>
-      <div class="quad-kpis">
-        <div class="qk"><strong style="color:#1565c0">16</strong> rubros</div>
-        <div class="qk">Venta: <strong>$415.5M</strong></div>
-        <div class="qk">MUP med.: <strong>1.298</strong></div>
-        <div class="qk">Margen med.: <strong style="color:#1565c0">23.0%</strong></div>
-      </div>
-      <div class="cards-list"><div class="rub-card" style="border-left:3px solid #00548A">
-  <div class="rc-header">
-    <span class="rc-sec" style="background:#cce0f0;color:#00548A">EQU</span>
-    <span class="rc-name">VERTICALES</span>
+  <div class="qh">
+    <div class="qt" style="color:#1565c0">OPTIMIZAR</div>
+    <div class="qs">Alto volumen · Margen ajustado</div>
+    <div class="qa" style="color:#1565c0">Pauta con CAC controlado — mejorar mix de productos</div>
   </div>
-  <div class="rc-bar-wrap">
-    <div class="rc-bar" style="width:100%;background:#00548A"></div>
+  <div class="qkpis">
+    <span class="qk"><strong style="color:#1565c0">16</strong> rubros</span>
+    <span class="qk">Venta <strong>$415.5M</strong></span>
+    <span class="qk">MUP <strong>1.298</strong></span>
+    <span class="qk">Margen <strong>23.0%</strong></span>
+    <span class="qk"><strong style="color:#F1891B">13</strong> del Pareto</span>
   </div>
-  <div class="rc-stats">
+  <div class="cards"><div class="rc" style="border-left:3px solid #00548A">
+  <div class="rc-h">
+    <span class="rc-s" style="background:#ddeef8;color:#00548A">EQU</span>
+    <span class="rc-n">VERTICALES</span><span style="background:#F1891B;color:#fff;padding:1px 5px;border-radius:6px;font-size:.63rem;font-weight:700;margin-left:4px">PARETO</span>
+  </div>
+  <div class="rc-bw"><div class="rc-b" style="width:100%;background:#00548A"></div></div>
+  <div class="rc-st">
     <span class="rc-v">$80.5M</span>
     <span class="rc-dot">·</span>
-    <span class="rc-mup" style="color:#00548A">MUP 1.275</span>
+    <span style="font-weight:700;color:#00548A">MUP 1.275</span>
     <span class="rc-dot">·</span>
-    <span class="rc-mg" style="color:#e65100">21.6%</span>
+    <span style="font-weight:700;color:#e65100">21.6%</span>
   </div>
-</div><div class="rub-card" style="border-left:3px solid #00548A">
-  <div class="rc-header">
-    <span class="rc-sec" style="background:#cce0f0;color:#00548A">EQU</span>
-    <span class="rc-name">CORTADORA FIAMBRES</span>
+</div><div class="rc" style="border-left:3px solid #00548A">
+  <div class="rc-h">
+    <span class="rc-s" style="background:#ddeef8;color:#00548A">EQU</span>
+    <span class="rc-n">CORTADORA FIAMBRES</span><span style="background:#F1891B;color:#fff;padding:1px 5px;border-radius:6px;font-size:.63rem;font-weight:700;margin-left:4px">PARETO</span>
   </div>
-  <div class="rc-bar-wrap">
-    <div class="rc-bar" style="width:76%;background:#00548A"></div>
-  </div>
-  <div class="rc-stats">
+  <div class="rc-bw"><div class="rc-b" style="width:76%;background:#00548A"></div></div>
+  <div class="rc-st">
     <span class="rc-v">$61.3M</span>
     <span class="rc-dot">·</span>
-    <span class="rc-mup" style="color:#00548A">MUP 1.346</span>
+    <span style="font-weight:700;color:#00548A">MUP 1.346</span>
     <span class="rc-dot">·</span>
-    <span class="rc-mg" style="color:#e65100">25.7%</span>
+    <span style="font-weight:700;color:#e65100">25.7%</span>
   </div>
-</div><div class="rub-card" style="border-left:3px solid #00548A">
-  <div class="rc-header">
-    <span class="rc-sec" style="background:#cce0f0;color:#00548A">EQU</span>
-    <span class="rc-name">FREEZER</span>
+</div><div class="rc" style="border-left:3px solid #00548A">
+  <div class="rc-h">
+    <span class="rc-s" style="background:#ddeef8;color:#00548A">EQU</span>
+    <span class="rc-n">FREEZER</span><span style="background:#F1891B;color:#fff;padding:1px 5px;border-radius:6px;font-size:.63rem;font-weight:700;margin-left:4px">PARETO</span>
   </div>
-  <div class="rc-bar-wrap">
-    <div class="rc-bar" style="width:71%;background:#00548A"></div>
-  </div>
-  <div class="rc-stats">
+  <div class="rc-bw"><div class="rc-b" style="width:71%;background:#00548A"></div></div>
+  <div class="rc-st">
     <span class="rc-v">$57.9M</span>
     <span class="rc-dot">·</span>
-    <span class="rc-mup" style="color:#00548A">MUP 1.321</span>
+    <span style="font-weight:700;color:#00548A">MUP 1.321</span>
     <span class="rc-dot">·</span>
-    <span class="rc-mg" style="color:#e65100">24.3%</span>
+    <span style="font-weight:700;color:#e65100">24.3%</span>
   </div>
-</div><div class="rub-card" style="border-left:3px solid #00548A">
-  <div class="rc-header">
-    <span class="rc-sec" style="background:#cce0f0;color:#00548A">EQU</span>
-    <span class="rc-name">AMASADORAS RAPIDAS</span>
+</div><div class="rc" style="border-left:3px solid #00548A">
+  <div class="rc-h">
+    <span class="rc-s" style="background:#ddeef8;color:#00548A">EQU</span>
+    <span class="rc-n">AMASADORAS RAPIDAS</span><span style="background:#F1891B;color:#fff;padding:1px 5px;border-radius:6px;font-size:.63rem;font-weight:700;margin-left:4px">PARETO</span>
   </div>
-  <div class="rc-bar-wrap">
-    <div class="rc-bar" style="width:56%;background:#00548A"></div>
-  </div>
-  <div class="rc-stats">
+  <div class="rc-bw"><div class="rc-b" style="width:56%;background:#00548A"></div></div>
+  <div class="rc-st">
     <span class="rc-v">$45.6M</span>
     <span class="rc-dot">·</span>
-    <span class="rc-mup" style="color:#00548A">MUP 1.278</span>
+    <span style="font-weight:700;color:#00548A">MUP 1.278</span>
     <span class="rc-dot">·</span>
-    <span class="rc-mg" style="color:#e65100">21.7%</span>
+    <span style="font-weight:700;color:#e65100">21.7%</span>
   </div>
-</div><div class="rub-card" style="border-left:3px solid #00548A">
-  <div class="rc-header">
-    <span class="rc-sec" style="background:#cce0f0;color:#00548A">EQU</span>
-    <span class="rc-name">HELVITRINA</span>
+</div><div class="rc" style="border-left:3px solid #00548A">
+  <div class="rc-h">
+    <span class="rc-s" style="background:#ddeef8;color:#00548A">EQU</span>
+    <span class="rc-n">HELVITRINA</span><span style="background:#F1891B;color:#fff;padding:1px 5px;border-radius:6px;font-size:.63rem;font-weight:700;margin-left:4px">PARETO</span>
   </div>
-  <div class="rc-bar-wrap">
-    <div class="rc-bar" style="width:37%;background:#00548A"></div>
-  </div>
-  <div class="rc-stats">
+  <div class="rc-bw"><div class="rc-b" style="width:37%;background:#00548A"></div></div>
+  <div class="rc-st">
     <span class="rc-v">$29.9M</span>
     <span class="rc-dot">·</span>
-    <span class="rc-mup" style="color:#00548A">MUP 1.224</span>
+    <span style="font-weight:700;color:#00548A">MUP 1.224</span>
     <span class="rc-dot">·</span>
-    <span class="rc-mg" style="color:#888">18.3%</span>
+    <span style="font-weight:700;color:#888">18.3%</span>
   </div>
-</div><div class="rub-card" style="border-left:3px solid #00548A">
-  <div class="rc-header">
-    <span class="rc-sec" style="background:#cce0f0;color:#00548A">EQU</span>
-    <span class="rc-name">BATEACARNICERA</span>
+</div><div class="rc" style="border-left:3px solid #00548A">
+  <div class="rc-h">
+    <span class="rc-s" style="background:#ddeef8;color:#00548A">EQU</span>
+    <span class="rc-n">BATEACARNICERA</span><span style="background:#F1891B;color:#fff;padding:1px 5px;border-radius:6px;font-size:.63rem;font-weight:700;margin-left:4px">PARETO</span>
   </div>
-  <div class="rc-bar-wrap">
-    <div class="rc-bar" style="width:28%;background:#00548A"></div>
-  </div>
-  <div class="rc-stats">
+  <div class="rc-bw"><div class="rc-b" style="width:28%;background:#00548A"></div></div>
+  <div class="rc-st">
     <span class="rc-v">$23.2M</span>
     <span class="rc-dot">·</span>
-    <span class="rc-mup" style="color:#00548A">MUP 1.320</span>
+    <span style="font-weight:700;color:#00548A">MUP 1.320</span>
     <span class="rc-dot">·</span>
-    <span class="rc-mg" style="color:#e65100">24.2%</span>
+    <span style="font-weight:700;color:#e65100">24.2%</span>
   </div>
-</div><div class="rub-card" style="border-left:3px solid #F1891B">
-  <div class="rc-header">
-    <span class="rc-sec" style="background:#fde8cc;color:#F1891B">HOG</span>
-    <span class="rc-name">LAVARROPAS</span>
+</div><div class="rc" style="border-left:3px solid #F1891B">
+  <div class="rc-h">
+    <span class="rc-s" style="background:#fde8cc;color:#F1891B">HOG</span>
+    <span class="rc-n">LAVARROPAS</span><span style="background:#F1891B;color:#fff;padding:1px 5px;border-radius:6px;font-size:.63rem;font-weight:700;margin-left:4px">PARETO</span>
   </div>
-  <div class="rc-bar-wrap">
-    <div class="rc-bar" style="width:19%;background:#F1891B"></div>
-  </div>
-  <div class="rc-stats">
+  <div class="rc-bw"><div class="rc-b" style="width:19%;background:#F1891B"></div></div>
+  <div class="rc-st">
     <span class="rc-v">$15.7M</span>
     <span class="rc-dot">·</span>
-    <span class="rc-mup" style="color:#F1891B">MUP 1.301</span>
+    <span style="font-weight:700;color:#F1891B">MUP 1.301</span>
     <span class="rc-dot">·</span>
-    <span class="rc-mg" style="color:#e65100">23.2%</span>
+    <span style="font-weight:700;color:#e65100">23.2%</span>
   </div>
-</div><div class="rub-card" style="border-left:3px solid #00548A">
-  <div class="rc-header">
-    <span class="rc-sec" style="background:#cce0f0;color:#00548A">EQU</span>
-    <span class="rc-name">COCINAS</span>
+</div><div class="rc" style="border-left:3px solid #00548A">
+  <div class="rc-h">
+    <span class="rc-s" style="background:#ddeef8;color:#00548A">EQU</span>
+    <span class="rc-n">COCINAS</span><span style="background:#F1891B;color:#fff;padding:1px 5px;border-radius:6px;font-size:.63rem;font-weight:700;margin-left:4px">PARETO</span>
   </div>
-  <div class="rc-bar-wrap">
-    <div class="rc-bar" style="width:18%;background:#00548A"></div>
-  </div>
-  <div class="rc-stats">
+  <div class="rc-bw"><div class="rc-b" style="width:18%;background:#00548A"></div></div>
+  <div class="rc-st">
     <span class="rc-v">$15.3M</span>
     <span class="rc-dot">·</span>
-    <span class="rc-mup" style="color:#00548A">MUP 1.289</span>
+    <span style="font-weight:700;color:#00548A">MUP 1.289</span>
     <span class="rc-dot">·</span>
-    <span class="rc-mg" style="color:#e65100">22.4%</span>
+    <span style="font-weight:700;color:#e65100">22.4%</span>
   </div>
-</div><div class="rub-card" style="border-left:3px solid #00548A">
-  <div class="rc-header">
-    <span class="rc-sec" style="background:#cce0f0;color:#00548A">EQU</span>
-    <span class="rc-name">PESADO</span>
+</div><div class="rc" style="border-left:3px solid #00548A">
+  <div class="rc-h">
+    <span class="rc-s" style="background:#ddeef8;color:#00548A">EQU</span>
+    <span class="rc-n">PESADO</span><span style="background:#F1891B;color:#fff;padding:1px 5px;border-radius:6px;font-size:.63rem;font-weight:700;margin-left:4px">PARETO</span>
   </div>
-  <div class="rc-bar-wrap">
-    <div class="rc-bar" style="width:18%;background:#00548A"></div>
-  </div>
-  <div class="rc-stats">
+  <div class="rc-bw"><div class="rc-b" style="width:18%;background:#00548A"></div></div>
+  <div class="rc-st">
     <span class="rc-v">$15.1M</span>
     <span class="rc-dot">·</span>
-    <span class="rc-mup" style="color:#00548A">MUP 1.284</span>
+    <span style="font-weight:700;color:#00548A">MUP 1.284</span>
     <span class="rc-dot">·</span>
-    <span class="rc-mg" style="color:#e65100">22.1%</span>
+    <span style="font-weight:700;color:#e65100">22.1%</span>
   </div>
-</div><div class="rub-card" style="border-left:3px solid #F1891B">
-  <div class="rc-header">
-    <span class="rc-sec" style="background:#fde8cc;color:#F1891B">HOG</span>
-    <span class="rc-name">COCINAS</span>
+</div><div class="rc" style="border-left:3px solid #F1891B">
+  <div class="rc-h">
+    <span class="rc-s" style="background:#fde8cc;color:#F1891B">HOG</span>
+    <span class="rc-n">COCINAS</span><span style="background:#F1891B;color:#fff;padding:1px 5px;border-radius:6px;font-size:.63rem;font-weight:700;margin-left:4px">PARETO</span>
   </div>
-  <div class="rc-bar-wrap">
-    <div class="rc-bar" style="width:18%;background:#F1891B"></div>
-  </div>
-  <div class="rc-stats">
+  <div class="rc-bw"><div class="rc-b" style="width:18%;background:#F1891B"></div></div>
+  <div class="rc-st">
     <span class="rc-v">$15.1M</span>
     <span class="rc-dot">·</span>
-    <span class="rc-mup" style="color:#F1891B">MUP 1.314</span>
+    <span style="font-weight:700;color:#F1891B">MUP 1.314</span>
     <span class="rc-dot">·</span>
-    <span class="rc-mg" style="color:#e65100">23.9%</span>
+    <span style="font-weight:700;color:#e65100">23.9%</span>
   </div>
-</div><div class="rub-card" style="border-left:3px solid #F1891B">
-  <div class="rc-header">
-    <span class="rc-sec" style="background:#fde8cc;color:#F1891B">HOG</span>
-    <span class="rc-name">TELEVISORES</span>
+</div><div class="rc" style="border-left:3px solid #F1891B">
+  <div class="rc-h">
+    <span class="rc-s" style="background:#fde8cc;color:#F1891B">HOG</span>
+    <span class="rc-n">TELEVISORES</span><span style="background:#F1891B;color:#fff;padding:1px 5px;border-radius:6px;font-size:.63rem;font-weight:700;margin-left:4px">PARETO</span>
   </div>
-  <div class="rc-bar-wrap">
-    <div class="rc-bar" style="width:18%;background:#F1891B"></div>
-  </div>
-  <div class="rc-stats">
+  <div class="rc-bw"><div class="rc-b" style="width:18%;background:#F1891B"></div></div>
+  <div class="rc-st">
     <span class="rc-v">$15.0M</span>
     <span class="rc-dot">·</span>
-    <span class="rc-mup" style="color:#F1891B">MUP 1.309</span>
+    <span style="font-weight:700;color:#F1891B">MUP 1.309</span>
     <span class="rc-dot">·</span>
-    <span class="rc-mg" style="color:#e65100">23.6%</span>
+    <span style="font-weight:700;color:#e65100">23.6%</span>
   </div>
-</div><div class="rub-card" style="border-left:3px solid #F1891B">
-  <div class="rc-header">
-    <span class="rc-sec" style="background:#fde8cc;color:#F1891B">HOG</span>
-    <span class="rc-name">HELADERAS FAMILIARES</span>
+</div><div class="rc" style="border-left:3px solid #F1891B">
+  <div class="rc-h">
+    <span class="rc-s" style="background:#fde8cc;color:#F1891B">HOG</span>
+    <span class="rc-n">HELADERAS FAMILIARES</span><span style="background:#F1891B;color:#fff;padding:1px 5px;border-radius:6px;font-size:.63rem;font-weight:700;margin-left:4px">PARETO</span>
   </div>
-  <div class="rc-bar-wrap">
-    <div class="rc-bar" style="width:14%;background:#F1891B"></div>
-  </div>
-  <div class="rc-stats">
+  <div class="rc-bw"><div class="rc-b" style="width:14%;background:#F1891B"></div></div>
+  <div class="rc-st">
     <span class="rc-v">$11.9M</span>
     <span class="rc-dot">·</span>
-    <span class="rc-mup" style="color:#F1891B">MUP 1.299</span>
+    <span style="font-weight:700;color:#F1891B">MUP 1.299</span>
     <span class="rc-dot">·</span>
-    <span class="rc-mg" style="color:#e65100">23.0%</span>
+    <span style="font-weight:700;color:#e65100">23.0%</span>
   </div>
-</div><div class="rub-card" style="border-left:3px solid #00548A">
-  <div class="rc-header">
-    <span class="rc-sec" style="background:#cce0f0;color:#00548A">EQU</span>
-    <span class="rc-name">PICADORASDECARNE</span>
+</div><div class="rc" style="border-left:3px solid #00548A">
+  <div class="rc-h">
+    <span class="rc-s" style="background:#ddeef8;color:#00548A">EQU</span>
+    <span class="rc-n">PICADORASDECARNE</span><span style="background:#F1891B;color:#fff;padding:1px 5px;border-radius:6px;font-size:.63rem;font-weight:700;margin-left:4px">PARETO</span>
   </div>
-  <div class="rc-bar-wrap">
-    <div class="rc-bar" style="width:10%;background:#00548A"></div>
-  </div>
-  <div class="rc-stats">
+  <div class="rc-bw"><div class="rc-b" style="width:10%;background:#00548A"></div></div>
+  <div class="rc-st">
     <span class="rc-v">$8.2M</span>
     <span class="rc-dot">·</span>
-    <span class="rc-mup" style="color:#00548A">MUP 1.267</span>
+    <span style="font-weight:700;color:#00548A">MUP 1.267</span>
     <span class="rc-dot">·</span>
-    <span class="rc-mg" style="color:#e65100">21.1%</span>
+    <span style="font-weight:700;color:#e65100">21.1%</span>
   </div>
-</div><div class="rub-card" style="border-left:3px solid #00548A">
-  <div class="rc-header">
-    <span class="rc-sec" style="background:#cce0f0;color:#00548A">EQU</span>
-    <span class="rc-name">PESADO CON TICKET</span>
+</div><div class="rc" style="border-left:3px solid #00548A">
+  <div class="rc-h">
+    <span class="rc-s" style="background:#ddeef8;color:#00548A">EQU</span>
+    <span class="rc-n">PESADO CON TICKET</span>
   </div>
-  <div class="rc-bar-wrap">
-    <div class="rc-bar" style="width:8%;background:#00548A"></div>
-  </div>
-  <div class="rc-stats">
+  <div class="rc-bw"><div class="rc-b" style="width:8%;background:#00548A"></div></div>
+  <div class="rc-st">
     <span class="rc-v">$7.2M</span>
     <span class="rc-dot">·</span>
-    <span class="rc-mup" style="color:#00548A">MUP 1.321</span>
+    <span style="font-weight:700;color:#00548A">MUP 1.321</span>
     <span class="rc-dot">·</span>
-    <span class="rc-mg" style="color:#e65100">24.3%</span>
+    <span style="font-weight:700;color:#e65100">24.3%</span>
   </div>
-</div><div class="rub-card" style="border-left:3px solid #00548A">
-  <div class="rc-header">
-    <span class="rc-sec" style="background:#cce0f0;color:#00548A">EQU</span>
-    <span class="rc-name">FREIDORA AUTOMATICA</span>
+</div><div class="rc" style="border-left:3px solid #00548A">
+  <div class="rc-h">
+    <span class="rc-s" style="background:#ddeef8;color:#00548A">EQU</span>
+    <span class="rc-n">FREIDORA AUTOMATICA</span>
   </div>
-  <div class="rc-bar-wrap">
-    <div class="rc-bar" style="width:8%;background:#00548A"></div>
-  </div>
-  <div class="rc-stats">
+  <div class="rc-bw"><div class="rc-b" style="width:8%;background:#00548A"></div></div>
+  <div class="rc-st">
     <span class="rc-v">$7.1M</span>
     <span class="rc-dot">·</span>
-    <span class="rc-mup" style="color:#00548A">MUP 1.341</span>
+    <span style="font-weight:700;color:#00548A">MUP 1.341</span>
     <span class="rc-dot">·</span>
-    <span class="rc-mg" style="color:#e65100">25.4%</span>
+    <span style="font-weight:700;color:#e65100">25.4%</span>
   </div>
-</div><div class="rub-card" style="border-left:3px solid #00548A">
-  <div class="rc-header">
-    <span class="rc-sec" style="background:#cce0f0;color:#00548A">EQU</span>
-    <span class="rc-name">SOBADORAS</span>
+</div><div class="rc" style="border-left:3px solid #00548A">
+  <div class="rc-h">
+    <span class="rc-s" style="background:#ddeef8;color:#00548A">EQU</span>
+    <span class="rc-n">SOBADORAS</span>
   </div>
-  <div class="rc-bar-wrap">
-    <div class="rc-bar" style="width:8%;background:#00548A"></div>
-  </div>
-  <div class="rc-stats">
+  <div class="rc-bw"><div class="rc-b" style="width:8%;background:#00548A"></div></div>
+  <div class="rc-st">
     <span class="rc-v">$6.7M</span>
     <span class="rc-dot">·</span>
-    <span class="rc-mup" style="color:#00548A">MUP 1.296</span>
+    <span style="font-weight:700;color:#00548A">MUP 1.296</span>
     <span class="rc-dot">·</span>
-    <span class="rc-mg" style="color:#e65100">22.8%</span>
+    <span style="font-weight:700;color:#e65100">22.8%</span>
   </div>
 </div></div>
-    </div>
-
-  </div><!-- /matrix -->
+</div>
+  </div>
 
   <div class="axis-x">
-    <span class="ax-left">&#8592; Volumen de venta bajo</span>
-    <span class="ax-arrow">— — —</span>
-    <span class="ax-right">Volumen de venta alto &#8594;</span>
+    <span class="ax-l">← Volumen bajo (bajo $5.0M/mes)</span>
+    <span style="color:#ccc;font-size:.8rem">— — — — — —</span>
+    <span class="ax-r">Volumen alto (≥ $5.0M/mes) →</span>
   </div>
-</div><!-- /matrix-wrap -->
+</div>
 
 </div>
-<footer>El Cristorante S.A. — IBACETA · Cuadrantes MUP × Venta · Junio · "Alto Vol" ≥ $5.0M/mes · "Alto MUP" ≥ 1.350</footer>
+<footer>El Cristorante S.A. — IBACETA · Cuadrantes MUP × Venta · Junio · ESCALAR / OPTIMIZAR / CULTIVAR / PAUSAR</footer>
 </body>
 </html>
