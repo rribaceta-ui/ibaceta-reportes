@@ -1,0 +1,586 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Dashboard MUP + Ventas — Meta Ads | Junio</title>
+<link href="https://fonts.googleapis.com/css2?family=Montserrat:wght@400;600;700;800&family=Open+Sans:wght@400;600&display=swap" rel="stylesheet">
+<script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.0/dist/chart.umd.min.js"></script>
+<style>
+:root {
+  --blue: #00548A; --orange: #F1891B; --green: #2e7d32;
+  --bg: #F5F5F5; --surface: #FFFFFF; --text: #333333; --inv: #FFFFFF;
+  --radius: 8px; --shadow: 0 2px 10px rgba(0,0,0,0.09);
+  --eq: #00548A; --ho: #F1891B; --bz: #2e7d32;
+}
+* { box-sizing: border-box; margin: 0; padding: 0; }
+body { font-family: 'Open Sans', sans-serif; background: var(--bg); color: var(--text); }
+
+header {
+  background: var(--blue); padding: 18px 32px;
+  display: flex; justify-content: space-between; align-items: center;
+}
+header h1 { font-family: 'Montserrat', sans-serif; font-size: 1.25rem; font-weight: 800; color: #fff; }
+header .sub { font-size: 0.82rem; color: rgba(255,255,255,0.75); margin-top: 3px; }
+.badge-periodo {
+  background: var(--orange); color: #fff; padding: 6px 14px;
+  border-radius: 20px; font-family: 'Montserrat', sans-serif;
+  font-size: 0.78rem; font-weight: 700;
+}
+
+.container { max-width: 1400px; margin: 0 auto; padding: 24px 20px; }
+
+/* KPI row */
+.kpi-row { display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 16px; margin-bottom: 24px; }
+.kpi {
+  background: var(--surface); border-radius: var(--radius);
+  border-top: 4px solid var(--orange); box-shadow: var(--shadow);
+  padding: 20px; text-align: center;
+}
+.kpi.blue { border-top-color: var(--blue); }
+.kpi.green { border-top-color: var(--green); }
+.kpi .val { font-family: 'Montserrat', sans-serif; font-size: 1.8rem; font-weight: 800; color: var(--blue); }
+.kpi .val.orange { color: var(--orange); }
+.kpi .val.green { color: var(--green); }
+.kpi .lbl { font-size: 0.8rem; color: #666; margin-top: 4px; }
+
+/* Tabs */
+.tabs { display: flex; gap: 4px; margin-bottom: 20px; flex-wrap: wrap; }
+.tab-btn {
+  padding: 9px 20px; border: 2px solid var(--blue); background: #fff;
+  color: var(--blue); cursor: pointer; border-radius: 6px;
+  font-family: 'Montserrat', sans-serif; font-size: 0.82rem; font-weight: 700;
+  transition: all 0.15s;
+}
+.tab-btn.active { background: var(--blue); color: #fff; }
+.tab-btn:hover:not(.active) { background: #e8f1f9; }
+.tab-panel { display: none; }
+.tab-panel.active { display: block; }
+
+/* Grid 2 col */
+.grid2 { display: grid; grid-template-columns: 1fr 1fr; gap: 20px; }
+@media(max-width: 900px) { .grid2 { grid-template-columns: 1fr; } }
+
+/* Card */
+.card {
+  background: var(--surface); border-radius: var(--radius); box-shadow: var(--shadow);
+  padding: 20px;
+}
+.card h3 {
+  font-family: 'Montserrat', sans-serif; font-size: 0.92rem; font-weight: 700;
+  color: var(--blue); margin-bottom: 14px; text-transform: uppercase; letter-spacing: 0.5px;
+}
+
+/* Tabla rubros */
+.tbl-scroll { overflow-x: auto; }
+table { width: 100%; border-collapse: collapse; font-size: 0.82rem; }
+thead th {
+  background: var(--blue); color: #fff; padding: 9px 10px; text-align: left;
+  font-family: 'Montserrat', sans-serif; font-weight: 600; font-size: 0.78rem; white-space: nowrap;
+}
+tbody tr:nth-child(even) { background: #f7fafd; }
+tbody tr:hover { background: #e8f1f9; }
+tbody td { padding: 8px 10px; border-bottom: 1px solid #e5e9ee; vertical-align: middle; }
+.sec-badge {
+  display: inline-block; padding: 2px 8px; border-radius: 10px;
+  font-size: 0.72rem; font-weight: 700; color: #fff;
+}
+.sec-EQ { background: var(--eq); }
+.sec-HO { background: var(--ho); }
+.sec-BZ { background: var(--bz); }
+
+/* MUP bar */
+.mup-bar-wrap { display: flex; align-items: center; gap: 6px; }
+.mup-bar { height: 10px; border-radius: 5px; background: #e0e0e0; flex: 1; overflow: hidden; }
+.mup-bar-fill { height: 100%; border-radius: 5px; transition: width 0.3s; }
+.mup-val { font-weight: 700; font-size: 0.8rem; min-width: 44px; text-align: right; }
+
+/* Cuadrante tag */
+.q-tag {
+  display: inline-block; padding: 2px 8px; border-radius: 10px;
+  font-size: 0.7rem; font-weight: 700;
+}
+.q-P1 { background: #e8f5e9; color: #2e7d32; }
+.q-P2 { background: #fff3e0; color: #e65100; }
+.q-P3 { background: #e3f2fd; color: #1565c0; }
+.q-P4 { background: #f5f5f5; color: #757575; }
+
+/* Scatter tooltip */
+.chart-wrap { position: relative; height: 340px; }
+
+/* Productos cards */
+.prod-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(280px, 1fr)); gap: 14px; }
+.prod-card {
+  background: var(--surface); border-radius: var(--radius); box-shadow: var(--shadow);
+  padding: 14px; border-left: 4px solid var(--blue); transition: transform 0.15s;
+}
+.prod-card:hover { transform: translateY(-2px); }
+.prod-card.ho { border-left-color: var(--orange); }
+.prod-card.bz { border-left-color: var(--green); }
+.prod-card .pname { font-size: 0.8rem; font-weight: 600; color: var(--text); margin-bottom: 6px; line-height: 1.35; }
+.prod-card .prub { font-size: 0.72rem; color: #888; margin-bottom: 8px; }
+.prod-stats { display: flex; gap: 10px; flex-wrap: wrap; }
+.prod-stat { text-align: center; flex: 1; min-width: 60px; }
+.prod-stat .sv { font-family: 'Montserrat', sans-serif; font-weight: 700; font-size: 0.95rem; color: var(--blue); }
+.prod-stat .sl { font-size: 0.68rem; color: #888; }
+.prod-stat .sv.orange { color: var(--orange); }
+.prod-stat .sv.green { color: var(--green); }
+
+/* Score badge */
+.score-badge {
+  display: inline-block; padding: 3px 10px; border-radius: 12px;
+  font-size: 0.72rem; font-weight: 700; margin-top: 6px;
+}
+.score-hi { background: #e8f5e9; color: #2e7d32; }
+.score-md { background: #fff3e0; color: #e65100; }
+.score-lo { background: #f5f5f5; color: #666; }
+
+/* Sector summary cards */
+.sector-cards { display: grid; grid-template-columns: repeat(3, 1fr); gap: 16px; margin-bottom: 24px; }
+@media(max-width:700px) { .sector-cards { grid-template-columns: 1fr; } }
+.sector-card { border-radius: var(--radius); box-shadow: var(--shadow); padding: 18px; color: #fff; }
+.sector-card h4 { font-family: 'Montserrat', sans-serif; font-size: 0.82rem; font-weight: 700; opacity: 0.85; margin-bottom: 10px; letter-spacing: 1px; }
+.sector-card .sv { font-family: 'Montserrat', sans-serif; font-size: 1.6rem; font-weight: 800; }
+.sector-card .stats { display: flex; gap: 16px; margin-top: 8px; }
+.sector-card .stat { font-size: 0.78rem; opacity: 0.9; }
+.sector-card .stat span { font-weight: 700; display: block; font-size: 0.95rem; }
+
+/* Filtro */
+.filtros { display: flex; gap: 10px; margin-bottom: 16px; flex-wrap: wrap; align-items: center; }
+.filtros label { font-size: 0.82rem; color: #555; }
+.filtros select, .filtros input {
+  padding: 6px 10px; border: 1.5px solid #ccc; border-radius: 6px;
+  font-size: 0.82rem; outline: none;
+}
+.filtros select:focus, .filtros input:focus { border-color: var(--blue); }
+
+footer {
+  background: #333; color: #ccc; text-align: center;
+  padding: 14px; font-size: 0.75rem; margin-top: 32px;
+}
+
+.legend-items { display: flex; gap: 12px; font-size: 0.78rem; flex-wrap: wrap; margin-bottom: 8px; }
+.legend-dot { width: 12px; height: 12px; border-radius: 50%; display: inline-block; margin-right: 4px; vertical-align: middle; }
+</style>
+</head>
+<body>
+<header>
+  <div>
+    <div class="sub">El Cristorante S.A. — Sistema Comercial</div>
+    <h1>Dashboard MUP + Ventas Netas — Eficiencia Meta Ads</h1>
+  </div>
+  <span class="badge-periodo">Junio</span>
+</header>
+
+<div class="container">
+
+<!-- KPI Row -->
+<div class="kpi-row">
+  <div class="kpi blue">
+    <div class="val">$709.2M</div>
+    <div class="lbl">Venta Neta Total (Junio MTD)</div>
+  </div>
+  <div class="kpi">
+    <div class="val orange">1.353</div>
+    <div class="lbl">MUP Global Ponderado</div>
+  </div>
+  <div class="kpi green">
+    <div class="val green">26.1%</div>
+    <div class="lbl">Margen Bruto Promedio</div>
+  </div>
+  <div class="kpi blue">
+    <div class="val">$585.0M</div>
+    <div class="lbl">Equipamiento</div>
+  </div>
+  <div class="kpi">
+    <div class="val orange">$114.2M</div>
+    <div class="lbl">Hogar</div>
+  </div>
+  <div class="kpi green">
+    <div class="val green">$10.0M</div>
+    <div class="lbl">Bazar</div>
+  </div>
+</div>
+
+<!-- Sector Cards -->
+<div class="sector-cards">
+  <div class="sector-card" style="background: var(--eq)">
+    <h4>EQUIPAMIENTO</h4>
+    <div class="sv">$585.0M</div>
+    <div class="stats">
+      <div class="stat">MUP<span>1.336</span></div>
+      <div class="stat">Margen<span>25.1%</span></div>
+      <div class="stat">Rubros<span>58</span></div>
+    </div>
+  </div>
+  <div class="sector-card" style="background: var(--ho)">
+    <h4>HOGAR</h4>
+    <div class="sv">$114.2M</div>
+    <div class="stats">
+      <div class="stat">MUP<span>1.416</span></div>
+      <div class="stat">Margen<span>29.4%</span></div>
+      <div class="stat">Rubros<span>32</span></div>
+    </div>
+  </div>
+  <div class="sector-card" style="background: var(--bz)">
+    <h4>BAZAR</h4>
+    <div class="sv">$10.0M</div>
+    <div class="stats">
+      <div class="stat">MUP<span>1.595</span></div>
+      <div class="stat">Margen<span>37.3%</span></div>
+      <div class="stat">Rubros<span>49</span></div>
+    </div>
+  </div>
+</div>
+
+<!-- Tabs -->
+<div class="tabs">
+  <button class="tab-btn active" onclick="showTab('pareto')">Pareto Rubros</button>
+  <button class="tab-btn" onclick="showTab('rubros')">Tabla Rubros</button>
+  <button class="tab-btn" onclick="showTab('scatter')">Mapa MUP × Venta</button>
+  <button class="tab-btn" onclick="showTab('productos')">Top Productos</button>
+</div>
+
+<!-- TAB: PARETO -->
+<div id="tab-pareto" class="tab-panel active">
+  <div class="grid2">
+    <div class="card">
+      <h3>Pareto de venta por rubro — Junio</h3>
+      <div class="chart-wrap"><canvas id="chartPareto"></canvas></div>
+      <p style="font-size:0.74rem;color:#888;margin-top:8px">22 rubros concentran el 80% de la venta neta</p>
+    </div>
+    <div class="card">
+      <h3>MUP promedio por sector</h3>
+      <div class="chart-wrap"><canvas id="chartMupSector"></canvas></div>
+      <p style="font-size:0.74rem;color:#888;margin-top:8px">MUP = Venta Base / Costo Neto (solo filas con costo &gt; 0)</p>
+    </div>
+  </div>
+  <div class="card" style="margin-top:20px">
+    <h3>Cuadrantes estratégicos Meta Ads</h3>
+    <div class="legend-items">
+      <div><span class="legend-dot" style="background:#2e7d32"></span><strong>P1 — Pauta ahora:</strong> alto volumen + alto margen → máxima eficiencia publicitaria</div>
+      <div><span class="legend-dot" style="background:#e65100"></span><strong>P2 — Pauta con cautela:</strong> alto volumen, bajo margen → cuidar el CAC</div>
+      <div><span class="legend-dot" style="background:#1565c0"></span><strong>P3 — Nicho premium:</strong> bajo volumen, alto margen → creatividad diferenciada</div>
+      <div><span class="legend-dot" style="background:#bbb"></span><strong>P4 — Diferir:</strong> bajo en ambos → prioridad mínima</div>
+    </div>
+    <div class="tbl-scroll">
+      <table>
+        <thead>
+          <tr>
+            <th>Sector</th><th>Rubro</th><th>Venta MTD</th><th>% Total</th><th>MUP</th><th>Margen</th><th>Cuadrante</th>
+          </tr>
+        </thead>
+        <tbody id="tbl-cuad"></tbody>
+      </table>
+    </div>
+  </div>
+</div>
+
+<!-- TAB: RUBROS -->
+<div id="tab-rubros" class="tab-panel">
+  <div class="card">
+    <h3>Rubros — Venta Neta + MUP (Junio)</h3>
+    <div class="filtros">
+      <label>Sector:</label>
+      <select id="sel-sector" onchange="renderRubros()">
+        <option value="">Todos</option>
+        <option value="EQUIPAMIENTO">Equipamiento</option>
+        <option value="HOGAR">Hogar</option>
+        <option value="BAZAR">Bazar</option>
+      </select>
+      <label>Ordenar:</label>
+      <select id="sel-orden" onchange="renderRubros()">
+        <option value="venta_mtd">Venta MTD</option>
+        <option value="mup">MUP</option>
+        <option value="margen">Margen %</option>
+      </select>
+      <input type="text" id="inp-buscar" placeholder="Buscar rubro..." oninput="renderRubros()" style="min-width:180px">
+    </div>
+    <div class="tbl-scroll">
+      <table>
+        <thead>
+          <tr>
+            <th>#</th><th>Sector</th><th>Rubro</th><th>Venta MTD</th><th>% Total</th><th>Unidades</th>
+            <th>MUP</th><th>Margen</th><th>Cuadrante</th>
+          </tr>
+        </thead>
+        <tbody id="tbl-rubros"></tbody>
+      </table>
+    </div>
+  </div>
+</div>
+
+<!-- TAB: SCATTER -->
+<div id="tab-scatter" class="tab-panel">
+  <div class="card">
+    <h3>Mapa Estratégico: MUP × Venta Neta por rubro</h3>
+    <div style="font-size:0.8rem;color:#666;margin-bottom:12px">
+      Eje X = Venta Neta (M$) · Eje Y = MUP · Tamaño = unidades vendidas<br>
+      <strong>Zona ideal Meta Ads</strong>: arriba a la derecha (alto MUP + alta venta)
+    </div>
+    <div class="chart-wrap" style="height:420px"><canvas id="chartScatter"></canvas></div>
+  </div>
+</div>
+
+<!-- TAB: PRODUCTOS -->
+<div id="tab-productos" class="tab-panel">
+  <div class="card" style="margin-bottom:20px">
+    <h3>Top 60 productos por Score (MUP × Venta) — candidatos para pauta</h3>
+    <div class="filtros">
+      <label>Sector:</label>
+      <select id="sel-sec-prod" onchange="renderProds()">
+        <option value="">Todos</option>
+        <option value="EQUIPAMIENTO">Equipamiento</option>
+        <option value="HOGAR">Hogar</option>
+        <option value="BAZAR">Bazar</option>
+      </select>
+      <input type="text" id="inp-prod" placeholder="Buscar producto..." oninput="renderProds()" style="min-width:200px">
+    </div>
+    <div id="prods-wrap" class="prod-grid"></div>
+  </div>
+</div>
+
+</div><!-- /container -->
+
+<footer>El Cristorante S.A. — IBACETA · Dashboard MUP + Meta Ads · Junio · Generado automáticamente</footer>
+
+<script>
+const RUBROS = [{"sector": "EQUIPAMIENTO", "rubro": "VERTICALES", "venta_mtd": 80483574.6671, "cant_mtd": 71.0, "mup": 1.275250440790297, "venta_ytd": 1341607717.3505, "margen": 21.584030241128083, "pct": 11.348080672961634, "pct_acum": 11.348080672961634, "cuadrante": "P2"}, {"sector": "EQUIPAMIENTO", "rubro": "CORTADORA FIAMBRES", "venta_mtd": 61289643.2728, "cant_mtd": 68.0, "mup": 1.3458660906245077, "venta_ytd": 529088724.5546, "margen": 25.698402911988005, "pct": 8.641760994757215, "pct_acum": 19.98984166771885, "cuadrante": "P2"}, {"sector": "EQUIPAMIENTO", "rubro": "FREEZER", "venta_mtd": 57877509.65269999, "cant_mtd": 64.0, "mup": 1.3205033573369012, "venta_ytd": 782076672.9739001, "margen": 24.271301966491777, "pct": 8.160654536104255, "pct_acum": 28.150496203823103, "cuadrante": "P2"}, {"sector": "EQUIPAMIENTO", "rubro": "AMASADORAS RAPIDAS", "venta_mtd": 45598136.1526, "cant_mtd": 27.0, "mup": 1.2778571799706087, "venta_ytd": 374211828.50540006, "margen": 21.743993329285793, "pct": 6.429278641470636, "pct_acum": 34.57977484529374, "cuadrante": "P2"}, {"sector": "EQUIPAMIENTO", "rubro": "HORNOS CONVECTORES", "venta_mtd": 31109968.106599998, "cant_mtd": 37.0, "mup": 1.388183487188112, "venta_ytd": 454800894.3289, "margen": 27.963413393888725, "pct": 4.386465552346732, "pct_acum": 38.966240397640476, "cuadrante": "P2"}, {"sector": "EQUIPAMIENTO", "rubro": "HELVITRINA", "venta_mtd": 29854619.836000007, "cant_mtd": 18.0, "mup": 1.223995659794572, "venta_ytd": 531402110.07070005, "margen": 18.30036389444111, "pct": 4.209463058280636, "pct_acum": 43.17570345592111, "cuadrante": "P2"}, {"sector": "EQUIPAMIENTO", "rubro": "VERTICAL CONGELADOS", "venta_mtd": 24484604.3163, "cant_mtd": 14.0, "mup": 1.3599390138465304, "venta_ytd": 366870299.0044, "margen": 26.46729082567151, "pct": 3.452297766049619, "pct_acum": 46.62800122197073, "cuadrante": "P2"}, {"sector": "HOGAR", "rubro": "TERMOTANQUES", "venta_mtd": 23906034.2786, "cant_mtd": 55.0, "mup": 1.3556216582337928, "venta_ytd": 281461514.4827, "margen": 26.233105385548626, "pct": 3.370720133719852, "pct_acum": 49.99872135569058, "cuadrante": "P2"}, {"sector": "EQUIPAMIENTO", "rubro": "BATIDORAS", "venta_mtd": 23238736.7229, "cant_mtd": 20.0, "mup": 1.354266506690214, "venta_ytd": 247775976.82299998, "margen": 26.159290282976166, "pct": 3.2766320352938605, "pct_acum": 53.275353390984435, "cuadrante": "P2"}, {"sector": "EQUIPAMIENTO", "rubro": "BATEACARNICERA", "venta_mtd": 23188138.5786, "cant_mtd": 10.0, "mup": 1.319789484947019, "venta_ytd": 385434069.26900005, "margen": 24.230340413710493, "pct": 3.269497761924499, "pct_acum": 56.54485115290893, "cuadrante": "P2"}, {"sector": "EQUIPAMIENTO", "rubro": "HORNOS PIZZEROS", "venta_mtd": 22375276.115500003, "cant_mtd": 48.0, "mup": 1.4590001240860566, "venta_ytd": 208921115.3152, "margen": 31.45990987311138, "pct": 3.1548851984861126, "pct_acum": 59.699736351395046, "cuadrante": "P2"}, {"sector": "HOGAR", "rubro": "LAVARROPAS", "venta_mtd": 15746803.3969, "cant_mtd": 23.0, "mup": 1.3012679683671569, "venta_ytd": 180002930.8244, "margen": 23.151877683210063, "pct": 2.2202790572911106, "pct_acum": 61.920015408686155, "cuadrante": "P2"}, {"sector": "EQUIPAMIENTO", "rubro": "COCINAS", "venta_mtd": 15260009.5104, "cant_mtd": 19.0, "mup": 1.2891953046135125, "venta_ytd": 171633182.608, "margen": 22.432233780141665, "pct": 2.1516417444237845, "pct_acum": 64.07165715310994, "cuadrante": "P2"}, {"sector": "EQUIPAMIENTO", "rubro": "PESADO", "venta_mtd": 15071557.219599998, "cant_mtd": 57.0, "mup": 1.2841105645153787, "venta_ytd": 163125043.9092, "margen": 22.12508582721626, "pct": 2.1250702134269503, "pct_acum": 66.19672736653689, "cuadrante": "P2"}, {"sector": "HOGAR", "rubro": "COCINAS", "venta_mtd": 15064940.4945, "cant_mtd": 30.0, "mup": 1.313932476862512, "venta_ytd": 130477724.3525, "margen": 23.89258827151751, "pct": 2.1241372636848928, "pct_acum": 68.32086463022178, "cuadrante": "P2"}, {"sector": "HOGAR", "rubro": "TELEVISORES", "venta_mtd": 14953715.437099999, "cant_mtd": 21.0, "mup": 1.3088580416235494, "venta_ytd": 43504867.5995, "margen": 23.59752026586718, "pct": 2.108454673424075, "pct_acum": 70.42931930364585, "cuadrante": "P2"}, {"sector": "EQUIPAMIENTO", "rubro": "HELADERACONFITERA", "venta_mtd": 12885445.248499999, "cant_mtd": 6.0, "mup": 1.35454400197052, "venta_ytd": 77789941.1752, "margen": 26.17441747589948, "pct": 1.8168312328550424, "pct_acum": 72.24615053650089, "cuadrante": "P2"}, {"sector": "HOGAR", "rubro": "AIRES ACONDICIONADOS", "venta_mtd": 11986604.032399999, "cant_mtd": 9.0, "mup": 2.055783765430653, "venta_ytd": 124897886.58799998, "margen": 51.35675177440092, "pct": 1.6900957756555333, "pct_acum": 73.93624631215643, "cuadrante": "P1"}, {"sector": "HOGAR", "rubro": "HELADERAS FAMILIARES", "venta_mtd": 11875655.5614, "cant_mtd": 17.0, "mup": 1.2994724344051556, "venta_ytd": 246745905.96600002, "margen": 23.0456935042444, "pct": 1.674452183721931, "pct_acum": 75.61069849587835, "cuadrante": "P2"}, {"sector": "EQUIPAMIENTO", "rubro": "SIERRASCARNICERAS", "venta_mtd": 10758014.4159, "cant_mtd": 8.0, "mup": 1.5831928190025677, "venta_ytd": 83075643.36410001, "margen": 36.83649976191698, "pct": 1.5168662174547065, "pct_acum": 77.12756471333306, "cuadrante": "P1"}, {"sector": "EQUIPAMIENTO", "rubro": "CAMARASDEFRIO", "venta_mtd": 9274270.6425, "cant_mtd": 2.0, "mup": 1.4300000000450237, "venta_ytd": 34896250.7871, "margen": 30.06993007213182, "pct": 1.3076602507939021, "pct_acum": 78.43522496412696, "cuadrante": "P2"}, {"sector": "EQUIPAMIENTO", "rubro": "MESASDETRABAJO", "venta_mtd": 8266759.916400001, "cant_mtd": 14.0, "mup": 1.373986742280898, "venta_ytd": 112759280.1487, "margen": 27.219093952832342, "pct": 1.1656025322352028, "pct_acum": 79.60082749636216, "cuadrante": "P2"}, {"sector": "EQUIPAMIENTO", "rubro": "PICADORASDECARNE", "venta_mtd": 8179631.0223, "cant_mtd": 6.0, "mup": 1.2672240895407763, "venta_ytd": 179612701.88459998, "margen": 21.087358719452254, "pct": 1.153317470055964, "pct_acum": 80.75414496641812, "cuadrante": "P2"}, {"sector": "EQUIPAMIENTO", "rubro": "PESADO CON TICKET", "venta_mtd": 7186314.931600001, "cant_mtd": 7.0, "mup": 1.3214219289839382, "venta_ytd": 91571577.10869999, "margen": 24.323943922368873, "pct": 1.0132611768602502, "pct_acum": 81.76740614327838, "cuadrante": "P2"}, {"sector": "EQUIPAMIENTO", "rubro": "FREIDORA AUTOMATICA", "venta_mtd": 7133594.551899999, "cant_mtd": 6.0, "mup": 1.3412416343548044, "venta_ytd": 81262842.7034, "margen": 25.44221903154359, "pct": 1.0058276710248126, "pct_acum": 82.7732338143032, "cuadrante": "P2"}, {"sector": "EQUIPAMIENTO", "rubro": "SOBADORAS", "venta_mtd": 6706106.561000001, "cant_mtd": 5.0, "mup": 1.295926103046325, "venta_ytd": 82998387.4723, "margen": 22.835106288135833, "pct": 0.9455524132778609, "pct_acum": 83.71878622758106, "cuadrante": "P2"}, {"sector": "EQUIPAMIENTO", "rubro": "FREIDORAS", "venta_mtd": 6668539.2118999995, "cant_mtd": 16.0, "mup": 1.3909655170167174, "venta_ytd": 70175141.3934, "margen": 28.107491683564046, "pct": 0.9402554652978602, "pct_acum": 84.65904169287893, "cuadrante": "P2"}, {"sector": "EQUIPAMIENTO", "rubro": "CAMARA FERMENTADORA", "venta_mtd": 6255640.742000001, "cant_mtd": 3.0, "mup": 1.3972863463637224, "venta_ytd": 20328873.8111, "margen": 28.43270796981696, "pct": 0.8820373112763915, "pct_acum": 85.54107900415532, "cuadrante": "P2"}, {"sector": "HOGAR", "rubro": "CALEFACCION", "venta_mtd": 6253779.668100001, "cant_mtd": 33.0, "mup": 1.4192834507302248, "venta_ytd": 38810983.775299996, "margen": 29.541910780013847, "pct": 0.8817749022464386, "pct_acum": 86.42285390640176, "cuadrante": "P2"}, {"sector": "EQUIPAMIENTO", "rubro": "PROCESADORAS", "venta_mtd": 6133544.7962, "cant_mtd": 4.0, "mup": 1.4197645984327996, "venta_ytd": 31271121.0844, "margen": 29.5657885043869, "pct": 0.8648219397113119, "pct_acum": 87.28767584611306, "cuadrante": "P2"}, {"sector": "EQUIPAMIENTO", "rubro": "ACCESORIOS", "venta_mtd": 5650340.636100001, "cant_mtd": 36.0, "mup": 1.3641026998997157, "venta_ytd": 20284310.2103, "margen": 26.691736621185726, "pct": 0.7966907736565445, "pct_acum": 88.08436661976961, "cuadrante": "P2"}, {"sector": "EQUIPAMIENTO", "rubro": "CARLITEROSPLANCHAS", "venta_mtd": 5615859.031, "cant_mtd": 13.0, "mup": 1.3800103908967118, "venta_ytd": 88058098.87059999, "margen": 27.5367775056959, "pct": 0.7918289116179046, "pct_acum": 88.87619553138751, "cuadrante": "P2"}, {"sector": "EQUIPAMIENTO", "rubro": "ENVASADORAS-SELLADOR", "venta_mtd": 4955677.6645, "cant_mtd": 13.0, "mup": 1.3479102901513615, "venta_ytd": 55804578.2691, "margen": 25.811086441983722, "pct": 0.698744186730672, "pct_acum": 89.57493971811819, "cuadrante": "P2"}, {"sector": "EQUIPAMIENTO", "rubro": "AMASADORAS", "venta_mtd": 4112883.7103, "cant_mtd": 6.0, "mup": 1.3973797091630886, "venta_ytd": 94338711.17130002, "margen": 28.437489578339825, "pct": 0.5799113214844972, "pct_acum": 90.15485103960269, "cuadrante": "P2"}, {"sector": "EQUIPAMIENTO", "rubro": "DESHIDRATADORES", "venta_mtd": 3909152.1265, "cant_mtd": 6.0, "mup": 1.6457023132549777, "venta_ytd": 32303745.5274, "margen": 39.23566905474328, "pct": 0.5511854297959695, "pct_acum": 90.70603646939865, "cuadrante": "P1"}, {"sector": "EQUIPAMIENTO", "rubro": "PANCHERA", "venta_mtd": 3889664.2528, "cant_mtd": 10.0, "mup": 1.3770232104590425, "venta_ytd": 59491477.42210001, "margen": 27.379582827319126, "pct": 0.5484376646301352, "pct_acum": 91.25447413402878, "cuadrante": "P2"}, {"sector": "EQUIPAMIENTO", "rubro": "HELADERABAJOMESADA", "venta_mtd": 2959276.0180000006, "cant_mtd": 1.0, "mup": 1.0158255939657128, "venta_ytd": 42844951.112399995, "margen": 1.5579046304524335, "pct": 0.4172541183058601, "pct_acum": 91.67172825233465, "cuadrante": "P2"}, {"sector": "EQUIPAMIENTO", "rubro": "ANAFES", "venta_mtd": 2788970.253, "cant_mtd": 10.0, "mup": 1.417261243993372, "venta_ytd": 31612913.9682, "margen": 29.4413782753043, "pct": 0.39324122414348794, "pct_acum": 92.06496947647814, "cuadrante": "P2"}, {"sector": "EQUIPAMIENTO", "rubro": "ESTANTERIAS", "venta_mtd": 2671933.6027, "cant_mtd": 14.0, "mup": 1.4257832959212215, "venta_ytd": 23530161.0551, "margen": 29.86311434137795, "pct": 0.376739206746881, "pct_acum": 92.44170868322502, "cuadrante": "P2"}, {"sector": "HOGAR", "rubro": "CALEFONES", "venta_mtd": 2348291.3052000003, "cant_mtd": 8.0, "mup": 1.4125771788253623, "venta_ytd": 11526869.799499998, "margen": 29.207407921487416, "pct": 0.3311060584131505, "pct_acum": 92.77281474163817, "cuadrante": "P2"}, {"sector": "EQUIPAMIENTO", "rubro": "HORNOS PASTELEROS", "venta_mtd": 2333379.5474, "cant_mtd": 4.0, "mup": 1.40618789031531, "venta_ytd": 56071505.245400004, "margen": 28.88574799376421, "pct": 0.3290035197126765, "pct_acum": 93.10181826135084, "cuadrante": "P2"}, {"sector": "EQUIPAMIENTO", "rubro": "CALEFACTOR IVA 10.5", "venta_mtd": 2324418.2311, "cant_mtd": 8.0, "mup": 1.4017884192029737, "venta_ytd": 9215191.5823, "margen": 28.662558036498964, "pct": 0.32773998562228657, "pct_acum": 93.42955824697313, "cuadrante": "P2"}, {"sector": "BAZAR", "rubro": "ASADERAS Y PLACAS", "venta_mtd": 2261217.5891, "cant_mtd": 111.0, "mup": 1.5866971569515045, "venta_ytd": 13547325.5425, "margen": 36.97600102080704, "pct": 0.3188287762610534, "pct_acum": 93.74838702323419, "cuadrante": "P1"}, {"sector": "HOGAR", "rubro": "MICROONDAS", "venta_mtd": 2251691.8095, "cant_mtd": 10.0, "mup": 1.367304267820014, "venta_ytd": 20270448.9622, "margen": 26.86338925904416, "pct": 0.31748565357023384, "pct_acum": 94.06587267680442, "cuadrante": "P2"}, {"sector": "EQUIPAMIENTO", "rubro": "TOSTADORAS", "venta_mtd": 2026708.4338000002, "cant_mtd": 9.0, "mup": 1.368132214626441, "venta_ytd": 10857616.179600002, "margen": 26.907649033537073, "pct": 0.2857632865148538, "pct_acum": 94.35163596331927, "cuadrante": "P2"}, {"sector": "EQUIPAMIENTO", "rubro": "PRENSA MASA PIZZA", "venta_mtd": 1954751.1312, "cant_mtd": 1.0, "mup": 1.4425388684742586, "venta_ytd": 4350050.4886, "margen": 30.677777780942716, "pct": 0.27561739925411666, "pct_acum": 94.62725336257338, "cuadrante": "P2"}, {"sector": "HOGAR", "rubro": "CAMPANAS", "venta_mtd": 1843283.1733000001, "cant_mtd": 5.0, "mup": 1.398472705450872, "venta_ytd": 14062503.515199998, "margen": 28.49342027897521, "pct": 0.2599005603347269, "pct_acum": 94.88715392290811, "cuadrante": "P2"}, {"sector": "EQUIPAMIENTO", "rubro": "ARMADORASTRINCHADORAS", "venta_mtd": 1809954.7511, "cant_mtd": 1.0, "mup": 1.13533151685196, "venta_ytd": 23816073.845800005, "margen": 11.920000003805619, "pct": 0.25520129560409693, "pct_acum": 95.14235521851221, "cuadrante": "P2"}, {"sector": "EQUIPAMIENTO", "rubro": "FREIDORAS ELECTRICAS", "venta_mtd": 1783960.9408, "cant_mtd": 6.0, "mup": 1.3800430284016747, "venta_ytd": 10418716.2425, "margen": 27.538491233989227, "pct": 0.2515362017324322, "pct_acum": 95.39389142024464, "cuadrante": "P2"}, {"sector": "EQUIPAMIENTO", "rubro": "ACCESORIOSCOMPLEMENTARIOS", "venta_mtd": 1758042.5516, "cant_mtd": 12.0, "mup": 1.3531077542288, "venta_ytd": 27099197.003700003, "margen": 26.096055774216797, "pct": 0.2478817421390134, "pct_acum": 95.64177316238366, "cuadrante": "P2"}, {"sector": "EQUIPAMIENTO", "rubro": "MAQUINASEMBUTIDOS", "venta_mtd": 1537330.3164999997, "cant_mtd": 4.0, "mup": 1.4713653466635446, "venta_ytd": 65691422.5753, "margen": 32.03591465113737, "pct": 0.21676160042333575, "pct_acum": 95.858534762807, "cuadrante": "P1"}, {"sector": "HOGAR", "rubro": "HORNO ELECTRICO", "venta_mtd": 1386599.9997, "cant_mtd": 8.0, "mup": 1.392531459321846, "venta_ytd": 11686394.1701, "margen": 28.188336909315236, "pct": 0.19550881931883696, "pct_acum": 96.05404358212583, "cuadrante": "P2"}, {"sector": "EQUIPAMIENTO", "rubro": "BANDEJASYLATAS", "venta_mtd": 1348029.8327, "cant_mtd": 45.0, "mup": 1.4697520521013392, "venta_ytd": 10028241.0155, "margen": 31.961312891499183, "pct": 0.19007047530273147, "pct_acum": 96.24411405742856, "cuadrante": "P1"}, {"sector": "EQUIPAMIENTO", "rubro": "IMPLEMENTOSASADOR", "venta_mtd": 1344293.0316, "cant_mtd": 1.0, "mup": 1.438411762841831, "venta_ytd": 1344293.0316, "margen": 30.478877757205826, "pct": 0.1895435911463429, "pct_acum": 96.43365764857491, "cuadrante": "P2"}, {"sector": "EQUIPAMIENTO", "rubro": "CAJASYGABETAS", "venta_mtd": 1303026.0737, "cant_mtd": 14.0, "mup": 1.351064212357917, "venta_ytd": 20937066.531600002, "margen": 25.98427292698616, "pct": 0.1837250030764924, "pct_acum": 96.6173826516514, "cuadrante": "P2"}, {"sector": "HOGAR", "rubro": "BATIDORAS", "venta_mtd": 1301674.1977999997, "cant_mtd": 12.0, "mup": 1.4638645124273753, "venta_ytd": 11761169.284500001, "margen": 31.68766702720299, "pct": 0.18353439031063934, "pct_acum": 96.80091704196204, "cuadrante": "P2"}, {"sector": "EQUIPAMIENTO", "rubro": "CAFETERAS", "venta_mtd": 1276237.6647, "cant_mtd": 11.0, "mup": 1.3629735000445848, "venta_ytd": 22485765.6498, "margen": 26.631001999137283, "pct": 0.17994787180853247, "pct_acum": 96.98086491377057, "cuadrante": "P2"}, {"sector": "EQUIPAMIENTO", "rubro": "COCINA GASTRONOMICA", "venta_mtd": 1245980.9954, "cant_mtd": 1.0, "mup": 1.3012997174597098, "venta_ytd": 32261293.039700005, "margen": 23.153752622638102, "pct": 0.1756817202921302, "pct_acum": 97.1565466340627, "cuadrante": "P2"}, {"sector": "EQUIPAMIENTO", "rubro": "CARROS PANADERIA", "venta_mtd": 1065235.0494, "cant_mtd": 4.0, "mup": 1.4800000143048992, "venta_ytd": 3296508.8972999994, "margen": 32.43243308550488, "pct": 0.15019677401579112, "pct_acum": 97.3067434080785, "cuadrante": "P1"}, {"sector": "EQUIPAMIENTO", "rubro": "EQUIPAMIENTO", "venta_mtd": 1044562.1703, "cant_mtd": 3.0, "mup": 1.3127678717001536, "venta_ytd": 17839100.884, "margen": 23.825070558368466, "pct": 0.14728192461031261, "pct_acum": 97.45402533268881, "cuadrante": "P2"}, {"sector": "EQUIPAMIENTO", "rubro": "CUTTER", "venta_mtd": 1009632.2171, "cant_mtd": 1.0, "mup": 1.799999999928687, "venta_ytd": 17995447.4198, "margen": 44.44444444224342, "pct": 0.14235684606533083, "pct_acum": 97.59638217875414, "cuadrante": "P1"}, {"sector": "EQUIPAMIENTO", "rubro": "LICUADORAS", "venta_mtd": 854656.1981, "cant_mtd": 6.0, "mup": 1.3812763799268988, "venta_ytd": 21862420.0866, "margen": 27.60319263166413, "pct": 0.12050542640286216, "pct_acum": 97.716887605157, "cuadrante": "P2"}, {"sector": "BAZAR", "rubro": "MOLDES VARIOS", "venta_mtd": 744341.5898, "cant_mtd": 95.0, "mup": 1.5660903785418625, "venta_ytd": 6000982.4256, "margen": 36.146724754731686, "pct": 0.10495120829596813, "pct_acum": 97.82183881345297, "cuadrante": "P1"}, {"sector": "HOGAR", "rubro": "FREEZERS", "venta_mtd": 702662.4132, "cant_mtd": 1.0, "mup": 1.4800000000337004, "venta_ytd": 11665838.908400001, "margen": 32.43243243397098, "pct": 0.09907449791877909, "pct_acum": 97.92091331137175, "cuadrante": "P1"}, {"sector": "HOGAR", "rubro": "PAVAS", "venta_mtd": 685808.7595000002, "cant_mtd": 16.0, "mup": 1.4786604292170038, "venta_ytd": 5194794.7372, "margen": 32.37122058311043, "pct": 0.09669815439014184, "pct_acum": 98.01761146576189, "cuadrante": "P1"}, {"sector": "BAZAR", "rubro": "VARIOS", "venta_mtd": 677074.9014, "cant_mtd": 141.0, "mup": 1.6202932926920484, "venta_ytd": 9968424.0516, "margen": 38.28277852471126, "pct": 0.09546669161385544, "pct_acum": 98.11307815737574, "cuadrante": "P1"}, {"sector": "BAZAR", "rubro": "PLATOS", "venta_mtd": 652848.5395, "cant_mtd": 113.0, "mup": 1.5534845255767988, "venta_ytd": 7898734.5337, "margen": 35.62858312806776, "pct": 0.09205080569687533, "pct_acum": 98.20512896307261, "cuadrante": "P1"}, {"sector": "BAZAR", "rubro": "PASTALINDA", "venta_mtd": 640787.6032, "cant_mtd": 2.0, "mup": 1.6061216290474156, "venta_ytd": 3997283.0407999996, "margen": 37.73821472081812, "pct": 0.09035022916694394, "pct_acum": 98.29547919223955, "cuadrante": "P1"}, {"sector": "EQUIPAMIENTO", "rubro": "MIXERS", "venta_mtd": 636384.6153, "cant_mtd": 2.0, "mup": 1.2954567227494131, "venta_ytd": 14282947.907899998, "margen": 22.807147283341934, "pct": 0.08972941352725666, "pct_acum": 98.3852086057668, "cuadrante": "P2"}, {"sector": "EQUIPAMIENTO", "rubro": "RALLADORADEPAN", "venta_mtd": 633484.1628, "cant_mtd": 1.0, "mup": 1.3594080746781116, "venta_ytd": 17700220.070800003, "margen": 26.438571417432133, "pct": 0.08932045344944904, "pct_acum": 98.47452905921625, "cuadrante": "P2"}, {"sector": "HOGAR", "rubro": "SECARROPAS", "venta_mtd": 615084.9861999999, "cant_mtd": 3.0, "mup": 1.2903321469482596, "venta_ytd": 2921398.1075999998, "margen": 22.50057457182003, "pct": 0.08672619317663564, "pct_acum": 98.56125525239288, "cuadrante": "P4"}, {"sector": "HOGAR", "rubro": "CAFETERAS", "venta_mtd": 568564.6114, "cant_mtd": 4.0, "mup": 1.4880271858205338, "venta_ytd": 6946348.4857, "margen": 32.79692672761379, "pct": 0.08016688007019863, "pct_acum": 98.64142213246308, "cuadrante": "P3"}, {"sector": "EQUIPAMIENTO", "rubro": "HAMBURGUESERO MANUAL", "venta_mtd": 492051.0407, "cant_mtd": 1.0, "mup": 1.3768736771402124, "venta_ytd": 10390087.7813, "margen": 27.371695994870404, "pct": 0.06937856485841307, "pct_acum": 98.71080069732149, "cuadrante": "P4"}, {"sector": "BAZAR", "rubro": "OLLAS", "venta_mtd": 474896.34679999994, "cant_mtd": 5.0, "mup": 1.6004468465793278, "venta_ytd": 5101821.7643, "margen": 37.51745007106464, "pct": 0.06695977504816447, "pct_acum": 98.77776047236965, "cuadrante": "P3"}, {"sector": "EQUIPAMIENTO", "rubro": "EXTRACTORES", "venta_mtd": 458677.6859, "cant_mtd": 1.0, "mup": 1.3581099572774258, "venta_ytd": 1798321.7683, "margen": 26.368259459294528, "pct": 0.0646729646888845, "pct_acum": 98.84243343705853, "cuadrante": "P4"}, {"sector": "BAZAR", "rubro": "TUPPERS Y RECIPIENTE", "venta_mtd": 400307.03150000004, "cant_mtd": 42.0, "mup": 1.6209907235914096, "venta_ytd": 5986852.621499999, "margen": 38.30933234556485, "pct": 0.056442777376695744, "pct_acum": 98.89887621443523, "cuadrante": "P3"}, {"sector": "HOGAR", "rubro": "ACCESORIOS", "venta_mtd": 385850.86179999996, "cant_mtd": 9.0, "mup": 1.396339091593691, "venta_ytd": 1099572.6016, "margen": 28.38415782955237, "pct": 0.05440447601326631, "pct_acum": 98.9532806904485, "cuadrante": "P4"}, {"sector": "HOGAR", "rubro": "LICUADORAS", "venta_mtd": 364333.4626, "cant_mtd": 4.0, "mup": 1.779404114683433, "venta_ytd": 8785575.6979, "margen": 43.80141128436661, "pct": 0.051370550358200505, "pct_acum": 99.0046512408067, "cuadrante": "P3"}, {"sector": "BAZAR", "rubro": "BANDEJAS", "venta_mtd": 361560.3044, "cant_mtd": 27.0, "mup": 1.5661112274968183, "venta_ytd": 4967251.1088, "margen": 36.147574805504576, "pct": 0.050979538613224545, "pct_acum": 99.05563077941991, "cuadrante": "P3"}, {"sector": "BAZAR", "rubro": "PIZZERAS", "venta_mtd": 359555.4284, "cant_mtd": 59.0, "mup": 1.6052628000787448, "venta_ytd": 5764387.0851, "margen": 37.70490414710004, "pct": 0.05069685367183879, "pct_acum": 99.10632763309175, "cuadrante": "P3"}, {"sector": "EQUIPAMIENTO", "rubro": "TIERNIZADORES", "venta_mtd": 353083.6379, "cant_mtd": 2.0, "mup": 1.3429195391148843, "venta_ytd": 2663324.5423, "margen": 25.535374914635756, "pct": 0.0497843395222588, "pct_acum": 99.15611197261401, "cuadrante": "P4"}, {"sector": "EQUIPAMIENTO", "rubro": "CHURRERAS MANUAL", "venta_mtd": 342624.4343, "cant_mtd": 1.0, "mup": 1.34573619128044, "venta_ytd": 8395605.239300001, "margen": 25.69123083116901, "pct": 0.04830960524612023, "pct_acum": 99.20442157786013, "cuadrante": "P4"}, {"sector": "HOGAR", "rubro": "PLANCHAS", "venta_mtd": 326484.4212, "cant_mtd": 5.0, "mup": 1.5199969752432558, "venta_ytd": 2524802.7166, "margen": 34.21039539634854, "pct": 0.0460338841256426, "pct_acum": 99.25045546198578, "cuadrante": "P3"}, {"sector": "EQUIPAMIENTO", "rubro": "PANINERAS", "venta_mtd": 321266.9683, "cant_mtd": 1.0, "mup": 1.357853749609651, "venta_ytd": 997160.2351, "margen": 26.354366198312963, "pct": 0.04529822996687199, "pct_acum": 99.29575369195265, "cuadrante": "P4"}, {"sector": "HOGAR", "rubro": "ANAFES", "venta_mtd": 313264.5288, "cant_mtd": 3.0, "mup": 1.4831382037871477, "venta_ytd": 6871310.617699999, "margen": 32.57540009106833, "pct": 0.04416989627391516, "pct_acum": 99.33992358822657, "cuadrante": "P3"}, {"sector": "BAZAR", "rubro": "BOWL ENSAL.Y FUENTES", "venta_mtd": 313097.69099999993, "cant_mtd": 70.0, "mup": 1.7808985461843465, "venta_ytd": 3737032.0726000005, "margen": 43.848570029856894, "pct": 0.04414637235836431, "pct_acum": 99.38406996058494, "cuadrante": "P3"}, {"sector": "BAZAR", "rubro": "SARTENES Y WOKS", "venta_mtd": 298471.2309, "cant_mtd": 8.0, "mup": 1.5999999915301721, "venta_ytd": 5444340.9168, "margen": 37.49999966914734, "pct": 0.04208406026721779, "pct_acum": 99.42615402085215, "cuadrante": "P3"}, {"sector": "BAZAR", "rubro": "UTENSILIOS VARIOS", "venta_mtd": 297716.8397, "cant_mtd": 69.0, "mup": 1.6148268305208615, "venta_ytd": 5740054.311899999, "margen": 38.07385528283237, "pct": 0.04197769207678909, "pct_acum": 99.46813171292894, "cuadrante": "P3"}, {"sector": "BAZAR", "rubro": "CUCHILLERIA", "venta_mtd": 248919.72599999997, "cant_mtd": 19.0, "mup": 1.488518768971612, "venta_ytd": 5078126.5369, "margen": 32.81912053477968, "pct": 0.03509736170918621, "pct_acum": 99.50322907463813, "cuadrante": "P3"}, {"sector": "BAZAR", "rubro": "CACEROLAS", "venta_mtd": 241807.97500000003, "cant_mtd": 6.0, "mup": 1.6008108036590551, "venta_ytd": 4856330.8017, "margen": 37.53165597619351, "pct": 0.034094613950928346, "pct_acum": 99.53732368858905, "cuadrante": "P3"}, {"sector": "HOGAR", "rubro": "OTROS", "venta_mtd": 208385.6114, "cant_mtd": 3.0, "mup": 1.4303785650555587, "venta_ytd": 708973.0075999999, "margen": 30.088437814281843, "pct": 0.029382103603535697, "pct_acum": 99.5667057921926, "cuadrante": "P4"}, {"sector": "HOGAR", "rubro": "HORNOS", "venta_mtd": 207154.5454, "cant_mtd": 1.0, "mup": 1.476298835874721, "venta_ytd": 1941723.9666, "margen": 32.26303674435329, "pct": 0.029208524878441486, "pct_acum": 99.59591431707103, "cuadrante": "P3"}, {"sector": "BAZAR", "rubro": "COLADORES", "venta_mtd": 200894.7516, "cant_mtd": 14.0, "mup": 1.6000000643521068, "venta_ytd": 1982461.1114999999, "margen": 37.50000251375407, "pct": 0.028325901991320353, "pct_acum": 99.62424021906236, "cuadrante": "P3"}, {"sector": "BAZAR", "rubro": "ESCURRIDOR/SECA PLAT", "venta_mtd": 186571.1155, "cant_mtd": 3.0, "mup": 1.5999999586645568, "venta_ytd": 1364463.2463, "margen": 37.49999838533421, "pct": 0.026306287695294427, "pct_acum": 99.65054650675765, "cuadrante": "P3"}, {"sector": "BAZAR", "rubro": "COMPLEMENTOS DE MESA", "venta_mtd": 167473.65099999998, "cant_mtd": 32.0, "mup": 1.5958803970368955, "venta_ytd": 1386975.0962999999, "margen": 37.33866260549845, "pct": 0.023613569725305802, "pct_acum": 99.67416007648295, "cuadrante": "P3"}, {"sector": "BAZAR", "rubro": "ESPATULAS", "venta_mtd": 161671.544, "cant_mtd": 24.0, "mup": 1.5875043347134719, "venta_ytd": 2057904.4994, "margen": 37.00804601705294, "pct": 0.02279548008923413, "pct_acum": 99.69695555657218, "cuadrante": "P3"}, {"sector": "BAZAR", "rubro": "CUBIERTOS DE MESA", "venta_mtd": 157700.2613, "cant_mtd": 68.0, "mup": 1.6167069274949466, "venta_ytd": 3030402.6672, "margen": 38.14587028772871, "pct": 0.022235534328361273, "pct_acum": 99.71919109090054, "cuadrante": "P3"}, {"sector": "HOGAR", "rubro": "AUDIO", "venta_mtd": 157556.3966, "cant_mtd": 1.0, "mup": 1.4800000004133125, "venta_ytd": 1195129.2651, "margen": 32.43243245130171, "pct": 0.02221524959040891, "pct_acum": 99.74140634049094, "cuadrante": "P3"}, {"sector": "HOGAR", "rubro": "VENTILADORES", "venta_mtd": 156942.1487, "cant_mtd": 1.0, "mup": 1.200443614521483, "venta_ytd": 10587062.373300001, "margen": 16.69746184633446, "pct": 0.022128641425311506, "pct_acum": 99.76353498191625, "cuadrante": "P4"}, {"sector": "EQUIPAMIENTO", "rubro": "MAQUINASDEPASTAS", "venta_mtd": 145702.4791, "cant_mtd": 3.0, "mup": 1.3680983953051642, "venta_ytd": 29356996.5924, "margen": 26.905842194417396, "pct": 0.020543862445428874, "pct_acum": 99.78407884436169, "cuadrante": "P4"}, {"sector": "HOGAR", "rubro": "HIDROLAVADORAS", "venta_mtd": 137874.4793, "cant_mtd": 1.0, "mup": 1.4800000358958392, "venta_ytd": 517058.5033, "margen": 32.43243407121249, "pct": 0.019440124526160726, "pct_acum": 99.80351896888784, "cuadrante": "P3"}, {"sector": "HOGAR", "rubro": "EXTRACTORES COCINA", "venta_mtd": 126244.0, "cant_mtd": 1.0, "mup": 1.48, "venta_ytd": 1276472.066, "margen": 32.432432432432435, "pct": 0.01780024188044665, "pct_acum": 99.8213192107683, "cuadrante": "P3"}, {"sector": "HOGAR", "rubro": "PLANCHAS DE PELO", "venta_mtd": 114872.6776, "cant_mtd": 2.0, "mup": 1.4799999323856656, "venta_ytd": 292000.61140000005, "margen": 32.43242934558357, "pct": 0.016196900024829423, "pct_acum": 99.83751611079312, "cuadrante": "P3"}, {"sector": "BAZAR", "rubro": "CUCHARONES/CUCHARAS", "venta_mtd": 113873.6766, "cant_mtd": 18.0, "mup": 1.6151741888695632, "venta_ytd": 2559279.8986, "margen": 38.08717308070126, "pct": 0.016056042166722836, "pct_acum": 99.85357215295984, "cuadrante": "P3"}, {"sector": "BAZAR", "rubro": "TETERAS Y CAFETERAS", "venta_mtd": 105088.6938, "cant_mtd": 8.0, "mup": 1.2809653661239124, "venta_ytd": 753449.7414, "margen": 21.93387686773208, "pct": 0.01481737087338958, "pct_acum": 99.86838952383323, "cuadrante": "P4"}, {"sector": "BAZAR", "rubro": "BALANZAS", "venta_mtd": 91823.7434, "cant_mtd": 6.0, "mup": 1.621066958804143, "venta_ytd": 1226288.1935000005, "margen": 38.31223352194548, "pct": 0.012947029901524564, "pct_acum": 99.88133655373476, "cuadrante": "P3"}, {"sector": "BAZAR", "rubro": "TAZAS", "venta_mtd": 87980.82449999999, "cant_mtd": 30.0, "mup": 1.5545822815506845, "venta_ytd": 2557919.2123, "margen": 35.67403849460401, "pct": 0.01240518327160995, "pct_acum": 99.89374173700637, "cuadrante": "P3"}, {"sector": "HOGAR", "rubro": "JUGUERA-EXPRIMIDOR", "venta_mtd": 83052.4628, "cant_mtd": 1.0, "mup": 1.4800000004989617, "venta_ytd": 1084854.2224, "margen": 32.43243245521191, "pct": 0.011710290600795266, "pct_acum": 99.90545202760715, "cuadrante": "P3"}, {"sector": "BAZAR", "rubro": "CUBIERTOS ACERO", "venta_mtd": 81071.9337, "cant_mtd": 7.0, "mup": 1.5999846083849347, "venta_ytd": 299029.3952, "margen": 37.49939875925272, "pct": 0.011431038541043805, "pct_acum": 99.9168830661482, "cuadrante": "P3"}, {"sector": "HOGAR", "rubro": "MOLINILLO", "venta_mtd": 76363.6363, "cant_mtd": 2.0, "mup": 1.5400513389461377, "venta_ytd": 250573.9666, "margen": 35.067099731603534, "pct": 0.01076717465392776, "pct_acum": 99.92765024080212, "cuadrante": "P3"}, {"sector": "BAZAR", "rubro": "VASOS", "venta_mtd": 69046.7513, "cant_mtd": 12.0, "mup": 1.561259495388812, "venta_ytd": 3140991.212399999, "margen": 35.949148558999624, "pct": 0.009735503265098098, "pct_acum": 99.93738574406723, "cuadrante": "P3"}, {"sector": "HOGAR", "rubro": "TOSTADORAS/SANDWICHERAS", "venta_mtd": 67808.4627, "cant_mtd": 2.0, "mup": 1.4800000026349647, "venta_ytd": 1726244.0647000002, "margen": 32.432432552728486, "pct": 0.009560906162678975, "pct_acum": 99.9469466502299, "cuadrante": "P3"}, {"sector": "BAZAR", "rubro": "BOTELLAS Y FRASCOS", "venta_mtd": 67254.4377, "cant_mtd": 11.0, "mup": 1.583695076834237, "venta_ytd": 814627.0083, "margen": 36.856531624826886, "pct": 0.009482789349144751, "pct_acum": 99.95642943957905, "cuadrante": "P3"}, {"sector": "BAZAR", "rubro": "PELA PAPA/PISA PAPA", "venta_mtd": 55054.4292, "cant_mtd": 9.0, "mup": 1.6000000953238527, "venta_ytd": 775496.9497999998, "margen": 37.500003723587774, "pct": 0.007762603817606579, "pct_acum": 99.96419204339666, "cuadrante": "P3"}, {"sector": "BAZAR", "rubro": "JARRO HERVIDOR", "venta_mtd": 48407.966700000004, "cant_mtd": 7.0, "mup": 1.5999997983803198, "venta_ytd": 892621.4103999999, "margen": 37.49999212423025, "pct": 0.006825461140336229, "pct_acum": 99.971017504537, "cuadrante": "P3"}, {"sector": "BAZAR", "rubro": "ESPUMADERAS", "venta_mtd": 46467.099, "cant_mtd": 3.0, "mup": 1.6000001694102066, "venta_ytd": 791817.7698, "margen": 37.50000661758549, "pct": 0.006551801287052538, "pct_acum": 99.97756930582405, "cuadrante": "P3"}, {"sector": "BAZAR", "rubro": "RALLADORES", "venta_mtd": 43591.0082, "cant_mtd": 2.0, "mup": 1.6000000014681928, "venta_ytd": 483464.67370000004, "margen": 37.50000005735128, "pct": 0.006146276177660192, "pct_acum": 99.98371558200171, "cuadrante": "P3"}, {"sector": "BAZAR", "rubro": "TOSTADORAS", "venta_mtd": 42988.0164, "cant_mtd": 6.0, "mup": 1.6000003841071382, "venta_ytd": 163770.33010000005, "margen": 37.500015004181485, "pct": 0.006061255108207974, "pct_acum": 99.98977683710991, "cuadrante": "P3"}, {"sector": "BAZAR", "rubro": "TERMOS", "venta_mtd": 39658.876, "cant_mtd": 3.0, "mup": 1.600000277567168, "venta_ytd": 1307451.4274, "margen": 37.50001084246561, "pct": 0.0055918505870111886, "pct_acum": 99.99536868769692, "cuadrante": "P3"}, {"sector": "BAZAR", "rubro": "PINZAS", "venta_mtd": 35949.8591, "cant_mtd": 7.0, "mup": 1.9690733174917339, "venta_ytd": 1141061.4319, "margen": 49.21468941167561, "pct": 0.005068883967142804, "pct_acum": 100.00043757166407, "cuadrante": "P3"}, {"sector": "BAZAR", "rubro": "PLANCHAS", "venta_mtd": 35642.181599999996, "cant_mtd": 3.0, "mup": 1.5999999999999999, "venta_ytd": 1048695.3199, "margen": 37.5, "pct": 0.005025501834754958, "pct_acum": 100.00546307349882, "cuadrante": "P3"}, {"sector": "BAZAR", "rubro": "JARRAS", "venta_mtd": 30001.7603, "cant_mtd": 3.0, "mup": 1.586417307144192, "venta_ytd": 760244.0339, "margen": 36.96488335719421, "pct": 0.0042302096747503385, "pct_acum": 100.00969328317356, "cuadrante": "P3"}, {"sector": "BAZAR", "rubro": "PALOS DE AMASAR", "venta_mtd": 28665.0495, "cant_mtd": 2.0, "mup": 1.6000002802019027, "venta_ytd": 310884.3698, "margen": 37.50001094538491, "pct": 0.0040417351685226735, "pct_acum": 100.01373501834209, "cuadrante": "P3"}, {"sector": "BAZAR", "rubro": "ESPECIEROS", "venta_mtd": 26599.5368, "cant_mtd": 6.0, "mup": 1.5999999807515448, "venta_ytd": 908914.1412, "margen": 37.49999924810721, "pct": 0.0037505005303051387, "pct_acum": 100.01748551887239, "cuadrante": "P3"}, {"sector": "BAZAR", "rubro": "COMANDERAS", "venta_mtd": 25509.1983, "cant_mtd": 1.0, "mup": 1.600000104119312, "venta_ytd": 432369.14819999994, "margen": 37.500004067160354, "pct": 0.003596764201992004, "pct_acum": 100.02108228307438, "cuadrante": "P3"}, {"sector": "BAZAR", "rubro": "MANGAS/PICOS", "venta_mtd": 22248.3056, "cant_mtd": 5.0, "mup": 1.6000001380779427, "venta_ytd": 117979.96970000002, "margen": 37.50000539366917, "pct": 0.0031369825188531397, "pct_acum": 100.02421926559323, "cuadrante": "P3"}, {"sector": "BAZAR", "rubro": "CHAFER Y BRASEROS", "venta_mtd": 19960.9421, "cant_mtd": 1.0, "mup": 1.600000270929142, "venta_ytd": 837115.4855000001, "margen": 37.50001058316782, "pct": 0.0028144672027311454, "pct_acum": 100.02703373279596, "cuadrante": "P3"}, {"sector": "BAZAR", "rubro": "JARRITO DE CAFE", "venta_mtd": 17611.3139, "cant_mtd": 3.0, "mup": 1.6000007540610734, "venta_ytd": 168203.6188, "margen": 37.5000294554968, "pct": 0.0024831726438680037, "pct_acum": 100.02951690543982, "cuadrante": "P3"}, {"sector": "BAZAR", "rubro": "PAVAS", "venta_mtd": 15188.8099, "cant_mtd": 1.0, "mup": 1.5999996608029896, "venta_ytd": 599185.2717, "margen": 37.49998675011397, "pct": 0.0021416026907902373, "pct_acum": 100.0316585081306, "cuadrante": "P3"}, {"sector": "HOGAR", "rubro": "MUEBLES DE COCINA", "venta_mtd": 11707.3801, "cant_mtd": 1.0, "mup": 1.153845151596503, "venta_ytd": 11707.3801, "margen": 13.33325805318305, "pct": 0.0016507255597598912, "pct_acum": 100.03330923369036, "cuadrante": "P4"}, {"sector": "BAZAR", "rubro": "BATIDOR", "venta_mtd": 11168.3139, "cant_mtd": 2.0, "mup": 1.5999995386950474, "venta_ytd": 451543.07230000006, "margen": 37.49998198027009, "pct": 0.0015747179178159315, "pct_acum": 100.03488395160818, "cuadrante": "P3"}, {"sector": "BAZAR", "rubro": "MORTEROS", "venta_mtd": 9633.7603, "cant_mtd": 1.0, "mup": 1.6000002889837837, "venta_ytd": 57513.5371, "margen": 37.50001128842702, "pct": 0.0013583478308533024, "pct_acum": 100.03624229943904, "cuadrante": "P3"}, {"sector": "BAZAR", "rubro": "EXPRIMIDORES", "venta_mtd": 9619.6859, "cant_mtd": 1.0, "mup": 1.5999994644317572, "venta_ytd": 50852.1564, "margen": 37.49997907935851, "pct": 0.0013563633585273133, "pct_acum": 100.03759866279756, "cuadrante": "P3"}, {"sector": "BAZAR", "rubro": "CREMERAS/LECHERAS", "venta_mtd": 9029.5536, "cant_mtd": 2.0, "mup": 2.719982157480836, "venta_ytd": 121269.2227, "margen": 63.23505294879694, "pct": 0.0012731554620612291, "pct_acum": 100.03887181825962, "cuadrante": "P3"}, {"sector": "BAZAR", "rubro": "PALAS/REMOS", "venta_mtd": 7686.743700000001, "cant_mtd": 2.0, "mup": 1.6000000374671015, "venta_ytd": 898160.2920000001, "margen": 37.50000146355862, "pct": 0.001083820990565884, "pct_acum": 100.0399556392502, "cuadrante": "P3"}, {"sector": "BAZAR", "rubro": "ACEITEROS/VINAGREROS", "venta_mtd": 7002.2314, "cant_mtd": 3.0, "mup": 1.5999992779447822, "venta_ytd": 358072.06299999997, "margen": 37.49997179470533, "pct": 0.0009873056353003596, "pct_acum": 100.0409429448855, "cuadrante": "P3"}, {"sector": "BAZAR", "rubro": "MATES Y MATERAS", "venta_mtd": -18181.8181, "cant_mtd": -1.0, "mup": 0.0, "venta_ytd": 340499.8255, "margen": 0.0, "pct": -0.0025636130034400284, "pct_acum": 100.03837933188206, "cuadrante": "P4"}, {"sector": "HOGAR", "rubro": "TESOROS", "venta_mtd": -35832.68589999998, "cant_mtd": 0.0, "mup": 1.4799999910826689, "venta_ytd": -35832.68589999998, "margen": 32.43243202532272, "pct": -0.005052362696413848, "pct_acum": 100.03332696918564, "cuadrante": "P3"}, {"sector": "EQUIPAMIENTO", "rubro": "PANERA", "venta_mtd": -236363.6363, "cant_mtd": -1.0, "mup": 0.0, "venta_ytd": 1664651.4494000003, "margen": 0.0, "pct": -0.033326969185719084, "pct_acum": 99.99999999999991, "cuadrante": "P4"}];
+const PRODS  = [{"articulo": 10729, "desc": "MERCATOR ENSALADERA APILABLE 20CM", "sector": "BAZAR", "rubro": "BOWL ENSAL.Y FUENTES", "venta": 23553.7188, "cant": 3.0, "mup": 9500.531945788964, "margen": 99.98947427359114, "score": 223.77285790153007}, {"articulo": 30816, "desc": "ARIFERNIC CAFETERA 9 POCILLOS ALUMINIO COLORES CAKP18009", "sector": "BAZAR", "rubro": "TETERAS Y CAFETERAS", "venta": 8264.4628, "cant": 1.0, "mup": 10000.560019361083, "margen": 99.990000559988, "score": 82.64925625917694}, {"articulo": 32912, "desc": "LOEKEMEYER ABRELATAS MARIPOSA ROJO ARTL512", "sector": "BAZAR", "rubro": "VARIOS", "venta": 7603.3057, "cant": 1.0, "mup": 9200.515125847047, "margen": 99.98913104335656, "score": 69.95432909928907}, {"articulo": 10, "desc": "BRIKET EXHIBIDORA VERTICAL MASTER 5000 BLANCA 500LT", "sector": "EQUIPAMIENTO", "rubro": "VERTICALES", "venta": 29398954.5781, "cant": 29.0, "mup": 1.263053545336668, "margen": 20.826792839297315, "score": 37.13245380906087}, {"articulo": 16349, "desc": "PANETTI CORTADORA DE FIAMBRE B250A SEMIAUTOMATICA 150W", "sector": "EQUIPAMIENTO", "rubro": "CORTADORA FIAMBRES", "venta": 24133234.4057, "cant": 38.0, "mup": 1.3084137954085837, "margen": 23.571579303952085, "score": 31.57625682424695}, {"articulo": 16158, "desc": "PANETTI AMASADORA RAPIDA 4KG HARINA H10 WG10L", "sector": "EQUIPAMIENTO", "rubro": "AMASADORAS RAPIDAS", "venta": 22221648.5603, "cant": 18.0, "mup": 1.1884867203598477, "margen": 15.859388004165332, "score": 26.410134218420076}, {"articulo": 16347, "desc": "RCA AIRE ACONDICIONADO 14000W PISO TECHO FC INVERTER RCLCFA5", "sector": "HOGAR", "rubro": "AIRES ACONDICIONADOS", "venta": 5528591.7354, "cant": 2.0, "mup": 4.671512111280308, "margen": 78.59365498410465, "score": 25.826883250245317}, {"articulo": 16350, "desc": "PANETTI CORTADORA DE FIAMBRE B300A SEMIAUTOMATICA 250W", "sector": "EQUIPAMIENTO", "rubro": "CORTADORA FIAMBRES", "venta": 16174399.818000002, "cant": 19.0, "mup": 1.334964012934561, "margen": 25.09161368314583, "score": 21.592241687845316}, {"articulo": 15225, "desc": "FAM EXHIBIDORA VERTICAL CONG MENOS12 A 20 FAMV420BTD BLANCO", "sector": "EQUIPAMIENTO", "rubro": "VERTICAL CONGELADOS", "venta": 12279156.4614, "cant": 7.0, "mup": 1.3643768765249573, "margen": 26.706468190300804, "score": 16.75339713916618}, {"articulo": 9959, "desc": "WALPLO SALSERA 3OZ PORCELANA", "sector": "BAZAR", "rubro": "CREMERAS/LECHERAS", "venta": 3719.0082, "cant": 1.0, "mup": 4500.251936108422, "margen": 99.97777902183705, "score": 16.7364738524531}, {"articulo": 7993, "desc": "SYSTEL CORTADORA DE FIAMBRE CF 330  36090AR", "sector": "EQUIPAMIENTO", "rubro": "CORTADORA FIAMBRES", "venta": 12598528.506299999, "cant": 8.0, "mup": 1.2637546571421936, "margen": 20.870716926862865, "score": 15.921449072975308}, {"articulo": 16348, "desc": "PANETTI AMASADORA RAPIDA 25KG HARINA DOBLEVELOC 220V WG60L", "sector": "EQUIPAMIENTO", "rubro": "AMASADORAS RAPIDAS", "venta": 11170135.746399999, "cant": 3.0, "mup": 1.4154946375468833, "margen": 29.353317669006106, "score": 15.81126724969995}, {"articulo": 6704, "desc": "INELRO EXHIBIDORA VERTICAL MT980 CON CENEFA BLANCA 2 P 980LT", "sector": "EQUIPAMIENTO", "rubro": "VERTICALES", "venta": 12385054.2986, "cant": 5.0, "mup": 1.2486374971449217, "margen": 19.912704665160618, "score": 15.464443201407857}, {"articulo": 16003, "desc": "INELRO EXHIBIDORA VERTICAL MT17 SIN CENEFA BLANCA 470LT", "sector": "EQUIPAMIENTO", "rubro": "VERTICALES", "venta": 12296181.7191, "cant": 12.0, "mup": 1.2576367166903952, "margen": 20.485782044308763, "score": 15.464129605037384}, {"articulo": 16137, "desc": "PANETTI HORNO CONVECTOR ELECTRICO 4 BANDEJAS HEB600 4F", "sector": "EQUIPAMIENTO", "rubro": "HORNOS CONVECTORES", "venta": 10986697.3385, "cant": 16.0, "mup": 1.3955869547748145, "margen": 28.345561229371384, "score": 15.332891481669776}, {"articulo": 258, "desc": "NUSELUJ BATEA KEEP 2.00 MT VR TERCIO HP", "sector": "EQUIPAMIENTO", "rubro": "BATEACARNICERA", "venta": 10629689.5924, "cant": 5.0, "mup": 1.3218145271659372, "margen": 24.346420814116033, "score": 14.05047812249889}, {"articulo": 16459, "desc": "PANETTI HORNO CONVECTOR ELECTRICO CON VAPOR 6.4KW HEB840V", "sector": "EQUIPAMIENTO", "rubro": "HORNOS CONVECTORES", "venta": 10022171.0403, "cant": 8.0, "mup": 1.3691750560958789, "margen": 26.963320318481376, "score": 13.722106596305245}, {"articulo": 16450, "desc": "SYSTEL BALANZA CUORA MAX 30KG NEGRA CON MASTIL USB 39280AR", "sector": "EQUIPAMIENTO", "rubro": "PESADO CON TICKET", "venta": 9731578.280100001, "cant": 9.0, "mup": 1.324295327374012, "margen": 24.488142536685352, "score": 12.887483644310855}, {"articulo": 15534, "desc": "INELRO FREEZER FIH350 DUAL 1 PUERTA CIEGA 280LT INVERTER", "sector": "EQUIPAMIENTO", "rubro": "FREEZER", "venta": 10003627.776300002, "cant": 18.0, "mup": 1.2713104147525691, "margen": 21.341004651910556, "score": 12.717716177318277}, {"articulo": 15736, "desc": "FAM FREEZER HORIZONTAL FAM 42TC T VDRIO INCLI 2 PTAS 960LT", "sector": "EQUIPAMIENTO", "rubro": "FREEZER", "venta": 8568264.180799998, "cant": 4.0, "mup": 1.4417976225540867, "margen": 30.642138372475603, "score": 12.353702925292778}, {"articulo": 15260, "desc": "BRIKET EXHIBIDORA VERTICAL MASTER 4300 BLANCA 417LT", "sector": "EQUIPAMIENTO", "rubro": "VERTICALES", "venta": 9198529.7735, "cant": 10.0, "mup": 1.2903984899250753, "margen": 22.504559032918337, "score": 11.869768929255244}, {"articulo": 16387, "desc": "PANETTI CORTADORA DE FIAMBRE B320C  AUTOMATICA 220V", "sector": "EQUIPAMIENTO", "rubro": "CORTADORA FIAMBRES", "venta": 5785696.8325, "cant": 1.0, "mup": 1.9373318181984525, "margen": 48.38261620407847, "score": 11.208814564052252}, {"articulo": 32832, "desc": "ARIFERNIC SALSERA CAZUELA BLANCA PORCE LINEAS 7CM 11204709", "sector": "BAZAR", "rubro": "BOWL ENSAL.Y FUENTES", "venta": 7438.0164, "cant": 6.0, "mup": 1500.0839787028074, "margen": 99.93333706551117, "score": 11.157649234968734}, {"articulo": 15075, "desc": "FAM EXHIBIDORA VERTICAL CONG MENOS12 A 20 FAMV420BT BLANCO", "sector": "EQUIPAMIENTO", "rubro": "VERTICAL CONGELADOS", "venta": 7436402.6062, "cant": 4.0, "mup": 1.4244040226089014, "margen": 29.795199667547557, "score": 10.592441786010598}, {"articulo": 16327, "desc": "PANETTI SIERRA CARNICERA AC.INOXIDABLE 750W HD.130", "sector": "EQUIPAMIENTO", "rubro": "SIERRASCARNICERAS", "venta": 5976430.4794, "cant": 5.0, "mup": 1.736914058497119, "margen": 42.426627552012604, "score": 10.380546119300535}, {"articulo": 6773, "desc": "INELRO FREEZER FIH550 DUAL 2PUERTAS CIEGAS 460LT INVERTER", "sector": "EQUIPAMIENTO", "rubro": "FREEZER", "venta": 7052651.1483, "cant": 8.0, "mup": 1.344428591440266, "margen": 25.618957647373808, "score": 9.481785849228544}, {"articulo": 14095, "desc": "DEFRANCESCO HELADERA ITALY 120CM CUPULA RECTA EQUIP ECR120SK", "sector": "EQUIPAMIENTO", "rubro": "HELADERACONFITERA", "venta": 6992760.1809, "cant": 2.0, "mup": 1.3309402704415683, "margen": 24.86514818067468, "score": 9.306946126300076}, {"articulo": 16314, "desc": "PANETTI MESA DE TRABAJO 180X70X90 AC304Y201 C.ZOCALO 18070B", "sector": "EQUIPAMIENTO", "rubro": "MESASDETRABAJO", "venta": 6551959.7017, "cant": 11.0, "mup": 1.360426343643297, "margen": 26.49363159772806, "score": 8.91345858068196}, {"articulo": 16160, "desc": "PANETTI AMASADORA RAPIDA 12KG HARINA HS30 WG30L", "sector": "EQUIPAMIENTO", "rubro": "AMASADORAS RAPIDAS", "venta": 6490932.841499999, "cant": 3.0, "mup": 1.3450848191101044, "margen": 25.655245989498955, "score": 8.730855226964861}, {"articulo": 16352, "desc": "PANETTI PROCESADORA VEGETALES 220V VC.65MS", "sector": "EQUIPAMIENTO", "rubro": "PROCESADORAS", "venta": 6133544.7962, "cant": 4.0, "mup": 1.4197645984327996, "margen": 29.5657885043869, "score": 8.70818976454648}, {"articulo": 16191, "desc": "PANETTI BATIDORA MIXER 7LT TRIPLE B7S", "sector": "EQUIPAMIENTO", "rubro": "BATIDORAS", "venta": 6546121.4292, "cant": 11.0, "mup": 1.2859470579230365, "margen": 22.23630095510124, "score": 8.417965592686683}, {"articulo": 1135, "desc": "SOL REAL HORNO 6 PIZZAS GAUCHITO INOX. 607I", "sector": "EQUIPAMIENTO", "rubro": "HORNOS PIZZEROS", "venta": 5672440.4156, "cant": 19.0, "mup": 1.4580815763403647, "margen": 31.416731668066376, "score": 8.270880862874842}, {"articulo": 16164, "desc": "PANETTI BATIDORA 10LT B10B  WGB10F", "sector": "EQUIPAMIENTO", "rubro": "BATIDORAS", "venta": 6107872.398, "cant": 5.0, "mup": 1.3163303469205332, "margen": 24.031228001433448, "score": 8.039977792605688}, {"articulo": 16159, "desc": "PANETTI AMASADORA RAPIDA 8KG HARINA HS20 WG20L", "sector": "EQUIPAMIENTO", "rubro": "AMASADORAS RAPIDAS", "venta": 5715419.0044, "cant": 3.0, "mup": 1.3388658911985896, "margen": 25.309920390549912, "score": 7.652179558899362}, {"articulo": 6925, "desc": "SOL REAL HORNO 12 PIZZAS GAUCHITO INOX. 608I", "sector": "EQUIPAMIENTO", "rubro": "HORNOS PIZZEROS", "venta": 5061790.9408, "cant": 13.0, "mup": 1.4668493699013891, "margen": 31.826674195781514, "score": 7.42488485208504}, {"articulo": 146, "desc": "BRIKET EXHIBIDORA VERTICAL MASTER 3000 BLANCA 293LT R290", "sector": "EQUIPAMIENTO", "rubro": "VERTICALES", "venta": 5540157.465600001, "cant": 7.0, "mup": 1.3350656249898891, "margen": 25.0973149722454, "score": 7.396473789353665}, {"articulo": 16414, "desc": "INELRO MINICAMARA 1790X2233X862 2111LT 2 PTAS INOX FSGCR21I", "sector": "EQUIPAMIENTO", "rubro": "CAMARASDEFRIO", "venta": 4987583.0407, "cant": 1.0, "mup": 1.4300000002385445, "margen": 30.06993008159541, "score": 7.132243749390759}, {"articulo": 15737, "desc": "FAM FREEZER TIPO ARCON F12000B CONDEN DIN 2 A 20BJ 1200L", "sector": "EQUIPAMIENTO", "rubro": "FREEZER", "venta": 5511312.217, "cant": 3.0, "mup": 1.2687271866580518, "margen": 21.180848765911986, "score": 6.992351643868561}, {"articulo": 1209, "desc": "SYSTEL BALANZA CROMA  31KG CON MASTIL BATERIA REC 38670AR", "sector": "EQUIPAMIENTO", "rubro": "PESADO", "venta": 5591260.560299999, "cant": 18.0, "mup": 1.2491682920758607, "margen": 19.946735252284885, "score": 6.98442540466107}, {"articulo": 16166, "desc": "PANETTI BATIDORA 30LT B30B WGB30F", "sector": "EQUIPAMIENTO", "rubro": "BATIDORAS", "venta": 4534570.0451, "cant": 2.0, "mup": 1.5273874627357422, "margen": 34.52872801450951, "score": 6.92604543578279}, {"articulo": 15713, "desc": "BRIKET FREEZER DUAL FR 5500 BLANCO 2 PTAS 535LT", "sector": "EQUIPAMIENTO", "rubro": "FREEZER", "venta": 5137334.7105, "cant": 6.0, "mup": 1.271845188135702, "margen": 21.37407843907312, "score": 6.533894431391945}, {"articulo": 16391, "desc": "NUSELUJ HELADERA VITRINA AMIGA 2.0MT TERCIO HP NEGRA", "sector": "EQUIPAMIENTO", "rubro": "HELVITRINA", "venta": 5055800.9048, "cant": 3.0, "mup": 1.2255611293391688, "margen": 18.404722860359723, "score": 6.19619306660068}, {"articulo": 16413, "desc": "INELRO MINICAMARA 1610X2233X762 1654LT 2 PTAS INOX FSGCR16I", "sector": "EQUIPAMIENTO", "rubro": "CAMARASDEFRIO", "venta": 4286687.6018, "cant": 1.0, "mup": 1.4299999998198611, "margen": 30.069930061120896, "score": 6.129963269801801}, {"articulo": 16186, "desc": "ZALDIVAR AMASADORA 20KG DE MASA", "sector": "EQUIPAMIENTO", "rubro": "AMASADORAS", "venta": 4112883.7103, "cant": 6.0, "mup": 1.4741518674910394, "margen": 32.16438400597295, "score": 6.0630152023122195}, {"articulo": 16305, "desc": "DIACO HELADERA VITRINA MANDY 1800MT VR TRES PUERTAS 1.3HP", "sector": "EQUIPAMIENTO", "rubro": "HELVITRINA", "venta": 4891511.8278, "cant": 3.0, "mup": 1.1830274654005501, "margen": 15.4711087234632, "score": 5.7867928396190464}, {"articulo": 15566, "desc": "INELRO FREEZER FIH550 PI PLUS TAPA VIDRIO INCLINADO 455LT", "sector": "EQUIPAMIENTO", "rubro": "FREEZER", "venta": 4277734.851, "cant": 4.0, "mup": 1.3227157130203007, "margen": 24.39796472088539, "score": 5.658227103552254}, {"articulo": 16389, "desc": "NUSELUJ HELADERA VITRINA AMIGA 1.6 MT VR TERCIO HP NEGRA", "sector": "EQUIPAMIENTO", "rubro": "HELVITRINA", "venta": 4435276.9229, "cant": 3.0, "mup": 1.2263835368671536, "margen": 18.459440302457054, "score": 5.439350599691368}, {"articulo": 16200, "desc": "PANETTI BATIDORA 40LT B40F", "sector": "EQUIPAMIENTO", "rubro": "BATIDORAS", "venta": 3981394.5701, "cant": 1.0, "mup": 1.3529997355211545, "margen": 26.090155545018234, "score": 5.38682580035066}, {"articulo": 15754, "desc": "INELRO EXHIBIDORA VERTICAL MT11  NORDICA BLACK 301LT", "sector": "EQUIPAMIENTO", "rubro": "VERTICALES", "venta": 3656799.9999, "cant": 2.0, "mup": 1.405138008992159, "margen": 28.832613337585677, "score": 5.138308671142013}, {"articulo": 6226, "desc": "NUSELUJ HELADERA VITRINA AMIGA 3.0 MT VR MEDIO HP", "sector": "EQUIPAMIENTO", "rubro": "HELVITRINA", "venta": 4113603.6197999995, "cant": 2.0, "mup": 1.2179993314481328, "margen": 17.89814869511823, "score": 5.010366458759019}, {"articulo": 16353, "desc": "PANETTI HORNO PIZZERO CINTA 110X57X36  6.7KW HEP.12", "sector": "EQUIPAMIENTO", "rubro": "HORNOS PIZZEROS", "venta": 3216265.7013, "cant": 1.0, "mup": 1.5131018392303144, "margen": 33.910595171262194, "score": 4.866537548090407}, {"articulo": 14758, "desc": "SENORIAL TERMOTANQUE 85LTS GAS BLANCO ZAFIRO 330002", "sector": "HOGAR", "rubro": "TERMOTANQUES", "venta": 3640097.8509000004, "cant": 11.0, "mup": 1.3273080489487994, "margen": 24.659539223620364, "score": 4.831531176460797}, {"articulo": 16333, "desc": "PANETTI SIERRA CARNICERA AC.INOXIDABLE 1100W HD.210", "sector": "EQUIPAMIENTO", "rubro": "SIERRASCARNICERAS", "venta": 3014887.1040000003, "cant": 2.0, "mup": 1.5586403017970412, "margen": 35.84151527154498, "score": 4.699124545662568}, {"articulo": 6803, "desc": "FRIDER BATEA PREMIUM 3.00 MTS  VIDRIO CURVO 1HP", "sector": "EQUIPAMIENTO", "rubro": "BATEACARNICERA", "venta": 3517647.0588, "cant": 1.0, "mup": 1.3256294131825523, "margen": 24.564136095983702, "score": 4.663096406340376}, {"articulo": 16281, "desc": "RCA AIRE ACONDICIONADO 6500W FC SPLIT RL6500FCF", "sector": "HOGAR", "rubro": "AIRES ACONDICIONADOS", "venta": 3039451.5368999997, "cant": 3.0, "mup": 1.4799999999123525, "margen": 32.43243242843099, "score": 4.498388274345599}, {"articulo": 6802, "desc": "FRIDER BATEA PREMIUM 3.00 MTS VIDRIO RECTO 1HP", "sector": "EQUIPAMIENTO", "rubro": "BATEACARNICERA", "venta": 3356055.2036, "cant": 1.0, "mup": 1.327325900702423, "margen": 24.660552508558865, "score": 4.454578995925424}, {"articulo": 16458, "desc": "PANETTI HORNO CONVECTOR ELECTRICO CON VAPOR 4 BANDEJA HEB600", "sector": "EQUIPAMIENTO", "rubro": "HORNOS CONVECTORES", "venta": 3120259.9091999996, "cant": 4.0, "mup": 1.416272550922909, "margen": 29.392121640121218, "score": 4.4191384611451685}, {"articulo": 16024, "desc": "ESKABE TERMOTANQUE ACQUAPIU HYBRID4 1100LH ALT REC SV H1100", "sector": "HOGAR", "rubro": "TERMOTANQUES", "venta": 3210378.3222000003, "cant": 3.0, "mup": 1.3736255947975426, "margen": 27.19995872329468, "score": 4.409857832357113}, {"articulo": 16427, "desc": "SYSTEL BALANZA CLIPSE 31KG NEGRA SIN MASTIL 39300AR", "sector": "EQUIPAMIENTO", "rubro": "PESADO", "venta": 3176902.3523999997, "cant": 15.0, "mup": 1.359640139308012, "margen": 26.451126949742054, "score": 4.319443956985086}, {"articulo": 16359, "desc": "PANETTI HORNO DESHIDRATADOR 30.90GRAD 16 BANDEJAS 220V  LT16", "sector": "EQUIPAMIENTO", "rubro": "DESHIDRATADORES", "venta": 2606334.8415, "cant": 3.0, "mup": 1.6107166347639033, "margen": 37.91583333671979, "score": 4.198066884968791}];
+const PARETO_LABELS = ["VERTICALES", "CORTADORA FIAMBRES", "FREEZER", "AMASADORAS RAPIDAS", "HORNOS CONVECTORES", "HELVITRINA", "VERTICAL CONGELADOS", "TERMOTANQUES", "BATIDORAS", "BATEACARNICERA", "HORNOS PIZZEROS", "LAVARROPAS", "COCINAS", "PESADO", "COCINAS", "TELEVISORES", "HELADERACONFITERA", "AIRES ACONDICIONADOS", "HELADERAS FAMILIARES", "SIERRASCARNICERAS", "CAMARASDEFRIO", "MESASDETRABAJO", "PICADORASDECARNE", "PESADO CON TICKET", "FREIDORA AUTOMATICA", "SOBADORAS", "FREIDORAS", "CAMARA FERMENTADORA", "CALEFACCION", "PROCESADORAS"];
+const PARETO_VENTA  = [80.48, 61.29, 57.88, 45.6, 31.11, 29.85, 24.48, 23.91, 23.24, 23.19, 22.38, 15.75, 15.26, 15.07, 15.06, 14.95, 12.89, 11.99, 11.88, 10.76, 9.27, 8.27, 8.18, 7.19, 7.13, 6.71, 6.67, 6.26, 6.25, 6.13];
+const PARETO_PCT    = [11.3, 20.0, 28.2, 34.6, 39.0, 43.2, 46.6, 50.0, 53.3, 56.5, 59.7, 61.9, 64.1, 66.2, 68.3, 70.4, 72.2, 73.9, 75.6, 77.1, 78.4, 79.6, 80.8, 81.8, 82.8, 83.7, 84.7, 85.5, 86.4, 87.3];
+
+function showTab(id) {
+  document.querySelectorAll('.tab-panel').forEach(p => p.classList.remove('active'));
+  document.querySelectorAll('.tab-btn').forEach(b => b.classList.remove('active'));
+  document.getElementById('tab-' + id).classList.add('active');
+  event.currentTarget.classList.add('active');
+  if (id === 'scatter' && !window._scatterBuilt) buildScatter();
+}
+
+// ── Utils ────────────────────────────────────────────────────────────────────
+function fmtM(v) { return '$' + (v/1e6).toFixed(1) + 'M'; }
+function fmtMup(v) { return v > 0 ? v.toFixed(3) : '-'; }
+function fmtPct(v) { return v > 0 ? v.toFixed(1) + '%' : '-'; }
+function secClass(s) { return s === 'EQUIPAMIENTO' ? 'EQ' : s === 'HOGAR' ? 'HO' : 'BZ'; }
+function qClass(q) { return 'q-' + q; }
+function qLabel(q) {
+  return q === 'P1' ? 'P1 — Pauta ya' : q === 'P2' ? 'P2 — Con cautela' :
+         q === 'P3' ? 'P3 — Nicho' : 'P4 — Diferir';
+}
+function secColor(s) {
+  return s === 'EQUIPAMIENTO' ? '#00548A' : s === 'HOGAR' ? '#F1891B' : '#2e7d32';
+}
+
+// ── Pareto Chart ─────────────────────────────────────────────────────────────
+new Chart(document.getElementById('chartPareto'), {
+  type: 'bar',
+  data: {
+    labels: PARETO_LABELS.map(l => l.length > 18 ? l.substring(0,18)+'…' : l),
+    datasets: [
+      {
+        label: 'Venta (M$)',
+        data: PARETO_VENTA,
+        backgroundColor: '#00548A',
+        yAxisID: 'y',
+        order: 2,
+      },
+      {
+        label: '% Acum.',
+        data: PARETO_PCT,
+        type: 'line',
+        borderColor: '#F1891B',
+        backgroundColor: 'transparent',
+        borderWidth: 2,
+        pointRadius: 3,
+        yAxisID: 'y2',
+        order: 1,
+      }
+    ]
+  },
+  options: {
+    responsive: true, maintainAspectRatio: false,
+    plugins: { legend: { display: true, position: 'top' } },
+    scales: {
+      x: { ticks: { font: { size: 9 }, maxRotation: 45, minRotation: 30 } },
+      y: {
+        title: { display: true, text: 'Venta (M$)', font: { size: 10 } },
+        ticks: { font: { size: 9 } }
+      },
+      y2: {
+        position: 'right',
+        title: { display: true, text: '% Acum.', font: { size: 10 } },
+        min: 0, max: 100,
+        ticks: { callback: v => v + '%', font: { size: 9 } },
+        grid: { drawOnChartArea: false }
+      }
+    }
+  }
+});
+
+// ── MUP por sector ────────────────────────────────────────────────────────────
+new Chart(document.getElementById('chartMupSector'), {
+  type: 'bar',
+  data: {
+    labels: ['EQUIPAMIENTO\n25.1%', 'HOGAR\n29.4%', 'BAZAR\n37.3%'],
+    datasets: [{
+      label: 'MUP ponderado',
+      data: [1.3359, 1.4165, 1.5949],
+      backgroundColor: ['#00548A', '#F1891B', '#2e7d32'],
+      borderRadius: 6,
+    }]
+  },
+  options: {
+    responsive: true, maintainAspectRatio: false,
+    plugins: {
+      legend: { display: false },
+      tooltip: {
+        callbacks: {
+          label: ctx => {
+            const mup = ctx.parsed.y;
+            const margen = ((1 - 1/mup)*100).toFixed(1);
+            return ['MUP: ' + mup.toFixed(3), 'Margen: ' + margen + '%'];
+          }
+        }
+      }
+    },
+    scales: {
+      y: { min: 1.0, title: { display: true, text: 'MUP' }, ticks: { font: { size: 10 } } },
+      x: { ticks: { font: { size: 10 } } }
+    }
+  }
+});
+
+// ── Tabla cuadrantes ─────────────────────────────────────────────────────────
+(function() {
+  const top40 = RUBROS.slice(0, 40);
+  const tbody = document.getElementById('tbl-cuad');
+  tbody.innerHTML = top40.map(r => {
+    const mupBar = r.mup > 0 ? `<div class="mup-bar-wrap">
+      <div class="mup-bar"><div class="mup-bar-fill" style="width:${Math.min((r.mup - 1) * 200, 100)}%;background:${secColor(r.sector)}"></div></div>
+      <span class="mup-val">${fmtMup(r.mup)}</span></div>` : '-';
+    return `<tr>
+      <td><span class="sec-badge sec-${secClass(r.sector)}">${r.sector.substring(0,3)}</span></td>
+      <td>${r.rubro}</td>
+      <td style="font-weight:700">${fmtM(r.venta_mtd)}</td>
+      <td>${r.pct.toFixed(1)}%</td>
+      <td>${mupBar}</td>
+      <td style="font-weight:700;color:${r.margen>30?'#2e7d32':r.margen>20?'#e65100':'#666'}">${fmtPct(r.margen)}</td>
+      <td><span class="q-tag ${qClass(r.cuadrante)}">${qLabel(r.cuadrante)}</span></td>
+    </tr>`;
+  }).join('');
+})();
+
+// ── Tabla rubros ─────────────────────────────────────────────────────────────
+function renderRubros() {
+  const sec = document.getElementById('sel-sector').value;
+  const ord = document.getElementById('sel-orden').value;
+  const bq  = document.getElementById('inp-buscar').value.toLowerCase();
+  let data = RUBROS.filter(r =>
+    (!sec || r.sector === sec) &&
+    (!bq || r.rubro.toLowerCase().includes(bq))
+  );
+  data.sort((a,b) => b[ord] - a[ord]);
+  const total = RUBROS.reduce((s,r) => s + r.venta_mtd, 0);
+  const tbody = document.getElementById('tbl-rubros');
+  tbody.innerHTML = data.map((r, i) => {
+    const mupBar = r.mup > 0 ? `<div class="mup-bar-wrap">
+      <div class="mup-bar"><div class="mup-bar-fill" style="width:${Math.min((r.mup-1)*200,100)}%;background:${secColor(r.sector)}"></div></div>
+      <span class="mup-val">${fmtMup(r.mup)}</span></div>` : '-';
+    return `<tr>
+      <td style="color:#999;font-size:0.75rem">${i+1}</td>
+      <td><span class="sec-badge sec-${secClass(r.sector)}">${r.sector.substring(0,3)}</span></td>
+      <td>${r.rubro}</td>
+      <td style="font-weight:700">${fmtM(r.venta_mtd)}</td>
+      <td>${(r.venta_mtd/total*100).toFixed(1)}%</td>
+      <td>${r.cant_mtd.toFixed(0)} u</td>
+      <td>${mupBar}</td>
+      <td style="font-weight:700;color:${r.margen>30?'#2e7d32':r.margen>20?'#e65100':'#666'}">${fmtPct(r.margen)}</td>
+      <td><span class="q-tag ${qClass(r.cuadrante)}">${r.cuadrante}</span></td>
+    </tr>`;
+  }).join('');
+}
+renderRubros();
+
+// ── Scatter ───────────────────────────────────────────────────────────────────
+function buildScatter() {
+  window._scatterBuilt = true;
+  const colors = {'EQUIPAMIENTO': '#00548A', 'HOGAR': '#F1891B', 'BAZAR': '#2e7d32'};
+  const datasets = ['EQUIPAMIENTO','HOGAR','BAZAR'].map(sec => {
+    const pts = RUBROS.filter(r => r.sector === sec && r.mup > 0 && r.venta_mtd > 0).map(r => ({
+      x: r.venta_mtd/1e6, y: r.mup, r: Math.sqrt(r.cant_mtd + 1) * 3 + 5,
+      label: r.rubro, sector: sec, margen: r.margen, cuad: r.cuadrante
+    }));
+    return {
+      label: sec, data: pts,
+      backgroundColor: colors[sec] + 'BB',
+      borderColor: colors[sec],
+      borderWidth: 1,
+    };
+  });
+  new Chart(document.getElementById('chartScatter'), {
+    type: 'bubble',
+    data: { datasets },
+    options: {
+      responsive: true, maintainAspectRatio: false,
+      plugins: {
+        tooltip: {
+          callbacks: {
+            label: ctx => {
+              const d = ctx.raw;
+              return [${`${d.label}`}, `Venta: ${d.x.toFixed(1)}M`, `MUP: ${d.y.toFixed(3)}`, `Margen: ${d.margen.toFixed(1)}%`, `Cuad: ${d.cuad}`];
+            }
+          }
+        },
+        legend: { position: 'top' }
+      },
+      scales: {
+        x: { title: { display: true, text: 'Venta Neta MTD (M$)' } },
+        y: { min: 1.0, title: { display: true, text: 'MUP' } }
+      }
+    }
+  });
+}
+
+// ── Productos ────────────────────────────────────────────────────────────────
+function scoreClass(s) { return s > 30 ? 'score-hi' : s > 10 ? 'score-md' : 'score-lo'; }
+function renderProds() {
+  const sec = document.getElementById('sel-sec-prod').value;
+  const bq  = document.getElementById('inp-prod').value.toLowerCase();
+  let data = PRODS.filter(p =>
+    (!sec || p.sector === sec) &&
+    (!bq || p.desc.toLowerCase().includes(bq) || p.rubro.toLowerCase().includes(bq))
+  );
+  const wrap = document.getElementById('prods-wrap');
+  wrap.innerHTML = data.map((p, i) => {
+    const c = p.sector === 'HOGAR' ? 'ho' : p.sector === 'BAZAR' ? 'bz' : '';
+    return `<div class="prod-card ${c}">
+      <div class="pname">#${i+1} ${p.desc}</div>
+      <div class="prub"><span class="sec-badge sec-${secClass(p.sector)}">${p.sector.substring(0,3)}</span> &nbsp;${p.rubro}</div>
+      <div class="prod-stats">
+        <div class="prod-stat">
+          <div class="sv">${fmtM(p.venta)}</div>
+          <div class="sl">Venta MTD</div>
+        </div>
+        <div class="prod-stat">
+          <div class="sv orange">${fmtMup(p.mup)}</div>
+          <div class="sl">MUP</div>
+        </div>
+        <div class="prod-stat">
+          <div class="sv green">${fmtPct(p.margen)}</div>
+          <div class="sl">Margen</div>
+        </div>
+        <div class="prod-stat">
+          <div class="sv">${p.cant.toFixed(0)} u</div>
+          <div class="sl">Unidades</div>
+        </div>
+      </div>
+      <span class="score-badge ${scoreClass(p.score)}">[Score ${p.score.toFixed(1)}]</span>
+    </div>`;
+  }).join('');
+}
+renderProds();
+</script>
+</body>
+</html>
