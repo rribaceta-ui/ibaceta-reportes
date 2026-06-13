@@ -1,0 +1,201 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width,initial-scale=1.0">
+<title>Gasto vs Venta por Región — Meta Ads</title>
+<link href="https://fonts.googleapis.com/css2?family=Montserrat:wght@400;600;700;800&family=Open+Sans:wght@400;600&display=swap" rel="stylesheet">
+<style>
+*{box-sizing:border-box;margin:0;padding:0}
+body{font-family:'Open Sans',sans-serif;background:#F0F2F5;color:#333}
+header{background:#00548A;padding:14px 26px;display:flex;justify-content:space-between;align-items:center;flex-wrap:wrap;gap:8px}
+header h1{font-family:'Montserrat',sans-serif;font-size:1rem;font-weight:800;color:#fff}
+header .sub{font-size:.72rem;color:rgba(255,255,255,.7);margin-top:2px}
+.pbd{background:#F1891B;color:#fff;padding:4px 13px;border-radius:18px;font-family:'Montserrat',sans-serif;font-size:.73rem;font-weight:700}
+.wrap{max-width:1300px;margin:0 auto;padding:16px 14px}
+.alarma{background:linear-gradient(135deg,#c62828,#8e0000);color:#fff;border-radius:10px;padding:20px 22px;margin-bottom:16px;box-shadow:0 3px 12px rgba(198,40,40,.3)}
+.alarma h2{font-family:'Montserrat',sans-serif;font-size:1.15rem;font-weight:800;margin-bottom:8px}
+.alarma p{font-size:.85rem;line-height:1.6;opacity:.95}
+.alarma .big{font-family:'Montserrat',sans-serif;font-size:2.4rem;font-weight:800;line-height:1}
+.disc{background:#fff8e1;border-left:4px solid #e65100;border-radius:6px;padding:11px 14px;margin-bottom:16px;font-size:.77rem;color:#666;line-height:1.5}
+.card{background:#fff;border-radius:8px;box-shadow:0 1px 6px rgba(0,0,0,.08);padding:16px;margin-bottom:14px}
+.card h3{font-family:'Montserrat',sans-serif;font-size:.85rem;font-weight:700;color:#00548A;margin-bottom:12px;text-transform:uppercase;letter-spacing:.4px;border-bottom:2px solid #F1891B;padding-bottom:6px}
+table{width:100%;border-collapse:collapse}
+thead th{background:#00548A;color:#fff;padding:9px 12px;text-align:left;font-family:'Montserrat',sans-serif;font-weight:600;font-size:.74rem}
+tbody tr:hover td{background:#e8f1f9!important}
+td{border-bottom:1px solid #eaeef2;vertical-align:middle}
+.nota{font-size:.71rem;color:#888;margin-top:8px;line-height:1.5}
+.acc{background:#e8f5e9;border-left:4px solid #2e7d32;border-radius:7px;padding:13px 15px;margin-bottom:9px}
+.acc .t{font-family:'Montserrat',sans-serif;font-weight:700;font-size:.84rem;color:#2e7d32;margin-bottom:3px}
+.acc .d{font-size:.79rem;color:#444;line-height:1.5}
+footer{background:#333;color:#bbb;text-align:center;padding:10px;font-size:.7rem;margin-top:20px}
+</style>
+</head>
+<body>
+<header>
+  <div>
+    <div class="sub">El Cristorante S.A. — Cruce Inversión vs Retorno Geográfico</div>
+    <h1>Gasto Publicitario vs Venta Real por Región — 13 May al 11 Jun 2026</h1>
+  </div>
+  <span class="pbd">Hallazgo crítico</span>
+</header>
+<div class="wrap">
+
+<div class="alarma">
+  <div style="display:flex;align-items:center;gap:20px;flex-wrap:wrap">
+    <div class="big">36,2%</div>
+    <div style="flex:1;min-width:240px">
+      <h2>🔴 Tierra del Fuego: el 36% del presupuesto, cero ventas</h2>
+      <p>La provincia que <strong>más gasto publicitario recibe</strong> ($4.41M en 30 días) <strong>no registró una sola venta</strong> en ningún canal del ERP — ni web, ni salón, ni mayorista. Es, por lejos, el mayor desperdicio de inversión detectado. Requiere investigación inmediata: ¿qué campaña o conjunto de anuncios está configurado para entregar en Tierra del Fuego?</p>
+    </div>
+  </div>
+</div>
+
+<div class="disc">
+  <strong>⚠️ Sobre los datos:</strong> El <strong>gasto por región</strong> es de la cuenta completa (21 campañas, $12.20M) e incluye Salón/Calle, Branding y Hot Sale. La <strong>venta</strong> es del canal WEB del ERP ($86.52M). Por eso San Juan y San Luis (con salón físico) muestran gasto alto y venta WEB baja: sus ventas se registran en el canal Salón. <strong>Tierra del Fuego no tiene esa explicación</strong> — no hay salón ni ventas de ningún tipo. (*) % de San Juan y San Luis estimados.
+</div>
+
+<div class="card">
+  <h3>Gasto publicitario vs venta WEB por provincia</h3>
+  <table>
+    <thead><tr>
+      <th>Provincia</th>
+      <th>💸 Gasto publicitario</th>
+      <th>💰 Venta WEB (ERP)</th>
+      <th style="text-align:center">Retorno v/g</th>
+      <th>Diagnóstico</th>
+    </tr></thead>
+    <tbody><tr style="background:#fdf0f0">
+  <td style="padding:10px 12px">
+    <div style="font-weight:700;font-size:.86rem">Tierra del Fuego</div>
+    <div><span style="background:#c628281a;color:#c62828;padding:1px 8px;border-radius:9px;font-size:.66rem;font-weight:700">🔴 CRÍTICO</span></div>
+  </td>
+  <td style="padding:10px 12px">
+    <div style="font-size:.84rem;font-weight:700;color:#9c27b0">36.2% · $4.41M</div>
+    <div style="height:6px;background:#eee;border-radius:3px;margin-top:3px;overflow:hidden"><div style="width:100%;height:100%;background:#9c27b0;opacity:.7;border-radius:3px"></div></div>
+  </td>
+  <td style="padding:10px 12px">
+    <div style="font-size:.84rem;font-weight:700;color:#00548A">0.0% · $0.00M</div>
+    <div style="height:6px;background:#eee;border-radius:3px;margin-top:3px;overflow:hidden"><div style="width:0%;height:100%;background:#00548A;opacity:.7;border-radius:3px"></div></div>
+  </td>
+  <td style="padding:10px 12px;text-align:center;font-weight:800;font-size:.9rem;color:#c62828">$0</td>
+  <td style="padding:10px 12px;font-size:.76rem;color:#555">Cero ventas en TODOS los canales del ERP. El 36,2% del presupuesto ($4,4M) va a una provincia sin una sola venta. No hay salón ni clientes web. Investigar YA qué campaña/conjunto está entregando ahí.</td>
+</tr><tr style="">
+  <td style="padding:10px 12px">
+    <div style="font-weight:700;font-size:.86rem">Mendoza</div>
+    <div><span style="background:#2e7d321a;color:#2e7d32;padding:1px 8px;border-radius:9px;font-size:.66rem;font-weight:700">🟢 Sub-invertido</span></div>
+  </td>
+  <td style="padding:10px 12px">
+    <div style="font-size:.84rem;font-weight:700;color:#9c27b0">24.6% · $3.00M</div>
+    <div style="height:6px;background:#eee;border-radius:3px;margin-top:3px;overflow:hidden"><div style="width:67%;height:100%;background:#9c27b0;opacity:.7;border-radius:3px"></div></div>
+  </td>
+  <td style="padding:10px 12px">
+    <div style="font-size:.84rem;font-weight:700;color:#00548A">53.2% · $45.99M</div>
+    <div style="height:6px;background:#eee;border-radius:3px;margin-top:3px;overflow:hidden"><div style="width:100%;height:100%;background:#00548A;opacity:.7;border-radius:3px"></div></div>
+  </td>
+  <td style="padding:10px 12px;text-align:center;font-weight:800;font-size:.9rem;color:#2e7d32">15.3×</td>
+  <td style="padding:10px 12px;font-size:.76rem;color:#555">Genera el 53% de la venta WEB pero recibe solo 24,6% del gasto. El mercado core está sub-financiado respecto a lo que devuelve. Debería recibir más, no menos.</td>
+</tr><tr style="#f7fafd">
+  <td style="padding:10px 12px">
+    <div style="font-weight:700;font-size:.86rem">San Juan *</div>
+    <div><span style="background:#e651001a;color:#e65100;padding:1px 8px;border-radius:9px;font-size:.66rem;font-weight:700">🟡 Salón</span></div>
+  </td>
+  <td style="padding:10px 12px">
+    <div style="font-size:.84rem;font-weight:700;color:#9c27b0">12.0% · $1.46M</div>
+    <div style="height:6px;background:#eee;border-radius:3px;margin-top:3px;overflow:hidden"><div style="width:33%;height:100%;background:#9c27b0;opacity:.7;border-radius:3px"></div></div>
+  </td>
+  <td style="padding:10px 12px">
+    <div style="font-size:.84rem;font-weight:700;color:#00548A">0.3% · $0.25M</div>
+    <div style="height:6px;background:#eee;border-radius:3px;margin-top:3px;overflow:hidden"><div style="width:0%;height:100%;background:#00548A;opacity:.7;border-radius:3px"></div></div>
+  </td>
+  <td style="padding:10px 12px;text-align:center;font-weight:800;font-size:.9rem;color:#c62828">0.2×</td>
+  <td style="padding:10px 12px;font-size:.76rem;color:#555">Recibe ~12% del gasto. Tiene salón físico — sus ventas se registran en canal Salón, no WEB (por eso WEB muestra solo $250k). El gasto puede ser de campañas de Calle, no necesariamente mal.</td>
+</tr><tr style="">
+  <td style="padding:10px 12px">
+    <div style="font-weight:700;font-size:.86rem">San Luis *</div>
+    <div><span style="background:#e651001a;color:#e65100;padding:1px 8px;border-radius:9px;font-size:.66rem;font-weight:700">🟡 Salón</span></div>
+  </td>
+  <td style="padding:10px 12px">
+    <div style="font-size:.84rem;font-weight:700;color:#9c27b0">10.4% · $1.27M</div>
+    <div style="height:6px;background:#eee;border-radius:3px;margin-top:3px;overflow:hidden"><div style="width:28%;height:100%;background:#9c27b0;opacity:.7;border-radius:3px"></div></div>
+  </td>
+  <td style="padding:10px 12px">
+    <div style="font-size:.84rem;font-weight:700;color:#00548A">6.6% · $5.75M</div>
+    <div style="height:6px;background:#eee;border-radius:3px;margin-top:3px;overflow:hidden"><div style="width:12%;height:100%;background:#00548A;opacity:.7;border-radius:3px"></div></div>
+  </td>
+  <td style="padding:10px 12px;text-align:center;font-weight:800;font-size:.9rem;color:#e65100">4.5×</td>
+  <td style="padding:10px 12px;font-size:.76rem;color:#555">Recibe ~10% del gasto. Tiene salón físico. Igual que San Juan, parte del gasto es de campañas locales de Calle. Validar contra ventas de canal Salón.</td>
+</tr><tr style="#f7fafd">
+  <td style="padding:10px 12px">
+    <div style="font-weight:700;font-size:.86rem">Córdoba</div>
+    <div><span style="background:#2e7d321a;color:#2e7d32;padding:1px 8px;border-radius:9px;font-size:.66rem;font-weight:700">🟢 Sub-invertido</span></div>
+  </td>
+  <td style="padding:10px 12px">
+    <div style="font-size:.84rem;font-weight:700;color:#9c27b0">6.9% · $0.84M</div>
+    <div style="height:6px;background:#eee;border-radius:3px;margin-top:3px;overflow:hidden"><div style="width:19%;height:100%;background:#9c27b0;opacity:.7;border-radius:3px"></div></div>
+  </td>
+  <td style="padding:10px 12px">
+    <div style="font-size:.84rem;font-weight:700;color:#00548A">14.2% · $12.28M</div>
+    <div style="height:6px;background:#eee;border-radius:3px;margin-top:3px;overflow:hidden"><div style="width:26%;height:100%;background:#00548A;opacity:.7;border-radius:3px"></div></div>
+  </td>
+  <td style="padding:10px 12px;text-align:center;font-weight:800;font-size:.9rem;color:#2e7d32">14.6×</td>
+  <td style="padding:10px 12px;font-size:.76rem;color:#555">Genera 14,2% de la venta WEB con solo 6,9% del gasto. Mercado externo más rentable y sin local físico. Margen claro para aumentar inversión.</td>
+</tr><tr style="">
+  <td style="padding:10px 12px">
+    <div style="font-weight:700;font-size:.86rem">Buenos Aires+CABA</div>
+    <div><span style="background:#1565c01a;color:#1565c0;padding:1px 8px;border-radius:9px;font-size:.66rem;font-weight:700">🟡 Mínimo</span></div>
+  </td>
+  <td style="padding:10px 12px">
+    <div style="font-size:.84rem;font-weight:700;color:#9c27b0">1.1% · $0.13M</div>
+    <div style="height:6px;background:#eee;border-radius:3px;margin-top:3px;overflow:hidden"><div style="width:3%;height:100%;background:#9c27b0;opacity:.7;border-radius:3px"></div></div>
+  </td>
+  <td style="padding:10px 12px">
+    <div style="font-size:.84rem;font-weight:700;color:#00548A">6.7% · $5.81M</div>
+    <div style="height:6px;background:#eee;border-radius:3px;margin-top:3px;overflow:hidden"><div style="width:12%;height:100%;background:#00548A;opacity:.7;border-radius:3px"></div></div>
+  </td>
+  <td style="padding:10px 12px;text-align:center;font-weight:800;font-size:.9rem;color:#2e7d32">43.3×</td>
+  <td style="padding:10px 12px;font-size:.76rem;color:#555">Solo 1,1% del gasto. Genera 6,7% de la venta WEB. El mercado más grande del país está casi sin tocar — oportunidad de exploración.</td>
+</tr><tr style="#f7fafd">
+  <td style="padding:10px 12px">
+    <div style="font-weight:700;font-size:.86rem">Otras</div>
+    <div><span style="background:#9e9e9e1a;color:#9e9e9e;padding:1px 8px;border-radius:9px;font-size:.66rem;font-weight:700">—</span></div>
+  </td>
+  <td style="padding:10px 12px">
+    <div style="font-size:.84rem;font-weight:700;color:#9c27b0">8.8% · $1.07M</div>
+    <div style="height:6px;background:#eee;border-radius:3px;margin-top:3px;overflow:hidden"><div style="width:24%;height:100%;background:#9c27b0;opacity:.7;border-radius:3px"></div></div>
+  </td>
+  <td style="padding:10px 12px">
+    <div style="font-size:.84rem;font-weight:700;color:#00548A">19.0% · $16.44M</div>
+    <div style="height:6px;background:#eee;border-radius:3px;margin-top:3px;overflow:hidden"><div style="width:35%;height:100%;background:#00548A;opacity:.7;border-radius:3px"></div></div>
+  </td>
+  <td style="padding:10px 12px;text-align:center;font-weight:800;font-size:.9rem;color:#2e7d32">15.3×</td>
+  <td style="padding:10px 12px;font-size:.76rem;color:#555">Resto del país (Río Negro, Chubut, Neuquén, etc.). Río Negro y Chubut generaron venta pero concentrada en pocos clientes — no es audiencia estable.</td>
+</tr></tbody>
+  </table>
+  <p class="nota">Retorno v/g = Venta WEB ÷ Gasto publicitario. Bajo o $0 = inversión sin retorno medible. (*) San Juan / San Luis: % de gasto estimado.</p>
+</div>
+
+<div class="card">
+  <h3>Acciones recomendadas</h3>
+  <div class="acc">
+    <div class="t">1. URGENTE — Auditar Tierra del Fuego</div>
+    <div class="d">Entrar a Business Manager → desglose por región a nivel <strong>conjunto de anuncios</strong> → identificar qué adset entrega en TdF. Probable causa: una campaña con segmentación "Argentina" mal configurada, o un conjunto sin límite geográfico. Corregir libera ~$4.41M/mes para reasignar.</div>
+  </div>
+  <div class="acc">
+    <div class="t">2. Reforzar Mendoza y Córdoba</div>
+    <div class="d">Mendoza (53% de venta / 24,6% gasto) y Córdoba (14,2% venta / 6,9% gasto) están sub-invertidas respecto a lo que devuelven. El presupuesto liberado de TdF debería ir mayoritariamente acá.</div>
+  </div>
+  <div class="acc">
+    <div class="t">3. Separar campañas WEB de campañas Salón en el targeting geográfico</div>
+    <div class="d">Las campañas WEB deben tener targeting nacional inteligente (Cuyo + Córdoba + exploración). Las de Salón/Calle deben restringirse al radio de cada local. Hoy parecen mezcladas, lo que explica parte del descontrol geográfico.</div>
+  </div>
+  <div class="acc">
+    <div class="t">4. Explorar Buenos Aires + CABA</div>
+    <div class="d">Solo 1,1% del gasto pero ya genera 6,7% de la venta WEB sin esfuerzo. El mercado más grande del país está prácticamente sin pautar — vale una campaña de exploración con presupuesto acotado.</div>
+  </div>
+</div>
+
+</div>
+<footer>El Cristorante S.A. — IBACETA · Gasto vs Venta Geográfico · May 13 – Jun 11 2026</footer>
+</body>
+</html>
