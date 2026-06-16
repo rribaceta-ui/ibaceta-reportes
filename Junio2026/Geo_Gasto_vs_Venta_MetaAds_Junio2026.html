@@ -1,6 +1,6 @@
 <!DOCTYPE html><html lang="es"><head>
 <meta charset="UTF-8"><meta name="viewport" content="width=device-width,initial-scale=1.0">
-<title>Gasto vs Venta por Región — Meta Ads (API)</title>
+<title>Gasto vs Venta por Región y Canal — Meta</title>
 <link href="https://fonts.googleapis.com/css2?family=Montserrat:wght@400;600;700;800&family=Open+Sans:wght@400;600&display=swap" rel="stylesheet">
 <style>
 *{box-sizing:border-box;margin:0;padding:0}
@@ -10,129 +10,139 @@ header h1{font-family:'Montserrat',sans-serif;font-size:1rem;font-weight:800;col
 header .sub{font-size:.72rem;color:rgba(255,255,255,.7);margin-top:2px}
 .pbd{background:#2e7d32;color:#fff;padding:4px 13px;border-radius:18px;font-size:.73rem;font-weight:700}
 .wrap{max-width:1140px;margin:0 auto;padding:16px 14px}
-.ok{background:linear-gradient(135deg,#2e7d32,#43a047);color:#fff;border-radius:10px;padding:18px 22px;margin-bottom:16px}
-.ok h2{font-family:'Montserrat',sans-serif;font-size:1.05rem;font-weight:800;margin-bottom:6px}
-.ok p{font-size:.84rem;line-height:1.6;opacity:.95}
+.intro{background:#fff;border-radius:8px;box-shadow:0 1px 6px rgba(0,0,0,.08);padding:14px 18px;margin-bottom:14px;border-left:5px solid #F1891B;font-size:.81rem;color:#555;line-height:1.6}
 .card{background:#fff;border-radius:8px;box-shadow:0 1px 6px rgba(0,0,0,.08);padding:16px;margin-bottom:14px}
-.card h3{font-family:'Montserrat',sans-serif;font-size:.85rem;font-weight:700;color:#00548A;margin-bottom:12px;text-transform:uppercase;letter-spacing:.4px;border-bottom:2px solid #F1891B;padding-bottom:6px}
+.card h3{font-family:'Montserrat',sans-serif;font-size:.85rem;font-weight:700;margin-bottom:12px;text-transform:uppercase;letter-spacing:.4px;border-bottom:2px solid;padding-bottom:6px}
 table{width:100%;border-collapse:collapse}
-thead th{background:#00548A;color:#fff;padding:9px 12px;text-align:left;font-family:'Montserrat',sans-serif;font-weight:600;font-size:.74rem}
+thead th{background:#00548A;color:#fff;padding:9px 11px;text-align:left;font-family:'Montserrat',sans-serif;font-weight:600;font-size:.73rem}
 td{border-bottom:1px solid #eaeef2}
 .nota{font-size:.72rem;color:#888;margin-top:8px;line-height:1.5}
 footer{background:#333;color:#bbb;text-align:center;padding:10px;font-size:.7rem;margin-top:20px}
 </style></head><body>
-<header><div><div class="sub">El Cristorante S.A. — Cruce inversión vs venta geográfica (datos API Meta)</div>
-<h1>Gasto Publicitario vs Venta por Región — 13 May al 11 Jun 2026</h1></div>
-<span class="pbd">Datos reales API</span></header>
+<header><div><div class="sub">El Cristorante S.A. — Cruce inversión vs venta, separado por canal</div>
+<h1>Gasto vs Venta por Región y Canal — 2026-05-18 a 2026-06-16</h1></div>
+<span class="pbd">WEB y Salón por separado</span></header>
 <div class="wrap">
 
-<div class="ok">
-  <h2>✅ La inversión geográfica está alineada con la venta</h2>
-  <p>Con los datos reales de la API de Meta, el <strong>85% del gasto se concentra en Cuyo + Córdoba</strong> — exactamente donde se generan las ventas. No hay desperdicio geográfico. (Corrige una lectura previa de un export manual que sugería gasto en Tierra del Fuego: la API muestra que TdF recibió prácticamente $0.)</p>
+<div class="intro">
+  <strong>Corrección importante:</strong> ahora el gasto se compara con la venta <strong>del mismo canal</strong>. El gasto de campañas WEB se cruza con la venta WEB; el de campañas de Salón con la venta de los salones. Antes se mezclaba (gasto total vs solo venta web), lo que hacía ver "sobre-invertido" a San Juan cuando en realidad su gasto de salón genera venta de salón.
 </div>
 
 <div class="card">
-  <h3>Gasto (API) vs venta WEB (ERP) por provincia</h3>
-  <table>
-    <thead><tr><th>Provincia</th><th>💸 Gasto publicitario</th><th>💰 Venta WEB</th><th style="text-align:center">ROI v/g</th><th style="text-align:center">Diagnóstico</th></tr></thead>
-    <tbody><tr style="background:#f7fafd">
-      <td style="padding:10px 12px;font-weight:700;font-size:.85rem">Mendoza</td>
-      <td style="padding:10px 12px">
-        <div style="font-size:.82rem;font-weight:700;color:#9c27b0">38% · $4.67M</div>
-        <div style="height:6px;background:#eee;border-radius:3px;margin-top:3px;overflow:hidden"><div style="width:100%;height:100%;background:#9c27b0;opacity:.7;border-radius:3px"></div></div>
-      </td>
-      <td style="padding:10px 12px">
-        <div style="font-size:.82rem;font-weight:700;color:#00548A">53% · $45.99M</div>
-        <div style="height:6px;background:#eee;border-radius:3px;margin-top:3px;overflow:hidden"><div style="width:100%;height:100%;background:#00548A;opacity:.7;border-radius:3px"></div></div>
-      </td>
-      <td style="padding:10px 12px;text-align:center;font-weight:800;font-size:.88rem;color:#00548A">10×</td>
-      <td style="padding:10px 12px;text-align:center;font-size:.74rem;color:#2e7d32;font-weight:700">🟢 sub-invertido</td>
-    </tr><tr style="">
-      <td style="padding:10px 12px;font-weight:700;font-size:.85rem">San Juan</td>
-      <td style="padding:10px 12px">
-        <div style="font-size:.82rem;font-weight:700;color:#9c27b0">19% · $2.37M</div>
-        <div style="height:6px;background:#eee;border-radius:3px;margin-top:3px;overflow:hidden"><div style="width:50%;height:100%;background:#9c27b0;opacity:.7;border-radius:3px"></div></div>
-      </td>
-      <td style="padding:10px 12px">
-        <div style="font-size:.82rem;font-weight:700;color:#00548A">0% · $0.25M</div>
-        <div style="height:6px;background:#eee;border-radius:3px;margin-top:3px;overflow:hidden"><div style="width:0%;height:100%;background:#00548A;opacity:.7;border-radius:3px"></div></div>
-      </td>
-      <td style="padding:10px 12px;text-align:center;font-weight:800;font-size:.88rem;color:#00548A">0×</td>
-      <td style="padding:10px 12px;text-align:center;font-size:.74rem;color:#e65100;font-weight:700">🟡 sobre-invertido</td>
-    </tr><tr style="background:#f7fafd">
-      <td style="padding:10px 12px;font-weight:700;font-size:.85rem">San Luis</td>
-      <td style="padding:10px 12px">
-        <div style="font-size:.82rem;font-weight:700;color:#9c27b0">16% · $1.97M</div>
-        <div style="height:6px;background:#eee;border-radius:3px;margin-top:3px;overflow:hidden"><div style="width:42%;height:100%;background:#9c27b0;opacity:.7;border-radius:3px"></div></div>
-      </td>
-      <td style="padding:10px 12px">
-        <div style="font-size:.82rem;font-weight:700;color:#00548A">7% · $5.75M</div>
-        <div style="height:6px;background:#eee;border-radius:3px;margin-top:3px;overflow:hidden"><div style="width:12%;height:100%;background:#00548A;opacity:.7;border-radius:3px"></div></div>
-      </td>
-      <td style="padding:10px 12px;text-align:center;font-weight:800;font-size:.88rem;color:#00548A">3×</td>
-      <td style="padding:10px 12px;text-align:center;font-size:.74rem;color:#e65100;font-weight:700">🟡 sobre-invertido</td>
-    </tr><tr style="">
-      <td style="padding:10px 12px;font-weight:700;font-size:.85rem">Córdoba</td>
-      <td style="padding:10px 12px">
-        <div style="font-size:.82rem;font-weight:700;color:#9c27b0">11% · $1.31M</div>
-        <div style="height:6px;background:#eee;border-radius:3px;margin-top:3px;overflow:hidden"><div style="width:28%;height:100%;background:#9c27b0;opacity:.7;border-radius:3px"></div></div>
-      </td>
-      <td style="padding:10px 12px">
-        <div style="font-size:.82rem;font-weight:700;color:#00548A">14% · $12.28M</div>
-        <div style="height:6px;background:#eee;border-radius:3px;margin-top:3px;overflow:hidden"><div style="width:26%;height:100%;background:#00548A;opacity:.7;border-radius:3px"></div></div>
-      </td>
-      <td style="padding:10px 12px;text-align:center;font-weight:800;font-size:.88rem;color:#00548A">9×</td>
-      <td style="padding:10px 12px;text-align:center;font-size:.74rem;color:#2e7d32;font-weight:700">✅ alineado</td>
-    </tr><tr style="background:#f7fafd">
-      <td style="padding:10px 12px;font-weight:700;font-size:.85rem">Buenos Aires+CABA</td>
-      <td style="padding:10px 12px">
-        <div style="font-size:.82rem;font-weight:700;color:#9c27b0">2% · $0.22M</div>
-        <div style="height:6px;background:#eee;border-radius:3px;margin-top:3px;overflow:hidden"><div style="width:4%;height:100%;background:#9c27b0;opacity:.7;border-radius:3px"></div></div>
-      </td>
-      <td style="padding:10px 12px">
-        <div style="font-size:.82rem;font-weight:700;color:#00548A">7% · $5.81M</div>
-        <div style="height:6px;background:#eee;border-radius:3px;margin-top:3px;overflow:hidden"><div style="width:12%;height:100%;background:#00548A;opacity:.7;border-radius:3px"></div></div>
-      </td>
-      <td style="padding:10px 12px;text-align:center;font-weight:800;font-size:.88rem;color:#00548A">27×</td>
-      <td style="padding:10px 12px;text-align:center;font-size:.74rem;color:#2e7d32;font-weight:700">✅ alineado</td>
-    </tr><tr style="">
-      <td style="padding:10px 12px;font-weight:700;font-size:.85rem">Santa Fe</td>
-      <td style="padding:10px 12px">
-        <div style="font-size:.82rem;font-weight:700;color:#9c27b0">3% · $0.36M</div>
-        <div style="height:6px;background:#eee;border-radius:3px;margin-top:3px;overflow:hidden"><div style="width:7%;height:100%;background:#9c27b0;opacity:.7;border-radius:3px"></div></div>
-      </td>
-      <td style="padding:10px 12px">
-        <div style="font-size:.82rem;font-weight:700;color:#00548A">1% · $1.20M</div>
-        <div style="height:6px;background:#eee;border-radius:3px;margin-top:3px;overflow:hidden"><div style="width:2%;height:100%;background:#00548A;opacity:.7;border-radius:3px"></div></div>
-      </td>
-      <td style="padding:10px 12px;text-align:center;font-weight:800;font-size:.88rem;color:#00548A">3×</td>
-      <td style="padding:10px 12px;text-align:center;font-size:.74rem;color:#2e7d32;font-weight:700">✅ alineado</td>
-    </tr><tr style="background:#f7fafd">
-      <td style="padding:10px 12px;font-weight:700;font-size:.85rem">Otras</td>
-      <td style="padding:10px 12px">
-        <div style="font-size:.82rem;font-weight:700;color:#9c27b0">11% · $1.29M</div>
-        <div style="height:6px;background:#eee;border-radius:3px;margin-top:3px;overflow:hidden"><div style="width:27%;height:100%;background:#9c27b0;opacity:.7;border-radius:3px"></div></div>
-      </td>
-      <td style="padding:10px 12px">
-        <div style="font-size:.82rem;font-weight:700;color:#00548A">18% · $15.24M</div>
-        <div style="height:6px;background:#eee;border-radius:3px;margin-top:3px;overflow:hidden"><div style="width:33%;height:100%;background:#00548A;opacity:.7;border-radius:3px"></div></div>
-      </td>
-      <td style="padding:10px 12px;text-align:center;font-weight:800;font-size:.88rem;color:#00548A">12×</td>
-      <td style="padding:10px 12px;text-align:center;font-size:.74rem;color:#2e7d32;font-weight:700">🟢 sub-invertido</td>
-    </tr></tbody>
-  </table>
-  <p class="nota">Gasto = desglose por región de la API (cuenta completa). Venta = canal WEB del ERP por PROVINCIA. ROI v/g = venta WEB ÷ gasto. Diagnóstico: alineado si la diferencia gasto%–venta% es chica.</p>
-</div>
-
+      <h3 style="border-color:#F1891B;color:#F1891B">WEB — gasto $5.28M · venta $86.08M</h3>
+      <table><thead><tr><th>Provincia</th><th>💸 Gasto WEB</th><th>💰 Venta WEB</th><th style="text-align:center">ROI</th><th style="text-align:center">Diagnóstico</th></tr></thead>
+      <tbody><tr style="background:#f7fafd">
+          <td style="padding:9px 11px;font-weight:700;font-size:.82rem">Mendoza</td>
+          <td style="padding:9px 11px"><div style="font-size:.8rem;font-weight:700;color:#F1891B">40% · $2.10M</div>
+            <div style="height:6px;background:#eee;border-radius:3px;margin-top:3px;overflow:hidden"><div style="width:100%;height:100%;background:#F1891B;opacity:.7"></div></div></td>
+          <td style="padding:9px 11px"><div style="font-size:.8rem;font-weight:700;color:#00548A">54% · $46.30M</div>
+            <div style="height:6px;background:#eee;border-radius:3px;margin-top:3px;overflow:hidden"><div style="width:100%;height:100%;background:#00548A;opacity:.7"></div></div></td>
+          <td style="padding:9px 11px;text-align:center;font-weight:800;font-size:.85rem;color:#00548A">22×</td>
+          <td style="padding:9px 11px;text-align:center;font-size:.73rem;font-weight:700;color:#2e7d32">🟢 sub-invertido</td>
+        </tr><tr style="">
+          <td style="padding:9px 11px;font-weight:700;font-size:.82rem">San Juan</td>
+          <td style="padding:9px 11px"><div style="font-size:.8rem;font-weight:700;color:#F1891B">14% · $0.74M</div>
+            <div style="height:6px;background:#eee;border-radius:3px;margin-top:3px;overflow:hidden"><div style="width:35%;height:100%;background:#F1891B;opacity:.7"></div></div></td>
+          <td style="padding:9px 11px"><div style="font-size:.8rem;font-weight:700;color:#00548A">0% · $0.25M</div>
+            <div style="height:6px;background:#eee;border-radius:3px;margin-top:3px;overflow:hidden"><div style="width:0%;height:100%;background:#00548A;opacity:.7"></div></div></td>
+          <td style="padding:9px 11px;text-align:center;font-weight:800;font-size:.85rem;color:#00548A">0×</td>
+          <td style="padding:9px 11px;text-align:center;font-size:.73rem;font-weight:700;color:#e65100">🟡 sobre-invertido</td>
+        </tr><tr style="background:#f7fafd">
+          <td style="padding:9px 11px;font-weight:700;font-size:.82rem">San Luis</td>
+          <td style="padding:9px 11px"><div style="font-size:.8rem;font-weight:700;color:#F1891B">6% · $0.29M</div>
+            <div style="height:6px;background:#eee;border-radius:3px;margin-top:3px;overflow:hidden"><div style="width:14%;height:100%;background:#F1891B;opacity:.7"></div></div></td>
+          <td style="padding:9px 11px"><div style="font-size:.8rem;font-weight:700;color:#00548A">5% · $4.65M</div>
+            <div style="height:6px;background:#eee;border-radius:3px;margin-top:3px;overflow:hidden"><div style="width:10%;height:100%;background:#00548A;opacity:.7"></div></div></td>
+          <td style="padding:9px 11px;text-align:center;font-weight:800;font-size:.85rem;color:#00548A">16×</td>
+          <td style="padding:9px 11px;text-align:center;font-size:.73rem;font-weight:700;color:#2e7d32">✅ alineado</td>
+        </tr><tr style="">
+          <td style="padding:9px 11px;font-weight:700;font-size:.82rem">Córdoba</td>
+          <td style="padding:9px 11px"><div style="font-size:.8rem;font-weight:700;color:#F1891B">9% · $0.47M</div>
+            <div style="height:6px;background:#eee;border-radius:3px;margin-top:3px;overflow:hidden"><div style="width:22%;height:100%;background:#F1891B;opacity:.7"></div></div></td>
+          <td style="padding:9px 11px"><div style="font-size:.8rem;font-weight:700;color:#00548A">12% · $10.19M</div>
+            <div style="height:6px;background:#eee;border-radius:3px;margin-top:3px;overflow:hidden"><div style="width:22%;height:100%;background:#00548A;opacity:.7"></div></div></td>
+          <td style="padding:9px 11px;text-align:center;font-weight:800;font-size:.85rem;color:#00548A">22×</td>
+          <td style="padding:9px 11px;text-align:center;font-size:.73rem;font-weight:700;color:#2e7d32">✅ alineado</td>
+        </tr><tr style="background:#f7fafd">
+          <td style="padding:9px 11px;font-weight:700;font-size:.82rem">Buenos Aires+CABA</td>
+          <td style="padding:9px 11px"><div style="font-size:.8rem;font-weight:700;color:#F1891B">4% · $0.21M</div>
+            <div style="height:6px;background:#eee;border-radius:3px;margin-top:3px;overflow:hidden"><div style="width:10%;height:100%;background:#F1891B;opacity:.7"></div></div></td>
+          <td style="padding:9px 11px"><div style="font-size:.8rem;font-weight:700;color:#00548A">8% · $6.69M</div>
+            <div style="height:6px;background:#eee;border-radius:3px;margin-top:3px;overflow:hidden"><div style="width:14%;height:100%;background:#00548A;opacity:.7"></div></div></td>
+          <td style="padding:9px 11px;text-align:center;font-weight:800;font-size:.85rem;color:#00548A">32×</td>
+          <td style="padding:9px 11px;text-align:center;font-size:.73rem;font-weight:700;color:#2e7d32">✅ alineado</td>
+        </tr><tr style="">
+          <td style="padding:9px 11px;font-weight:700;font-size:.82rem">Santa Fe</td>
+          <td style="padding:9px 11px"><div style="font-size:.8rem;font-weight:700;color:#F1891B">7% · $0.36M</div>
+            <div style="height:6px;background:#eee;border-radius:3px;margin-top:3px;overflow:hidden"><div style="width:17%;height:100%;background:#F1891B;opacity:.7"></div></div></td>
+          <td style="padding:9px 11px"><div style="font-size:.8rem;font-weight:700;color:#00548A">1% · $1.20M</div>
+            <div style="height:6px;background:#eee;border-radius:3px;margin-top:3px;overflow:hidden"><div style="width:2%;height:100%;background:#00548A;opacity:.7"></div></div></td>
+          <td style="padding:9px 11px;text-align:center;font-weight:800;font-size:.85rem;color:#00548A">3×</td>
+          <td style="padding:9px 11px;text-align:center;font-size:.73rem;font-weight:700;color:#2e7d32">✅ alineado</td>
+        </tr><tr style="background:#f7fafd">
+          <td style="padding:9px 11px;font-weight:700;font-size:.82rem">Otras</td>
+          <td style="padding:9px 11px"><div style="font-size:.8rem;font-weight:700;color:#F1891B">21% · $1.11M</div>
+            <div style="height:6px;background:#eee;border-radius:3px;margin-top:3px;overflow:hidden"><div style="width:53%;height:100%;background:#F1891B;opacity:.7"></div></div></td>
+          <td style="padding:9px 11px"><div style="font-size:.8rem;font-weight:700;color:#00548A">20% · $16.80M</div>
+            <div style="height:6px;background:#eee;border-radius:3px;margin-top:3px;overflow:hidden"><div style="width:36%;height:100%;background:#00548A;opacity:.7"></div></div></td>
+          <td style="padding:9px 11px;text-align:center;font-weight:800;font-size:.85rem;color:#00548A">15×</td>
+          <td style="padding:9px 11px;text-align:center;font-size:.73rem;font-weight:700;color:#2e7d32">✅ alineado</td>
+        </tr></tbody></table>
+      <p class="nota">Gasto de campañas WEB vs venta del canal WEB, por provincia del cliente.</p></div>
 <div class="card">
-  <h3>Lectura</h3>
-  <div style="font-size:.82rem;color:#444;line-height:1.7">
-    <p style="margin-bottom:8px"><strong>Mendoza</strong>: 38% del gasto / 53% de la venta WEB — el núcleo, bien servido.</p>
-    <p style="margin-bottom:8px"><strong>Córdoba</strong>: 11% gasto / 14% venta — buen retorno, hay margen para crecer.</p>
-    <p><strong>Conclusión:</strong> la distribución geográfica del gasto es saludable. El foco de optimización no es "dónde se gasta de más" (no hay desperdicio), sino seguir empujando las zonas de mejor retorno (Córdoba, Buenos Aires) donde la pauta tiene techo.</p>
-  </div>
-</div>
+      <h3 style="border-color:#1565C0;color:#1565C0">Salón — gasto $5.56M · venta $1065.02M</h3>
+      <table><thead><tr><th>Provincia</th><th>💸 Gasto Salón</th><th>💰 Venta Salón</th><th style="text-align:center">ROI</th><th style="text-align:center">Diagnóstico</th></tr></thead>
+      <tbody><tr style="background:#f7fafd">
+          <td style="padding:9px 11px;font-weight:700;font-size:.82rem">Mendoza</td>
+          <td style="padding:9px 11px"><div style="font-size:.8rem;font-weight:700;color:#1565C0">36% · $2.03M</div>
+            <div style="height:6px;background:#eee;border-radius:3px;margin-top:3px;overflow:hidden"><div style="width:100%;height:100%;background:#1565C0;opacity:.7"></div></div></td>
+          <td style="padding:9px 11px"><div style="font-size:.8rem;font-weight:700;color:#00548A">65% · $693.29M</div>
+            <div style="height:6px;background:#eee;border-radius:3px;margin-top:3px;overflow:hidden"><div style="width:100%;height:100%;background:#00548A;opacity:.7"></div></div></td>
+          <td style="padding:9px 11px;text-align:center;font-weight:800;font-size:.85rem;color:#00548A">342×</td>
+          <td style="padding:9px 11px;text-align:center;font-size:.73rem;font-weight:700;color:#2e7d32">🟢 sub-invertido</td>
+        </tr><tr style="">
+          <td style="padding:9px 11px;font-weight:700;font-size:.82rem">San Juan</td>
+          <td style="padding:9px 11px"><div style="font-size:.8rem;font-weight:700;color:#1565C0">24% · $1.35M</div>
+            <div style="height:6px;background:#eee;border-radius:3px;margin-top:3px;overflow:hidden"><div style="width:66%;height:100%;background:#1565C0;opacity:.7"></div></div></td>
+          <td style="padding:9px 11px"><div style="font-size:.8rem;font-weight:700;color:#00548A">18% · $196.06M</div>
+            <div style="height:6px;background:#eee;border-radius:3px;margin-top:3px;overflow:hidden"><div style="width:28%;height:100%;background:#00548A;opacity:.7"></div></div></td>
+          <td style="padding:9px 11px;text-align:center;font-weight:800;font-size:.85rem;color:#00548A">145×</td>
+          <td style="padding:9px 11px;text-align:center;font-size:.73rem;font-weight:700;color:#2e7d32">✅ alineado</td>
+        </tr><tr style="background:#f7fafd">
+          <td style="padding:9px 11px;font-weight:700;font-size:.82rem">San Luis</td>
+          <td style="padding:9px 11px"><div style="font-size:.8rem;font-weight:700;color:#1565C0">26% · $1.46M</div>
+            <div style="height:6px;background:#eee;border-radius:3px;margin-top:3px;overflow:hidden"><div style="width:72%;height:100%;background:#1565C0;opacity:.7"></div></div></td>
+          <td style="padding:9px 11px"><div style="font-size:.8rem;font-weight:700;color:#00548A">8% · $80.10M</div>
+            <div style="height:6px;background:#eee;border-radius:3px;margin-top:3px;overflow:hidden"><div style="width:11%;height:100%;background:#00548A;opacity:.7"></div></div></td>
+          <td style="padding:9px 11px;text-align:center;font-weight:800;font-size:.85rem;color:#00548A">55×</td>
+          <td style="padding:9px 11px;text-align:center;font-size:.73rem;font-weight:700;color:#e65100">🟡 sobre-invertido</td>
+        </tr><tr style="">
+          <td style="padding:9px 11px;font-weight:700;font-size:.82rem">Córdoba</td>
+          <td style="padding:9px 11px"><div style="font-size:.8rem;font-weight:700;color:#1565C0">11% · $0.61M</div>
+            <div style="height:6px;background:#eee;border-radius:3px;margin-top:3px;overflow:hidden"><div style="width:30%;height:100%;background:#1565C0;opacity:.7"></div></div></td>
+          <td style="padding:9px 11px"><div style="font-size:.8rem;font-weight:700;color:#00548A">7% · $70.46M</div>
+            <div style="height:6px;background:#eee;border-radius:3px;margin-top:3px;overflow:hidden"><div style="width:10%;height:100%;background:#00548A;opacity:.7"></div></div></td>
+          <td style="padding:9px 11px;text-align:center;font-weight:800;font-size:.85rem;color:#00548A">115×</td>
+          <td style="padding:9px 11px;text-align:center;font-size:.73rem;font-weight:700;color:#2e7d32">✅ alineado</td>
+        </tr><tr style="background:#f7fafd">
+          <td style="padding:9px 11px;font-weight:700;font-size:.82rem">Buenos Aires+CABA</td>
+          <td style="padding:9px 11px"><div style="font-size:.8rem;font-weight:700;color:#1565C0">0% · $0.00M</div>
+            <div style="height:6px;background:#eee;border-radius:3px;margin-top:3px;overflow:hidden"><div style="width:0%;height:100%;background:#1565C0;opacity:.7"></div></div></td>
+          <td style="padding:9px 11px"><div style="font-size:.8rem;font-weight:700;color:#00548A">1% · $7.75M</div>
+            <div style="height:6px;background:#eee;border-radius:3px;margin-top:3px;overflow:hidden"><div style="width:1%;height:100%;background:#00548A;opacity:.7"></div></div></td>
+          <td style="padding:9px 11px;text-align:center;font-weight:800;font-size:.85rem;color:#00548A">2394×</td>
+          <td style="padding:9px 11px;text-align:center;font-size:.73rem;font-weight:700;color:#2e7d32">✅ alineado</td>
+        </tr><tr style="">
+          <td style="padding:9px 11px;font-weight:700;font-size:.82rem">Otras</td>
+          <td style="padding:9px 11px"><div style="font-size:.8rem;font-weight:700;color:#1565C0">2% · $0.10M</div>
+            <div style="height:6px;background:#eee;border-radius:3px;margin-top:3px;overflow:hidden"><div style="width:4%;height:100%;background:#1565C0;opacity:.7"></div></div></td>
+          <td style="padding:9px 11px"><div style="font-size:.8rem;font-weight:700;color:#00548A">2% · $17.39M</div>
+            <div style="height:6px;background:#eee;border-radius:3px;margin-top:3px;overflow:hidden"><div style="width:2%;height:100%;background:#00548A;opacity:.7"></div></div></td>
+          <td style="padding:9px 11px;text-align:center;font-weight:800;font-size:.85rem;color:#00548A">174×</td>
+          <td style="padding:9px 11px;text-align:center;font-size:.73rem;font-weight:700;color:#2e7d32">✅ alineado</td>
+        </tr></tbody></table>
+      <p class="nota">Gasto de campañas de Salón vs venta de los salones físicos, por provincia.</p></div>
 
 </div>
-<footer>El Cristorante S.A. — IBACETA · Gasto vs Venta Geográfico (API Meta) · Junio 2026</footer>
+<footer>El Cristorante S.A. — IBACETA · Gasto vs Venta por Región y Canal (API Meta) · Junio 2026</footer>
 </body></html>
