@@ -4134,6 +4134,7 @@ function iniciarApp() {
       });
       renderFunnelSup();
       renderTablaVendedores();
+      renderVendedor();  // actualizar vista vendedor con tags recién cargados
     }).catch(e => console.warn("Firebase read sup:", e));
   }
 
