@@ -32,6 +32,9 @@
   td.desc { max-width: 300px; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
   tr:hover td { background: rgba(255,255,255,.03); }
   tr.tot-row td { background: #12151f; font-weight: 700; border-top: 2px solid var(--border); }
+  td.sep { border-left: 2px solid var(--accent); }
+  th.sep { border-left: 2px solid var(--accent); }
+  td.cod { color: var(--muted); font-size: 11px; white-space: nowrap; }
   .badge { display: inline-block; background: rgba(198,89,17,.15); color: var(--accent);
             border-radius: 4px; padding: 1px 6px; font-size: 10px; }
   .warn { color: var(--yellow); font-size: 11px; margin-top: 8px; }
@@ -255,7 +258,7 @@
 
 <div class="warn">⚠ 1 artículos sin costo China — la cobertura no es 100%.</div>
 
-<div class="section-title">Por Artículo <span class="badge">51 productos</span></div>
+<div class="section-title">Producto por Producto <span class="badge">51 productos · 1 sin costo China</span></div>
 <table id="tbl-art">
   <thead><tr>
     <th>Código</th>
@@ -263,469 +266,625 @@
     <th class="r">Uds</th>
     <th class="r">Venta Neta</th>
     <th class="r group-ar">Costo AR</th>
+    <th class="r group-ar">Margen AR $</th>
     <th class="r group-ar">Margen AR %</th>
-    <th class="r group-ch">Costo China</th>
+    <th class="r group-ch sep">Costo China</th>
+    <th class="r group-ch">Margen CH $</th>
     <th class="r group-ch">Margen CH %</th>
+    <th class="r">Δ Margen</th>
   </tr></thead>
   <tbody><tr>
-      <td>16158</td>
+      <td class="cod">16158</td>
       <td class="desc">AMASADORA RAPIDA 4KG HARINA H10 WG10L</td>
       <td class="r">20</td>
       <td class="r venta">$27.2M</td>
       <td class="r">$20.8M</td>
+      <td class="r">$6.4M</td>
       <td class="r"><span style="color:#facc15">23.5%</span></td>
-      <td class="r">$9.3M</td>
+      <td class="r sep">$9.3M</td>
+      <td class="r">$18.0M</td>
       <td class="r"><span style="color:#4ade80">66.0%</span></td>
+      <td class="r"><span style="color:#4ade80">+42.5%</span></td>
     </tr><tr>
-      <td>16349</td>
+      <td class="cod">16349</td>
       <td class="desc">CORTADORA DE FIAMBRE B250A SEMIAUTOMATICA 150W</td>
       <td class="r">39</td>
       <td class="r venta">$24.9M</td>
       <td class="r">$18.9M</td>
+      <td class="r">$6.0M</td>
       <td class="r"><span style="color:#facc15">24.2%</span></td>
-      <td class="r">$9.2M</td>
+      <td class="r sep">$9.2M</td>
+      <td class="r">$15.7M</td>
       <td class="r"><span style="color:#4ade80">63.1%</span></td>
+      <td class="r"><span style="color:#4ade80">+38.9%</span></td>
     </tr><tr>
-      <td>16350</td>
+      <td class="cod">16350</td>
       <td class="desc">CORTADORA DE FIAMBRE B300A SEMIAUTOMATICA 250W</td>
       <td class="r">25</td>
       <td class="r venta">$23.3M</td>
       <td class="r">$16.0M</td>
+      <td class="r">$7.3M</td>
       <td class="r"><span style="color:#facc15">31.2%</span></td>
-      <td class="r">$8.5M</td>
+      <td class="r sep">$8.5M</td>
+      <td class="r">$14.8M</td>
       <td class="r"><span style="color:#4ade80">63.6%</span></td>
+      <td class="r"><span style="color:#4ade80">+32.4%</span></td>
     </tr><tr>
-      <td>16137</td>
+      <td class="cod">16137</td>
       <td class="desc">HORNO CONVECTOR ELECTRICO 4 BANDEJAS HEB600 4F</td>
       <td class="r">20</td>
       <td class="r venta">$13.8M</td>
       <td class="r">$10.0M</td>
+      <td class="r">$3.8M</td>
       <td class="r"><span style="color:#facc15">27.3%</span></td>
-      <td class="r">$6.1M</td>
+      <td class="r sep">$6.1M</td>
+      <td class="r">$7.7M</td>
       <td class="r"><span style="color:#4ade80">55.6%</span></td>
+      <td class="r"><span style="color:#4ade80">+28.3%</span></td>
     </tr><tr>
-      <td>16387</td>
+      <td class="cod">16387</td>
       <td class="desc">CORTADORA DE FIAMBRE B320C  AUTOMATICA 220V</td>
       <td class="r">2</td>
       <td class="r venta">$12.9M</td>
       <td class="r">$6.0M</td>
+      <td class="r">$6.9M</td>
       <td class="r"><span style="color:#4ade80">53.8%</span></td>
-      <td class="r">$2.3M</td>
+      <td class="r sep">$2.3M</td>
+      <td class="r">$10.7M</td>
       <td class="r"><span style="color:#4ade80">82.6%</span></td>
+      <td class="r"><span style="color:#4ade80">+28.8%</span></td>
     </tr><tr>
-      <td>16160</td>
+      <td class="cod">16160</td>
       <td class="desc">AMASADORA RAPIDA 12KG HARINA HS30 WG30L</td>
       <td class="r">5</td>
       <td class="r venta">$12.5M</td>
       <td class="r">$8.2M</td>
+      <td class="r">$4.4M</td>
       <td class="r"><span style="color:#facc15">35.0%</span></td>
-      <td class="r">$3.5M</td>
+      <td class="r sep">$3.5M</td>
+      <td class="r">$9.1M</td>
       <td class="r"><span style="color:#4ade80">72.2%</span></td>
+      <td class="r"><span style="color:#4ade80">+37.2%</span></td>
     </tr><tr>
-      <td>16348</td>
+      <td class="cod">16348</td>
       <td class="desc">AMASADORA RAPIDA 25KG HARINA DOBLEVELOC 220V WG60L</td>
       <td class="r">3</td>
       <td class="r venta">$11.2M</td>
       <td class="r">$7.9M</td>
+      <td class="r">$3.3M</td>
       <td class="r"><span style="color:#facc15">29.4%</span></td>
-      <td class="r">$1.4M</td>
+      <td class="r sep">$1.4M</td>
+      <td class="r">$9.8M</td>
       <td class="r"><span style="color:#4ade80">87.7%</span></td>
+      <td class="r"><span style="color:#4ade80">+58.4%</span></td>
     </tr><tr>
-      <td>16459</td>
+      <td class="cod">16459</td>
       <td class="desc">HORNO CONVECTOR ELECTRICO CON VAPOR 6.4KW HEB840V</td>
       <td class="r">8</td>
       <td class="r venta">$10.0M</td>
       <td class="r">$7.3M</td>
+      <td class="r">$2.8M</td>
       <td class="r"><span style="color:#facc15">27.5%</span></td>
-      <td class="r">$4.0M</td>
+      <td class="r sep">$4.0M</td>
+      <td class="r">$6.0M</td>
       <td class="r"><span style="color:#4ade80">60.1%</span></td>
+      <td class="r"><span style="color:#4ade80">+32.6%</span></td>
     </tr><tr>
-      <td>16191</td>
+      <td class="cod">16191</td>
       <td class="desc">BATIDORA MIXER 7LT TRIPLE B7S</td>
       <td class="r">15</td>
       <td class="r venta">$9.2M</td>
       <td class="r">$7.0M</td>
+      <td class="r">$2.2M</td>
       <td class="r"><span style="color:#facc15">23.6%</span></td>
-      <td class="r">$2.3M</td>
+      <td class="r sep">$2.3M</td>
+      <td class="r">$6.9M</td>
       <td class="r"><span style="color:#4ade80">75.1%</span></td>
+      <td class="r"><span style="color:#4ade80">+51.5%</span></td>
     </tr><tr>
-      <td>16164</td>
+      <td class="cod">16164</td>
       <td class="desc">BATIDORA 10LT B10B  WGB10F</td>
       <td class="r">7</td>
       <td class="r venta">$8.4M</td>
       <td class="r">$6.6M</td>
+      <td class="r">$1.8M</td>
       <td class="r"><span style="color:#facc15">21.8%</span></td>
-      <td class="r">$2.7M</td>
+      <td class="r sep">$2.7M</td>
+      <td class="r">$5.6M</td>
       <td class="r"><span style="color:#4ade80">67.3%</span></td>
+      <td class="r"><span style="color:#4ade80">+45.4%</span></td>
     </tr><tr>
-      <td>16314</td>
+      <td class="cod">16314</td>
       <td class="desc">MESA DE TRABAJO 180X70X90 AC304Y201 C.ZOCALO 18070B</td>
       <td class="r">14</td>
       <td class="r venta">$8.4M</td>
       <td class="r">$6.2M</td>
+      <td class="r">$2.2M</td>
       <td class="r"><span style="color:#facc15">25.7%</span></td>
-      <td class="r">$3.7M</td>
+      <td class="r sep">$3.7M</td>
+      <td class="r">$4.7M</td>
       <td class="r"><span style="color:#4ade80">56.3%</span></td>
+      <td class="r"><span style="color:#4ade80">+30.5%</span></td>
     </tr><tr>
-      <td>16359</td>
+      <td class="cod">16359</td>
       <td class="desc">HORNO DESHIDRATADOR 30.90GRAD 16 BANDEJAS 220V  LT16</td>
       <td class="r">9</td>
       <td class="r venta">$8.0M</td>
       <td class="r">$5.0M</td>
+      <td class="r">$2.9M</td>
       <td class="r"><span style="color:#4ade80">36.7%</span></td>
-      <td class="r">$1.9M</td>
+      <td class="r sep">$1.9M</td>
+      <td class="r">$6.0M</td>
       <td class="r"><span style="color:#4ade80">75.7%</span></td>
+      <td class="r"><span style="color:#4ade80">+39.0%</span></td>
     </tr><tr>
-      <td>16159</td>
+      <td class="cod">16159</td>
       <td class="desc">AMASADORA RAPIDA 8KG HARINA HS20 WG20L</td>
       <td class="r">4</td>
       <td class="r venta">$7.6M</td>
       <td class="r">$5.7M</td>
+      <td class="r">$1.9M</td>
       <td class="r"><span style="color:#facc15">24.9%</span></td>
-      <td class="r">$2.5M</td>
+      <td class="r sep">$2.5M</td>
+      <td class="r">$5.1M</td>
       <td class="r"><span style="color:#4ade80">67.0%</span></td>
+      <td class="r"><span style="color:#4ade80">+42.1%</span></td>
     </tr><tr>
-      <td>16327</td>
+      <td class="cod">16327</td>
       <td class="desc">SIERRA CARNICERA AC.INOXIDABLE 750W HD.130</td>
       <td class="r">5</td>
       <td class="r venta">$6.0M</td>
       <td class="r">$3.4M</td>
+      <td class="r">$2.5M</td>
       <td class="r"><span style="color:#4ade80">42.4%</span></td>
-      <td class="r">$1.6M</td>
+      <td class="r sep">$1.6M</td>
+      <td class="r">$4.4M</td>
       <td class="r"><span style="color:#4ade80">73.8%</span></td>
+      <td class="r"><span style="color:#4ade80">+31.3%</span></td>
     </tr><tr>
-      <td>16341</td>
+      <td class="cod">16341</td>
       <td class="desc">PICADORA  42 5.5HP MONOFASICA HD42220V. 650KG H</td>
       <td class="r">1</td>
       <td class="r venta">$5.4M</td>
       <td class="r">$3.1M</td>
+      <td class="r">$2.3M</td>
       <td class="r"><span style="color:#4ade80">43.4%</span></td>
-      <td class="r">$1.2M</td>
+      <td class="r sep">$1.2M</td>
+      <td class="r">$4.2M</td>
       <td class="r"><span style="color:#4ade80">78.2%</span></td>
+      <td class="r"><span style="color:#4ade80">+34.8%</span></td>
     </tr><tr>
-      <td>16373</td>
+      <td class="cod">16373</td>
       <td class="desc">HORNO ELECTRICO 1PISO 2BAND CPIEDRA 220V HGR20DS</td>
       <td class="r">4</td>
       <td class="r venta">$5.1M</td>
       <td class="r">$3.9M</td>
-      <td class="r"><span style="color:#facc15">24.2%</span></td>
       <td class="r">$1.2M</td>
+      <td class="r"><span style="color:#facc15">24.2%</span></td>
+      <td class="r sep">$1.2M</td>
+      <td class="r">$3.9M</td>
       <td class="r"><span style="color:#4ade80">76.0%</span></td>
+      <td class="r"><span style="color:#4ade80">+51.8%</span></td>
     </tr><tr>
-      <td>16458</td>
+      <td class="cod">16458</td>
       <td class="desc">HORNO CONVECTOR ELECTRICO CON VAPOR 4 BANDEJA HEB600</td>
       <td class="r">6</td>
       <td class="r venta">$4.7M</td>
       <td class="r">$3.3M</td>
+      <td class="r">$1.4M</td>
       <td class="r"><span style="color:#facc15">29.4%</span></td>
-      <td class="r">$1.8M</td>
+      <td class="r sep">$1.8M</td>
+      <td class="r">$2.8M</td>
       <td class="r"><span style="color:#4ade80">60.8%</span></td>
+      <td class="r"><span style="color:#4ade80">+31.4%</span></td>
     </tr><tr>
-      <td>16166</td>
+      <td class="cod">16166</td>
       <td class="desc">BATIDORA 30LT B30B WGB30F</td>
       <td class="r">2</td>
       <td class="r venta">$4.5M</td>
       <td class="r">$3.0M</td>
+      <td class="r">$1.6M</td>
       <td class="r"><span style="color:#facc15">34.5%</span></td>
-      <td class="r">$1.1M</td>
+      <td class="r sep">$1.1M</td>
+      <td class="r">$3.4M</td>
       <td class="r"><span style="color:#4ade80">75.0%</span></td>
+      <td class="r"><span style="color:#4ade80">+40.5%</span></td>
     </tr><tr>
-      <td>16352</td>
+      <td class="cod">16352</td>
       <td class="desc">PROCESADORA VEGETALES 220V VC.65MS</td>
       <td class="r">3</td>
       <td class="r venta">$4.5M</td>
       <td class="r">$3.1M</td>
+      <td class="r">$1.4M</td>
       <td class="r"><span style="color:#facc15">30.5%</span></td>
-      <td class="r">$1.9M</td>
+      <td class="r sep">$1.9M</td>
+      <td class="r">$2.7M</td>
       <td class="r"><span style="color:#4ade80">59.0%</span></td>
+      <td class="r"><span style="color:#4ade80">+28.5%</span></td>
     </tr><tr>
-      <td>16200</td>
+      <td class="cod">16200</td>
       <td class="desc">BATIDORA 40LT B40F</td>
       <td class="r">1</td>
       <td class="r venta">$4.0M</td>
       <td class="r">$2.9M</td>
+      <td class="r">$1.0M</td>
       <td class="r"><span style="color:#facc15">26.1%</span></td>
-      <td class="r">$1.1M</td>
+      <td class="r sep">$1.1M</td>
+      <td class="r">$2.9M</td>
       <td class="r"><span style="color:#4ade80">71.8%</span></td>
+      <td class="r"><span style="color:#4ade80">+45.7%</span></td>
     </tr><tr>
-      <td>16457</td>
+      <td class="cod">16457</td>
       <td class="desc">CAMARA FERMENTADORA 1 PTA 16 BANDEJAS 45X70 WG16P</td>
       <td class="r">2</td>
       <td class="r venta">$3.6M</td>
       <td class="r">$1.9M</td>
+      <td class="r">$1.7M</td>
       <td class="r"><span style="color:#4ade80">47.3%</span></td>
-      <td class="r">$432K</td>
+      <td class="r sep">$432K</td>
+      <td class="r">$3.2M</td>
       <td class="r"><span style="color:#4ade80">88.0%</span></td>
+      <td class="r"><span style="color:#4ade80">+40.6%</span></td>
     </tr><tr>
-      <td>16353</td>
+      <td class="cod">16353</td>
       <td class="desc">HORNO PIZZERO CINTA 110X57X36  6.7KW HEP.12</td>
       <td class="r">1</td>
       <td class="r venta">$3.2M</td>
       <td class="r">$2.1M</td>
+      <td class="r">$1.1M</td>
       <td class="r"><span style="color:#facc15">33.9%</span></td>
-      <td class="r">$850K</td>
+      <td class="r sep">$850K</td>
+      <td class="r">$2.4M</td>
       <td class="r"><span style="color:#4ade80">73.6%</span></td>
+      <td class="r"><span style="color:#4ade80">+39.7%</span></td>
     </tr><tr>
-      <td>16333</td>
+      <td class="cod">16333</td>
       <td class="desc">SIERRA CARNICERA AC.INOXIDABLE 1100W HD.210</td>
       <td class="r">2</td>
       <td class="r venta">$3.0M</td>
       <td class="r">$1.9M</td>
+      <td class="r">$1.1M</td>
       <td class="r"><span style="color:#4ade80">35.8%</span></td>
-      <td class="r">$882K</td>
+      <td class="r sep">$882K</td>
+      <td class="r">$2.1M</td>
       <td class="r"><span style="color:#4ade80">70.7%</span></td>
+      <td class="r"><span style="color:#4ade80">+34.9%</span></td>
     </tr><tr>
-      <td>16456</td>
+      <td class="cod">16456</td>
       <td class="desc">CORTADORA DE PAPA AUTOMATICA 65X28X51 4 CUCH CWQTJC</td>
       <td class="r">1</td>
       <td class="r venta">$2.9M</td>
       <td class="r">$2.2M</td>
+      <td class="r">$767K</td>
       <td class="r"><span style="color:#facc15">26.0%</span></td>
-      <td class="r">$872K</td>
+      <td class="r sep">$872K</td>
+      <td class="r">$2.1M</td>
       <td class="r"><span style="color:#4ade80">70.4%</span></td>
+      <td class="r"><span style="color:#4ade80">+44.4%</span></td>
     </tr><tr>
-      <td>16332</td>
+      <td class="cod">16332</td>
       <td class="desc">PICADORA 32. 4HP. QL 32</td>
       <td class="r">2</td>
       <td class="r venta">$2.6M</td>
       <td class="r">$2.0M</td>
+      <td class="r">$559K</td>
       <td class="r"><span style="color:#facc15">21.4%</span></td>
-      <td class="r">$902K</td>
+      <td class="r sep">$902K</td>
+      <td class="r">$1.7M</td>
       <td class="r"><span style="color:#4ade80">65.4%</span></td>
+      <td class="r"><span style="color:#4ade80">+44.0%</span></td>
     </tr><tr>
-      <td>16455</td>
+      <td class="cod">16455</td>
       <td class="desc">CAMARA FERMENTADORA 2 PTAS 32 BANDEJAS 45X70 WG32P</td>
       <td class="r">1</td>
       <td class="r venta">$2.6M</td>
       <td class="r">$1.8M</td>
+      <td class="r">$790K</td>
       <td class="r"><span style="color:#facc15">30.6%</span></td>
-      <td class="r">$333K</td>
+      <td class="r sep">$333K</td>
+      <td class="r">$2.3M</td>
       <td class="r"><span style="color:#4ade80">87.1%</span></td>
+      <td class="r"><span style="color:#4ade80">+56.6%</span></td>
     </tr><tr>
-      <td>16374</td>
+      <td class="cod">16374</td>
       <td class="desc">HORNO ELECTRICO 4BAND 2PISOS CPIEDRA 380V HGR40DS</td>
       <td class="r">1</td>
       <td class="r venta">$2.4M</td>
       <td class="r">$1.6M</td>
+      <td class="r">$836K</td>
       <td class="r"><span style="color:#facc15">34.4%</span></td>
-      <td class="r">$610K</td>
+      <td class="r sep">$610K</td>
+      <td class="r">$1.8M</td>
       <td class="r"><span style="color:#4ade80">74.9%</span></td>
+      <td class="r"><span style="color:#4ade80">+40.5%</span></td>
     </tr><tr>
-      <td>16165</td>
+      <td class="cod">16165</td>
       <td class="desc">BATIDORA 20LT B20B  WGB20F</td>
       <td class="r">1</td>
       <td class="r venta">$2.1M</td>
       <td class="r">$1.3M</td>
+      <td class="r">$807K</td>
       <td class="r"><span style="color:#4ade80">37.9%</span></td>
-      <td class="r">$455K</td>
+      <td class="r sep">$455K</td>
+      <td class="r">$1.7M</td>
       <td class="r"><span style="color:#4ade80">78.6%</span></td>
+      <td class="r"><span style="color:#4ade80">+40.7%</span></td>
     </tr><tr>
-      <td>16340</td>
+      <td class="cod">16340</td>
       <td class="desc">CORTADORA DE PAPA ELECTRICA 900W HD.PSTQ</td>
       <td class="r">3</td>
       <td class="r venta">$2.0M</td>
       <td class="r">$1.5M</td>
+      <td class="r">$489K</td>
       <td class="r"><span style="color:#facc15">24.2%</span></td>
-      <td class="r">$667K</td>
+      <td class="r sep">$667K</td>
+      <td class="r">$1.4M</td>
       <td class="r"><span style="color:#4ade80">67.0%</span></td>
+      <td class="r"><span style="color:#4ade80">+42.8%</span></td>
     </tr><tr>
-      <td>16356</td>
+      <td class="cod">16356</td>
       <td class="desc">FORMADORA DE PIZZA 370W AJUSTE AUTOMATICO WG.PD30</td>
       <td class="r">1</td>
       <td class="r venta">$2.0M</td>
       <td class="r">$1.4M</td>
+      <td class="r">$600K</td>
       <td class="r"><span style="color:#facc15">30.7%</span></td>
-      <td class="r">$633K</td>
+      <td class="r sep">$633K</td>
+      <td class="r">$1.3M</td>
       <td class="r"><span style="color:#4ade80">67.6%</span></td>
+      <td class="r"><span style="color:#4ade80">+36.9%</span></td>
     </tr><tr>
-      <td>16209</td>
+      <td class="cod">16209</td>
       <td class="desc">CAMARA FERMENTADORA 2 PTAS 32 BANDEJAS 40X60 FJ32201</td>
       <td class="r">1</td>
       <td class="r venta">$1.9M</td>
       <td class="r">$1.6M</td>
+      <td class="r">$312K</td>
       <td class="r"><span style="color:#f87171">16.7%</span></td>
-      <td class="r"><span style="color:var(--muted)">Sin datos</span></td>
+      <td class="r sep"><span style="color:var(--muted)">—</span></td>
+      <td class="r"><span style="color:var(--muted)">—</span></td>
+      <td class="r"><span style="color:var(--muted)">—</span></td>
       <td class="r"><span style="color:var(--muted)">—</span></td>
     </tr><tr>
-      <td>16212</td>
+      <td class="cod">16212</td>
       <td class="desc">CORTADORA DE PAN 650X770X770 220.240W  TR.31</td>
       <td class="r">1</td>
       <td class="r venta">$1.8M</td>
       <td class="r">$1.6M</td>
+      <td class="r">$216K</td>
       <td class="r"><span style="color:#f87171">11.9%</span></td>
-      <td class="r">$497K</td>
+      <td class="r sep">$497K</td>
+      <td class="r">$1.3M</td>
       <td class="r"><span style="color:#4ade80">72.5%</span></td>
+      <td class="r"><span style="color:#4ade80">+60.6%</span></td>
     </tr><tr>
-      <td>16357</td>
+      <td class="cod">16357</td>
       <td class="desc">LICUADORA BLENDER 2LT 1500W BL767</td>
       <td class="r">7</td>
       <td class="r venta">$1.4M</td>
       <td class="r">$722K</td>
+      <td class="r">$726K</td>
       <td class="r"><span style="color:#4ade80">50.1%</span></td>
-      <td class="r">$360K</td>
+      <td class="r sep">$360K</td>
+      <td class="r">$1.1M</td>
       <td class="r"><span style="color:#4ade80">75.1%</span></td>
+      <td class="r"><span style="color:#4ade80">+25.0%</span></td>
     </tr><tr>
-      <td>16338</td>
+      <td class="cod">16338</td>
       <td class="desc">EMBUTIDORA DE CHORIZO ELECTRICA 15LT 260W HD.15L</td>
       <td class="r">1</td>
       <td class="r venta">$1.4M</td>
       <td class="r">$996K</td>
+      <td class="r">$366K</td>
       <td class="r"><span style="color:#facc15">26.9%</span></td>
-      <td class="r">$311K</td>
+      <td class="r sep">$311K</td>
+      <td class="r">$1.1M</td>
       <td class="r"><span style="color:#4ade80">77.2%</span></td>
+      <td class="r"><span style="color:#4ade80">+50.3%</span></td>
     </tr><tr>
-      <td>16360</td>
+      <td class="cod">16360</td>
       <td class="desc">HORNO DESHIDRATADOR 30.90GDOS 8 BANDEJAS 220V  LT8</td>
       <td class="r">3</td>
       <td class="r venta">$1.3M</td>
       <td class="r">$757K</td>
+      <td class="r">$546K</td>
       <td class="r"><span style="color:#4ade80">41.9%</span></td>
-      <td class="r">$300K</td>
+      <td class="r sep">$300K</td>
+      <td class="r">$1.0M</td>
       <td class="r"><span style="color:#4ade80">76.9%</span></td>
+      <td class="r"><span style="color:#4ade80">+35.1%</span></td>
     </tr><tr>
-      <td>16375</td>
+      <td class="cod">16375</td>
       <td class="desc">MIXER INDUSTIRAL 112X75X46  220V GJ270V160</td>
       <td class="r">4</td>
       <td class="r venta">$1.3M</td>
       <td class="r">$1.2M</td>
+      <td class="r">$49K</td>
       <td class="r"><span style="color:#f87171">3.9%</span></td>
-      <td class="r">$700K</td>
+      <td class="r sep">$700K</td>
+      <td class="r">$572K</td>
       <td class="r"><span style="color:#4ade80">45.0%</span></td>
+      <td class="r"><span style="color:#4ade80">+41.1%</span></td>
     </tr><tr>
-      <td>16313</td>
+      <td class="cod">16313</td>
       <td class="desc">MESA DE TRABAJO 150X70X90 AC304Y201 C.ZOCALO 15070B</td>
       <td class="r">2</td>
       <td class="r venta">$1.1M</td>
       <td class="r">$775K</td>
+      <td class="r">$362K</td>
       <td class="r"><span style="color:#facc15">31.8%</span></td>
-      <td class="r">$463K</td>
+      <td class="r sep">$463K</td>
+      <td class="r">$674K</td>
       <td class="r"><span style="color:#4ade80">59.2%</span></td>
+      <td class="r"><span style="color:#4ade80">+27.4%</span></td>
     </tr><tr>
-      <td>16203</td>
+      <td class="cod">16203</td>
       <td class="desc">HORNO CONVECTOR ELECTRICO 6.4KW HEB840.</td>
       <td class="r">1</td>
       <td class="r venta">$1.1M</td>
       <td class="r">$854K</td>
+      <td class="r">$249K</td>
       <td class="r"><span style="color:#facc15">22.6%</span></td>
-      <td class="r">$500K</td>
+      <td class="r sep">$500K</td>
+      <td class="r">$603K</td>
       <td class="r"><span style="color:#4ade80">54.7%</span></td>
+      <td class="r"><span style="color:#4ade80">+32.1%</span></td>
     </tr><tr>
-      <td>16329</td>
+      <td class="cod">16329</td>
       <td class="desc">EMBUTIDORA DE CHORIZO MANUAL 7LT</td>
       <td class="r">3</td>
       <td class="r venta">$1.1M</td>
       <td class="r">$721K</td>
+      <td class="r">$372K</td>
       <td class="r"><span style="color:#facc15">34.0%</span></td>
-      <td class="r">$457K</td>
+      <td class="r sep">$457K</td>
+      <td class="r">$637K</td>
       <td class="r"><span style="color:#4ade80">58.2%</span></td>
+      <td class="r"><span style="color:#4ade80">+24.2%</span></td>
     </tr><tr>
-      <td>16380</td>
+      <td class="cod">16380</td>
       <td class="desc">COCINA ELECTRICA DE PASTA PARA MESA 4HUECOS ASEN4</td>
       <td class="r">3</td>
       <td class="r venta">$1.1M</td>
       <td class="r">$861K</td>
+      <td class="r">$231K</td>
       <td class="r"><span style="color:#facc15">21.1%</span></td>
-      <td class="r">$276K</td>
+      <td class="r sep">$276K</td>
+      <td class="r">$815K</td>
       <td class="r"><span style="color:#4ade80">74.7%</span></td>
+      <td class="r"><span style="color:#4ade80">+53.6%</span></td>
     </tr><tr>
-      <td>16399</td>
+      <td class="cod">16399</td>
       <td class="desc">CUTTER 9LT AW9L</td>
       <td class="r">1</td>
       <td class="r venta">$1.0M</td>
       <td class="r">$561K</td>
+      <td class="r">$449K</td>
       <td class="r"><span style="color:#4ade80">44.4%</span></td>
-      <td class="r">$401K</td>
+      <td class="r sep">$401K</td>
+      <td class="r">$609K</td>
       <td class="r"><span style="color:#4ade80">60.3%</span></td>
+      <td class="r"><span style="color:#4ade80">+15.9%</span></td>
     </tr><tr>
-      <td>16326</td>
+      <td class="cod">16326</td>
       <td class="desc">PICADORA 32. 2HP. JYZY32</td>
       <td class="r">1</td>
       <td class="r venta">$979K</td>
       <td class="r">$769K</td>
+      <td class="r">$210K</td>
       <td class="r"><span style="color:#facc15">21.4%</span></td>
-      <td class="r">$361K</td>
+      <td class="r sep">$361K</td>
+      <td class="r">$618K</td>
       <td class="r"><span style="color:#4ade80">63.2%</span></td>
+      <td class="r"><span style="color:#4ade80">+41.7%</span></td>
     </tr><tr>
-      <td>16330</td>
+      <td class="cod">16330</td>
       <td class="desc">PELADORA DE PAPAS 1.5W HD.15</td>
       <td class="r">1</td>
       <td class="r venta">$959K</td>
       <td class="r">$683K</td>
+      <td class="r">$276K</td>
       <td class="r"><span style="color:#facc15">28.8%</span></td>
-      <td class="r">$311K</td>
+      <td class="r sep">$311K</td>
+      <td class="r">$648K</td>
       <td class="r"><span style="color:#4ade80">67.6%</span></td>
+      <td class="r"><span style="color:#4ade80">+38.8%</span></td>
     </tr><tr>
-      <td>16315</td>
+      <td class="cod">16315</td>
       <td class="desc">MESA DE TRABAJO 220X70X90 AC304Y201 C.ZOCALO 22070B</td>
       <td class="r">1</td>
       <td class="r venta">$828K</td>
       <td class="r">$531K</td>
-      <td class="r"><span style="color:#4ade80">35.9%</span></td>
       <td class="r">$297K</td>
+      <td class="r"><span style="color:#4ade80">35.9%</span></td>
+      <td class="r sep">$297K</td>
+      <td class="r">$531K</td>
       <td class="r"><span style="color:#4ade80">64.1%</span></td>
+      <td class="r"><span style="color:#4ade80">+28.2%</span></td>
     </tr><tr>
-      <td>16376</td>
+      <td class="cod">16376</td>
       <td class="desc">MIXER INDUSTRIAL 163X91X71 220V IB350SV350</td>
       <td class="r">1</td>
       <td class="r venta">$715K</td>
       <td class="r">$589K</td>
+      <td class="r">$127K</td>
       <td class="r"><span style="color:#f87171">17.7%</span></td>
-      <td class="r">$227K</td>
+      <td class="r sep">$227K</td>
+      <td class="r">$489K</td>
       <td class="r"><span style="color:#4ade80">68.3%</span></td>
+      <td class="r"><span style="color:#4ade80">+50.6%</span></td>
     </tr><tr>
-      <td>16325</td>
+      <td class="cod">16325</td>
       <td class="desc">PICADORA DE CARNE 22 850W JY.G22</td>
       <td class="r">1</td>
       <td class="r venta">$692K</td>
       <td class="r">$468K</td>
+      <td class="r">$224K</td>
       <td class="r"><span style="color:#facc15">32.4%</span></td>
-      <td class="r">$213K</td>
+      <td class="r sep">$213K</td>
+      <td class="r">$479K</td>
       <td class="r"><span style="color:#4ade80">69.2%</span></td>
+      <td class="r"><span style="color:#4ade80">+36.8%</span></td>
     </tr><tr>
-      <td>16381</td>
+      <td class="cod">16381</td>
       <td class="desc">COCINA ELECTRICA DE PASTA PARA MESA 6 HUECOS ASEN6</td>
       <td class="r">1</td>
       <td class="r venta">$541K</td>
       <td class="r">$379K</td>
+      <td class="r">$163K</td>
       <td class="r"><span style="color:#facc15">30.1%</span></td>
-      <td class="r">$122K</td>
+      <td class="r sep">$122K</td>
+      <td class="r">$420K</td>
       <td class="r"><span style="color:#4ade80">77.6%</span></td>
+      <td class="r"><span style="color:#4ade80">+47.5%</span></td>
     </tr><tr>
-      <td>16320</td>
+      <td class="cod">16320</td>
       <td class="desc">ESTANTERIA 4 EST 180X50X155 AC304Y201 RSH18050</td>
       <td class="r">1</td>
       <td class="r venta">$539K</td>
       <td class="r">$369K</td>
+      <td class="r">$169K</td>
       <td class="r"><span style="color:#facc15">31.4%</span></td>
-      <td class="r">$221K</td>
+      <td class="r sep">$221K</td>
+      <td class="r">$318K</td>
       <td class="r"><span style="color:#4ade80">59.0%</span></td>
+      <td class="r"><span style="color:#4ade80">+27.6%</span></td>
     </tr><tr>
-      <td>16310</td>
+      <td class="cod">16310</td>
       <td class="desc">MESA DE TRABAJO 150X70X90 AC304Y201 15070</td>
       <td class="r">1</td>
       <td class="r venta">$509K</td>
       <td class="r">$376K</td>
+      <td class="r">$133K</td>
       <td class="r"><span style="color:#facc15">26.1%</span></td>
-      <td class="r">$210K</td>
+      <td class="r sep">$210K</td>
+      <td class="r">$299K</td>
       <td class="r"><span style="color:#4ade80">58.7%</span></td>
+      <td class="r"><span style="color:#4ade80">+32.6%</span></td>
     </tr><tr>
-      <td>16377</td>
+      <td class="cod">16377</td>
       <td class="desc">HAMBURGUESERO MANUAL 3 EN 1 100X130X150 ASY3IN1</td>
       <td class="r">1</td>
       <td class="r venta">$492K</td>
       <td class="r">$357K</td>
+      <td class="r">$135K</td>
       <td class="r"><span style="color:#facc15">27.4%</span></td>
-      <td class="r">$138K</td>
+      <td class="r sep">$138K</td>
+      <td class="r">$354K</td>
       <td class="r"><span style="color:#4ade80">72.0%</span></td>
+      <td class="r"><span style="color:#4ade80">+44.6%</span></td>
     </tr><tr>
-      <td>16319</td>
+      <td class="cod">16319</td>
       <td class="desc">ESTANTERIA 4 EST 150X50X155  AC304Y201 RSH15050</td>
       <td class="r">1</td>
       <td class="r venta">$451K</td>
       <td class="r">$328K</td>
+      <td class="r">$122K</td>
       <td class="r"><span style="color:#facc15">27.2%</span></td>
-      <td class="r">$196K</td>
+      <td class="r sep">$196K</td>
+      <td class="r">$255K</td>
       <td class="r"><span style="color:#4ade80">56.5%</span></td>
+      <td class="r"><span style="color:#4ade80">+29.3%</span></td>
     </tr></tbody>
 </table>
 
