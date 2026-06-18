@@ -3420,8 +3420,8 @@ function renderVendedor() {
     if (!tag || !TAGS_OCULTAR.has(tag)) return false;
     return c.estado !== "activo";
   };
-  // Contar etiquetados desde _tags directo (no desde misClientes filtrado)
-  const nEtiquetados = Object.keys(_tags).length;
+  // Contar etiquetados solo entre los clientes de este vendedor
+  const nEtiquetados = misClientes.filter(c => !!getTag(String(c.codigo))).length;
   _updateBtnMarcados(nEtiquetados);
   if (!_mostrarMarcados) misClientes = misClientes.filter(c => !_debeOcultar(c));
   if (_soloEtiquetados)  misClientes = misClientes.filter(c => !!getTag(String(c.codigo)));
