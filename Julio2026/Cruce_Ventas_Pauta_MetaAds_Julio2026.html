@@ -3,24 +3,35 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width,initial-scale=1.0">
-<title>Cruce Ventas WEB × Pauta Meta Ads — May–Jun 2026</title>
+<title>Cruce Ventas WEB x Pauta Meta Ads</title>
 <link href="https://fonts.googleapis.com/css2?family=Montserrat:wght@400;600;700;800&family=Open+Sans:wght@400;600&display=swap" rel="stylesheet">
 <style>
 *{box-sizing:border-box;margin:0;padding:0}
 body{font-family:'Open Sans',sans-serif;background:#F0F2F5;color:#333}
 header{background:#00548A;padding:14px 26px;display:flex;justify-content:space-between;align-items:center;flex-wrap:wrap;gap:8px}
-header h1{font-family:'Montserrat',sans-serif;font-size:1rem;font-weight:800;color:#fff}
-header .sub{font-size:.72rem;color:rgba(255,255,255,0.7);margin-top:2px}
+header h1{font-family:'Montserrat',sans-serif;font-size:.95rem;font-weight:800;color:#fff}
+header .sub{font-size:.7rem;color:rgba(255,255,255,0.7);margin-top:2px}
 .pbd{background:#F1891B;color:#fff;padding:4px 13px;border-radius:18px;font-family:'Montserrat',sans-serif;font-size:.73rem;font-weight:700}
+/* Barra de filtro de fechas */
+.filtro-bar{background:#fff;border-bottom:3px solid #F1891B;padding:10px 26px;display:flex;align-items:center;gap:12px;flex-wrap:wrap}
+.filtro-bar label{font-family:'Montserrat',sans-serif;font-size:.75rem;font-weight:700;color:#00548A}
+.filtro-bar input[type=date]{border:1px solid #ccc;border-radius:5px;padding:4px 8px;font-size:.8rem;font-family:'Open Sans',sans-serif;color:#333}
+.filtro-bar input[type=date]:focus{outline:2px solid #00548A}
+.btn-preset{background:#F0F2F5;border:1px solid #ccc;border-radius:14px;padding:4px 11px;font-size:.72rem;font-family:'Montserrat',sans-serif;font-weight:700;cursor:pointer;color:#555;transition:all .15s}
+.btn-preset:hover,.btn-preset.active{background:#00548A;color:#fff;border-color:#00548A}
+.btn-aplicar{background:#F1891B;color:#fff;border:none;border-radius:5px;padding:5px 14px;font-size:.78rem;font-family:'Montserrat',sans-serif;font-weight:700;cursor:pointer}
+.btn-aplicar:hover{background:#d4770f}
+.meta-nota{font-size:.68rem;color:#888;font-style:italic;margin-left:auto}
+/* Layout */
 .wrap{max-width:1420px;margin:0 auto;padding:16px 14px}
 .kpi-row{display:grid;grid-template-columns:repeat(auto-fit,minmax(155px,1fr));gap:10px;margin-bottom:16px}
 .kpi{background:#fff;border-radius:8px;border-top:4px solid #F1891B;box-shadow:0 1px 6px rgba(0,0,0,0.08);padding:13px;text-align:center}
 .kpi.bl{border-top-color:#00548A}.kpi.gr{border-top-color:#2e7d32}.kpi.rd{border-top-color:#c62828}
-.kv{font-family:'Montserrat',sans-serif;font-size:1.45rem;font-weight:800;color:#00548A}
+.kv{font-family:'Montserrat',sans-serif;font-size:1.4rem;font-weight:800;color:#00548A}
 .kv.or{color:#F1891B}.kv.gr{color:#2e7d32}.kv.rd{color:#c62828}
-.kl{font-size:.72rem;color:#777;margin-top:2px}
+.kl{font-size:.7rem;color:#777;margin-top:2px}
 .g2{display:grid;grid-template-columns:1fr 1fr;gap:14px;margin-bottom:14px}
-@media(max-width:800px){.g2{grid-template-columns:1fr}}
+@media(max-width:900px){.g2{grid-template-columns:1fr}}
 .card{background:#fff;border-radius:8px;box-shadow:0 1px 6px rgba(0,0,0,0.08);padding:16px;margin-bottom:14px}
 .card h3{font-family:'Montserrat',sans-serif;font-size:.86rem;font-weight:700;color:#00548A;margin-bottom:12px;text-transform:uppercase;letter-spacing:.4px;border-bottom:2px solid #F1891B;padding-bottom:6px}
 .tbl{overflow-x:auto}
@@ -30,734 +41,406 @@ tbody tr:hover{background:#e8f1f9!important}
 td{border-bottom:1px solid #eaeef2;vertical-align:middle}
 .sec{font-family:'Montserrat',sans-serif;font-size:.91rem;font-weight:800;color:#00548A;text-transform:uppercase;letter-spacing:.4px;margin:18px 0 8px;padding-left:10px;border-left:4px solid #F1891B}
 .nota{font-size:.71rem;color:#888;margin-top:7px;line-height:1.5}
+.insight{border-radius:6px;padding:11px 14px;margin-bottom:9px;border-left:4px solid}
+.insight .it{font-family:'Montserrat',sans-serif;font-weight:700;font-size:.84rem;margin-bottom:4px}
+.insight .id{font-size:.78rem;color:#555;line-height:1.5}
+.sin-datos{text-align:center;color:#aaa;font-style:italic;padding:20px;font-size:.82rem}
 footer{background:#333;color:#bbb;text-align:center;padding:10px;font-size:.7rem;margin-top:20px}
 </style>
 </head>
 <body>
+
 <header>
   <div>
-    <div class="sub">El Cristorante S.A. — Cruce ERP × Meta Ads</div>
-    <h1>Ventas WEB × Pauta Meta Ads — 13 May al 11 Jun 2026 (30 días)</h1>
+    <div class="sub">El Cristorante S.A. — Cruce ERP x Meta Ads</div>
+    <h1 id="hdr-titulo">Ventas WEB x Pauta Meta Ads — cargando...</h1>
   </div>
-  <span class="pbd">Vendedores: CBROCCHETTO · FDIAZ · CAMPOO WEB</span>
+  <span class="pbd">Vendedores: CBROCCHETTO &middot; FDIAZ &middot; CAMPOO WEB</span>
 </header>
+
+<!-- Barra de filtro de fechas -->
+<div class="filtro-bar">
+  <label>DESDE</label>
+  <input type="date" id="inp-desde" min="2026-01-02" max="2026-07-17" value="2026-06-19">
+  <label>HASTA</label>
+  <input type="date" id="inp-hasta" min="2026-01-02" max="2026-07-17" value="2026-07-17">
+  <button class="btn-aplicar" onclick="aplicar()">Aplicar</button>
+  <button class="btn-preset" onclick="setPreset(7)">7 d</button>
+  <button class="btn-preset" onclick="setPreset(14)">14 d</button>
+  <button class="btn-preset" onclick="setPreset(30)" id="btn30">30 d</button>
+  <button class="btn-preset" onclick="setPreset(60)">60 d</button>
+  <span class="meta-nota" id="meta-nota">Datos Meta: agregado 30d (2026-06-18 al 2026-07-17) — no cambian con el selector de fechas</span>
+</div>
+
 <div class="wrap">
+  <!-- KPIs -->
+  <div class="kpi-row">
+    <div class="kpi bl"><div class="kv" id="kv-venta">—</div><div class="kl">Venta WEB total (ERP)</div></div>
+    <div class="kpi"><div class="kv or" id="kv-rubros">—</div><div class="kl">Rubros activos</div></div>
+    <div class="kpi gr"><div class="kv gr" id="kv-gasto">—</div><div class="kl">Gasto Meta Ads WEB</div></div>
+    <div class="kpi"><div class="kv" id="kv-roi">—</div><div class="kl">ROI ventas/gasto</div></div>
+    <div class="kpi rd"><div class="kv rd" id="kv-cpc-max">—</div><div class="kl" id="kl-cpc-max">CPC mas caro</div></div>
+    <div class="kpi gr"><div class="kv gr" id="kv-cpc-min">—</div><div class="kl" id="kl-cpc-min">CPC mas barato</div></div>
+  </div>
 
-<!-- KPIs -->
-<div class="kpi-row">
-  <div class="kpi bl"><div class="kv">$64.81M</div><div class="kl">Venta WEB total (ERP)</div></div>
-  <div class="kpi"><div class="kv or">32</div><div class="kl">Rubros activos</div></div>
-  <div class="kpi gr"><div class="kv gr">$5.25M</div><div class="kl">Gasto Meta Ads WEB</div></div>
-  <div class="kpi"><div class="kv">12.3×</div><div class="kl">ROI ventas/gasto (agregado)</div></div>
-  <div class="kpi rd"><div class="kv rd">$1,963</div><div class="kl">CPC más caro (REFRIGERACION)</div></div>
-  <div class="kpi gr"><div class="kv gr">$885</div><div class="kl">CPC más barato (GASTRONOMIA)</div></div>
-</div>
+  <div class="g2">
+    <div class="card">
+      <h3>Por campaña Meta Ads — Venta ERP + Performance</h3>
+      <div class="tbl"><table>
+        <thead><tr>
+          <th>Campaña Meta</th><th>Venta ERP</th><th>MUP</th><th>Margen</th><th>Txs</th>
+          <th>Gasto Meta</th><th>Conv WPP</th><th>CPC</th><th>ROI v/g</th>
+        </tr></thead>
+        <tbody id="tbody-camp"></tbody>
+      </table></div>
+      <p class="nota" id="nota-tabla">ROI v/g = Venta ERP / Gasto Meta &middot; CPC = costo por conversacion WPP</p>
+    </div>
+    <div class="card">
+      <h3>Hallazgos del cruce</h3>
+      <div id="insights-panel"></div>
+    </div>
+  </div>
 
-<div class="g2">
+  <div class="sec">Detalle por rubro ERP</div>
   <div class="card">
-    <h3>Por campaña Meta Ads — Venta ERP + Performance</h3>
     <div class="tbl"><table>
-      <thead><tr>
-        <th>Campaña Meta</th><th>Venta ERP</th><th>MUP</th><th>Margen</th><th>Txs</th>
-        <th>Gasto Meta</th><th>Conv WPP</th><th>CPC</th><th>ROI v/g</th>
-      </tr></thead>
-      <tbody><tr style="background:#f7fafd">
-  <td style="padding:9px 10px">
-    <div style="font-weight:700;font-size:.84rem;color:#1565C0;margin-bottom:1px">REFRIGERACION</div>
-    <div style="font-size:.7rem;color:#999;font-style:italic;margin-bottom:5px">Nombre sugerido: FRÍO COMERCIAL (Freezers · Verticales · Conservadoras)</div>
-    <div style="background:#fafafa;border:1px solid #eee;border-radius:5px;padding:4px 8px"><div style="display:flex;align-items:center;gap:8px;padding:3px 0;border-top:1px solid #f0f0f0">
-          <span style="color:#aaa;font-size:.68rem;white-space:nowrap">&#9492;</span>
-          <span style="font-size:.75rem;color:#555;flex:1">VERTICALES</span>
-          <span style="font-size:.73rem;color:#777;white-space:nowrap">$449k · 285 conv</span>
-          <span style="font-weight:700;font-size:.75rem;color:#E65100;white-space:nowrap">$1,576</span>
-        </div><div style="display:flex;align-items:center;gap:8px;padding:3px 0;border-top:1px solid #f0f0f0">
-          <span style="color:#aaa;font-size:.68rem;white-space:nowrap">&#9492;</span>
-          <span style="font-size:.75rem;color:#555;flex:1">FREEZERS</span>
-          <span style="font-size:.73rem;color:#777;white-space:nowrap">$446k · 211 conv</span>
-          <span style="font-weight:700;font-size:.75rem;color:#E65100;white-space:nowrap">$2,112</span>
-        </div><div style="display:flex;align-items:center;gap:8px;padding:3px 0;border-top:1px solid #f0f0f0">
-          <span style="color:#aaa;font-size:.68rem;white-space:nowrap">&#9492;</span>
-          <span style="font-size:.75rem;color:#555;flex:1">VERTICAL DE CONGELADOS</span>
-          <span style="font-size:.73rem;color:#777;white-space:nowrap">$456k · 192 conv</span>
-          <span style="font-weight:700;font-size:.75rem;color:#E65100;white-space:nowrap">$2,375</span>
-        </div></div>
-  </td>
-  <td style="padding:9px 10px;font-size:.82rem">
-    $14.99M
-    <div style="height:5px;background:#e0e0e0;border-radius:3px;margin-top:3px;overflow:hidden">
-      <div style="width:100%;height:100%;background:#1565C0;opacity:.7;border-radius:3px"></div>
-    </div>
-  </td>
-  <td style="padding:9px 10px;text-align:center;font-weight:700;font-size:.85rem">1.280</td>
-  <td style="padding:9px 10px;text-align:center;font-size:.82rem">21.8%</td>
-  <td style="padding:9px 10px;text-align:center;font-size:.82rem">14</td>
-  <td style="padding:9px 10px;text-align:center;font-size:.82rem">$1351k</td>
-  <td style="padding:9px 10px;text-align:center;font-size:.82rem">688.0</td>
-  <td style="padding:9px 10px;text-align:center;font-weight:800;color:#E65100;font-size:.85rem">$1,963</td>
-  <td style="padding:9px 10px;text-align:center;font-weight:800;color:#2E7D32;font-size:.85rem">11.1×</td>
-</tr><tr style="">
-  <td style="padding:9px 10px">
-    <div style="font-weight:700;font-size:.84rem;color:#9E9E9E;margin-bottom:1px">SIN CAMPAÑA<span style="background:#fce4ec;color:#c62828;font-size:.65rem;padding:1px 6px;border-radius:5px;font-weight:700;margin-left:4px">SIN PAUTA</span></div>
-    <div style="font-size:.7rem;color:#999;font-style:italic;margin-bottom:5px">Nombre sugerido: SIN CAMPAÑA — evaluar incluir</div>
-    <div style="background:#fafafa;border:1px solid #eee;border-radius:5px;padding:4px 8px"></div>
-  </td>
-  <td style="padding:9px 10px;font-size:.82rem">
-    $13.69M
-    <div style="height:5px;background:#e0e0e0;border-radius:3px;margin-top:3px;overflow:hidden">
-      <div style="width:91%;height:100%;background:#9E9E9E;opacity:.7;border-radius:3px"></div>
-    </div>
-  </td>
-  <td style="padding:9px 10px;text-align:center;font-weight:700;font-size:.85rem">1.327</td>
-  <td style="padding:9px 10px;text-align:center;font-size:.82rem">24.6%</td>
-  <td style="padding:9px 10px;text-align:center;font-size:.82rem">16</td>
-  <td style="padding:9px 10px;text-align:center;font-size:.82rem">—</td>
-  <td style="padding:9px 10px;text-align:center;font-size:.82rem">—</td>
-  <td style="padding:9px 10px;text-align:center;font-weight:800;color:#C62828;font-size:.85rem">$nan</td>
-  <td style="padding:9px 10px;text-align:center;font-weight:800;color:#C62828;font-size:.85rem">nan×</td>
-</tr><tr style="background:#f7fafd">
-  <td style="padding:9px 10px">
-    <div style="font-weight:700;font-size:.84rem;color:#F1891B;margin-bottom:1px">GASTRONOMIA</div>
-    <div style="font-size:.7rem;color:#999;font-style:italic;margin-bottom:5px">Nombre sugerido: GASTRONOMÍA (Hornos Convectores · Pizzeros · Anafes)</div>
-    <div style="background:#fafafa;border:1px solid #eee;border-radius:5px;padding:4px 8px"><div style="display:flex;align-items:center;gap:8px;padding:3px 0;border-top:1px solid #f0f0f0">
-          <span style="color:#aaa;font-size:.68rem;white-space:nowrap">&#9492;</span>
-          <span style="font-size:.75rem;color:#555;flex:1">FREIDORAS</span>
-          <span style="font-size:.73rem;color:#777;white-space:nowrap">$106k · 126 conv</span>
-          <span style="font-weight:700;font-size:.75rem;color:#2E7D32;white-space:nowrap">$838</span>
-        </div><div style="display:flex;align-items:center;gap:8px;padding:3px 0;border-top:1px solid #f0f0f0">
-          <span style="color:#aaa;font-size:.68rem;white-space:nowrap">&#9492;</span>
-          <span style="font-size:.75rem;color:#555;flex:1">COCINAS</span>
-          <span style="font-size:.73rem;color:#777;white-space:nowrap">$119k · 135 conv</span>
-          <span style="font-weight:700;font-size:.75rem;color:#2E7D32;white-space:nowrap">$884</span>
-        </div><div style="display:flex;align-items:center;gap:8px;padding:3px 0;border-top:1px solid #f0f0f0">
-          <span style="color:#aaa;font-size:.68rem;white-space:nowrap">&#9492;</span>
-          <span style="font-size:.75rem;color:#555;flex:1">HORNOS</span>
-          <span style="font-size:.73rem;color:#777;white-space:nowrap">$137k · 148 conv</span>
-          <span style="font-weight:700;font-size:.75rem;color:#2E7D32;white-space:nowrap">$926</span>
-        </div></div>
-  </td>
-  <td style="padding:9px 10px;font-size:.82rem">
-    $10.72M
-    <div style="height:5px;background:#e0e0e0;border-radius:3px;margin-top:3px;overflow:hidden">
-      <div style="width:71%;height:100%;background:#F1891B;opacity:.7;border-radius:3px"></div>
-    </div>
-  </td>
-  <td style="padding:9px 10px;text-align:center;font-weight:700;font-size:.85rem">1.324</td>
-  <td style="padding:9px 10px;text-align:center;font-size:.82rem">24.5%</td>
-  <td style="padding:9px 10px;text-align:center;font-size:.82rem">12</td>
-  <td style="padding:9px 10px;text-align:center;font-size:.82rem">$362k</td>
-  <td style="padding:9px 10px;text-align:center;font-size:.82rem">409.0</td>
-  <td style="padding:9px 10px;text-align:center;font-weight:800;color:#2E7D32;font-size:.85rem">$885</td>
-  <td style="padding:9px 10px;text-align:center;font-weight:800;color:#2E7D32;font-size:.85rem">29.6×</td>
-</tr><tr style="">
-  <td style="padding:9px 10px">
-    <div style="font-weight:700;font-size:.84rem;color:#2E7D32;margin-bottom:1px">HOGAR</div>
-    <div style="font-size:.7rem;color:#999;font-style:italic;margin-bottom:5px">Nombre sugerido: HOGAR (Termotanques · Cocinas · Microondas)</div>
-    <div style="background:#fafafa;border:1px solid #eee;border-radius:5px;padding:4px 8px"><div style="display:flex;align-items:center;gap:8px;padding:3px 0;border-top:1px solid #f0f0f0">
-          <span style="color:#aaa;font-size:.68rem;white-space:nowrap">&#9492;</span>
-          <span style="font-size:.75rem;color:#555;flex:1">Cocinas</span>
-          <span style="font-size:.73rem;color:#777;white-space:nowrap">$125k · 214 conv</span>
-          <span style="font-weight:700;font-size:.75rem;color:#2E7D32;white-space:nowrap">$584</span>
-        </div><div style="display:flex;align-items:center;gap:8px;padding:3px 0;border-top:1px solid #f0f0f0">
-          <span style="color:#aaa;font-size:.68rem;white-space:nowrap">&#9492;</span>
-          <span style="font-size:.75rem;color:#555;flex:1">Termotanques</span>
-          <span style="font-size:.73rem;color:#777;white-space:nowrap">$303k · 316 conv</span>
-          <span style="font-weight:700;font-size:.75rem;color:#2E7D32;white-space:nowrap">$959</span>
-        </div><div style="display:flex;align-items:center;gap:8px;padding:3px 0;border-top:1px solid #f0f0f0">
-          <span style="color:#aaa;font-size:.68rem;white-space:nowrap">&#9492;</span>
-          <span style="font-size:.75rem;color:#555;flex:1">Lavarropas</span>
-          <span style="font-size:.73rem;color:#777;white-space:nowrap">$301k · 302 conv</span>
-          <span style="font-weight:700;font-size:.75rem;color:#2E7D32;white-space:nowrap">$996</span>
-        </div><div style="display:flex;align-items:center;gap:8px;padding:3px 0;border-top:1px solid #f0f0f0">
-          <span style="color:#aaa;font-size:.68rem;white-space:nowrap">&#9492;</span>
-          <span style="font-size:.75rem;color:#555;flex:1">Heladeras</span>
-          <span style="font-size:.73rem;color:#777;white-space:nowrap">$305k · 244 conv</span>
-          <span style="font-weight:700;font-size:.75rem;color:#2E7D32;white-space:nowrap">$1,250</span>
-        </div><div style="display:flex;align-items:center;gap:8px;padding:3px 0;border-top:1px solid #f0f0f0">
-          <span style="color:#aaa;font-size:.68rem;white-space:nowrap">&#9492;</span>
-          <span style="font-size:.75rem;color:#555;flex:1">Calefacción</span>
-          <span style="font-size:.73rem;color:#777;white-space:nowrap">$111k · 88 conv</span>
-          <span style="font-weight:700;font-size:.75rem;color:#2E7D32;white-space:nowrap">$1,263</span>
-        </div></div>
-  </td>
-  <td style="padding:9px 10px;font-size:.82rem">
-    $10.56M
-    <div style="height:5px;background:#e0e0e0;border-radius:3px;margin-top:3px;overflow:hidden">
-      <div style="width:70%;height:100%;background:#2E7D32;opacity:.7;border-radius:3px"></div>
-    </div>
-  </td>
-  <td style="padding:9px 10px;text-align:center;font-weight:700;font-size:.85rem">1.300</td>
-  <td style="padding:9px 10px;text-align:center;font-size:.82rem">23.1%</td>
-  <td style="padding:9px 10px;text-align:center;font-size:.82rem">16</td>
-  <td style="padding:9px 10px;text-align:center;font-size:.82rem">$1145k</td>
-  <td style="padding:9px 10px;text-align:center;font-size:.82rem">1,164.0</td>
-  <td style="padding:9px 10px;text-align:center;font-weight:800;color:#2E7D32;font-size:.85rem">$984</td>
-  <td style="padding:9px 10px;text-align:center;font-weight:800;color:#E65100;font-size:.85rem">9.2×</td>
-</tr><tr style="background:#f7fafd">
-  <td style="padding:9px 10px">
-    <div style="font-weight:700;font-size:.84rem;color:#00548A;margin-bottom:1px">EQUIPAMIENTO</div>
-    <div style="font-size:.7rem;color:#999;font-style:italic;margin-bottom:5px">Nombre sugerido: EQUIPAMIENTO GASTRONÓMICO (Freidoras · Deshidratadores · Mesas)</div>
-    <div style="background:#fafafa;border:1px solid #eee;border-radius:5px;padding:4px 8px"><div style="display:flex;align-items:center;gap:8px;padding:3px 0;border-top:1px solid #f0f0f0">
-          <span style="color:#aaa;font-size:.68rem;white-space:nowrap">&#9492;</span>
-          <span style="font-size:.75rem;color:#555;flex:1">EQUIPAMIENTO | CARNICERIA | ABR 26</span>
-          <span style="font-size:.73rem;color:#777;white-space:nowrap">$132k · 143 conv</span>
-          <span style="font-weight:700;font-size:.75rem;color:#2E7D32;white-space:nowrap">$921</span>
-        </div><div style="display:flex;align-items:center;gap:8px;padding:3px 0;border-top:1px solid #f0f0f0">
-          <span style="color:#aaa;font-size:.68rem;white-space:nowrap">&#9492;</span>
-          <span style="font-size:.75rem;color:#555;flex:1">EQUIPAMIENTO | GASTRONOMIA | ABR 26</span>
-          <span style="font-size:.73rem;color:#777;white-space:nowrap">$131k · 137 conv</span>
-          <span style="font-weight:700;font-size:.75rem;color:#2E7D32;white-space:nowrap">$956</span>
-        </div><div style="display:flex;align-items:center;gap:8px;padding:3px 0;border-top:1px solid #f0f0f0">
-          <span style="color:#aaa;font-size:.68rem;white-space:nowrap">&#9492;</span>
-          <span style="font-size:.75rem;color:#555;flex:1">EQUIPAMIENTO | PANIFICADOS | ABR 26</span>
-          <span style="font-size:.73rem;color:#777;white-space:nowrap">$134k · 113 conv</span>
-          <span style="font-weight:700;font-size:.75rem;color:#2E7D32;white-space:nowrap">$1,183</span>
-        </div><div style="display:flex;align-items:center;gap:8px;padding:3px 0;border-top:1px solid #f0f0f0">
-          <span style="color:#aaa;font-size:.68rem;white-space:nowrap">&#9492;</span>
-          <span style="font-size:.75rem;color:#555;flex:1">EQUIPAMIENTO | REFRIGERACION | ABR 26</span>
-          <span style="font-size:.73rem;color:#777;white-space:nowrap">$105k · 70 conv</span>
-          <span style="font-weight:700;font-size:.75rem;color:#2E7D32;white-space:nowrap">$1,495</span>
-        </div><div style="display:flex;align-items:center;gap:8px;padding:3px 0;border-top:1px solid #f0f0f0">
-          <span style="color:#aaa;font-size:.68rem;white-space:nowrap">&#9492;</span>
-          <span style="font-size:.75rem;color:#555;flex:1">EQUIPAMIENTO | ALMACENES | ABR 26</span>
-          <span style="font-size:.73rem;color:#777;white-space:nowrap">$98k · 64 conv</span>
-          <span style="font-weight:700;font-size:.75rem;color:#E65100;white-space:nowrap">$1,530</span>
-        </div></div>
-  </td>
-  <td style="padding:9px 10px;font-size:.82rem">
-    $7.77M
-    <div style="height:5px;background:#e0e0e0;border-radius:3px;margin-top:3px;overflow:hidden">
-      <div style="width:51%;height:100%;background:#00548A;opacity:.7;border-radius:3px"></div>
-    </div>
-  </td>
-  <td style="padding:9px 10px;text-align:center;font-weight:700;font-size:.85rem">1.414</td>
-  <td style="padding:9px 10px;text-align:center;font-size:.82rem">29.3%</td>
-  <td style="padding:9px 10px;text-align:center;font-size:.82rem">7</td>
-  <td style="padding:9px 10px;text-align:center;font-size:.82rem">$599k</td>
-  <td style="padding:9px 10px;text-align:center;font-size:.82rem">527.0</td>
-  <td style="padding:9px 10px;text-align:center;font-weight:800;color:#2E7D32;font-size:.85rem">$1,136</td>
-  <td style="padding:9px 10px;text-align:center;font-weight:800;color:#2E7D32;font-size:.85rem">13.0×</td>
-</tr><tr style="">
-  <td style="padding:9px 10px">
-    <div style="font-weight:700;font-size:.84rem;color:#6A1B9A;margin-bottom:1px">ALMACEN</div>
-    <div style="font-size:.7rem;color:#999;font-style:italic;margin-bottom:5px">Nombre sugerido: EQUIPAMIENTO ALMACÉN (Balanzas · Cortadoras · Vitrinas)</div>
-    <div style="background:#fafafa;border:1px solid #eee;border-radius:5px;padding:4px 8px"><div style="display:flex;align-items:center;gap:8px;padding:3px 0;border-top:1px solid #f0f0f0">
-          <span style="color:#aaa;font-size:.68rem;white-space:nowrap">&#9492;</span>
-          <span style="font-size:.75rem;color:#555;flex:1">BALANZAS</span>
-          <span style="font-size:.73rem;color:#777;white-space:nowrap">$449k · 322 conv</span>
-          <span style="font-weight:700;font-size:.75rem;color:#2E7D32;white-space:nowrap">$1,395</span>
-        </div><div style="display:flex;align-items:center;gap:8px;padding:3px 0;border-top:1px solid #f0f0f0">
-          <span style="color:#aaa;font-size:.68rem;white-space:nowrap">&#9492;</span>
-          <span style="font-size:.75rem;color:#555;flex:1">CORTADORAS DE FIAMBRE</span>
-          <span style="font-size:.73rem;color:#777;white-space:nowrap">$449k · 262 conv</span>
-          <span style="font-weight:700;font-size:.75rem;color:#E65100;white-space:nowrap">$1,714</span>
-        </div><div style="display:flex;align-items:center;gap:8px;padding:3px 0;border-top:1px solid #f0f0f0">
-          <span style="color:#aaa;font-size:.68rem;white-space:nowrap">&#9492;</span>
-          <span style="font-size:.75rem;color:#555;flex:1">VITRINAS</span>
-          <span style="font-size:.73rem;color:#777;white-space:nowrap">$448k · 185 conv</span>
-          <span style="font-weight:700;font-size:.75rem;color:#E65100;white-space:nowrap">$2,424</span>
-        </div></div>
-  </td>
-  <td style="padding:9px 10px;font-size:.82rem">
-    $3.09M
-    <div style="height:5px;background:#e0e0e0;border-radius:3px;margin-top:3px;overflow:hidden">
-      <div style="width:20%;height:100%;background:#6A1B9A;opacity:.7;border-radius:3px"></div>
-    </div>
-  </td>
-  <td style="padding:9px 10px;text-align:center;font-weight:700;font-size:.85rem">1.237</td>
-  <td style="padding:9px 10px;text-align:center;font-size:.82rem">19.1%</td>
-  <td style="padding:9px 10px;text-align:center;font-size:.82rem">2</td>
-  <td style="padding:9px 10px;text-align:center;font-size:.82rem">$1346k</td>
-  <td style="padding:9px 10px;text-align:center;font-size:.82rem">769.0</td>
-  <td style="padding:9px 10px;text-align:center;font-weight:800;color:#E65100;font-size:.85rem">$1,751</td>
-  <td style="padding:9px 10px;text-align:center;font-weight:800;color:#C62828;font-size:.85rem">2.3×</td>
-</tr><tr style="background:#f7fafd">
-  <td style="padding:9px 10px">
-    <div style="font-weight:700;font-size:.84rem;color:#E65100;margin-bottom:1px">PANADERIA</div>
-    <div style="font-size:.7rem;color:#999;font-style:italic;margin-bottom:5px">Nombre sugerido: PANADERÍA Y PASTELERÍA (Amasadoras · Hornos · Moldes)</div>
-    <div style="background:#fafafa;border:1px solid #eee;border-radius:5px;padding:4px 8px"><div style="display:flex;align-items:center;gap:8px;padding:3px 0;border-top:1px solid #f0f0f0">
-          <span style="color:#aaa;font-size:.68rem;white-space:nowrap">&#9492;</span>
-          <span style="font-size:.75rem;color:#555;flex:1">AMASADORAS</span>
-          <span style="font-size:.73rem;color:#777;white-space:nowrap">$91k · 75 conv</span>
-          <span style="font-weight:700;font-size:.75rem;color:#2E7D32;white-space:nowrap">$1,218</span>
-        </div><div style="display:flex;align-items:center;gap:8px;padding:3px 0;border-top:1px solid #f0f0f0">
-          <span style="color:#aaa;font-size:.68rem;white-space:nowrap">&#9492;</span>
-          <span style="font-size:.75rem;color:#555;flex:1">MIX PANADERIA</span>
-          <span style="font-size:.73rem;color:#777;white-space:nowrap">$89k · 59 conv</span>
-          <span style="font-weight:700;font-size:.75rem;color:#E65100;white-space:nowrap">$1,512</span>
-        </div><div style="display:flex;align-items:center;gap:8px;padding:3px 0;border-top:1px solid #f0f0f0">
-          <span style="color:#aaa;font-size:.68rem;white-space:nowrap">&#9492;</span>
-          <span style="font-size:.75rem;color:#555;flex:1">BATIDORAS</span>
-          <span style="font-size:.73rem;color:#777;white-space:nowrap">$90k · 38 conv</span>
-          <span style="font-weight:700;font-size:.75rem;color:#E65100;white-space:nowrap">$2,362</span>
-        </div></div>
-  </td>
-  <td style="padding:9px 10px;font-size:.82rem">
-    $2.74M
-    <div style="height:5px;background:#e0e0e0;border-radius:3px;margin-top:3px;overflow:hidden">
-      <div style="width:18%;height:100%;background:#E65100;opacity:.7;border-radius:3px"></div>
-    </div>
-  </td>
-  <td style="padding:9px 10px;text-align:center;font-weight:700;font-size:.85rem">1.461</td>
-  <td style="padding:9px 10px;text-align:center;font-size:.82rem">31.5%</td>
-  <td style="padding:9px 10px;text-align:center;font-size:.82rem">4</td>
-  <td style="padding:9px 10px;text-align:center;font-size:.82rem">$270k</td>
-  <td style="padding:9px 10px;text-align:center;font-size:.82rem">172.0</td>
-  <td style="padding:9px 10px;text-align:center;font-weight:800;color:#E65100;font-size:.85rem">$1,572</td>
-  <td style="padding:9px 10px;text-align:center;font-weight:800;color:#2E7D32;font-size:.85rem">10.2×</td>
-</tr><tr style="">
-  <td style="padding:9px 10px">
-    <div style="font-weight:700;font-size:.84rem;color:#B71C1C;margin-bottom:1px">CARNICERIA</div>
-    <div style="font-size:.7rem;color:#999;font-style:italic;margin-bottom:5px">Nombre sugerido: CARNICERÍA (Bateas · Sierras · Picadoras · Embutidoras)</div>
-    <div style="background:#fafafa;border:1px solid #eee;border-radius:5px;padding:4px 8px"><div style="display:flex;align-items:center;gap:8px;padding:3px 0;border-top:1px solid #f0f0f0">
-          <span style="color:#aaa;font-size:.68rem;white-space:nowrap">&#9492;</span>
-          <span style="font-size:.75rem;color:#555;flex:1">MIX CARNICERIA</span>
-          <span style="font-size:.73rem;color:#777;white-space:nowrap">$91k · 86 conv</span>
-          <span style="font-weight:700;font-size:.75rem;color:#2E7D32;white-space:nowrap">$1,061</span>
-        </div><div style="display:flex;align-items:center;gap:8px;padding:3px 0;border-top:1px solid #f0f0f0">
-          <span style="color:#aaa;font-size:.68rem;white-space:nowrap">&#9492;</span>
-          <span style="font-size:.75rem;color:#555;flex:1">BATEAS CARNICERAS</span>
-          <span style="font-size:.73rem;color:#777;white-space:nowrap">$89k · 39 conv</span>
-          <span style="font-weight:700;font-size:.75rem;color:#E65100;white-space:nowrap">$2,290</span>
-        </div></div>
-  </td>
-  <td style="padding:9px 10px;font-size:.82rem">
-    $1.23M
-    <div style="height:5px;background:#e0e0e0;border-radius:3px;margin-top:3px;overflow:hidden">
-      <div style="width:8%;height:100%;background:#B71C1C;opacity:.7;border-radius:3px"></div>
-    </div>
-  </td>
-  <td style="padding:9px 10px;text-align:center;font-weight:700;font-size:.85rem">1.247</td>
-  <td style="padding:9px 10px;text-align:center;font-size:.82rem">19.8%</td>
-  <td style="padding:9px 10px;text-align:center;font-size:.82rem">5</td>
-  <td style="padding:9px 10px;text-align:center;font-size:.82rem">$181k</td>
-  <td style="padding:9px 10px;text-align:center;font-size:.82rem">125.0</td>
-  <td style="padding:9px 10px;text-align:center;font-weight:800;color:#2E7D32;font-size:.85rem">$1,444</td>
-  <td style="padding:9px 10px;text-align:center;font-weight:800;color:#E65100;font-size:.85rem">6.8×</td>
-</tr></tbody>
+      <thead><tr><th>Rubro</th><th>Campaña Meta</th><th>Venta ERP</th><th>MUP</th><th>Margen</th><th>Txs</th></tr></thead>
+      <tbody id="tbody-rubro"></tbody>
     </table></div>
-    <p class="nota">ROI v/g = Venta ERP / Gasto Meta · Txs = transacciones cerradas en ERP · CPC = costo por conversación WPP</p>
-    <p class="nota">⚠️ ALMACEN: $1.35M en pauta sin ventas ERP registradas en canal WEB</p>
-  </div>
-
-  <div class="card">
-    <h3>Hallazgos del cruce</h3>
-    <div style="background:#e8f5e9;border-left:4px solid #2e7d32;border-radius:6px;padding:11px 14px;margin-bottom:9px">
-  <div style="font-family:'Montserrat',sans-serif;font-weight:700;font-size:.84rem;color:#2e7d32;margin-bottom:4px">🏆 HOGAR tiene el mejor CPC y vende bien en WEB</div>
-  <div style="font-size:.78rem;color:#555;line-height:1.5">CPC $984 (mejor de la cuenta WEB) + $10.6M en ventas ERP en el período. MUP 1.311 — margen decente. La campaña está bien dirigida. Candidata a aumentar presupuesto.</div>
-</div><div style="background:#e8f5e9;border-left:4px solid #2e7d32;border-radius:6px;padding:11px 14px;margin-bottom:9px">
-  <div style="font-family:'Montserrat',sans-serif;font-weight:700;font-size:.84rem;color:#2e7d32;margin-bottom:4px">🏆 GASTRONOMIA: CPC más bajo ($885) con margen sólido</div>
-  <div style="font-size:.78rem;color:#555;line-height:1.5">Solo $10.7M en ventas ERP, pero CPC $885 es el mejor de toda la cuenta. Rubros como HORNOS CONVECTORES (MUP 1.318) y HORNOS PIZZEROS (MUP 1.286) tienen volumen y margen aceptable. La pauta atrae consultas baratas — el cuello de botella puede estar en el proceso de venta, no en la pauta.</div>
-</div><div style="background:#fff8e1;border-left:4px solid #e65100;border-radius:6px;padding:11px 14px;margin-bottom:9px">
-  <div style="font-family:'Montserrat',sans-serif;font-weight:700;font-size:.84rem;color:#e65100;margin-bottom:4px">⚠️ VERTICALES concentra el 26% de la venta WEB sin campaña directa</div>
-  <div style="font-size:.78rem;color:#555;line-height:1.5">$5.0M en ventas (MUP 1.231, 18.7% margen) bajo la campaña REFRIGERACION. La campaña REFRIGERACION tiene CPC $1,963 — el más caro del canal WEB. El producto que más vende en web no tiene campaña específica y el paraguas que lo cubre es el menos eficiente.</div>
-</div><div style="background:#fff8e1;border-left:4px solid #e65100;border-radius:6px;padding:11px 14px;margin-bottom:9px">
-  <div style="font-family:'Montserrat',sans-serif;font-weight:700;font-size:.84rem;color:#e65100;margin-bottom:4px">⚠️ ALMACEN pauta Balanzas, Cortadoras y Vitrinas — no "almacén" de alimentos</div>
-  <div style="font-size:.78rem;color:#555;line-height:1.5">$1,346,401 en 3 conjuntos: Balanzas ($449k · 322 conv), Cortadoras de Fiambre ($449k · 262 conv), Vitrinas ($448k · 185 conv). Venta ERP registrada: Cortadora Fiambres $630k + Helvitrina $5.25M = $5.88M (COR 4.4×). El nombre "ALMACEN" no describe lo que se pauta — genera confusión interna. Nombre sugerido: EQUIPAMIENTO ALMACÉN (Balanzas · Cortadoras · Vitrinas).</div>
-</div><div style="background:#fff8e1;border-left:4px solid #e65100;border-radius:6px;padding:11px 14px;margin-bottom:9px">
-  <div style="font-family:'Montserrat',sans-serif;font-weight:700;font-size:.84rem;color:#e65100;margin-bottom:4px">⚠️ REFRIGERACION: CPC caro + MUP bajo + volumen dominado por VERTICALES</div>
-  <div style="font-size:.78rem;color:#555;line-height:1.5">CPC $1,963 (el peor del canal WEB). El rubro más vendido bajo esta campaña es VERTICALES con MUP 1.231 (18.7%). Freezer ($2.97M, MUP 1.269) completan el mix. Ninguno supera MUP 1.27. Nombre sugerido: FRÍO COMERCIAL — más claro para el equipo y para el algoritmo de Meta.</div>
-</div><div style="background:#e3f2fd;border-left:4px solid #1565c0;border-radius:6px;padding:11px 14px;margin-bottom:9px">
-  <div style="font-family:'Montserrat',sans-serif;font-weight:700;font-size:.84rem;color:#1565c0;margin-bottom:4px">💡 DESHIDRATADORES, FREIDORA AUTOMATICA y BATEACARNICERA tienen MUP > 1.40</div>
-  <div style="font-size:.78rem;color:#555;line-height:1.5">Deshidratadores: MUP 1.425 ($3.84M) | Freidora Automática: MUP 1.374 ($5.50M) | Batea Carnicera: MUP 1.430 ($2.14M). Son rubros de alto margen bajo la campaña EQUIPAMIENTO (CPC $1,136). Creatividades específicas para estos productos dentro de EQUIPAMIENTO podrían mejorar la calidad de conversaciones.</div>
-</div>
+    <p class="nota" id="nota-rubro">Canal: Web (CBROCCHETTO, FDIAZ, CAMPOO WEB)</p>
   </div>
 </div>
 
-<!-- Detalle por rubro -->
-<div class="sec">Detalle por rubro ERP</div>
-<div class="card">
-  <div class="tbl"><table>
-    <thead><tr><th>Rubro</th><th>Campaña Meta</th><th>Venta ERP</th><th>MUP</th><th>Margen</th><th>Txs</th></tr></thead>
-    <tbody><tr style="background:#f7fafd">
-  <td style="padding:8px 10px;font-size:.82rem">FREEZER</td>
-  <td style="padding:8px 10px;font-size:.75rem;color:#1565C0;font-weight:700">REFRIGERACION</td>
-  <td style="padding:8px 10px;font-size:.82rem">
-    $8.19M <span style="color:#999;font-size:.72rem">(12.5%)</span>
-    <div style="height:4px;background:#e0e0e0;border-radius:2px;margin-top:3px;overflow:hidden">
-      <div style="width:100%;height:100%;background:#1565C0;opacity:.65;border-radius:2px"></div>
-    </div>
-  </td>
-  <td style="padding:8px 10px;text-align:center;font-weight:700;font-size:.83rem">1.284</td>
-  <td style="padding:8px 10px;text-align:center;font-size:.82rem">22.1%</td>
-  <td style="padding:8px 10px;text-align:center;font-size:.78rem">7</td>
-</tr><tr style="">
-  <td style="padding:8px 10px;font-size:.82rem">TERMOTANQUES</td>
-  <td style="padding:8px 10px;font-size:.75rem;color:#2E7D32;font-weight:700">HOGAR</td>
-  <td style="padding:8px 10px;font-size:.82rem">
-    $8.02M <span style="color:#999;font-size:.72rem">(12.2%)</span>
-    <div style="height:4px;background:#e0e0e0;border-radius:2px;margin-top:3px;overflow:hidden">
-      <div style="width:97%;height:100%;background:#2E7D32;opacity:.65;border-radius:2px"></div>
-    </div>
-  </td>
-  <td style="padding:8px 10px;text-align:center;font-weight:700;font-size:.83rem">1.292</td>
-  <td style="padding:8px 10px;text-align:center;font-size:.82rem">22.6%</td>
-  <td style="padding:8px 10px;text-align:center;font-size:.78rem">5</td>
-</tr><tr style="background:#f7fafd">
-  <td style="padding:8px 10px;font-size:.82rem">HORNOS PIZZEROS</td>
-  <td style="padding:8px 10px;font-size:.75rem;color:#F1891B;font-weight:700">GASTRONOMIA</td>
-  <td style="padding:8px 10px;font-size:.82rem">
-    $5.54M <span style="color:#999;font-size:.72rem">(8.4%)</span>
-    <div style="height:4px;background:#e0e0e0;border-radius:2px;margin-top:3px;overflow:hidden">
-      <div style="width:67%;height:100%;background:#F1891B;opacity:.65;border-radius:2px"></div>
-    </div>
-  </td>
-  <td style="padding:8px 10px;text-align:center;font-weight:700;font-size:.83rem">1.314</td>
-  <td style="padding:8px 10px;text-align:center;font-size:.82rem">23.9%</td>
-  <td style="padding:8px 10px;text-align:center;font-size:.78rem">4</td>
-</tr><tr style="">
-  <td style="padding:8px 10px;font-size:.82rem">FREIDORA AUTOMATICA</td>
-  <td style="padding:8px 10px;font-size:.75rem;color:#00548A;font-weight:700">EQUIPAMIENTO</td>
-  <td style="padding:8px 10px;font-size:.82rem">
-    $5.53M <span style="color:#999;font-size:.72rem">(8.4%)</span>
-    <div style="height:4px;background:#e0e0e0;border-radius:2px;margin-top:3px;overflow:hidden">
-      <div style="width:67%;height:100%;background:#00548A;opacity:.65;border-radius:2px"></div>
-    </div>
-  </td>
-  <td style="padding:8px 10px;text-align:center;font-weight:700;font-size:.83rem">1.383</td>
-  <td style="padding:8px 10px;text-align:center;font-size:.82rem">27.7%</td>
-  <td style="padding:8px 10px;text-align:center;font-size:.78rem">2</td>
-</tr><tr style="background:#f7fafd">
-  <td style="padding:8px 10px;font-size:.82rem">VERTICALES</td>
-  <td style="padding:8px 10px;font-size:.75rem;color:#1565C0;font-weight:700">REFRIGERACION</td>
-  <td style="padding:8px 10px;font-size:.82rem">
-    $5.02M <span style="color:#999;font-size:.72rem">(7.7%)</span>
-    <div style="height:4px;background:#e0e0e0;border-radius:2px;margin-top:3px;overflow:hidden">
-      <div style="width:61%;height:100%;background:#1565C0;opacity:.65;border-radius:2px"></div>
-    </div>
-  </td>
-  <td style="padding:8px 10px;text-align:center;font-weight:700;font-size:.83rem">1.249</td>
-  <td style="padding:8px 10px;text-align:center;font-size:.82rem">19.9%</td>
-  <td style="padding:8px 10px;text-align:center;font-size:.78rem">6</td>
-</tr><tr style="">
-  <td style="padding:8px 10px;font-size:.82rem">HORNOS CONVECTORES</td>
-  <td style="padding:8px 10px;font-size:.75rem;color:#F1891B;font-weight:700">GASTRONOMIA</td>
-  <td style="padding:8px 10px;font-size:.82rem">
-    $3.38M <span style="color:#999;font-size:.72rem">(5.2%)</span>
-    <div style="height:4px;background:#e0e0e0;border-radius:2px;margin-top:3px;overflow:hidden">
-      <div style="width:41%;height:100%;background:#F1891B;opacity:.65;border-radius:2px"></div>
-    </div>
-  </td>
-  <td style="padding:8px 10px;text-align:center;font-weight:700;font-size:.83rem">1.370</td>
-  <td style="padding:8px 10px;text-align:center;font-size:.82rem">27.0%</td>
-  <td style="padding:8px 10px;text-align:center;font-size:.78rem">4</td>
-</tr><tr style="background:#f7fafd">
-  <td style="padding:8px 10px;font-size:.82rem">HELVITRINA</td>
-  <td style="padding:8px 10px;font-size:.75rem;color:#6A1B9A;font-weight:700">ALMACEN</td>
-  <td style="padding:8px 10px;font-size:.82rem">
-    $3.09M <span style="color:#999;font-size:.72rem">(4.7%)</span>
-    <div style="height:4px;background:#e0e0e0;border-radius:2px;margin-top:3px;overflow:hidden">
-      <div style="width:37%;height:100%;background:#6A1B9A;opacity:.65;border-radius:2px"></div>
-    </div>
-  </td>
-  <td style="padding:8px 10px;text-align:center;font-weight:700;font-size:.83rem">1.237</td>
-  <td style="padding:8px 10px;text-align:center;font-size:.82rem">19.1%</td>
-  <td style="padding:8px 10px;text-align:center;font-size:.78rem">2</td>
-</tr><tr style="">
-  <td style="padding:8px 10px;font-size:.82rem">HELADERABAJOMESADA<span style="background:#fce4ec;color:#c62828;font-size:.62rem;padding:1px 4px;border-radius:4px;margin-left:4px">SIN PAUTA</span></td>
-  <td style="padding:8px 10px;font-size:.75rem;color:#9E9E9E;font-weight:700">SIN CAMPAÑA</td>
-  <td style="padding:8px 10px;font-size:.82rem">
-    $2.83M <span style="color:#999;font-size:.72rem">(4.3%)</span>
-    <div style="height:4px;background:#e0e0e0;border-radius:2px;margin-top:3px;overflow:hidden">
-      <div style="width:34%;height:100%;background:#9E9E9E;opacity:.65;border-radius:2px"></div>
-    </div>
-  </td>
-  <td style="padding:8px 10px;text-align:center;font-weight:700;font-size:.83rem">1.344</td>
-  <td style="padding:8px 10px;text-align:center;font-size:.82rem">25.6%</td>
-  <td style="padding:8px 10px;text-align:center;font-size:.78rem">1</td>
-</tr><tr style="background:#f7fafd">
-  <td style="padding:8px 10px;font-size:.82rem">MANTENEDOR CALOR<span style="background:#fce4ec;color:#c62828;font-size:.62rem;padding:1px 4px;border-radius:4px;margin-left:4px">SIN PAUTA</span></td>
-  <td style="padding:8px 10px;font-size:.75rem;color:#9E9E9E;font-weight:700">SIN CAMPAÑA</td>
-  <td style="padding:8px 10px;font-size:.82rem">
-    $2.50M <span style="color:#999;font-size:.72rem">(3.8%)</span>
-    <div style="height:4px;background:#e0e0e0;border-radius:2px;margin-top:3px;overflow:hidden">
-      <div style="width:30%;height:100%;background:#9E9E9E;opacity:.65;border-radius:2px"></div>
-    </div>
-  </td>
-  <td style="padding:8px 10px;text-align:center;font-weight:700;font-size:.83rem">1.430</td>
-  <td style="padding:8px 10px;text-align:center;font-size:.82rem">30.1%</td>
-  <td style="padding:8px 10px;text-align:center;font-size:.78rem">2</td>
-</tr><tr style="">
-  <td style="padding:8px 10px;font-size:.82rem">COCINAS</td>
-  <td style="padding:8px 10px;font-size:.75rem;color:#2E7D32;font-weight:700">HOGAR</td>
-  <td style="padding:8px 10px;font-size:.82rem">
-    $1.91M <span style="color:#999;font-size:.72rem">(2.9%)</span>
-    <div style="height:4px;background:#e0e0e0;border-radius:2px;margin-top:3px;overflow:hidden">
-      <div style="width:23%;height:100%;background:#2E7D32;opacity:.65;border-radius:2px"></div>
-    </div>
-  </td>
-  <td style="padding:8px 10px;text-align:center;font-weight:700;font-size:.83rem">1.331</td>
-  <td style="padding:8px 10px;text-align:center;font-size:.82rem">24.9%</td>
-  <td style="padding:8px 10px;text-align:center;font-size:.78rem">5</td>
-</tr><tr style="background:#f7fafd">
-  <td style="padding:8px 10px;font-size:.82rem">HELADERAS FAMILIARES<span style="background:#fce4ec;color:#c62828;font-size:.62rem;padding:1px 4px;border-radius:4px;margin-left:4px">SIN PAUTA</span></td>
-  <td style="padding:8px 10px;font-size:.75rem;color:#9E9E9E;font-weight:700">SIN CAMPAÑA</td>
-  <td style="padding:8px 10px;font-size:.82rem">
-    $1.87M <span style="color:#999;font-size:.72rem">(2.9%)</span>
-    <div style="height:4px;background:#e0e0e0;border-radius:2px;margin-top:3px;overflow:hidden">
-      <div style="width:22%;height:100%;background:#9E9E9E;opacity:.65;border-radius:2px"></div>
-    </div>
-  </td>
-  <td style="padding:8px 10px;text-align:center;font-weight:700;font-size:.83rem">1.250</td>
-  <td style="padding:8px 10px;text-align:center;font-size:.82rem">20.0%</td>
-  <td style="padding:8px 10px;text-align:center;font-size:.78rem">3</td>
-</tr><tr style="">
-  <td style="padding:8px 10px;font-size:.82rem">DESHIDRATADORES</td>
-  <td style="padding:8px 10px;font-size:.75rem;color:#00548A;font-weight:700">EQUIPAMIENTO</td>
-  <td style="padding:8px 10px;font-size:.82rem">
-    $1.79M <span style="color:#999;font-size:.72rem">(2.7%)</span>
-    <div style="height:4px;background:#e0e0e0;border-radius:2px;margin-top:3px;overflow:hidden">
-      <div style="width:21%;height:100%;background:#00548A;opacity:.65;border-radius:2px"></div>
-    </div>
-  </td>
-  <td style="padding:8px 10px;text-align:center;font-weight:700;font-size:.83rem">1.529</td>
-  <td style="padding:8px 10px;text-align:center;font-size:.82rem">34.6%</td>
-  <td style="padding:8px 10px;text-align:center;font-size:.78rem">2</td>
-</tr><tr style="background:#f7fafd">
-  <td style="padding:8px 10px;font-size:.82rem">VERTICAL CONGELADOS</td>
-  <td style="padding:8px 10px;font-size:.75rem;color:#1565C0;font-weight:700">REFRIGERACION</td>
-  <td style="padding:8px 10px;font-size:.82rem">
-    $1.79M <span style="color:#999;font-size:.72rem">(2.7%)</span>
-    <div style="height:4px;background:#e0e0e0;border-radius:2px;margin-top:3px;overflow:hidden">
-      <div style="width:21%;height:100%;background:#1565C0;opacity:.65;border-radius:2px"></div>
-    </div>
-  </td>
-  <td style="padding:8px 10px;text-align:center;font-weight:700;font-size:.83rem">1.344</td>
-  <td style="padding:8px 10px;text-align:center;font-size:.82rem">25.6%</td>
-  <td style="padding:8px 10px;text-align:center;font-size:.78rem">1</td>
-</tr><tr style="">
-  <td style="padding:8px 10px;font-size:.82rem">TELEVISORES<span style="background:#fce4ec;color:#c62828;font-size:.62rem;padding:1px 4px;border-radius:4px;margin-left:4px">SIN PAUTA</span></td>
-  <td style="padding:8px 10px;font-size:.75rem;color:#9E9E9E;font-weight:700">SIN CAMPAÑA</td>
-  <td style="padding:8px 10px;font-size:.82rem">
-    $1.69M <span style="color:#999;font-size:.72rem">(2.6%)</span>
-    <div style="height:4px;background:#e0e0e0;border-radius:2px;margin-top:3px;overflow:hidden">
-      <div style="width:20%;height:100%;background:#9E9E9E;opacity:.65;border-radius:2px"></div>
-    </div>
-  </td>
-  <td style="padding:8px 10px;text-align:center;font-weight:700;font-size:.83rem">1.183</td>
-  <td style="padding:8px 10px;text-align:center;font-size:.82rem">15.5%</td>
-  <td style="padding:8px 10px;text-align:center;font-size:.78rem">2</td>
-</tr><tr style="background:#f7fafd">
-  <td style="padding:8px 10px;font-size:.82rem">CORTADORA FIAMBRES</td>
-  <td style="padding:8px 10px;font-size:.75rem;color:#F1891B;font-weight:700">GASTRONOMIA</td>
-  <td style="padding:8px 10px;font-size:.82rem">
-    $1.63M <span style="color:#999;font-size:.72rem">(2.5%)</span>
-    <div style="height:4px;background:#e0e0e0;border-radius:2px;margin-top:3px;overflow:hidden">
-      <div style="width:19%;height:100%;background:#F1891B;opacity:.65;border-radius:2px"></div>
-    </div>
-  </td>
-  <td style="padding:8px 10px;text-align:center;font-weight:700;font-size:.83rem">1.258</td>
-  <td style="padding:8px 10px;text-align:center;font-size:.82rem">20.5%</td>
-  <td style="padding:8px 10px;text-align:center;font-size:.78rem">2</td>
-</tr><tr style="">
-  <td style="padding:8px 10px;font-size:.82rem">CAMARA FERMENTADORA</td>
-  <td style="padding:8px 10px;font-size:.75rem;color:#E65100;font-weight:700">PANADERIA</td>
-  <td style="padding:8px 10px;font-size:.82rem">
-    $1.44M <span style="color:#999;font-size:.72rem">(2.2%)</span>
-    <div style="height:4px;background:#e0e0e0;border-radius:2px;margin-top:3px;overflow:hidden">
-      <div style="width:17%;height:100%;background:#E65100;opacity:.65;border-radius:2px"></div>
-    </div>
-  </td>
-  <td style="padding:8px 10px;text-align:center;font-weight:700;font-size:.83rem">1.496</td>
-  <td style="padding:8px 10px;text-align:center;font-size:.82rem">33.1%</td>
-  <td style="padding:8px 10px;text-align:center;font-size:.78rem">1</td>
-</tr><tr style="background:#f7fafd">
-  <td style="padding:8px 10px;font-size:.82rem">PESADO CON TICKET<span style="background:#fce4ec;color:#c62828;font-size:.62rem;padding:1px 4px;border-radius:4px;margin-left:4px">SIN PAUTA</span></td>
-  <td style="padding:8px 10px;font-size:.75rem;color:#9E9E9E;font-weight:700">SIN CAMPAÑA</td>
-  <td style="padding:8px 10px;font-size:.82rem">
-    $1.30M <span style="color:#999;font-size:.72rem">(2.0%)</span>
-    <div style="height:4px;background:#e0e0e0;border-radius:2px;margin-top:3px;overflow:hidden">
-      <div style="width:15%;height:100%;background:#9E9E9E;opacity:.65;border-radius:2px"></div>
-    </div>
-  </td>
-  <td style="padding:8px 10px;text-align:center;font-weight:700;font-size:.83rem">1.301</td>
-  <td style="padding:8px 10px;text-align:center;font-size:.82rem">23.2%</td>
-  <td style="padding:8px 10px;text-align:center;font-size:.78rem">1</td>
-</tr><tr style="">
-  <td style="padding:8px 10px;font-size:.82rem">MAQUINASEMBUTIDOS</td>
-  <td style="padding:8px 10px;font-size:.75rem;color:#B71C1C;font-weight:700">CARNICERIA</td>
-  <td style="padding:8px 10px;font-size:.82rem">
-    $1.23M <span style="color:#999;font-size:.72rem">(1.9%)</span>
-    <div style="height:4px;background:#e0e0e0;border-radius:2px;margin-top:3px;overflow:hidden">
-      <div style="width:15%;height:100%;background:#B71C1C;opacity:.65;border-radius:2px"></div>
-    </div>
-  </td>
-  <td style="padding:8px 10px;text-align:center;font-weight:700;font-size:.83rem">1.247</td>
-  <td style="padding:8px 10px;text-align:center;font-size:.82rem">19.8%</td>
-  <td style="padding:8px 10px;text-align:center;font-size:.78rem">5</td>
-</tr><tr style="background:#f7fafd">
-  <td style="padding:8px 10px;font-size:.82rem">SOBADORAS<span style="background:#fce4ec;color:#c62828;font-size:.62rem;padding:1px 4px;border-radius:4px;margin-left:4px">SIN PAUTA</span></td>
-  <td style="padding:8px 10px;font-size:.75rem;color:#9E9E9E;font-weight:700">SIN CAMPAÑA</td>
-  <td style="padding:8px 10px;font-size:.82rem">
-    $0.98M <span style="color:#999;font-size:.72rem">(1.5%)</span>
-    <div style="height:4px;background:#e0e0e0;border-radius:2px;margin-top:3px;overflow:hidden">
-      <div style="width:11%;height:100%;background:#9E9E9E;opacity:.65;border-radius:2px"></div>
-    </div>
-  </td>
-  <td style="padding:8px 10px;text-align:center;font-weight:700;font-size:.83rem">1.430</td>
-  <td style="padding:8px 10px;text-align:center;font-size:.82rem">30.1%</td>
-  <td style="padding:8px 10px;text-align:center;font-size:.78rem">1</td>
-</tr><tr style="">
-  <td style="padding:8px 10px;font-size:.82rem">LAVARROPAS<span style="background:#fce4ec;color:#c62828;font-size:.62rem;padding:1px 4px;border-radius:4px;margin-left:4px">SIN PAUTA</span></td>
-  <td style="padding:8px 10px;font-size:.75rem;color:#9E9E9E;font-weight:700">SIN CAMPAÑA</td>
-  <td style="padding:8px 10px;font-size:.82rem">
-    $0.86M <span style="color:#999;font-size:.72rem">(1.3%)</span>
-    <div style="height:4px;background:#e0e0e0;border-radius:2px;margin-top:3px;overflow:hidden">
-      <div style="width:10%;height:100%;background:#9E9E9E;opacity:.65;border-radius:2px"></div>
-    </div>
-  </td>
-  <td style="padding:8px 10px;text-align:center;font-weight:700;font-size:.83rem">1.274</td>
-  <td style="padding:8px 10px;text-align:center;font-size:.82rem">21.5%</td>
-  <td style="padding:8px 10px;text-align:center;font-size:.78rem">1</td>
-</tr><tr style="background:#f7fafd">
-  <td style="padding:8px 10px;font-size:.82rem">AMASADORAS</td>
-  <td style="padding:8px 10px;font-size:.75rem;color:#E65100;font-weight:700">PANADERIA</td>
-  <td style="padding:8px 10px;font-size:.82rem">
-    $0.66M <span style="color:#999;font-size:.72rem">(1.0%)</span>
-    <div style="height:4px;background:#e0e0e0;border-radius:2px;margin-top:3px;overflow:hidden">
-      <div style="width:8%;height:100%;background:#E65100;opacity:.65;border-radius:2px"></div>
-    </div>
-  </td>
-  <td style="padding:8px 10px;text-align:center;font-weight:700;font-size:.83rem">1.428</td>
-  <td style="padding:8px 10px;text-align:center;font-size:.82rem">30.0%</td>
-  <td style="padding:8px 10px;text-align:center;font-size:.78rem">1</td>
-</tr><tr style="">
-  <td style="padding:8px 10px;font-size:.82rem">CALEFACCION</td>
-  <td style="padding:8px 10px;font-size:.75rem;color:#2E7D32;font-weight:700">HOGAR</td>
-  <td style="padding:8px 10px;font-size:.82rem">
-    $0.64M <span style="color:#999;font-size:.72rem">(1.0%)</span>
-    <div style="height:4px;background:#e0e0e0;border-radius:2px;margin-top:3px;overflow:hidden">
-      <div style="width:7%;height:100%;background:#2E7D32;opacity:.65;border-radius:2px"></div>
-    </div>
-  </td>
-  <td style="padding:8px 10px;text-align:center;font-weight:700;font-size:.83rem">1.310</td>
-  <td style="padding:8px 10px;text-align:center;font-size:.82rem">23.6%</td>
-  <td style="padding:8px 10px;text-align:center;font-size:.78rem">6</td>
-</tr><tr style="background:#f7fafd">
-  <td style="padding:8px 10px;font-size:.82rem">HORNOS<span style="background:#fce4ec;color:#c62828;font-size:.62rem;padding:1px 4px;border-radius:4px;margin-left:4px">SIN PAUTA</span></td>
-  <td style="padding:8px 10px;font-size:.75rem;color:#9E9E9E;font-weight:700">SIN CAMPAÑA</td>
-  <td style="padding:8px 10px;font-size:.82rem">
-    $0.63M <span style="color:#999;font-size:.72rem">(1.0%)</span>
-    <div style="height:4px;background:#e0e0e0;border-radius:2px;margin-top:3px;overflow:hidden">
-      <div style="width:7%;height:100%;background:#9E9E9E;opacity:.65;border-radius:2px"></div>
-    </div>
-  </td>
-  <td style="padding:8px 10px;text-align:center;font-weight:700;font-size:.83rem">nan</td>
-  <td style="padding:8px 10px;text-align:center;font-size:.82rem">nan%</td>
-  <td style="padding:8px 10px;text-align:center;font-size:.78rem">1</td>
-</tr><tr style="">
-  <td style="padding:8px 10px;font-size:.82rem">HORNOS PASTELEROS</td>
-  <td style="padding:8px 10px;font-size:.75rem;color:#E65100;font-weight:700">PANADERIA</td>
-  <td style="padding:8px 10px;font-size:.82rem">
-    $0.59M <span style="color:#999;font-size:.72rem">(0.9%)</span>
-    <div style="height:4px;background:#e0e0e0;border-radius:2px;margin-top:3px;overflow:hidden">
-      <div style="width:7%;height:100%;background:#E65100;opacity:.65;border-radius:2px"></div>
-    </div>
-  </td>
-  <td style="padding:8px 10px;text-align:center;font-weight:700;font-size:.83rem">1.410</td>
-  <td style="padding:8px 10px;text-align:center;font-size:.82rem">29.1%</td>
-  <td style="padding:8px 10px;text-align:center;font-size:.78rem">1</td>
-</tr><tr style="background:#f7fafd">
-  <td style="padding:8px 10px;font-size:.82rem">CALEFACTOR IVA 10.5<span style="background:#fce4ec;color:#c62828;font-size:.62rem;padding:1px 4px;border-radius:4px;margin-left:4px">SIN PAUTA</span></td>
-  <td style="padding:8px 10px;font-size:.75rem;color:#9E9E9E;font-weight:700">SIN CAMPAÑA</td>
-  <td style="padding:8px 10px;font-size:.82rem">
-    $0.34M <span style="color:#999;font-size:.72rem">(0.5%)</span>
-    <div style="height:4px;background:#e0e0e0;border-radius:2px;margin-top:3px;overflow:hidden">
-      <div style="width:4%;height:100%;background:#9E9E9E;opacity:.65;border-radius:2px"></div>
-    </div>
-  </td>
-  <td style="padding:8px 10px;text-align:center;font-weight:700;font-size:.83rem">1.416</td>
-  <td style="padding:8px 10px;text-align:center;font-size:.82rem">29.4%</td>
-  <td style="padding:8px 10px;text-align:center;font-size:.78rem">1</td>
-</tr><tr style="">
-  <td style="padding:8px 10px;font-size:.82rem">CALEFONES<span style="background:#fce4ec;color:#c62828;font-size:.62rem;padding:1px 4px;border-radius:4px;margin-left:4px">SIN PAUTA</span></td>
-  <td style="padding:8px 10px;font-size:.75rem;color:#9E9E9E;font-weight:700">SIN CAMPAÑA</td>
-  <td style="padding:8px 10px;font-size:.82rem">
-    $0.28M <span style="color:#999;font-size:.72rem">(0.4%)</span>
-    <div style="height:4px;background:#e0e0e0;border-radius:2px;margin-top:3px;overflow:hidden">
-      <div style="width:3%;height:100%;background:#9E9E9E;opacity:.65;border-radius:2px"></div>
-    </div>
-  </td>
-  <td style="padding:8px 10px;text-align:center;font-weight:700;font-size:.83rem">1.359</td>
-  <td style="padding:8px 10px;text-align:center;font-size:.82rem">26.4%</td>
-  <td style="padding:8px 10px;text-align:center;font-size:.78rem">1</td>
-</tr><tr style="background:#f7fafd">
-  <td style="padding:8px 10px;font-size:.82rem">PESADO</td>
-  <td style="padding:8px 10px;font-size:.75rem;color:#00548A;font-weight:700">EQUIPAMIENTO</td>
-  <td style="padding:8px 10px;font-size:.82rem">
-    $0.27M <span style="color:#999;font-size:.72rem">(0.4%)</span>
-    <div style="height:4px;background:#e0e0e0;border-radius:2px;margin-top:3px;overflow:hidden">
-      <div style="width:3%;height:100%;background:#00548A;opacity:.65;border-radius:2px"></div>
-    </div>
-  </td>
-  <td style="padding:8px 10px;text-align:center;font-weight:700;font-size:.83rem">1.273</td>
-  <td style="padding:8px 10px;text-align:center;font-size:.82rem">21.4%</td>
-  <td style="padding:8px 10px;text-align:center;font-size:.78rem">1</td>
-</tr><tr style="">
-  <td style="padding:8px 10px;font-size:.82rem">CAMPANAS<span style="background:#fce4ec;color:#c62828;font-size:.62rem;padding:1px 4px;border-radius:4px;margin-left:4px">SIN PAUTA</span></td>
-  <td style="padding:8px 10px;font-size:.75rem;color:#9E9E9E;font-weight:700">SIN CAMPAÑA</td>
-  <td style="padding:8px 10px;font-size:.82rem">
-    $0.24M <span style="color:#999;font-size:.72rem">(0.4%)</span>
-    <div style="height:4px;background:#e0e0e0;border-radius:2px;margin-top:3px;overflow:hidden">
-      <div style="width:2%;height:100%;background:#9E9E9E;opacity:.65;border-radius:2px"></div>
-    </div>
-  </td>
-  <td style="padding:8px 10px;text-align:center;font-weight:700;font-size:.83rem">1.406</td>
-  <td style="padding:8px 10px;text-align:center;font-size:.82rem">28.9%</td>
-  <td style="padding:8px 10px;text-align:center;font-size:.78rem">1</td>
-</tr><tr style="background:#f7fafd">
-  <td style="padding:8px 10px;font-size:.82rem">ACCESORIOS</td>
-  <td style="padding:8px 10px;font-size:.75rem;color:#00548A;font-weight:700">EQUIPAMIENTO</td>
-  <td style="padding:8px 10px;font-size:.82rem">
-    $0.18M <span style="color:#999;font-size:.72rem">(0.3%)</span>
-    <div style="height:4px;background:#e0e0e0;border-radius:2px;margin-top:3px;overflow:hidden">
-      <div style="width:2%;height:100%;background:#00548A;opacity:.65;border-radius:2px"></div>
-    </div>
-  </td>
-  <td style="padding:8px 10px;text-align:center;font-weight:700;font-size:.83rem">1.440</td>
-  <td style="padding:8px 10px;text-align:center;font-size:.82rem">30.6%</td>
-  <td style="padding:8px 10px;text-align:center;font-size:.78rem">2</td>
-</tr><tr style="">
-  <td style="padding:8px 10px;font-size:.82rem">CAFETERAS</td>
-  <td style="padding:8px 10px;font-size:.75rem;color:#F1891B;font-weight:700">GASTRONOMIA</td>
-  <td style="padding:8px 10px;font-size:.82rem">
-    $0.17M <span style="color:#999;font-size:.72rem">(0.3%)</span>
-    <div style="height:4px;background:#e0e0e0;border-radius:2px;margin-top:3px;overflow:hidden">
-      <div style="width:2%;height:100%;background:#F1891B;opacity:.65;border-radius:2px"></div>
-    </div>
-  </td>
-  <td style="padding:8px 10px;text-align:center;font-weight:700;font-size:.83rem">1.358</td>
-  <td style="padding:8px 10px;text-align:center;font-size:.82rem">26.4%</td>
-  <td style="padding:8px 10px;text-align:center;font-size:.78rem">2</td>
-</tr><tr style="background:#f7fafd">
-  <td style="padding:8px 10px;font-size:.82rem">ACCESORIOSCOMPLEMENTARIOS<span style="background:#fce4ec;color:#c62828;font-size:.62rem;padding:1px 4px;border-radius:4px;margin-left:4px">SIN PAUTA</span></td>
-  <td style="padding:8px 10px;font-size:.75rem;color:#9E9E9E;font-weight:700">SIN CAMPAÑA</td>
-  <td style="padding:8px 10px;font-size:.82rem">
-    $0.17M <span style="color:#999;font-size:.72rem">(0.3%)</span>
-    <div style="height:4px;background:#e0e0e0;border-radius:2px;margin-top:3px;overflow:hidden">
-      <div style="width:2%;height:100%;background:#9E9E9E;opacity:.65;border-radius:2px"></div>
-    </div>
-  </td>
-  <td style="padding:8px 10px;text-align:center;font-weight:700;font-size:.83rem">1.330</td>
-  <td style="padding:8px 10px;text-align:center;font-size:.82rem">24.8%</td>
-  <td style="padding:8px 10px;text-align:center;font-size:.78rem">1</td>
-</tr><tr style="">
-  <td style="padding:8px 10px;font-size:.82rem">BANDEJASYLATAS</td>
-  <td style="padding:8px 10px;font-size:.75rem;color:#E65100;font-weight:700">PANADERIA</td>
-  <td style="padding:8px 10px;font-size:.82rem">
-    $0.05M <span style="color:#999;font-size:.72rem">(0.1%)</span>
-    <div style="height:4px;background:#e0e0e0;border-radius:2px;margin-top:3px;overflow:hidden">
-      <div style="width:0%;height:100%;background:#E65100;opacity:.65;border-radius:2px"></div>
-    </div>
-  </td>
-  <td style="padding:8px 10px;text-align:center;font-weight:700;font-size:.83rem">1.480</td>
-  <td style="padding:8px 10px;text-align:center;font-size:.82rem">32.4%</td>
-  <td style="padding:8px 10px;text-align:center;font-size:.78rem">1</td>
-</tr></tbody>
-  </table></div>
-  <p class="nota">146 transacciones · 37 rubros · Período: May 13 – Jun 11 2026 · Canal: Web (CBROCCHETTO, FDIAZ, CAMPOO WEB)</p>
-</div>
+<footer>El Cristorante S.A. — IBACETA &middot; Cruce Ventas WEB x Meta Ads</footer>
 
-</div>
-<footer>El Cristorante S.A. — IBACETA · Cruce Ventas WEB × Meta Ads · May 13 – Jun 11 2026</footer>
+<script>
+// ── Datos embebidos ──────────────────────────────────────────────────────────
+const ERP_DATA = [{"f": "2026-01-02", "r": "CAFETERAS", "s": "EQUIPAMIENTO", "v": 85867.87, "c": 63207.68}, {"f": "2026-01-02", "r": "VENTILADORES", "s": "HOGAR", "v": 98052.25, "c": 65368.17}, {"f": "2026-01-06", "r": "TERMOTANQUES", "s": "HOGAR", "v": 305892.56, "c": 229648.98}, {"f": "2026-01-08", "r": "PELADORAS", "s": "EQUIPAMIENTO", "v": 969901.36, "c": 689829.86}, {"f": "2026-01-08", "r": "VARIOS", "s": "GENERAL", "v": 90909.09, "c": 0.83}, {"f": "2026-01-08", "r": "HORNOS PIZZEROS", "s": "EQUIPAMIENTO", "v": 867429.38, "c": 652251.58}, {"f": "2026-01-08", "r": "VARIOS", "s": "GENERAL", "v": 70973.55, "c": 0.83}, {"f": "2026-01-12", "r": "FREEZER", "s": "EQUIPAMIENTO", "v": 545347.11, "c": 428496.0}, {"f": "2026-01-13", "r": "PELADORAS", "s": "EQUIPAMIENTO", "v": 969901.36, "c": 689829.86}, {"f": "2026-01-13", "r": "ACCESORIOSCOMPLEMENTARIOS", "s": "EQUIPAMIENTO", "v": 148057.92, "c": 111330.0}, {"f": "2026-01-13", "r": "VARIOS", "s": "GENERAL", "v": 123966.94, "c": 0.83}, {"f": "2026-01-13", "r": "COCINA GASTRONOMICA", "s": "EQUIPAMIENTO", "v": 1077711.31, "c": 837382.21}, {"f": "2026-01-13", "r": "VARIOS", "s": "GENERAL", "v": 185950.41, "c": 0.83}, {"f": "2026-01-14", "r": "MIXERS", "s": "EQUIPAMIENTO", "v": 297439.49, "c": 207999.65}, {"f": "2026-01-15", "r": "HORNOS PIZZEROS", "s": "EQUIPAMIENTO", "v": 2640786.43, "c": 2147330.32}, {"f": "2026-01-19", "r": "CAFETERAS", "s": "EQUIPAMIENTO", "v": 85867.87, "c": 63207.68}, {"f": "2026-01-20", "r": "HORNOS CONVECTORES", "s": "EQUIPAMIENTO", "v": 652237.1, "c": 501562.68}, {"f": "2026-01-20", "r": "FREIDORA AUTOMATICA", "s": "EQUIPAMIENTO", "v": 1101331.66, "c": 770162.0}, {"f": "2026-01-21", "r": "HORNOS PASTELEROS", "s": "EQUIPAMIENTO", "v": 713584.62, "c": 500550.52}, {"f": "2026-01-21", "r": "VERTICALES", "s": "EQUIPAMIENTO", "v": 2008800.0, "c": 1614661.28}, {"f": "2026-01-22", "r": "VERTICALES", "s": "EQUIPAMIENTO", "v": 1004400.0, "c": 807330.64}, {"f": "2026-01-22", "r": "VENTILADORES", "s": "HOGAR", "v": 784420.76, "c": 522947.17}, {"f": "2026-01-22", "r": "FREIDORA AUTOMATICA", "s": "EQUIPAMIENTO", "v": 1489978.28, "c": 1147767.32}, {"f": "2026-01-23", "r": "HELADERAS FAMILIARES", "s": "HOGAR", "v": 254219.83, "c": 217356.16}, {"f": "2026-01-23", "r": "HELADERAS FAMILIARES", "s": "HOGAR", "v": 254219.83, "c": 217356.16}, {"f": "2026-01-24", "r": "VERTICALES", "s": "EQUIPAMIENTO", "v": 4977375.57, "c": 4036653.21}, {"f": "2026-01-24", "r": "FREEZER", "s": "EQUIPAMIENTO", "v": 738750.41, "c": 567702.0}, {"f": "2026-01-26", "r": "CAMARASDEFRIO", "s": "EQUIPAMIENTO", "v": 4251238.01, "c": 3162653.15}, {"f": "2026-01-26", "r": "CAMARASDEFRIO", "s": "EQUIPAMIENTO", "v": 4251238.01, "c": 3162653.15}, {"f": "2026-01-28", "r": "VERTICALES", "s": "EQUIPAMIENTO", "v": 998543.89, "c": 802623.97}, {"f": "2026-01-29", "r": "VERTICALES", "s": "EQUIPAMIENTO", "v": 4977375.57, "c": 4036653.21}, {"f": "2026-01-30", "r": "COCINA GASTRONOMICA", "s": "EQUIPAMIENTO", "v": 1209686.88, "c": 929598.33}, {"f": "2026-01-30", "r": "VARIOS", "s": "GENERAL", "v": 45454.55, "c": 0.83}, {"f": "2026-02-02", "r": "HELADERAS FAMILIARES", "s": "HOGAR", "v": 772363.64, "c": 620822.12}, {"f": "2026-02-02", "r": "COCINA GASTRONOMICA", "s": "EQUIPAMIENTO", "v": 1209686.88, "c": 929598.33}, {"f": "2026-02-02", "r": "VARIOS", "s": "GENERAL", "v": 45454.55, "c": 0.83}, {"f": "2026-02-04", "r": "VERTICAL CONGELADOS", "s": "EQUIPAMIENTO", "v": 4038760.18, "c": 3022266.01}, {"f": "2026-02-04", "r": "MANTENEDOR CALOR", "s": "EQUIPAMIENTO", "v": 460259.73, "c": 321860.0}, {"f": "2026-02-09", "r": "COCINAS", "s": "EQUIPAMIENTO", "v": 526964.71, "c": 409452.36}, {"f": "2026-02-09", "r": "COCINAS", "s": "EQUIPAMIENTO", "v": 487289.59, "c": 378624.43}, {"f": "2026-02-09", "r": "VARIOS", "s": "GENERAL", "v": 82855.37, "c": 0.83}, {"f": "2026-02-11", "r": "COCINAS", "s": "EQUIPAMIENTO", "v": 1287026.24, "c": 941934.88}, {"f": "2026-02-11", "r": "PESADO", "s": "EQUIPAMIENTO", "v": 295189.77, "c": 206426.42}, {"f": "2026-02-11", "r": "HORNOS PIZZEROS", "s": "EQUIPAMIENTO", "v": 409743.86, "c": 286534.16}, {"f": "2026-02-11", "r": "ESTANTERIAS", "s": "EQUIPAMIENTO", "v": 204979.06, "c": 143342.0}, {"f": "2026-02-13", "r": "DESHIDRATADORES", "s": "EQUIPAMIENTO", "v": 359693.21, "c": 252416.29}, {"f": "2026-02-19", "r": "VERTICALES", "s": "EQUIPAMIENTO", "v": 2394996.38, "c": 1903207.0}, {"f": "2026-02-19", "r": "FREEZER", "s": "EQUIPAMIENTO", "v": 3777720.03, "c": 2951689.68}, {"f": "2026-02-20", "r": "FREEZER", "s": "EQUIPAMIENTO", "v": 2888082.89, "c": 2019638.38}, {"f": "2026-02-20", "r": "FREEZER", "s": "EQUIPAMIENTO", "v": 3384295.19, "c": 2366640.0}, {"f": "2026-02-20", "r": "ANAFES", "s": "EQUIPAMIENTO", "v": 148005.98, "c": 103500.69}, {"f": "2026-02-24", "r": "PESADO", "s": "EQUIPAMIENTO", "v": 295189.77, "c": 206426.42}, {"f": "2026-02-24", "r": "ESTANTERIAS", "s": "EQUIPAMIENTO", "v": 204979.06, "c": 143342.0}, {"f": "2026-02-24", "r": "HORNOS CONVECTORES", "s": "EQUIPAMIENTO", "v": 4500078.52, "c": 3146908.05}, {"f": "2026-02-25", "r": "ENVASADORAS-SELLADOR", "s": "EQUIPAMIENTO", "v": 1481278.51, "c": 1035859.09}, {"f": "2026-02-25", "r": "ENVASADORAS-SELLADOR", "s": "EQUIPAMIENTO", "v": 874242.47, "c": 611358.37}, {"f": "2026-02-26", "r": "VERTICAL CONGELADOS", "s": "EQUIPAMIENTO", "v": 1847130.32, "c": 1328908.75}, {"f": "2026-02-27", "r": "CAFETERAS", "s": "EQUIPAMIENTO", "v": 392483.26, "c": 298330.32}, {"f": "2026-03-02", "r": "HAMBURGUESERO MANUAL", "s": "EQUIPAMIENTO", "v": 434381.9, "c": 357368.33}, {"f": "2026-03-02", "r": "VARIOS", "s": "GENERAL", "v": 18806.61, "c": 0.83}, {"f": "2026-03-02", "r": "FREEZER", "s": "EQUIPAMIENTO", "v": 588388.43, "c": 447240.02}, {"f": "2026-03-03", "r": "HELADERABAJOMESADA", "s": "EQUIPAMIENTO", "v": 3329211.76, "c": 2444733.8}, {"f": "2026-03-03", "r": "FABRICADORASDEHIELO", "s": "EQUIPAMIENTO", "v": 1230690.9, "c": 860623.0}, {"f": "2026-03-03", "r": "VARIOS", "s": "GENERAL", "v": 305785.12, "c": 0.83}, {"f": "2026-03-03", "r": "CAMARA FERMENTADORA", "s": "EQUIPAMIENTO", "v": 1401781.0, "c": 1021962.48}, {"f": "2026-03-03", "r": "VARIOS", "s": "GENERAL", "v": 153365.29, "c": 0.83}, {"f": "2026-03-03", "r": "VERTICALES", "s": "EQUIPAMIENTO", "v": 790761.99, "c": 592818.1}, {"f": "2026-03-03", "r": "VARIOS", "s": "GENERAL", "v": 37190.08, "c": 0.83}, {"f": "2026-03-05", "r": "ESTANTERIAS", "s": "EQUIPAMIENTO", "v": 450787.6, "c": 328370.98}, {"f": "2026-03-05", "r": "VARIOS", "s": "GENERAL", "v": 69145.45, "c": 0.83}, {"f": "2026-03-05", "r": "ESTANTERIAS", "s": "EQUIPAMIENTO", "v": 450787.6, "c": 328370.98}, {"f": "2026-03-05", "r": "VARIOS", "s": "GENERAL", "v": 44806.24, "c": 0.83}, {"f": "2026-03-05", "r": "COCINAS", "s": "EQUIPAMIENTO", "v": 1287026.24, "c": 941934.88}, {"f": "2026-03-06", "r": "HORNOS CONVECTORES", "s": "EQUIPAMIENTO", "v": 645685.07, "c": 496489.56}, {"f": "2026-03-06", "r": "DESHIDRATADORES", "s": "EQUIPAMIENTO", "v": 359693.21, "c": 252416.29}, {"f": "2026-03-06", "r": "VARIOS", "s": "GENERAL", "v": 66115.7, "c": 0.83}, {"f": "2026-03-09", "r": "VERTICAL CONGELADOS", "s": "EQUIPAMIENTO", "v": 1847130.32, "c": 1328908.75}, {"f": "2026-03-09", "r": "VARIOS", "s": "GENERAL", "v": 41322.31, "c": 0.83}, {"f": "2026-03-10", "r": "MAQUINASDEPASTAS", "s": "EQUIPAMIENTO", "v": 561836.2, "c": 422465.16}, {"f": "2026-03-11", "r": "VERTICALES", "s": "EQUIPAMIENTO", "v": 998543.89, "c": 802623.97}, {"f": "2026-03-17", "r": "VERTICALES", "s": "EQUIPAMIENTO", "v": 1004400.0, "c": 807330.64}, {"f": "2026-03-17", "r": "ANAFES", "s": "EQUIPAMIENTO", "v": 284689.59, "c": 199282.81}, {"f": "2026-03-17", "r": "VARIOS", "s": "GENERAL", "v": 37190.08, "c": 0.83}, {"f": "2026-03-18", "r": "CARLITEROSPLANCHAS", "s": "EQUIPAMIENTO", "v": 585078.0, "c": 409145.46}, {"f": "2026-03-18", "r": "HORNOS CONVECTORES", "s": "EQUIPAMIENTO", "v": 759629.02, "c": 496489.56}, {"f": "2026-03-18", "r": "ACCESORIOS", "s": "EQUIPAMIENTO", "v": 95975.59, "c": 67115.79}, {"f": "2026-03-19", "r": "PANCHERA", "s": "EQUIPAMIENTO", "v": 347222.62, "c": 249192.57}, {"f": "2026-03-20", "r": "BATIDORAS", "s": "EQUIPAMIENTO", "v": 1378103.17, "c": 928015.13}, {"f": "2026-03-20", "r": "VARIOS", "s": "GENERAL", "v": 54828.93, "c": 0.83}, {"f": "2026-03-20", "r": "VARIOS", "s": "GENERAL", "v": 37190.08, "c": 0.83}, {"f": "2026-03-20", "r": "PROCESADORAS", "s": "EQUIPAMIENTO", "v": 1275692.31, "c": 1049520.36}, {"f": "2026-03-20", "r": "VARIOS", "s": "GENERAL", "v": 31668.6, "c": 0.83}, {"f": "2026-03-25", "r": "VERTICALES", "s": "EQUIPAMIENTO", "v": 9875666.97, "c": 7938000.0}, {"f": "2026-03-25", "r": "VERTICAL CONGELADOS", "s": "EQUIPAMIENTO", "v": 4038760.18, "c": 3022266.01}, {"f": "2026-03-25", "r": "VARIOS", "s": "GENERAL", "v": 230644.93, "c": 0.83}, {"f": "2026-03-25", "r": "ASADERAS Y PLACAS", "s": "BAZAR", "v": 78769.62, "c": 49231.01}, {"f": "2026-03-25", "r": "VERTICALES", "s": "EQUIPAMIENTO", "v": 2995631.67, "c": 2407871.92}, {"f": "2026-03-25", "r": "VARIOS", "s": "GENERAL", "v": 64123.79, "c": 0.83}, {"f": "2026-03-26", "r": "TERMOTANQUES", "s": "HOGAR", "v": 227020.66, "c": 172350.85}, {"f": "2026-03-27", "r": "RALLADORADEPAN", "s": "EQUIPAMIENTO", "v": 567704.98, "c": 428260.0}, {"f": "2026-03-27", "r": "RALLADORADEPAN", "s": "EQUIPAMIENTO", "v": 567704.98, "c": 428260.0}, {"f": "2026-03-27", "r": "TERMOTANQUES", "s": "HOGAR", "v": 883102.48, "c": 685851.76}, {"f": "2026-03-27", "r": "VARIOS", "s": "GENERAL", "v": 41322.31, "c": 0.83}, {"f": "2026-04-06", "r": "FREEZER", "s": "EQUIPAMIENTO", "v": 1015288.43, "c": 788880.0}, {"f": "2026-04-06", "r": "VERTICALES", "s": "EQUIPAMIENTO", "v": 2114618.1, "c": 1573142.64}, {"f": "2026-04-06", "r": "COCINAS", "s": "EQUIPAMIENTO", "v": 487289.59, "c": 378624.43}, {"f": "2026-04-07", "r": "PESADO", "s": "EQUIPAMIENTO", "v": 259511.31, "c": 203905.93}, {"f": "2026-04-10", "r": "VERTICALES", "s": "EQUIPAMIENTO", "v": 998543.89, "c": 802623.97}, {"f": "2026-04-10", "r": "PANCHERA", "s": "EQUIPAMIENTO", "v": 552562.9, "c": 406744.54}, {"f": "2026-04-14", "r": "HORNOS CONVECTORES", "s": "EQUIPAMIENTO", "v": 7395769.38, "c": 5171866.7}, {"f": "2026-04-14", "r": "VARIOS", "s": "GENERAL", "v": 295753.51, "c": 0.83}, {"f": "2026-04-15", "r": "COCINAS", "s": "EQUIPAMIENTO", "v": 526964.71, "c": 409452.36}, {"f": "2026-04-15", "r": "FREIDORA AUTOMATICA", "s": "EQUIPAMIENTO", "v": 1011022.62, "c": 770162.0}, {"f": "2026-04-15", "r": "HORNOS CONVECTORES", "s": "EQUIPAMIENTO", "v": 3303167.42, "c": 2380000.0}, {"f": "2026-04-15", "r": "FREEZER", "s": "EQUIPAMIENTO", "v": 1882865.16, "c": 1393321.68}, {"f": "2026-04-15", "r": "HELADERACONFITERA", "s": "EQUIPAMIENTO", "v": 4204228.05, "c": 3156214.0}, {"f": "2026-04-15", "r": "MESASDETRABAJO", "s": "EQUIPAMIENTO", "v": 546708.26, "c": 392222.91}, {"f": "2026-04-15", "r": "HELADERASALMACENERAS", "s": "EQUIPAMIENTO", "v": 3610859.73, "c": 2600834.83}, {"f": "2026-04-15", "r": "CAMARA FERMENTADORA", "s": "EQUIPAMIENTO", "v": 1453501.36, "c": 1020000.94}, {"f": "2026-04-15", "r": "HORNOS PIZZEROS", "s": "EQUIPAMIENTO", "v": 1890927.6, "c": 1624621.32}, {"f": "2026-04-15", "r": "ANAFES", "s": "EQUIPAMIENTO", "v": 669985.52, "c": 503786.26}, {"f": "2026-04-16", "r": "VERTICALES", "s": "EQUIPAMIENTO", "v": 1026597.47, "c": 717900.33}, {"f": "2026-04-16", "r": "AIRES ACONDICIONADOS", "s": "HOGAR", "v": 1245026.15, "c": 841233.88}, {"f": "2026-04-16", "r": "HELVITRINA", "s": "EQUIPAMIENTO", "v": 1970104.07, "c": 1479057.28}, {"f": "2026-04-16", "r": "VARIOS", "s": "GENERAL", "v": 209723.97, "c": 0.83}, {"f": "2026-04-16", "r": "ESTANTERIAS", "s": "EQUIPAMIENTO", "v": 1152572.66, "c": 738828.63}, {"f": "2026-04-17", "r": "VERTICAL CONGELADOS", "s": "EQUIPAMIENTO", "v": 3694260.63, "c": 2657817.5}, {"f": "2026-04-21", "r": "VERTICAL CONGELADOS", "s": "EQUIPAMIENTO", "v": 1581574.66, "c": 1271260.09}, {"f": "2026-04-22", "r": "COCINAS", "s": "EQUIPAMIENTO", "v": 919440.72, "c": 665595.65}, {"f": "2026-04-23", "r": "CARROS PANADERIA", "s": "EQUIPAMIENTO", "v": 249315.2, "c": 174346.3}, {"f": "2026-04-23", "r": "PESADO", "s": "EQUIPAMIENTO", "v": 325877.83, "c": 245832.6}, {"f": "2026-04-28", "r": "ACCESORIOSCOMPLEMENTARIOS", "s": "EQUIPAMIENTO", "v": 156941.18, "c": 118009.8}, {"f": "2026-04-28", "r": "ACCESORIOSCOMPLEMENTARIOS", "s": "EQUIPAMIENTO", "v": 156941.18, "c": 118009.8}, {"f": "2026-04-29", "r": "CAFETERAS", "s": "EQUIPAMIENTO", "v": 196241.63, "c": 149165.16}, {"f": "2026-04-29", "r": "VARIOS", "s": "GENERAL", "v": 16528.93, "c": 0.83}, {"f": "2026-05-04", "r": "TERMOTANQUES", "s": "HOGAR", "v": 724542.15, "c": 562707.87}, {"f": "2026-05-05", "r": "TERMOTANQUES", "s": "HOGAR", "v": 724542.15, "c": 562707.87}, {"f": "2026-05-05", "r": "TERMOTANQUES", "s": "HOGAR", "v": 510843.8, "c": 346030.0}, {"f": "2026-05-06", "r": "CARLITEROSPLANCHAS", "s": "EQUIPAMIENTO", "v": 300405.43, "c": 221130.44}, {"f": "2026-05-08", "r": "HORNOS CONVECTORES", "s": "EQUIPAMIENTO", "v": 759629.02, "c": 496489.56}, {"f": "2026-05-08", "r": "ACCESORIOS", "s": "EQUIPAMIENTO", "v": 136258.47, "c": 95285.64}, {"f": "2026-05-08", "r": "PESADO CON TICKET", "s": "EQUIPAMIENTO", "v": 1377162.62, "c": 963050.78}, {"f": "2026-05-08", "r": "VERTICALES", "s": "EQUIPAMIENTO", "v": 2295504.56, "c": 1605247.95}, {"f": "2026-05-08", "r": "VERTICALES", "s": "EQUIPAMIENTO", "v": 8409701.76, "c": 5880910.32}, {"f": "2026-05-08", "r": "VERTICAL CONGELADOS", "s": "EQUIPAMIENTO", "v": 1900339.51, "c": 1328908.75}, {"f": "2026-05-08", "r": "FREEZER", "s": "EQUIPAMIENTO", "v": 909989.42, "c": 636356.24}, {"f": "2026-05-11", "r": "CORTADORA FIAMBRES", "s": "EQUIPAMIENTO", "v": 2552323.98, "c": 2217194.57}, {"f": "2026-05-11", "r": "VARIOS", "s": "GENERAL", "v": 73064.46, "c": 0.83}, {"f": "2026-05-11", "r": "LAVARROPAS", "s": "HOGAR", "v": 756224.74, "c": 510962.66}, {"f": "2026-05-11", "r": "LAVARROPAS", "s": "HOGAR", "v": 756224.74, "c": 510962.66}, {"f": "2026-05-15", "r": "VERTICALES", "s": "EQUIPAMIENTO", "v": 2270267.87, "c": 1984500.0}, {"f": "2026-05-15", "r": "FREEZER", "s": "EQUIPAMIENTO", "v": 600776.03, "c": 456655.59}, {"f": "2026-05-15", "r": "TERMOTANQUES", "s": "HOGAR", "v": 296471.07, "c": 217737.47}, {"f": "2026-05-15", "r": "MESASDETRABAJO", "s": "EQUIPAMIENTO", "v": 779460.33, "c": 567788.43}, {"f": "2026-05-15", "r": "PESADO", "s": "EQUIPAMIENTO", "v": 942150.23, "c": 740276.38}, {"f": "2026-05-16", "r": "COCINAS", "s": "HOGAR", "v": 995100.0, "c": 778200.0}, {"f": "2026-05-16", "r": "COCINAS", "s": "HOGAR", "v": 332741.32, "c": 264500.0}, {"f": "2026-05-18", "r": "ANAFES", "s": "EQUIPAMIENTO", "v": 1735906.79, "c": 1305250.7}, {"f": "2026-05-18", "r": "FREIDORA AUTOMATICA", "s": "EQUIPAMIENTO", "v": 2970760.18, "c": 2233822.5}, {"f": "2026-05-18", "r": "MANTENEDOR CALOR", "s": "EQUIPAMIENTO", "v": 1669042.15, "c": 1255013.5}, {"f": "2026-05-19", "r": "TERMOTANQUES", "s": "HOGAR", "v": 296471.07, "c": 217737.47}, {"f": "2026-05-20", "r": "AMASADORAS RAPIDAS", "s": "EQUIPAMIENTO", "v": 1471945.7, "c": 1038746.17}, {"f": "2026-05-20", "r": "VARIOS", "s": "GENERAL", "v": 49586.78, "c": 0.83}, {"f": "2026-05-21", "r": "CALEFACCION", "s": "HOGAR", "v": 36851.24, "c": 24900.0}, {"f": "2026-05-26", "r": "DESHIDRATADORES", "s": "EQUIPAMIENTO", "v": 3074428.96, "c": 2157495.02}, {"f": "2026-05-26", "r": "MAQUINASEMBUTIDOS", "s": "EQUIPAMIENTO", "v": 341968.33, "c": 240484.16}, {"f": "2026-05-26", "r": "CAMARA FERMENTADORA", "s": "EQUIPAMIENTO", "v": 937200.0, "c": 781000.0}, {"f": "2026-05-26", "r": "HORNOS PASTELEROS", "s": "EQUIPAMIENTO", "v": 784204.52, "c": 522803.29}, {"f": "2026-05-26", "r": "COCINAS", "s": "EQUIPAMIENTO", "v": 978742.08, "c": 684435.1}, {"f": "2026-05-26", "r": "FREIDORA AUTOMATICA", "s": "EQUIPAMIENTO", "v": 2528819.91, "c": 1768406.14}, {"f": "2026-05-27", "r": "VERTICALES", "s": "EQUIPAMIENTO", "v": 2679418.1, "c": 2153700.98}, {"f": "2026-05-27", "r": "FREEZER", "s": "EQUIPAMIENTO", "v": 856797.52, "c": 673212.79}, {"f": "2026-05-28", "r": "MICROONDAS", "s": "HOGAR", "v": 249714.05, "c": 197589.92}, {"f": "2026-05-28", "r": "CAMARA FERMENTADORA", "s": "EQUIPAMIENTO", "v": 937200.0, "c": 898150.0}, {"f": "2026-05-28", "r": "LICUADORAS", "s": "EQUIPAMIENTO", "v": 146952.07, "c": 103123.97}, {"f": "2026-05-29", "r": "DESHIDRATADORES", "s": "EQUIPAMIENTO", "v": 2305821.72, "c": 1618121.27}, {"f": "2026-05-30", "r": "TERMOTANQUES", "s": "HOGAR", "v": 247861.16, "c": 221932.56}, {"f": "2026-06-01", "r": "VERTICALES", "s": "EQUIPAMIENTO", "v": 3994175.57, "c": 3210495.89}, {"f": "2026-06-01", "r": "CAFETERAS", "s": "EQUIPAMIENTO", "v": 92313.12, "c": 67952.24}, {"f": "2026-06-03", "r": "MESASDETRABAJO", "s": "EQUIPAMIENTO", "v": 2294919.01, "c": 1751311.87}, {"f": "2026-06-03", "r": "VARIOS", "s": "GENERAL", "v": 247107.44, "c": 0.83}, {"f": "2026-06-09", "r": "VERTICAL CONGELADOS", "s": "EQUIPAMIENTO", "v": 1857258.82, "c": 1305177.9}, {"f": "2026-06-09", "r": "VERTICALES", "s": "EQUIPAMIENTO", "v": 4934655.2, "c": 3998322.01}, {"f": "2026-06-10", "r": "PESADO", "s": "EQUIPAMIENTO", "v": 269891.4, "c": 212062.06}, {"f": "2026-06-10", "r": "SIERRASCARNICERAS", "s": "EQUIPAMIENTO", "v": 1359817.19, "c": 967152.94}, {"f": "2026-06-10", "r": "VARIOS", "s": "GENERAL", "v": 79048.76, "c": 0.83}, {"f": "2026-06-11", "r": "CORTADORA FIAMBRES", "s": "EQUIPAMIENTO", "v": 1587744.8, "c": 1246140.66}, {"f": "2026-06-11", "r": "PESADO", "s": "EQUIPAMIENTO", "v": 168257.01, "c": 138426.0}, {"f": "2026-06-12", "r": "DESHIDRATADORES", "s": "EQUIPAMIENTO", "v": 842714.93, "c": 539373.76}, {"f": "2026-06-12", "r": "VARIOS", "s": "GENERAL", "v": 29752.07, "c": 0.83}, {"f": "2026-06-12", "r": "FREEZER", "s": "EQUIPAMIENTO", "v": 1713595.04, "c": 1346425.59}, {"f": "2026-06-12", "r": "MICROONDAS", "s": "HOGAR", "v": 888158.68, "c": 702768.59}, {"f": "2026-06-12", "r": "PESADO", "s": "EQUIPAMIENTO", "v": 269891.4, "c": 212062.06}, {"f": "2026-06-12", "r": "BATIDORAS", "s": "EQUIPAMIENTO", "v": 629114.03, "c": 464977.38}, {"f": "2026-06-12", "r": "MIXERS", "s": "EQUIPAMIENTO", "v": 715356.56, "c": 588528.51}, {"f": "2026-06-12", "r": "FREIDORAS", "s": "EQUIPAMIENTO", "v": 584647.96, "c": 430362.89}, {"f": "2026-06-12", "r": "HORNOS CONVECTORES", "s": "EQUIPAMIENTO", "v": 645685.07, "c": 496489.56}, {"f": "2026-06-12", "r": "VARIOS", "s": "GENERAL", "v": 107438.02, "c": 0.83}, {"f": "2026-06-12", "r": "BATIDORAS", "s": "EQUIPAMIENTO", "v": 1141458.82, "c": 928015.13}, {"f": "2026-06-17", "r": "PESADO", "s": "EQUIPAMIENTO", "v": 269891.4, "c": 212062.06}, {"f": "2026-06-17", "r": "CAMARASDEFRIO", "s": "EQUIPAMIENTO", "v": 4027488.69, "c": 2996197.72}, {"f": "2026-06-17", "r": "VARIOS", "s": "GENERAL", "v": 568388.43, "c": 0.83}, {"f": "2026-06-18", "r": "DESHIDRATADORES", "s": "EQUIPAMIENTO", "v": 881990.95, "c": 575950.5}, {"f": "2026-06-19", "r": "FREEZER", "s": "EQUIPAMIENTO", "v": 612745.45, "c": 465754.12}, {"f": "2026-06-19", "r": "FREEZER", "s": "EQUIPAMIENTO", "v": 757220.66, "c": 581895.9}, {"f": "2026-06-19", "r": "VERTICAL CONGELADOS", "s": "EQUIPAMIENTO", "v": 1785559.28, "c": 1328908.75}, {"f": "2026-06-22", "r": "TERMOTANQUES", "s": "HOGAR", "v": 946276.86, "c": 734915.0}, {"f": "2026-06-23", "r": "ACCESORIOSCOMPLEMENTARIOS", "s": "EQUIPAMIENTO", "v": 166357.47, "c": 125090.1}, {"f": "2026-06-23", "r": "CAFETERAS", "s": "EQUIPAMIENTO", "v": 92313.12, "c": 67952.24}, {"f": "2026-06-24", "r": "PESADO CON TICKET", "s": "EQUIPAMIENTO", "v": 1303346.61, "c": 1001572.64}, {"f": "2026-07-02", "r": "CALEFACCION", "s": "HOGAR", "v": 36852.0, "c": 24900.0}, {"f": "2026-07-07", "r": "FREIDORA AUTOMATICA", "s": "EQUIPAMIENTO", "v": 2082774.66, "c": 1586586.01}, {"f": "2026-07-07", "r": "HELADERABAJOMESADA", "s": "EQUIPAMIENTO", "v": 2830529.41, "c": 2106000.0}, {"f": "2026-07-07", "r": "FREEZER", "s": "EQUIPAMIENTO", "v": 556364.46, "c": 437152.95}, {"f": "2026-07-07", "r": "VERTICALES", "s": "EQUIPAMIENTO", "v": 2048888.69, "c": 1646883.91}, {"f": "2026-07-07", "r": "FREEZER", "s": "EQUIPAMIENTO", "v": 1040557.02, "c": 808513.65}, {"f": "2026-07-08", "r": "TERMOTANQUES", "s": "HOGAR", "v": 4286190.91, "c": 3328822.0}, {"f": "2026-07-13", "r": "FREEZER", "s": "EQUIPAMIENTO", "v": 3874800.0, "c": 3010723.44}, {"f": "2026-07-14", "r": "FREIDORA AUTOMATICA", "s": "EQUIPAMIENTO", "v": 3449915.47, "c": 2412528.3}, {"f": "2026-07-14", "r": "MANTENEDOR CALOR", "s": "EQUIPAMIENTO", "v": 1938618.18, "c": 1355414.45}, {"f": "2026-07-14", "r": "MANTENEDOR CALOR", "s": "EQUIPAMIENTO", "v": 559359.16, "c": 391160.25}, {"f": "2026-07-15", "r": "ACCESORIOS", "s": "EQUIPAMIENTO", "v": 144557.58, "c": 101089.21}, {"f": "2026-07-15", "r": "VERTICALES", "s": "EQUIPAMIENTO", "v": 1028500.45, "c": 826702.36}, {"f": "2026-07-15", "r": "VERTICALES", "s": "EQUIPAMIENTO", "v": 919933.94, "c": 739437.15}, {"f": "2026-01-02", "r": "VERTICALES", "s": "EQUIPAMIENTO", "v": 790761.99, "c": 592818.1}, {"f": "2026-01-02", "r": "FREEZER", "s": "EQUIPAMIENTO", "v": 772550.41, "c": 607016.88}, {"f": "2026-01-02", "r": "TERMOTANQUES", "s": "HOGAR", "v": 334498.35, "c": 248365.12}, {"f": "2026-01-02", "r": "LAVARROPAS", "s": "HOGAR", "v": 254942.15, "c": 160123.45}, {"f": "2026-01-03", "r": "COCINAS", "s": "HOGAR", "v": 312902.48, "c": 244700.0}, {"f": "2026-01-03", "r": "LAVARROPAS", "s": "HOGAR", "v": 254942.15, "c": 160123.45}, {"f": "2026-01-03", "r": "VARIOS", "s": "GENERAL", "v": 10759.5, "c": 0.83}, {"f": "2026-01-05", "r": "VERTICALES", "s": "EQUIPAMIENTO", "v": 998543.89, "c": 802623.97}, {"f": "2026-01-06", "r": "PELADORAS", "s": "EQUIPAMIENTO", "v": 969901.36, "c": 689829.86}, {"f": "2026-01-06", "r": "VARIOS", "s": "GENERAL", "v": 61983.47, "c": 0.83}, {"f": "2026-01-06", "r": "TERMOTANQUES", "s": "HOGAR", "v": 267364.46, "c": 205285.7}, {"f": "2026-01-06", "r": "BATIDORAS", "s": "HOGAR", "v": 109185.95, "c": 85635.86}, {"f": "2026-01-06", "r": "PESADO", "s": "EQUIPAMIENTO", "v": 155221.72, "c": 114259.6}, {"f": "2026-01-06", "r": "MULTIPROCESADORAS", "s": "HOGAR", "v": 115702.07, "c": 77134.71}, {"f": "2026-01-06", "r": "MINIPRIMER", "s": "HOGAR", "v": 48759.92, "c": 32506.61}, {"f": "2026-01-06", "r": "HELVITRINA", "s": "EQUIPAMIENTO", "v": 1466838.91, "c": 1179036.13}, {"f": "2026-01-08", "r": "TERMOTANQUES", "s": "HOGAR", "v": 267364.46, "c": 205285.7}, {"f": "2026-01-08", "r": "FREIDORAS", "s": "EQUIPAMIENTO", "v": 233918.55, "c": 171773.18}, {"f": "2026-01-09", "r": "HORNOS CONVECTORES", "s": "EQUIPAMIENTO", "v": 652282.35, "c": 501562.68}, {"f": "2026-01-09", "r": "ACCESORIOS", "s": "EQUIPAMIENTO", "v": 86834.71, "c": 63919.29}, {"f": "2026-01-09", "r": "DESHIDRATADORES", "s": "EQUIPAMIENTO", "v": 363368.33, "c": 254995.48}, {"f": "2026-01-09", "r": "VARIOS", "s": "GENERAL", "v": 47483.47, "c": 0.83}, {"f": "2026-01-10", "r": "LAVARROPAS", "s": "HOGAR", "v": 448098.35, "c": 346396.01}, {"f": "2026-01-12", "r": "HELADERAS FAMILIARES", "s": "HOGAR", "v": 958015.7, "c": 733324.98}, {"f": "2026-01-12", "r": "VARIOS", "s": "GENERAL", "v": 33057.85, "c": 0.83}, {"f": "2026-01-13", "r": "VERTICALES", "s": "EQUIPAMIENTO", "v": 1317587.33, "c": 1128058.0}, {"f": "2026-01-13", "r": "VERTICALES", "s": "EQUIPAMIENTO", "v": 1004400.0, "c": 807330.64}, {"f": "2026-01-13", "r": "TERMOTANQUES", "s": "HOGAR", "v": 228404.13, "c": 175372.06}, {"f": "2026-01-14", "r": "CORTADORA FIAMBRES", "s": "EQUIPAMIENTO", "v": 1569487.78, "c": 1261544.98}, {"f": "2026-01-14", "r": "HELVITRINA", "s": "EQUIPAMIENTO", "v": 1728598.19, "c": 1403314.02}, {"f": "2026-01-14", "r": "ACCESORIOSCOMPLEMENTARIOS", "s": "EQUIPAMIENTO", "v": 148057.92, "c": 111330.0}, {"f": "2026-01-14", "r": "HORNOS PIZZEROS", "s": "EQUIPAMIENTO", "v": 280774.66, "c": 196951.99}, {"f": "2026-01-14", "r": "AMASADORAS RAPIDAS", "s": "EQUIPAMIENTO", "v": 1966485.97, "c": 1437490.02}, {"f": "2026-01-14", "r": "VARIOS", "s": "GENERAL", "v": 82644.63, "c": 0.83}, {"f": "2026-01-15", "r": "CAFETERAS", "s": "EQUIPAMIENTO", "v": 85867.87, "c": 63207.68}, {"f": "2026-01-15", "r": "VARIOS", "s": "GENERAL", "v": 9764.46, "c": 0.83}, {"f": "2026-01-15", "r": "AIRES ACONDICIONADOS", "s": "HOGAR", "v": 901628.1, "c": 708381.82}, {"f": "2026-01-16", "r": "VENTILADORES", "s": "HOGAR", "v": 78441.32, "c": 65368.17}, {"f": "2026-01-16", "r": "VERTICALES", "s": "EQUIPAMIENTO", "v": 790761.99, "c": 592818.1}, {"f": "2026-01-16", "r": "COCINAS", "s": "HOGAR", "v": 326076.03, "c": 250366.0}, {"f": "2026-01-19", "r": "VERTICALES", "s": "EQUIPAMIENTO", "v": 1004400.0, "c": 807330.64}, {"f": "2026-01-19", "r": "VERTICALES", "s": "EQUIPAMIENTO", "v": 1004400.0, "c": 802623.97}, {"f": "2026-01-19", "r": "TERMOTANQUES", "s": "HOGAR", "v": 305892.56, "c": 229648.98}, {"f": "2026-01-19", "r": "HELADERAS FAMILIARES", "s": "HOGAR", "v": 580766.12, "c": 467154.21}, {"f": "2026-01-20", "r": "DESHIDRATADORES", "s": "EQUIPAMIENTO", "v": 362143.44, "c": 254995.48}, {"f": "2026-01-21", "r": "PANCHERA", "s": "EQUIPAMIENTO", "v": 340414.48, "c": 244306.24}, {"f": "2026-01-21", "r": "TERMOTANQUES", "s": "HOGAR", "v": 374989.26, "c": 287921.84}, {"f": "2026-01-21", "r": "FREEZER", "s": "EQUIPAMIENTO", "v": 926103.31, "c": 657887.5}, {"f": "2026-01-22", "r": "VERTICALES", "s": "EQUIPAMIENTO", "v": 998543.89, "c": 802623.97}, {"f": "2026-01-24", "r": "CARLITEROSPLANCHAS", "s": "EQUIPAMIENTO", "v": 278264.25, "c": 201022.64}, {"f": "2026-01-24", "r": "HELADERAS FAMILIARES", "s": "HOGAR", "v": 558151.24, "c": 428556.1}, {"f": "2026-01-26", "r": "AIRES ACONDICIONADOS", "s": "HOGAR", "v": 901628.1, "c": 708381.82}, {"f": "2026-01-26", "r": "CORTADORA FIAMBRES", "s": "EQUIPAMIENTO", "v": 1607371.95, "c": 1261544.98}, {"f": "2026-01-27", "r": "PESADO CON TICKET", "s": "EQUIPAMIENTO", "v": 1268709.5, "c": 974955.82}, {"f": "2026-01-27", "r": "VERTICAL CONGELADOS", "s": "EQUIPAMIENTO", "v": 1847130.32, "c": 1328908.75}, {"f": "2026-01-27", "r": "HORNOS CONVECTORES", "s": "EQUIPAMIENTO", "v": 643485.07, "c": 494798.52}, {"f": "2026-01-27", "r": "VARIOS", "s": "GENERAL", "v": 55434.21, "c": 0.83}, {"f": "2026-01-27", "r": "FREEZER", "s": "EQUIPAMIENTO", "v": 544576.03, "c": 432752.76}, {"f": "2026-01-28", "r": "AMASADORAS RAPIDAS", "s": "EQUIPAMIENTO", "v": 1939965.61, "c": 1418103.77}, {"f": "2026-01-28", "r": "FREEZER", "s": "EQUIPAMIENTO", "v": 856797.52, "c": 673212.79}, {"f": "2026-01-28", "r": "FREEZER", "s": "EQUIPAMIENTO", "v": 856797.52, "c": 673212.79}, {"f": "2026-01-28", "r": "SIERRASCARNICERAS", "s": "EQUIPAMIENTO", "v": 2039091.4, "c": 1639008.73}, {"f": "2026-01-28", "r": "PICADORASDECARNE", "s": "EQUIPAMIENTO", "v": 655254.3, "c": 466041.63}, {"f": "2026-01-29", "r": "TERMOTANQUES", "s": "HOGAR", "v": 355953.72, "c": 276447.5}, {"f": "2026-01-29", "r": "PESADO", "s": "EQUIPAMIENTO", "v": 155221.72, "c": 114259.6}, {"f": "2026-01-29", "r": "PESADO", "s": "EQUIPAMIENTO", "v": 155221.72, "c": 114259.6}, {"f": "2026-01-29", "r": "HELADERAS FAMILIARES", "s": "HOGAR", "v": 457827.27, "c": 373309.59}, {"f": "2026-01-29", "r": "TERMOTANQUES", "s": "HOGAR", "v": 594188.43, "c": 451099.69}, {"f": "2026-01-30", "r": "PESADO CON TICKET", "s": "EQUIPAMIENTO", "v": 1268709.5, "c": 974955.82}, {"f": "2026-01-30", "r": "ANAFES", "s": "EQUIPAMIENTO", "v": 147301.36, "c": 98572.08}, {"f": "2026-01-30", "r": "LAVARROPAS", "s": "HOGAR", "v": 384877.69, "c": 306026.81}, {"f": "2026-01-30", "r": "CAJASYGABETAS", "s": "EQUIPAMIENTO", "v": 86371.9, "c": 63114.36}, {"f": "2026-01-31", "r": "ESTANTERIAS", "s": "EQUIPAMIENTO", "v": 204978.51, "c": 143342.0}, {"f": "2026-01-31", "r": "ENVASADORAS-SELLADOR", "s": "EQUIPAMIENTO", "v": 330672.4, "c": 215956.15}, {"f": "2026-01-31", "r": "VERTICALES", "s": "EQUIPAMIENTO", "v": 893139.37, "c": 717900.33}, {"f": "2026-01-31", "r": "VARIOS", "s": "GENERAL", "v": 183984.3, "c": 0.83}, {"f": "2026-01-31", "r": "HORNOS PIZZEROS", "s": "EQUIPAMIENTO", "v": 280774.66, "c": 196951.99}, {"f": "2026-01-31", "r": "VARIOS", "s": "GENERAL", "v": 14876.03, "c": 0.83}, {"f": "2026-02-02", "r": "HORNOS PIZZEROS", "s": "EQUIPAMIENTO", "v": 346551.13, "c": 242951.16}, {"f": "2026-02-02", "r": "HORNOS PIZZEROS", "s": "EQUIPAMIENTO", "v": 346551.13, "c": 242951.16}, {"f": "2026-02-03", "r": "TERMOTANQUES", "s": "HOGAR", "v": 740466.12, "c": 575075.07}, {"f": "2026-02-03", "r": "FREEZER", "s": "EQUIPAMIENTO", "v": 544576.03, "c": 409140.07}, {"f": "2026-02-03", "r": "HORNOS CONVECTORES", "s": "EQUIPAMIENTO", "v": 643485.07, "c": 494798.52}, {"f": "2026-02-03", "r": "ACCESORIOS", "s": "EQUIPAMIENTO", "v": 86834.71, "c": 63919.29}, {"f": "2026-02-03", "r": "ANAFES", "s": "EQUIPAMIENTO", "v": 279107.69, "c": 195375.29}, {"f": "2026-02-03", "r": "LAVARROPAS", "s": "HOGAR", "v": 693128.1, "c": 557535.73}, {"f": "2026-02-03", "r": "VARIOS", "s": "GENERAL", "v": 41799.17, "c": 0.83}, {"f": "2026-02-04", "r": "HORNOS CONVECTORES", "s": "EQUIPAMIENTO", "v": 1061152.04, "c": 851373.32}, {"f": "2026-02-04", "r": "ACCESORIOS", "s": "EQUIPAMIENTO", "v": 129769.5, "c": 90747.9}, {"f": "2026-02-04", "r": "VARIOS", "s": "GENERAL", "v": 237920.66, "c": 0.83}, {"f": "2026-02-04", "r": "HORNOS PIZZEROS", "s": "EQUIPAMIENTO", "v": 280774.66, "c": 196951.99}, {"f": "2026-02-04", "r": "ANAFES", "s": "EQUIPAMIENTO", "v": 638081.45, "c": 479796.33}, {"f": "2026-02-04", "r": "VARIOS", "s": "GENERAL", "v": 212400.83, "c": 0.83}, {"f": "2026-02-04", "r": "COCINAS", "s": "EQUIPAMIENTO", "v": 485629.86, "c": 377334.84}, {"f": "2026-02-04", "r": "VARIOS", "s": "GENERAL", "v": 26317.36, "c": 0.83}, {"f": "2026-02-04", "r": "HORNOS PIZZEROS", "s": "EQUIPAMIENTO", "v": 280774.66, "c": 196951.99}, {"f": "2026-02-05", "r": "VERTICALES", "s": "EQUIPAMIENTO", "v": 578435.29, "c": 454495.12}, {"f": "2026-02-05", "r": "SIERRASCARNICERAS", "s": "EQUIPAMIENTO", "v": 913515.84, "c": 685822.62}, {"f": "2026-02-05", "r": "VARIOS", "s": "GENERAL", "v": 61715.7, "c": 0.83}, {"f": "2026-02-07", "r": "HORNOS PIZZEROS", "s": "EQUIPAMIENTO", "v": 346551.13, "c": 242951.16}, {"f": "2026-02-09", "r": "TERMOTANQUES", "s": "HOGAR", "v": 278038.02, "c": 213481.21}, {"f": "2026-02-10", "r": "TERMOTANQUES", "s": "HOGAR", "v": 376900.0, "c": 282957.99}, {"f": "2026-02-10", "r": "TERMOTANQUES", "s": "HOGAR", "v": 740466.12, "c": 575075.07}, {"f": "2026-02-10", "r": "VARIOS", "s": "GENERAL", "v": 14876.03, "c": 0.83}, {"f": "2026-02-12", "r": "VERTICALES", "s": "EQUIPAMIENTO", "v": 893139.37, "c": 717900.33}, {"f": "2026-02-13", "r": "HORNOS CONVECTORES", "s": "EQUIPAMIENTO", "v": 1064778.28, "c": 854283.0}, {"f": "2026-02-13", "r": "VARIOS", "s": "GENERAL", "v": 83171.07, "c": 0.83}, {"f": "2026-02-14", "r": "VERTICALES", "s": "EQUIPAMIENTO", "v": 893139.37, "c": 717900.33}, {"f": "2026-02-19", "r": "ANAFES", "s": "EQUIPAMIENTO", "v": 284689.59, "c": 199282.81}, {"f": "2026-02-19", "r": "CARLITEROSPLANCHAS", "s": "EQUIPAMIENTO", "v": 439130.32, "c": 326685.4}, {"f": "2026-02-20", "r": "ANAFES", "s": "EQUIPAMIENTO", "v": 284689.59, "c": 199282.81}, {"f": "2026-02-20", "r": "HORNOS CONVECTORES", "s": "EQUIPAMIENTO", "v": 645685.07, "c": 496489.56}, {"f": "2026-02-20", "r": "VARIOS", "s": "GENERAL", "v": 57851.24, "c": 0.83}, {"f": "2026-02-21", "r": "PICADORASDECARNE", "s": "EQUIPAMIENTO", "v": 1349435.29, "c": 991066.06}, {"f": "2026-02-21", "r": "FREEZER", "s": "EQUIPAMIENTO", "v": 811852.07, "c": 623878.0}, {"f": "2026-02-23", "r": "HORNOS CONVECTORES", "s": "EQUIPAMIENTO", "v": 1064778.28, "c": 854283.0}, {"f": "2026-02-23", "r": "VARIOS", "s": "GENERAL", "v": 80165.29, "c": 0.83}, {"f": "2026-02-23", "r": "VERTICALES", "s": "EQUIPAMIENTO", "v": 998543.89, "c": 802623.97}, {"f": "2026-02-23", "r": "VERTICALES", "s": "EQUIPAMIENTO", "v": 998543.89, "c": 802623.97}, {"f": "2026-02-23", "r": "VARIOS", "s": "GENERAL", "v": 23140.5, "c": 0.83}, {"f": "2026-02-24", "r": "COCINAS", "s": "EQUIPAMIENTO", "v": 526964.71, "c": 409452.36}, {"f": "2026-02-24", "r": "CARLITEROSPLANCHAS", "s": "EQUIPAMIENTO", "v": 278264.25, "c": 201022.64}, {"f": "2026-02-25", "r": "HELADERAS FAMILIARES", "s": "HOGAR", "v": 547668.59, "c": 420507.24}, {"f": "2026-02-25", "r": "HORNOS PIZZEROS", "s": "EQUIPAMIENTO", "v": 371260.63, "c": 257016.85}, {"f": "2026-02-25", "r": "VERTICALES", "s": "EQUIPAMIENTO", "v": 1786278.73, "c": 1435800.65}, {"f": "2026-02-25", "r": "VARIOS", "s": "GENERAL", "v": 115084.3, "c": 0.83}, {"f": "2026-02-25", "r": "LAVARROPAS", "s": "HOGAR", "v": 575266.94, "c": 457286.41}, {"f": "2026-02-26", "r": "ACCESORIOSCOMPLEMENTARIOS", "s": "EQUIPAMIENTO", "v": 156941.18, "c": 118009.8}, {"f": "2026-02-26", "r": "PANCHERA", "s": "EQUIPAMIENTO", "v": 242763.8, "c": 178700.22}, {"f": "2026-02-28", "r": "TERMOTANQUES", "s": "HOGAR", "v": 278038.02, "c": 213481.21}, {"f": "2026-02-28", "r": "AIRES ACONDICIONADOS", "s": "HOGAR", "v": 522979.34, "c": 430932.23}, {"f": "2026-03-02", "r": "TERMOTANQUES", "s": "HOGAR", "v": 288749.59, "c": 243876.64}, {"f": "2026-03-02", "r": "HELVITRINA", "s": "EQUIPAMIENTO", "v": 1471188.24, "c": 1182532.18}, {"f": "2026-03-03", "r": "DESHIDRATADORES", "s": "EQUIPAMIENTO", "v": 768607.24, "c": 539373.76}, {"f": "2026-03-03", "r": "FREEZER", "s": "EQUIPAMIENTO", "v": 545347.11, "c": 428496.0}, {"f": "2026-03-04", "r": "VERTICALES", "s": "EQUIPAMIENTO", "v": 893139.37, "c": 717900.33}, {"f": "2026-03-04", "r": "HORNOS CONVECTORES", "s": "EQUIPAMIENTO", "v": 1064778.28, "c": 854283.0}, {"f": "2026-03-04", "r": "VARIOS", "s": "GENERAL", "v": 51136.36, "c": 0.83}, {"f": "2026-03-04", "r": "ACCESORIOSCOMPLEMENTARIOS", "s": "EQUIPAMIENTO", "v": 150760.02, "c": 118009.8}, {"f": "2026-03-04", "r": "COCINAS", "s": "HOGAR", "v": 273542.98, "c": 217443.0}, {"f": "2026-03-04", "r": "CARLITEROSPLANCHAS", "s": "EQUIPAMIENTO", "v": 396930.32, "c": 280377.33}, {"f": "2026-03-05", "r": "VERTICALES", "s": "EQUIPAMIENTO", "v": 893139.37, "c": 717900.33}, {"f": "2026-03-05", "r": "HELADERAS FAMILIARES", "s": "HOGAR", "v": 553519.01, "c": 424999.52}, {"f": "2026-03-05", "r": "HELADERAS FAMILIARES", "s": "HOGAR", "v": 575967.77, "c": 463294.4}, {"f": "2026-03-06", "r": "PESADO", "s": "EQUIPAMIENTO", "v": 287485.07, "c": 231078.45}, {"f": "2026-03-06", "r": "HORNOS PIZZEROS", "s": "EQUIPAMIENTO", "v": 371260.63, "c": 257016.85}, {"f": "2026-03-06", "r": "AMASADORAS RAPIDAS", "s": "EQUIPAMIENTO", "v": 2277232.58, "c": 1608556.02}, {"f": "2026-03-07", "r": "SIERRASCARNICERAS", "s": "EQUIPAMIENTO", "v": 1331189.14, "c": 967152.94}, {"f": "2026-03-07", "r": "VARIOS", "s": "GENERAL", "v": 79834.63, "c": 0.83}, {"f": "2026-03-07", "r": "HORNOS PIZZEROS", "s": "EQUIPAMIENTO", "v": 481072.4, "c": 329430.43}, {"f": "2026-03-07", "r": "VARIOS", "s": "GENERAL", "v": 24793.39, "c": 0.83}, {"f": "2026-03-09", "r": "MESASDETRABAJO", "s": "EQUIPAMIENTO", "v": 638607.44, "c": 465186.15}, {"f": "2026-03-09", "r": "TERMOTANQUES", "s": "HOGAR", "v": 740466.12, "c": 575075.07}, {"f": "2026-03-09", "r": "VERTICALES", "s": "EQUIPAMIENTO", "v": 1004400.0, "c": 807330.64}, {"f": "2026-03-10", "r": "HORNOS CONVECTORES", "s": "EQUIPAMIENTO", "v": 1064778.28, "c": 854283.0}, {"f": "2026-03-10", "r": "VARIOS", "s": "GENERAL", "v": 116328.1, "c": 0.83}, {"f": "2026-03-10", "r": "HORNOS PIZZEROS", "s": "EQUIPAMIENTO", "v": 286390.05, "c": 200891.06}, {"f": "2026-03-10", "r": "HORNOS PIZZEROS", "s": "EQUIPAMIENTO", "v": 286390.05, "c": 200891.06}, {"f": "2026-03-11", "r": "HELVITRINA", "s": "EQUIPAMIENTO", "v": 1471188.24, "c": 1182532.18}, {"f": "2026-03-11", "r": "TERMOTANQUES", "s": "HOGAR", "v": 318104.96, "c": 238817.13}, {"f": "2026-03-11", "r": "PICADORASDECARNE", "s": "EQUIPAMIENTO", "v": 1349435.29, "c": 991066.06}, {"f": "2026-03-11", "r": "CUTTER", "s": "EQUIPAMIENTO", "v": 647058.82, "c": 452488.69}, {"f": "2026-03-11", "r": "VARIOS", "s": "GENERAL", "v": 70247.93, "c": 0.83}, {"f": "2026-03-11", "r": "FREEZER", "s": "EQUIPAMIENTO", "v": 738750.41, "c": 567702.0}, {"f": "2026-03-11", "r": "HORNOS CONVECTORES", "s": "EQUIPAMIENTO", "v": 1064778.28, "c": 854283.0}, {"f": "2026-03-12", "r": "SPIEDO", "s": "EQUIPAMIENTO", "v": 2279717.65, "c": 1594208.14}, {"f": "2026-03-12", "r": "VARIOS", "s": "GENERAL", "v": 97029.97, "c": 0.83}, {"f": "2026-03-12", "r": "HORNOS CONVECTORES", "s": "EQUIPAMIENTO", "v": 645685.07, "c": 496489.56}, {"f": "2026-03-12", "r": "ACCESORIOS", "s": "EQUIPAMIENTO", "v": 95975.21, "c": 67115.79}, {"f": "2026-03-12", "r": "VERTICALES", "s": "EQUIPAMIENTO", "v": 998543.89, "c": 802623.97}, {"f": "2026-03-12", "r": "FREIDORAS", "s": "EQUIPAMIENTO", "v": 238597.29, "c": 175209.0}, {"f": "2026-03-12", "r": "FREEZER", "s": "EQUIPAMIENTO", "v": 530347.11, "c": 394545.02}, {"f": "2026-03-12", "r": "VERTICALES", "s": "EQUIPAMIENTO", "v": 998542.99, "c": 802623.97}, {"f": "2026-03-12", "r": "HORNOS PIZZEROS", "s": "EQUIPAMIENTO", "v": 353483.26, "c": 247810.55}, {"f": "2026-03-13", "r": "HORNOS PIZZEROS", "s": "EQUIPAMIENTO", "v": 4103491.4, "c": 3188416.29}, {"f": "2026-03-13", "r": "VARIOS", "s": "GENERAL", "v": 133057.85, "c": 0.83}, {"f": "2026-03-13", "r": "HORNOS PIZZEROS", "s": "EQUIPAMIENTO", "v": 286390.05, "c": 200891.06}, {"f": "2026-03-13", "r": "VARIOS", "s": "GENERAL", "v": 24793.39, "c": 0.83}, {"f": "2026-03-14", "r": "TERMOTANQUES", "s": "HOGAR", "v": 318104.96, "c": 238817.13}, {"f": "2026-03-14", "r": "HORNO ELECTRICO", "s": "HOGAR", "v": 152071.9, "c": 109303.64}, {"f": "2026-03-16", "r": "HELVITRINA", "s": "EQUIPAMIENTO", "v": 1515601.81, "c": 1218232.18}, {"f": "2026-03-17", "r": "VERTICAL CONGELADOS", "s": "EQUIPAMIENTO", "v": 1581574.66, "c": 1271260.09}, {"f": "2026-03-17", "r": "FREEZER", "s": "EQUIPAMIENTO", "v": 1015288.43, "c": 788880.0}, {"f": "2026-03-17", "r": "PESADO", "s": "EQUIPAMIENTO", "v": 283974.66, "c": 228257.08}, {"f": "2026-03-17", "r": "ENVASADORAS-SELLADOR", "s": "EQUIPAMIENTO", "v": 171324.89, "c": 126113.73}, {"f": "2026-03-17", "r": "HELVITRINA", "s": "EQUIPAMIENTO", "v": 3587026.24, "c": 2756493.81}, {"f": "2026-03-17", "r": "FREEZER", "s": "EQUIPAMIENTO", "v": 811852.07, "c": 623878.0}, {"f": "2026-03-17", "r": "VARIOS", "s": "GENERAL", "v": 144628.1, "c": 0.83}, {"f": "2026-03-18", "r": "CAFETERAS", "s": "EQUIPAMIENTO", "v": 85867.87, "c": 63207.68}, {"f": "2026-03-18", "r": "CORTADORA FIAMBRES", "s": "EQUIPAMIENTO", "v": 1587744.8, "c": 1246140.66}, {"f": "2026-03-18", "r": "CAJASYGABETAS", "s": "EQUIPAMIENTO", "v": 137709.09, "c": 96300.0}, {"f": "2026-03-19", "r": "TERMOTANQUES", "s": "HOGAR", "v": 227020.66, "c": 172350.85}, {"f": "2026-03-19", "r": "TERMOTANQUES", "s": "HOGAR", "v": 502800.0, "c": 340581.09}, {"f": "2026-03-19", "r": "FREIDORAS", "s": "EQUIPAMIENTO", "v": 302633.48, "c": 221140.45}, {"f": "2026-03-19", "r": "PANCHERA", "s": "EQUIPAMIENTO", "v": 347222.62, "c": 249192.57}, {"f": "2026-03-19", "r": "FREEZER", "s": "EQUIPAMIENTO", "v": 1015288.43, "c": 788880.0}, {"f": "2026-03-20", "r": "HORNOS CONVECTORES", "s": "EQUIPAMIENTO", "v": 1064778.28, "c": 854283.0}, {"f": "2026-03-20", "r": "BATIDORAS", "s": "EQUIPAMIENTO", "v": 627719.46, "c": 464977.38}, {"f": "2026-03-20", "r": "VERTICALES", "s": "EQUIPAMIENTO", "v": 4230447.06, "c": 3112747.2}, {"f": "2026-03-20", "r": "HORNOS PIZZEROS", "s": "EQUIPAMIENTO", "v": 371260.63, "c": 257016.85}, {"f": "2026-03-21", "r": "CORTADORA FIAMBRES", "s": "EQUIPAMIENTO", "v": 1587744.8, "c": 1246140.66}, {"f": "2026-03-23", "r": "HORNOS PIZZEROS", "s": "EQUIPAMIENTO", "v": 371260.63, "c": 257016.85}, {"f": "2026-03-25", "r": "TERMOTANQUES", "s": "HOGAR", "v": 722716.53, "c": 561290.17}, {"f": "2026-03-25", "r": "TERMOTANQUES", "s": "HOGAR", "v": 320567.77, "c": 230293.12}, {"f": "2026-03-25", "r": "TERMOTANQUES", "s": "HOGAR", "v": 227020.66, "c": 172350.85}, {"f": "2026-03-25", "r": "MESASDETRABAJO", "s": "EQUIPAMIENTO", "v": 538443.8, "c": 392222.91}, {"f": "2026-03-25", "r": "VARIOS", "s": "GENERAL", "v": 66115.7, "c": 0.83}, {"f": "2026-03-25", "r": "HELVITRINA", "s": "EQUIPAMIENTO", "v": 1550444.34, "c": 1218232.18}, {"f": "2026-03-25", "r": "COCINA GASTRONOMICA", "s": "EQUIPAMIENTO", "v": 1209686.88, "c": 929598.33}, {"f": "2026-03-27", "r": "ACCESORIOSCOMPLEMENTARIOS", "s": "EQUIPAMIENTO", "v": 156941.18, "c": 118009.8}, {"f": "2026-03-27", "r": "HORNOS PIZZEROS", "s": "EQUIPAMIENTO", "v": 286390.05, "c": 200891.06}, {"f": "2026-03-27", "r": "ACCESORIOSCOMPLEMENTARIOS", "s": "EQUIPAMIENTO", "v": 156941.18, "c": 118009.8}, {"f": "2026-03-27", "r": "COCINAS", "s": "EQUIPAMIENTO", "v": 1015426.24, "c": 797852.16}, {"f": "2026-03-27", "r": "TERMOTANQUES", "s": "HOGAR", "v": 365261.98, "c": 271207.15}, {"f": "2026-03-28", "r": "ANAFES", "s": "EQUIPAMIENTO", "v": 284689.59, "c": 199282.81}, {"f": "2026-03-30", "r": "VERTICALES", "s": "EQUIPAMIENTO", "v": 893139.37, "c": 717900.33}, {"f": "2026-03-31", "r": "MAQUINASDEPASTAS", "s": "EQUIPAMIENTO", "v": 561836.2, "c": 422465.16}, {"f": "2026-03-31", "r": "HORNOS PIZZEROS", "s": "EQUIPAMIENTO", "v": 286390.05, "c": 200891.06}, {"f": "2026-03-31", "r": "HELADERAS FAMILIARES", "s": "HOGAR", "v": 579680.17, "c": 466280.47}, {"f": "2026-03-31", "r": "VARIOS", "s": "GENERAL", "v": 23140.5, "c": 0.83}, {"f": "2026-03-31", "r": "HELADERAS FAMILIARES", "s": "HOGAR", "v": 579680.17, "c": 466280.47}, {"f": "2026-03-31", "r": "HORNOS PIZZEROS", "s": "EQUIPAMIENTO", "v": 286390.05, "c": 200891.06}, {"f": "2026-03-31", "r": "VARIOS", "s": "GENERAL", "v": 14876.03, "c": 0.83}, {"f": "2026-04-01", "r": "TERMOTANQUES", "s": "HOGAR", "v": 227020.66, "c": 172350.85}, {"f": "2026-04-01", "r": "LAVARROPAS", "s": "HOGAR", "v": 623204.96, "c": 495393.64}, {"f": "2026-04-04", "r": "TERMOTANQUES", "s": "HOGAR", "v": 334024.79, "c": 250769.69}, {"f": "2026-04-04", "r": "FREEZER", "s": "EQUIPAMIENTO", "v": 582980.99, "c": 497169.69}, {"f": "2026-04-04", "r": "VARIOS", "s": "GENERAL", "v": 45454.55, "c": 0.83}, {"f": "2026-04-04", "r": "LAVARROPAS", "s": "HOGAR", "v": 800028.05, "c": 635952.33}, {"f": "2026-04-06", "r": "CALEFACCION", "s": "HOGAR", "v": 255157.85, "c": 210248.72}, {"f": "2026-04-06", "r": "FREEZER", "s": "EQUIPAMIENTO", "v": 1015288.43, "c": 788880.0}, {"f": "2026-04-06", "r": "FREEZER", "s": "EQUIPAMIENTO", "v": 1346914.05, "c": 1035053.0}, {"f": "2026-04-06", "r": "VERTICALES", "s": "EQUIPAMIENTO", "v": 2114618.1, "c": 1573142.64}, {"f": "2026-04-06", "r": "SIERRASCARNICERAS", "s": "EQUIPAMIENTO", "v": 916638.01, "c": 688166.52}, {"f": "2026-04-07", "r": "PELADORAS", "s": "EQUIPAMIENTO", "v": 1367287.78, "c": 972466.97}, {"f": "2026-04-07", "r": "VARIOS", "s": "GENERAL", "v": 70991.74, "c": 0.83}, {"f": "2026-04-07", "r": "CORTADORA FIAMBRES", "s": "EQUIPAMIENTO", "v": 1298891.4, "c": 987300.0}, {"f": "2026-04-07", "r": "VARIOS", "s": "GENERAL", "v": 61284.3, "c": 0.83}, {"f": "2026-04-07", "r": "MAQUINASDEPASTAS", "s": "EQUIPAMIENTO", "v": 561836.2, "c": 422465.16}, {"f": "2026-04-07", "r": "VARIOS", "s": "GENERAL", "v": 44628.1, "c": 0.83}, {"f": "2026-04-07", "r": "FREEZER", "s": "EQUIPAMIENTO", "v": 545347.11, "c": 428496.0}, {"f": "2026-04-07", "r": "VARIOS", "s": "GENERAL", "v": 23140.5, "c": 0.83}, {"f": "2026-04-07", "r": "VERTICALES", "s": "EQUIPAMIENTO", "v": 1004400.0, "c": 807330.64}, {"f": "2026-04-07", "r": "FREEZER", "s": "EQUIPAMIENTO", "v": 514236.36, "c": 413340.0}, {"f": "2026-04-08", "r": "PANCHERA", "s": "EQUIPAMIENTO", "v": 347222.62, "c": 249192.57}, {"f": "2026-04-08", "r": "HORNOS PIZZEROS", "s": "EQUIPAMIENTO", "v": 286390.05, "c": 200891.06}, {"f": "2026-04-08", "r": "TERMOTANQUES", "s": "HOGAR", "v": 365261.98, "c": 271207.15}, {"f": "2026-04-08", "r": "VERTICALES", "s": "EQUIPAMIENTO", "v": 998543.89, "c": 802623.97}, {"f": "2026-04-08", "r": "VARIOS", "s": "GENERAL", "v": 23140.5, "c": 0.83}, {"f": "2026-04-08", "r": "ACCESORIOSCOMPLEMENTARIOS", "s": "EQUIPAMIENTO", "v": 156941.18, "c": 118009.8}, {"f": "2026-04-08", "r": "VERTICALES", "s": "EQUIPAMIENTO", "v": 998543.89, "c": 802623.97}, {"f": "2026-04-08", "r": "BATEACARNICERA", "s": "EQUIPAMIENTO", "v": 2657796.38, "c": 1828372.0}, {"f": "2026-04-08", "r": "VARIOS", "s": "GENERAL", "v": 434365.29, "c": 0.83}, {"f": "2026-04-08", "r": "MAQUINASDEPASTAS", "s": "EQUIPAMIENTO", "v": 561836.2, "c": 422465.16}, {"f": "2026-04-09", "r": "LAVARROPAS", "s": "HOGAR", "v": 428595.04, "c": 343807.94}, {"f": "2026-04-09", "r": "HORNOS PIZZEROS", "s": "EQUIPAMIENTO", "v": 286390.05, "c": 200891.06}, {"f": "2026-04-10", "r": "HELVITRINA", "s": "EQUIPAMIENTO", "v": 1970104.07, "c": 1479057.28}, {"f": "2026-04-10", "r": "VARIOS", "s": "GENERAL", "v": 209723.97, "c": 0.83}, {"f": "2026-04-10", "r": "ACCESORIOS", "s": "EQUIPAMIENTO", "v": 91176.86, "c": 67115.79}, {"f": "2026-04-10", "r": "LAVARROPAS", "s": "HOGAR", "v": 800028.05, "c": 635952.33}, {"f": "2026-04-10", "r": "VARIOS", "s": "GENERAL", "v": 28925.62, "c": 0.83}, {"f": "2026-04-10", "r": "SPIEDO", "s": "EQUIPAMIENTO", "v": 2279717.65, "c": 1594208.14}, {"f": "2026-04-10", "r": "VARIOS", "s": "GENERAL", "v": 73553.72, "c": 0.83}, {"f": "2026-04-10", "r": "VERTICALES", "s": "EQUIPAMIENTO", "v": 893139.37, "c": 717900.33}, {"f": "2026-04-10", "r": "CAFETERAS", "s": "EQUIPAMIENTO", "v": 158570.14, "c": 120530.95}, {"f": "2026-04-10", "r": "CAFETERAS", "s": "EQUIPAMIENTO", "v": 92313.12, "c": 67952.24}, {"f": "2026-04-10", "r": "CALEFACCION", "s": "HOGAR", "v": 30627.27, "c": 24900.0}, {"f": "2026-04-10", "r": "CAFETERAS", "s": "EQUIPAMIENTO", "v": 158570.14, "c": 120530.95}, {"f": "2026-04-10", "r": "CAFETERAS", "s": "EQUIPAMIENTO", "v": 92313.12, "c": 67952.24}, {"f": "2026-04-11", "r": "TERMOTANQUES", "s": "HOGAR", "v": 227020.66, "c": 172350.85}, {"f": "2026-04-11", "r": "MAQUINASDEPASTAS", "s": "EQUIPAMIENTO", "v": 561836.2, "c": 422465.16}, {"f": "2026-04-11", "r": "VARIOS", "s": "GENERAL", "v": 37190.08, "c": 0.83}, {"f": "2026-04-11", "r": "PESADO", "s": "EQUIPAMIENTO", "v": 259511.31, "c": 203905.93}, {"f": "2026-04-11", "r": "VARIOS", "s": "GENERAL", "v": 13975.5, "c": 0.83}, {"f": "2026-04-11", "r": "FREEZER", "s": "EQUIPAMIENTO", "v": 600776.03, "c": 456655.59}, {"f": "2026-04-11", "r": "CARLITEROSPLANCHAS", "s": "EQUIPAMIENTO", "v": 559919.46, "c": 409145.46}, {"f": "2026-04-13", "r": "FREEZER", "s": "EQUIPAMIENTO", "v": 1900834.39, "c": 1447989.84}, {"f": "2026-04-13", "r": "LAVARROPAS", "s": "HOGAR", "v": 688833.88, "c": 549993.59}, {"f": "2026-04-13", "r": "VERTICALES", "s": "EQUIPAMIENTO", "v": 1004400.0, "c": 807330.64}, {"f": "2026-04-13", "r": "FREIDORA AUTOMATICA", "s": "EQUIPAMIENTO", "v": 1011022.62, "c": 770162.0}, {"f": "2026-04-13", "r": "FREEZER", "s": "EQUIPAMIENTO", "v": 828090.08, "c": 636356.24}, {"f": "2026-04-13", "r": "CARLITEROSPLANCHAS", "s": "EQUIPAMIENTO", "v": 559919.46, "c": 409145.46}, {"f": "2026-04-14", "r": "PROCESADORAS", "s": "EQUIPAMIENTO", "v": 1230690.5, "c": 860623.0}, {"f": "2026-04-14", "r": "VARIOS", "s": "GENERAL", "v": 34710.74, "c": 0.83}, {"f": "2026-04-14", "r": "PESADO", "s": "EQUIPAMIENTO", "v": 188057.01, "c": 138430.2}, {"f": "2026-04-14", "r": "FREEZER", "s": "EQUIPAMIENTO", "v": 828090.08, "c": 636356.24}, {"f": "2026-04-15", "r": "HORNOS CONVECTORES", "s": "EQUIPAMIENTO", "v": 598529.41, "c": 475627.16}, {"f": "2026-04-15", "r": "HELADERAS FAMILIARES", "s": "HOGAR", "v": 559198.35, "c": 429360.02}, {"f": "2026-04-16", "r": "HORNOS PIZZEROS", "s": "EQUIPAMIENTO", "v": 286390.05, "c": 200891.06}, {"f": "2026-04-16", "r": "LAVARROPAS", "s": "HOGAR", "v": 515897.52, "c": 399240.08}, {"f": "2026-04-16", "r": "FREEZER", "s": "EQUIPAMIENTO", "v": 757219.83, "c": 581894.88}, {"f": "2026-04-16", "r": "FREEZER", "s": "EQUIPAMIENTO", "v": 757219.83, "c": 581894.88}, {"f": "2026-04-17", "r": "HORNOS CONVECTORES", "s": "EQUIPAMIENTO", "v": 1064778.28, "c": 854283.0}, {"f": "2026-04-17", "r": "ACCESORIOS", "s": "EQUIPAMIENTO", "v": 136258.47, "c": 95285.64}, {"f": "2026-04-17", "r": "HELADERAS FAMILIARES", "s": "HOGAR", "v": 792837.19, "c": 646475.12}, {"f": "2026-04-18", "r": "HELADERAS FAMILIARES", "s": "HOGAR", "v": 792837.19, "c": 646475.12}, {"f": "2026-04-18", "r": "TERMOTANQUES", "s": "HOGAR", "v": 296471.07, "c": 217737.47}, {"f": "2026-04-20", "r": "ACCESORIOS", "s": "EQUIPAMIENTO", "v": 91176.86, "c": 67115.79}, {"f": "2026-04-20", "r": "FREEZER", "s": "EQUIPAMIENTO", "v": 828090.08, "c": 636356.24}, {"f": "2026-04-20", "r": "HELVITRINA", "s": "EQUIPAMIENTO", "v": 1550444.34, "c": 1218232.18}, {"f": "2026-04-20", "r": "BATEACARNICERA", "s": "EQUIPAMIENTO", "v": 2132042.53, "c": 1608348.13}, {"f": "2026-04-20", "r": "VERTICALES", "s": "EQUIPAMIENTO", "v": 893139.37, "c": 717900.33}, {"f": "2026-04-20", "r": "CORTADORA FIAMBRES", "s": "EQUIPAMIENTO", "v": 802460.63, "c": 637683.26}, {"f": "2026-04-20", "r": "PESADO", "s": "EQUIPAMIENTO", "v": 259511.31, "c": 203905.93}, {"f": "2026-04-21", "r": "VERTICALES", "s": "EQUIPAMIENTO", "v": 790761.99, "c": 592818.1}, {"f": "2026-04-21", "r": "VERTICAL CONGELADOS", "s": "EQUIPAMIENTO", "v": 1168090.5, "c": 897633.75}, {"f": "2026-04-21", "r": "VARIOS", "s": "GENERAL", "v": 89688.43, "c": 0.83}, {"f": "2026-04-22", "r": "HELVITRINA", "s": "EQUIPAMIENTO", "v": 1616088.69, "c": 1299942.35}, {"f": "2026-04-22", "r": "VARIOS", "s": "GENERAL", "v": 23140.5, "c": 0.83}, {"f": "2026-04-22", "r": "HORNOS PIZZEROS", "s": "EQUIPAMIENTO", "v": 294983.71, "c": 200891.06}, {"f": "2026-04-22", "r": "FREEZER", "s": "EQUIPAMIENTO", "v": 1040671.07, "c": 808602.48}, {"f": "2026-04-22", "r": "HORNOS CONVECTORES", "s": "EQUIPAMIENTO", "v": 645685.07, "c": 496489.56}, {"f": "2026-04-23", "r": "HELADERAS FAMILIARES", "s": "HOGAR", "v": 587207.44, "c": 450865.62}, {"f": "2026-04-23", "r": "MESASDETRABAJO", "s": "EQUIPAMIENTO", "v": 538443.8, "c": 392222.91}, {"f": "2026-04-23", "r": "VARIOS", "s": "GENERAL", "v": 49586.78, "c": 0.83}, {"f": "2026-04-23", "r": "VARIOS", "s": "GENERAL", "v": 57851.24, "c": 0.83}, {"f": "2026-04-23", "r": "FREEZER", "s": "EQUIPAMIENTO", "v": 1040671.07, "c": 808602.48}, {"f": "2026-04-23", "r": "AIRES ACONDICIONADOS", "s": "HOGAR", "v": 1157874.38, "c": 841233.88}, {"f": "2026-04-23", "r": "PANCHERA", "s": "EQUIPAMIENTO", "v": 357640.72, "c": 249192.57}, {"f": "2026-04-24", "r": "ACCESORIOS", "s": "EQUIPAMIENTO", "v": 136258.47, "c": 95285.64}, {"f": "2026-04-25", "r": "TERMOTANQUES", "s": "HOGAR", "v": 724542.15, "c": 562707.87}, {"f": "2026-04-25", "r": "VARIOS", "s": "GENERAL", "v": 14876.03, "c": 0.83}, {"f": "2026-04-27", "r": "FREEZER", "s": "EQUIPAMIENTO", "v": 1040671.07, "c": 808602.48}, {"f": "2026-04-27", "r": "FREEZER", "s": "EQUIPAMIENTO", "v": 856797.52, "c": 673212.79}, {"f": "2026-04-27", "r": "BATIDORAS", "s": "EQUIPAMIENTO", "v": 1378103.17, "c": 928015.13}, {"f": "2026-04-27", "r": "TERMOTANQUES", "s": "HOGAR", "v": 454041.32, "c": 344701.7}, {"f": "2026-04-27", "r": "HELVITRINA", "s": "EQUIPAMIENTO", "v": 1471188.24, "c": 1182532.18}, {"f": "2026-04-28", "r": "FREEZER", "s": "EQUIPAMIENTO", "v": 1040671.07, "c": 808602.48}, {"f": "2026-04-28", "r": "DESHIDRATADORES", "s": "EQUIPAMIENTO", "v": 768607.24, "c": 539373.76}, {"f": "2026-04-28", "r": "VARIOS", "s": "GENERAL", "v": 37190.08, "c": 0.83}, {"f": "2026-04-29", "r": "HORNOS PIZZEROS", "s": "EQUIPAMIENTO", "v": 294983.71, "c": 200891.06}, {"f": "2026-04-29", "r": "VARIOS", "s": "GENERAL", "v": 14876.03, "c": 0.83}, {"f": "2026-04-29", "r": "CAMPANAS", "s": "HOGAR", "v": 403222.31, "c": 296814.41}, {"f": "2026-04-29", "r": "ENVASADORAS-SELLADOR", "s": "EQUIPAMIENTO", "v": 583138.46, "c": 443249.1}, {"f": "2026-04-29", "r": "TERMOTANQUES", "s": "HOGAR", "v": 707175.21, "c": 549219.41}, {"f": "2026-04-30", "r": "MESASDETRABAJO", "s": "EQUIPAMIENTO", "v": 482998.35, "c": 351834.71}, {"f": "2026-04-30", "r": "TERMOTANQUES", "s": "HOGAR", "v": 994645.45, "c": 763702.12}, {"f": "2026-05-02", "r": "CAMPANAS", "s": "HOGAR", "v": 403222.31, "c": 296814.41}, {"f": "2026-05-02", "r": "TERMOTANQUES", "s": "HOGAR", "v": 331090.91, "c": 257138.0}, {"f": "2026-05-04", "r": "PESADO", "s": "EQUIPAMIENTO", "v": 283974.66, "c": 228257.08}, {"f": "2026-05-04", "r": "CORTADORA FIAMBRES", "s": "EQUIPAMIENTO", "v": 663875.11, "c": 484652.56}, {"f": "2026-05-04", "r": "VARIOS", "s": "GENERAL", "v": 18616.53, "c": 0.83}, {"f": "2026-05-04", "r": "TERMOTANQUES", "s": "HOGAR", "v": 724542.15, "c": 562707.87}, {"f": "2026-05-04", "r": "CAFETERAS", "s": "EQUIPAMIENTO", "v": 92313.12, "c": 67952.24}, {"f": "2026-05-05", "r": "PROCESADORAS", "s": "EQUIPAMIENTO", "v": 1275692.31, "c": 1049520.36}, {"f": "2026-05-05", "r": "VARIOS", "s": "GENERAL", "v": 25619.83, "c": 0.83}, {"f": "2026-05-05", "r": "ACCESORIOS", "s": "EQUIPAMIENTO", "v": 93913.22, "c": 67115.79}, {"f": "2026-05-05", "r": "HORNOS PIZZEROS", "s": "EQUIPAMIENTO", "v": 378151.13, "c": 257016.85}, {"f": "2026-05-06", "r": "HORNOS PIZZEROS", "s": "EQUIPAMIENTO", "v": 378151.13, "c": 257016.85}, {"f": "2026-05-06", "r": "BANDEJASYLATAS", "s": "EQUIPAMIENTO", "v": 73861.98, "c": 49906.61}, {"f": "2026-05-06", "r": "HORNOS PASTELEROS", "s": "EQUIPAMIENTO", "v": 572874.21, "c": 471409.55}, {"f": "2026-05-06", "r": "PELADORAS", "s": "EQUIPAMIENTO", "v": 1321266.97, "c": 972466.97}, {"f": "2026-05-06", "r": "VARIOS", "s": "GENERAL", "v": 74027.27, "c": 0.83}, {"f": "2026-05-08", "r": "TERMOTANQUES", "s": "HOGAR", "v": 724542.15, "c": 562707.87}, {"f": "2026-05-08", "r": "CALEFACCION", "s": "HOGAR", "v": 118289.26, "c": 87621.49}, {"f": "2026-05-09", "r": "TERMOTANQUES", "s": "HOGAR", "v": 331090.91, "c": 257138.0}, {"f": "2026-05-12", "r": "CALEFACCION", "s": "HOGAR", "v": 118289.26, "c": 87621.49}, {"f": "2026-05-12", "r": "ACCESORIOS", "s": "EQUIPAMIENTO", "v": 93913.22, "c": 67115.79}, {"f": "2026-05-12", "r": "HORNOS CONVECTORES", "s": "EQUIPAMIENTO", "v": 645685.07, "c": 496489.56}, {"f": "2026-05-12", "r": "HELVITRINA", "s": "EQUIPAMIENTO", "v": 1498181.9, "c": 1218232.18}, {"f": "2026-05-12", "r": "VARIOS", "s": "GENERAL", "v": 239669.42, "c": 0.83}, {"f": "2026-05-12", "r": "HELVITRINA", "s": "EQUIPAMIENTO", "v": 1616088.69, "c": 1299942.35}, {"f": "2026-05-12", "r": "VARIOS", "s": "GENERAL", "v": 197977.69, "c": 0.83}, {"f": "2026-05-12", "r": "TERMOTANQUES", "s": "HOGAR", "v": 927721.49, "c": 720504.0}, {"f": "2026-05-13", "r": "TERMOTANQUES", "s": "HOGAR", "v": 724542.15, "c": 562707.87}, {"f": "2026-05-13", "r": "VERTICALES", "s": "EQUIPAMIENTO", "v": 1096033.48, "c": 851618.64}, {"f": "2026-05-14", "r": "MANTENEDOR CALOR", "s": "EQUIPAMIENTO", "v": 409093.21, "c": 298247.91}, {"f": "2026-05-14", "r": "TERMOTANQUES", "s": "HOGAR", "v": 334024.79, "c": 250769.69}, {"f": "2026-05-14", "r": "VERTICALES", "s": "EQUIPAMIENTO", "v": 998543.89, "c": 802623.97}, {"f": "2026-05-14", "r": "DESHIDRATADORES", "s": "EQUIPAMIENTO", "v": 768607.24, "c": 539373.76}, {"f": "2026-05-14", "r": "VARIOS", "s": "GENERAL", "v": 37190.08, "c": 0.83}, {"f": "2026-05-15", "r": "ENVASADORAS-SELLADOR", "s": "EQUIPAMIENTO", "v": 583138.46, "c": 443249.1}, {"f": "2026-05-15", "r": "VARIOS", "s": "GENERAL", "v": 35642.15, "c": 0.83}, {"f": "2026-05-15", "r": "CARROS PANADERIA", "s": "EQUIPAMIENTO", "v": 510533.88, "c": 344955.6}, {"f": "2026-05-15", "r": "FREEZER", "s": "EQUIPAMIENTO", "v": 660167.77, "c": 530638.43}, {"f": "2026-05-16", "r": "ESTANTERIAS", "s": "EQUIPAMIENTO", "v": 279235.54, "c": 195270.0}, {"f": "2026-05-16", "r": "VARIOS", "s": "GENERAL", "v": 13400.0, "c": 0.83}, {"f": "2026-05-18", "r": "HELVITRINA", "s": "EQUIPAMIENTO", "v": 1941833.48, "c": 1560833.68}, {"f": "2026-05-18", "r": "HORNOS PIZZEROS", "s": "EQUIPAMIENTO", "v": 364087.78, "c": 247810.55}, {"f": "2026-05-18", "r": "FREEZER", "s": "EQUIPAMIENTO", "v": 856797.52, "c": 673212.79}, {"f": "2026-05-18", "r": "HORNOS CONVECTORES", "s": "EQUIPAMIENTO", "v": 1064778.28, "c": 854283.0}, {"f": "2026-05-18", "r": "ACCESORIOS", "s": "EQUIPAMIENTO", "v": 136258.47, "c": 95285.64}, {"f": "2026-05-18", "r": "AMASADORAS RAPIDAS", "s": "EQUIPAMIENTO", "v": 2277232.58, "c": 1608556.02}, {"f": "2026-05-18", "r": "VARIOS", "s": "GENERAL", "v": 115702.48, "c": 0.83}, {"f": "2026-05-18", "r": "COCINAS", "s": "EQUIPAMIENTO", "v": 369314.03, "c": 286957.47}, {"f": "2026-05-19", "r": "CALEFACCION", "s": "HOGAR", "v": 21618.18, "c": 16900.0}, {"f": "2026-05-19", "r": "HORNOS PIZZEROS", "s": "EQUIPAMIENTO", "v": 1114212.67, "c": 916669.68}, {"f": "2026-05-19", "r": "VARIOS", "s": "GENERAL", "v": 152066.12, "c": 0.83}, {"f": "2026-05-19", "r": "VERTICALES", "s": "EQUIPAMIENTO", "v": 998543.89, "c": 802623.97}, {"f": "2026-05-20", "r": "CORTADORA FIAMBRES", "s": "EQUIPAMIENTO", "v": 1587744.8, "c": 1246140.66}, {"f": "2026-05-20", "r": "VERTICALES", "s": "EQUIPAMIENTO", "v": 2995631.67, "c": 2407871.92}, {"f": "2026-05-20", "r": "HELVITRINA", "s": "EQUIPAMIENTO", "v": 1693641.63, "c": 1377168.58}, {"f": "2026-05-20", "r": "PESADO", "s": "EQUIPAMIENTO", "v": 302122.17, "c": 237386.94}, {"f": "2026-05-20", "r": "HELVITRINA", "s": "EQUIPAMIENTO", "v": 1616132.13, "c": 1378246.9}, {"f": "2026-05-20", "r": "VERTICALES", "s": "EQUIPAMIENTO", "v": 1435294.12, "c": 1128087.0}, {"f": "2026-05-21", "r": "DESHIDRATADORES", "s": "EQUIPAMIENTO", "v": 768607.24, "c": 539373.76}, {"f": "2026-05-21", "r": "VARIOS", "s": "GENERAL", "v": 50413.22, "c": 0.83}, {"f": "2026-05-21", "r": "TERMOTANQUES", "s": "HOGAR", "v": 994645.45, "c": 763702.12}, {"f": "2026-05-21", "r": "TERMOTANQUES", "s": "HOGAR", "v": 291953.72, "c": 224165.74}, {"f": "2026-05-22", "r": "CALEFACCION", "s": "HOGAR", "v": 50933.88, "c": 37728.93}, {"f": "2026-05-22", "r": "VARIOS", "s": "GENERAL", "v": 11466.94, "c": 0.83}, {"f": "2026-05-22", "r": "TERMOTANQUES", "s": "HOGAR", "v": 274863.64, "c": 236590.87}, {"f": "2026-05-22", "r": "TERMOTANQUES", "s": "HOGAR", "v": 227020.66, "c": 213470.21}, {"f": "2026-05-22", "r": "TERMOTANQUES", "s": "HOGAR", "v": 291953.72, "c": 224165.74}, {"f": "2026-05-22", "r": "HORNOS PIZZEROS", "s": "EQUIPAMIENTO", "v": 1114212.67, "c": 916669.68}, {"f": "2026-05-22", "r": "VARIOS", "s": "GENERAL", "v": 53719.01, "c": 0.83}, {"f": "2026-05-23", "r": "HELVITRINA", "s": "EQUIPAMIENTO", "v": 1616132.13, "c": 1378246.9}, {"f": "2026-05-23", "r": "VARIOS", "s": "GENERAL", "v": 293388.43, "c": 0.83}, {"f": "2026-05-23", "r": "TERMOTANQUES", "s": "HOGAR", "v": 274863.64, "c": 236590.87}, {"f": "2026-05-26", "r": "HORNOS CONVECTORES", "s": "EQUIPAMIENTO", "v": 652419.91, "c": 435120.66}, {"f": "2026-05-26", "r": "ACCESORIOS", "s": "EQUIPAMIENTO", "v": 93913.22, "c": 67115.79}, {"f": "2026-05-26", "r": "TERMOTANQUES", "s": "HOGAR", "v": 227020.66, "c": 188172.66}, {"f": "2026-05-26", "r": "MAQUINASEMBUTIDOS", "s": "EQUIPAMIENTO", "v": 341968.33, "c": 240484.16}, {"f": "2026-05-26", "r": "FREEZER", "s": "EQUIPAMIENTO", "v": 660167.77, "c": 530638.43}, {"f": "2026-05-27", "r": "HORNOS CONVECTORES", "s": "EQUIPAMIENTO", "v": 598529.41, "c": 475627.16}, {"f": "2026-05-28", "r": "PESADO", "s": "EQUIPAMIENTO", "v": 302122.17, "c": 237386.94}, {"f": "2026-05-28", "r": "COCINAS", "s": "HOGAR", "v": 318154.55, "c": 252905.0}, {"f": "2026-05-28", "r": "HORNOS PIZZEROS", "s": "EQUIPAMIENTO", "v": 294983.71, "c": 200891.06}, {"f": "2026-05-28", "r": "AMASADORAS", "s": "EQUIPAMIENTO", "v": 664019.91, "c": 465000.0}, {"f": "2026-05-28", "r": "BATEACARNICERA", "s": "EQUIPAMIENTO", "v": 2141216.29, "c": 1497354.0}, {"f": "2026-05-28", "r": "VARIOS", "s": "GENERAL", "v": 252667.77, "c": 0.83}, {"f": "2026-05-28", "r": "TERMOTANQUES", "s": "HOGAR", "v": 413930.58, "c": 310759.0}, {"f": "2026-05-29", "r": "PESADO", "s": "EQUIPAMIENTO", "v": 302122.17, "c": 237386.94}, {"f": "2026-05-29", "r": "HORNOS CONVECTORES", "s": "EQUIPAMIENTO", "v": 645685.07, "c": 496489.56}, {"f": "2026-05-29", "r": "VERTICALES", "s": "EQUIPAMIENTO", "v": 1096033.48, "c": 851618.64}, {"f": "2026-05-29", "r": "BANDEJASYLATAS", "s": "EQUIPAMIENTO", "v": 246206.61, "c": 166355.37}, {"f": "2026-05-30", "r": "TERMOTANQUES", "s": "HOGAR", "v": 291603.31, "c": 245969.74}, {"f": "2026-05-30", "r": "VERTICALES", "s": "USADOS Y SEMINUEVOS", "v": 795166.12, "c": 802623.97}, {"f": "2026-05-30", "r": "HELVITRINA", "s": "EQUIPAMIENTO", "v": 1693641.63, "c": 1377168.58}, {"f": "2026-06-01", "r": "VERTICALES", "s": "EQUIPAMIENTO", "v": 1096033.48, "c": 851618.64}, {"f": "2026-06-01", "r": "TERMOTANQUES", "s": "HOGAR", "v": 324154.55, "c": 248890.55}, {"f": "2026-06-02", "r": "CORTADORA FIAMBRES", "s": "EQUIPAMIENTO", "v": 626946.61, "c": 484652.56}, {"f": "2026-06-02", "r": "HORNOS PIZZEROS", "s": "EQUIPAMIENTO", "v": 378151.13, "c": 257016.85}, {"f": "2026-06-02", "r": "VARIOS", "s": "GENERAL", "v": 23140.5, "c": 0.83}, {"f": "2026-06-02", "r": "VERTICAL CONGELADOS", "s": "EQUIPAMIENTO", "v": 1168090.5, "c": 897633.75}, {"f": "2026-06-03", "r": "VERTICALES", "s": "EQUIPAMIENTO", "v": 998543.89, "c": 802623.97}, {"f": "2026-06-04", "r": "CORTADORA FIAMBRES", "s": "EQUIPAMIENTO", "v": 626946.61, "c": 484652.56}, {"f": "2026-06-04", "r": "BATIDORAS", "s": "EQUIPAMIENTO", "v": 1141458.82, "c": 928015.13}, {"f": "2026-06-04", "r": "VARIOS", "s": "GENERAL", "v": 61983.47, "c": 0.83}, {"f": "2026-06-06", "r": "TERMOTANQUES", "s": "HOGAR", "v": 405549.59, "c": 301120.5}, {"f": "2026-06-08", "r": "PESADO", "s": "EQUIPAMIENTO", "v": 199766.52, "c": 155218.87}, {"f": "2026-06-08", "r": "VERTICALES", "s": "EQUIPAMIENTO", "v": 998543.89, "c": 802623.97}, {"f": "2026-06-09", "r": "HORNOS CONVECTORES", "s": "EQUIPAMIENTO", "v": 685052.49, "c": 502573.0}, {"f": "2026-06-09", "r": "TOSTADORAS", "s": "EQUIPAMIENTO", "v": 140252.49, "c": 102485.87}, {"f": "2026-06-09", "r": "HORNOS CONVECTORES", "s": "EQUIPAMIENTO", "v": 598529.41, "c": 475627.16}, {"f": "2026-06-09", "r": "MESASDETRABAJO", "s": "EQUIPAMIENTO", "v": 573729.75, "c": 437827.97}, {"f": "2026-06-09", "r": "PICADORASDECARNE", "s": "EQUIPAMIENTO", "v": 1261428.96, "c": 991066.06}, {"f": "2026-06-09", "r": "COCINA GASTRONOMICA", "s": "EQUIPAMIENTO", "v": 1245981.0, "c": 957489.64}, {"f": "2026-06-10", "r": "HORNOS CONVECTORES", "s": "EQUIPAMIENTO", "v": 687767.42, "c": 502573.0}, {"f": "2026-06-10", "r": "CARLITEROSPLANCHAS", "s": "EQUIPAMIENTO", "v": 328952.04, "c": 230036.2}, {"f": "2026-06-10", "r": "BATIDORAS", "s": "EQUIPAMIENTO", "v": 1141458.82, "c": 928015.13}, {"f": "2026-06-10", "r": "BATIDORAS", "s": "HOGAR", "v": 190430.58, "c": 127271.9}, {"f": "2026-06-11", "r": "BATIDORAS", "s": "EQUIPAMIENTO", "v": 629114.03, "c": 464977.38}, {"f": "2026-06-11", "r": "HORNOS CONVECTORES", "s": "EQUIPAMIENTO", "v": 1173886.88, "c": 908581.0}, {"f": "2026-06-11", "r": "LAVARROPAS", "s": "HOGAR", "v": 834048.76, "c": 675124.55}, {"f": "2026-06-12", "r": "COCINAS", "s": "HOGAR", "v": 1289475.21, "c": 1030756.03}, {"f": "2026-06-12", "r": "HELVITRINA", "s": "EQUIPAMIENTO", "v": 1616088.69, "c": 1299942.35}, {"f": "2026-06-13", "r": "HELADERAS FAMILIARES", "s": "HOGAR", "v": 632964.46, "c": 509141.28}, {"f": "2026-06-13", "r": "HORNOS PIZZEROS", "s": "EQUIPAMIENTO", "v": 303833.48, "c": 213126.88}, {"f": "2026-06-16", "r": "VERTICAL CONGELADOS", "s": "EQUIPAMIENTO", "v": 1632508.6, "c": 1312200.0}, {"f": "2026-06-16", "r": "HELADERAS FAMILIARES", "s": "HOGAR", "v": 742775.21, "c": 605654.81}, {"f": "2026-06-16", "r": "TERMOTANQUES", "s": "HOGAR", "v": 288749.59, "c": 243876.64}, {"f": "2026-06-16", "r": "HELVITRINA", "s": "EQUIPAMIENTO", "v": 1478254.3, "c": 1202028.25}, {"f": "2026-06-16", "r": "VARIOS", "s": "GENERAL", "v": 23140.5, "c": 0.83}, {"f": "2026-06-17", "r": "VERTICAL CONGELADOS", "s": "EQUIPAMIENTO", "v": 1168090.5, "c": 897633.75}, {"f": "2026-06-17", "r": "VARIOS", "s": "GENERAL", "v": 105968.6, "c": 0.83}, {"f": "2026-06-17", "r": "COCINAS", "s": "HOGAR", "v": 276341.32, "c": 219667.0}, {"f": "2026-06-18", "r": "CALEFONES", "s": "HOGAR", "v": 280986.78, "c": 206814.9}, {"f": "2026-06-22", "r": "MAQUINASEMBUTIDOS", "s": "EQUIPAMIENTO", "v": 1230769.23, "c": 995855.29}, {"f": "2026-06-22", "r": "MAQUINASEMBUTIDOS", "s": "EQUIPAMIENTO", "v": 2498433.54, "c": 1986036.2}, {"f": "2026-06-22", "r": "HELVITRINA", "s": "EQUIPAMIENTO", "v": 1478254.3, "c": 1202028.25}, {"f": "2026-06-22", "r": "VARIOS", "s": "GENERAL", "v": 196911.57, "c": 0.83}, {"f": "2026-06-23", "r": "HORNOS PIZZEROS", "s": "EQUIPAMIENTO", "v": 375011.76, "c": 262903.52}, {"f": "2026-06-23", "r": "BANDEJASYLATAS", "s": "EQUIPAMIENTO", "v": 50319.01, "c": 34000.0}, {"f": "2026-06-23", "r": "HORNOS CONVECTORES", "s": "EQUIPAMIENTO", "v": 753558.37, "c": 502573.0}, {"f": "2026-06-24", "r": "MAQUINASEMBUTIDOS", "s": "EQUIPAMIENTO", "v": 1230769.23, "c": 995855.29}, {"f": "2026-06-25", "r": "FREEZER", "s": "EQUIPAMIENTO", "v": 502479.34, "c": 413221.5}, {"f": "2026-06-25", "r": "HORNOS PIZZEROS", "s": "EQUIPAMIENTO", "v": 4381763.8, "c": 3404633.48}, {"f": "2026-06-25", "r": "VARIOS", "s": "GENERAL", "v": 128099.17, "c": 0.83}, {"f": "2026-06-26", "r": "HORNOS", "s": "USADOS Y SEMINUEVOS", "v": 632660.63, "c": 0.0}, {"f": "2026-06-29", "r": "HORNOS CONVECTORES", "s": "EQUIPAMIENTO", "v": 753558.37, "c": 502573.0}, {"f": "2026-06-30", "r": "PESADO", "s": "EQUIPAMIENTO", "v": 269891.4, "c": 212062.06}, {"f": "2026-06-30", "r": "TERMOTANQUES", "s": "HOGAR", "v": 1701814.05, "c": 1306675.37}, {"f": "2026-06-30", "r": "VERTICALES", "s": "EQUIPAMIENTO", "v": 996971.04, "c": 783351.0}, {"f": "2026-06-30", "r": "COCINAS", "s": "HOGAR", "v": 339408.26, "c": 269800.0}, {"f": "2026-06-30", "r": "HELADERAS FAMILIARES", "s": "HOGAR", "v": 617175.21, "c": 473875.11}, {"f": "2026-06-30", "r": "CALEFACCION", "s": "HOGAR", "v": 28130.58, "c": 22900.0}, {"f": "2026-07-01", "r": "TERMOTANQUES", "s": "HOGAR", "v": 306946.28, "c": 233029.19}, {"f": "2026-07-01", "r": "CAMARA FERMENTADORA", "s": "EQUIPAMIENTO", "v": 1439819.0, "c": 962524.89}, {"f": "2026-07-01", "r": "VARIOS", "s": "GENERAL", "v": 99173.55, "c": 0.83}, {"f": "2026-07-01", "r": "CALEFACTOR IVA 10.5", "s": "EQUIPAMIENTO", "v": 343675.11, "c": 242760.0}, {"f": "2026-07-02", "r": "CALEFACCION", "s": "HOGAR", "v": 61833.88, "c": 45802.48}, {"f": "2026-07-02", "r": "CALEFACCION", "s": "HOGAR", "v": 153312.4, "c": 104005.54}, {"f": "2026-07-02", "r": "HELVITRINA", "s": "EQUIPAMIENTO", "v": 1616088.69, "c": 1299942.35}, {"f": "2026-07-02", "r": "CORTADORA FIAMBRES", "s": "EQUIPAMIENTO", "v": 800820.81, "c": 636380.09}, {"f": "2026-07-03", "r": "CALEFACCION", "s": "HOGAR", "v": 293048.76, "c": 241470.24}, {"f": "2026-07-03", "r": "COCINAS", "s": "HOGAR", "v": 276341.32, "c": 219667.0}, {"f": "2026-07-03", "r": "COCINAS", "s": "HOGAR", "v": 276341.32, "c": 219667.0}, {"f": "2026-07-04", "r": "HELADERAS FAMILIARES", "s": "HOGAR", "v": 742775.21, "c": 605654.81}, {"f": "2026-07-06", "r": "TELEVISORES", "s": "HOGAR", "v": 1477071.07, "c": 1259654.55}, {"f": "2026-07-06", "r": "ACCESORIOS", "s": "HOGAR", "v": 38746.4, "c": 26180.0}, {"f": "2026-07-06", "r": "VARIOS", "s": "GENERAL", "v": 20661.16, "c": 0.83}, {"f": "2026-07-06", "r": "HELADERAS FAMILIARES", "s": "HOGAR", "v": 510918.18, "c": 416599.77}, {"f": "2026-07-06", "r": "VARIOS", "s": "GENERAL", "v": 147806.61, "c": 0.83}, {"f": "2026-07-07", "r": "TERMOTANQUES", "s": "HOGAR", "v": 778009.92, "c": 604232.88}, {"f": "2026-07-07", "r": "VARIOS", "s": "GENERAL", "v": 14876.03, "c": 0.83}, {"f": "2026-07-07", "r": "HORNOS CONVECTORES", "s": "EQUIPAMIENTO", "v": 598529.41, "c": 475627.16}, {"f": "2026-07-08", "r": "DESHIDRATADORES", "s": "EQUIPAMIENTO", "v": 906396.38, "c": 593641.81}, {"f": "2026-07-08", "r": "VARIOS", "s": "GENERAL", "v": 33057.85, "c": 0.83}, {"f": "2026-07-08", "r": "CALEFACCION", "s": "HOGAR", "v": 61833.88, "c": 45802.48}, {"f": "2026-07-10", "r": "FREEZER", "s": "EQUIPAMIENTO", "v": 841313.22, "c": 655729.43}, {"f": "2026-07-10", "r": "VERTICALES", "s": "EQUIPAMIENTO", "v": 1024444.34, "c": 823441.95}, {"f": "2026-07-13", "r": "CAFETERAS", "s": "EQUIPAMIENTO", "v": 81823.53, "c": 60231.19}, {"f": "2026-07-13", "r": "CORTADORA FIAMBRES", "s": "EQUIPAMIENTO", "v": 825419.0, "c": 655927.6}, {"f": "2026-07-14", "r": "HORNOS PIZZEROS", "s": "EQUIPAMIENTO", "v": 389495.02, "c": 272670.02}, {"f": "2026-07-14", "r": "LAVARROPAS", "s": "HOGAR", "v": 858991.74, "c": 674194.73}, {"f": "2026-07-14", "r": "VARIOS", "s": "GENERAL", "v": 37190.08, "c": 0.83}, {"f": "2026-07-15", "r": "TELEVISORES", "s": "HOGAR", "v": 213651.24, "c": 169833.88}, {"f": "2026-07-15", "r": "COCINAS", "s": "HOGAR", "v": 1292152.89, "c": 932289.09}, {"f": "2026-07-16", "r": "SOBADORAS", "s": "EQUIPAMIENTO", "v": 979550.23, "c": 685000.0}, {"f": "2026-07-16", "r": "AMASADORAS", "s": "EQUIPAMIENTO", "v": 664019.91, "c": 465000.0}, {"f": "2026-07-16", "r": "HORNOS PASTELEROS", "s": "EQUIPAMIENTO", "v": 590060.63, "c": 418482.57}, {"f": "2026-07-16", "r": "CAMPANAS", "s": "HOGAR", "v": 236551.24, "c": 168244.2}, {"f": "2026-07-16", "r": "HORNOS PIZZEROS", "s": "EQUIPAMIENTO", "v": 389495.02, "c": 272670.02}, {"f": "2026-07-16", "r": "VARIOS", "s": "GENERAL", "v": 23140.5, "c": 0.83}, {"f": "2026-07-16", "r": "HORNOS CONVECTORES", "s": "EQUIPAMIENTO", "v": 1276484.16, "c": 987990.95}, {"f": "2026-07-16", "r": "VARIOS", "s": "GENERAL", "v": 73566.12, "c": 0.83}, {"f": "2026-07-17", "r": "CAFETERAS", "s": "EQUIPAMIENTO", "v": 81823.53, "c": 60231.19}, {"f": "2026-04-10", "r": "VERTICAL CONGELADOS", "s": "EQUIPAMIENTO", "v": 1484524.89, "c": 1095566.46}, {"f": "2026-01-02", "r": "BANDEJASYLATAS", "s": "EQUIPAMIENTO", "v": 24420.0, "c": 16500.0}, {"f": "2026-01-30", "r": "BATEACARNICERA", "s": "EQUIPAMIENTO", "v": 1948506.79, "c": 1497354.0}, {"f": "2026-04-27", "r": "FREEZER", "s": "EQUIPAMIENTO", "v": 828090.08, "c": 636356.24}, {"f": "2026-05-02", "r": "BATIDORAS", "s": "EQUIPAMIENTO", "v": 1378102.26, "c": 928015.13}, {"f": "2026-06-08", "r": "VERTICALES", "s": "EQUIPAMIENTO", "v": 998544.8, "c": 802623.97}, {"f": "2026-04-17", "r": "HORNOS CONVECTORES", "s": "EQUIPAMIENTO", "v": 1064778.28, "c": 854283.0}, {"f": "2026-04-22", "r": "COCINAS", "s": "HOGAR", "v": 515536.36, "c": 388724.0}, {"f": "2026-03-02", "r": "FREEZER", "s": "EQUIPAMIENTO", "v": 1882352.94, "c": 1393321.68}];
+const META_IS_DAILY = false;
+const META_DATA = {"ALMACEN": {"g": 635556.1, "cv": 309.0, "cpc": 2057.0, "adsets": [{"n": "BALANZAS", "g": 211088.3, "cv": 143.0, "cpc": 1476.0}, {"n": "CORTADORAS DE FIAMBRE", "g": 212595.74, "cv": 94.0, "cpc": 2262.0}, {"n": "VITRINAS", "g": 211872.06, "cv": 72.0, "cpc": 2943.0}]}, "CARNICERIA": {"g": 91417.46, "cv": 75.0, "cpc": 1219.0, "adsets": [{"n": "MIX CARNICERIA", "g": 48984.06, "cv": 58.0, "cpc": 845.0}, {"n": "BATEAS CARNICERAS", "g": 42433.4, "cv": 17.0, "cpc": 2496.0}]}, "EQUIPAMIENTO": {"g": 277067.26, "cv": 229.0, "cpc": 1210.0, "adsets": [{"n": "EQUIPAMIENTO | CARNICERIA | ABR 26", "g": 59685.69, "cv": 59.0, "cpc": 1012.0}, {"n": "EQUIPAMIENTO | GASTRONOMIA | ABR 26", "g": 60631.0, "cv": 56.0, "cpc": 1083.0}, {"n": "EQUIPAMIENTO | PANIFICADOS | ABR 26", "g": 59757.82, "cv": 50.0, "cpc": 1195.0}, {"n": "EQUIPAMIENTO | REFRIGERACION | ABR 26", "g": 50834.15, "cv": 39.0, "cpc": 1303.0}, {"n": "EQUIPAMIENTO | ALMACENES | ABR 26", "g": 46158.6, "cv": 25.0, "cpc": 1846.0}]}, "GASTRONOMIA": {"g": 182946.88, "cv": 206.0, "cpc": 888.0, "adsets": [{"n": "HORNOS", "g": 70333.46, "cv": 86.0, "cpc": 818.0}, {"n": "FREIDORAS", "g": 56312.05, "cv": 63.0, "cpc": 894.0}, {"n": "COCINAS", "g": 56301.37, "cv": 57.0, "cpc": 988.0}]}, "HOGAR": {"g": 540219.02, "cv": 554.0, "cpc": 975.0, "adsets": [{"n": "Termotanques", "g": 126044.94, "cv": 159.0, "cpc": 793.0}, {"n": "Cocinas", "g": 59423.79, "cv": 73.0, "cpc": 814.0}, {"n": "Lavarropas", "g": 139823.97, "cv": 149.0, "cpc": 938.0}, {"n": "Calefacción", "g": 59998.69, "cv": 57.0, "cpc": 1053.0}, {"n": "Heladeras", "g": 154927.63, "cv": 116.0, "cpc": 1336.0}]}, "PANADERIA": {"g": 134017.86, "cv": 93.0, "cpc": 1441.0, "adsets": [{"n": "AMASADORAS", "g": 48741.57, "cv": 43.0, "cpc": 1134.0}, {"n": "MIX PANADERIA", "g": 42633.66, "cv": 26.0, "cpc": 1640.0}, {"n": "BATIDORAS", "g": 42642.63, "cv": 24.0, "cpc": 1777.0}]}, "REFRIGERACION": {"g": 656534.5, "cv": 290.0, "cpc": 2264.0, "adsets": [{"n": "FREEZERS", "g": 212423.74, "cv": 110.0, "cpc": 1931.0}, {"n": "VERTICALES", "g": 211263.2, "cv": 89.0, "cpc": 2374.0}, {"n": "VERTICAL DE CONGELADOS", "g": 232847.56, "cv": 91.0, "cpc": 2559.0}]}};   // daily: array; agg: object
+const RUBRO_A_META = {"HELVITRINA": "ALMACEN", "CORTADORA FIAMBRES": "ALMACEN", "FREEZER": "REFRIGERACION", "VERTICAL CONGELADOS": "REFRIGERACION", "VERTICALES": "REFRIGERACION", "DESHIDRATADORES": "EQUIPAMIENTO", "FREIDORA AUTOMATICA": "EQUIPAMIENTO", "MESASDETRABAJO": "EQUIPAMIENTO", "BATIDORAS": "EQUIPAMIENTO", "ANAFES": "EQUIPAMIENTO", "ENVASADORAS-SELLADOR": "EQUIPAMIENTO", "ESTANTERIAS": "EQUIPAMIENTO", "EQUIPAMIENTO": "EQUIPAMIENTO", "ACCESORIOS": "EQUIPAMIENTO", "PESADO": "EQUIPAMIENTO", "AMASADORAS RAPIDAS": "PANADERIA", "AMASADORAS": "PANADERIA", "HORNOS PASTELEROS": "PANADERIA", "CARROS PANADERIA": "PANADERIA", "BANDEJASYLATAS": "PANADERIA", "CAMARA FERMENTADORA": "PANADERIA", "BATEACARNICERA": "CARNICERIA", "SIERRASCARNICERAS": "CARNICERIA", "PICADORASDECARNE": "CARNICERIA", "MAQUINASEMBUTIDOS": "CARNICERIA", "HORNOS CONVECTORES": "GASTRONOMIA", "HORNOS PIZZEROS": "GASTRONOMIA", "COCINA GASTRONOMICA": "GASTRONOMIA", "CARLITEROSPLANCHAS": "GASTRONOMIA", "CAFETERAS": "GASTRONOMIA", "LICUADORAS": "GASTRONOMIA", "TOSTADORAS": "GASTRONOMIA", "TERMOTANQUES": "HOGAR", "COCINAS": "HOGAR", "MICROONDAS": "HOGAR", "CALEFACCION": "HOGAR"};
+const COLS = {"REFRIGERACION": "#1565C0", "ALMACEN": "#6A1B9A", "EQUIPAMIENTO": "#00548A", "PANADERIA": "#E65100", "CARNICERIA": "#B71C1C", "HOGAR": "#2E7D32", "GASTRONOMIA": "#F1891B", "SIN CAMPAÑA": "#9E9E9E"};
+const NOMBRE_SUG = {"ALMACEN": "EQUIPAMIENTO ALMACEN (Balanzas - Cortadoras - Vitrinas)", "REFRIGERACION": "FRIO COMERCIAL (Freezers - Verticales - Conservadoras)", "EQUIPAMIENTO": "EQUIPAMIENTO GASTRONOMICO (Freidoras - Deshidratadores - Mesas)", "PANADERIA": "PANADERIA Y PASTELERIA (Amasadoras - Hornos - Moldes)", "CARNICERIA": "CARNICERIA (Bateas - Sierras - Picadoras - Embutidoras)", "GASTRONOMIA": "GASTRONOMIA (Hornos Convectores - Pizzeros - Anafes)", "HOGAR": "HOGAR (Termotanques - Cocinas - Microondas)", "SIN CAMPAÑA": "SIN CAMPAÑA - evaluar incluir"};
+const ERP_MAX = '2026-07-17';
+
+// ── Utilidades de formato ────────────────────────────────────────────────────
+const fmtM   = v => '$' + (v/1e6).toFixed(2) + 'M';
+const fmtK   = v => '$' + (v/1e3).toFixed(0) + 'k';
+const fmtArs = v => '$' + Math.round(v).toLocaleString('es-AR');
+const fmtPct = v => v.toFixed(1) + '%';
+
+function cpcColor(c) {
+  if (c == null) return '#9E9E9E';
+  if (c < 1500)  return '#2E7D32';
+  if (c < 2500)  return '#E65100';
+  return '#C62828';
+}
+function roiColor(r) {
+  if (r == null) return '#9E9E9E';
+  return r > 10 ? '#2E7D32' : r > 5 ? '#E65100' : '#C62828';
+}
+
+// ── Presets ──────────────────────────────────────────────────────────────────
+function setPreset(dias) {
+  document.querySelectorAll('.btn-preset').forEach(b => b.classList.remove('active'));
+  event.target.classList.add('active');
+  const hasta = new Date(ERP_MAX + 'T00:00:00');
+  const desde = new Date(hasta);
+  desde.setDate(hasta.getDate() - dias + 1);
+  document.getElementById('inp-hasta').value = ERP_MAX;
+  document.getElementById('inp-desde').value = desde.toISOString().slice(0,10);
+  aplicar();
+}
+
+// ── Aplicar filtro ───────────────────────────────────────────────────────────
+function aplicar() {
+  const desde = document.getElementById('inp-desde').value;
+  const hasta = document.getElementById('inp-hasta').value;
+  if (!desde || !hasta || desde > hasta) {
+    alert('Rango de fechas invalido.');
+    return;
+  }
+
+  // Filtrar ERP
+  const erpFilt = ERP_DATA.filter(r => r.f >= desde && r.f <= hasta);
+
+  // Agrupar ERP por rubro
+  const byRubro = {};
+  erpFilt.forEach(r => {
+    if (!byRubro[r.r]) byRubro[r.r] = {v: 0, c: 0, txs: 0, s: r.s};
+    byRubro[r.r].v += r.v;
+    if (r.c > 0) byRubro[r.r].c += r.c;
+    byRubro[r.r].txs++;
+  });
+
+  // Convertir a array con MUP/margen/campaña
+  let rubroArr = Object.entries(byRubro).map(([rub, d]) => {
+    const mup = d.c > 0 ? d.v / d.c : null;
+    return {
+      r: rub, s: d.s, v: d.v, c: d.c,
+      mup, margen: mup && mup > 1 ? (1 - 1/mup) * 100 : null,
+      txs: d.txs,
+      mc: RUBRO_A_META[rub] || 'SIN CAMPAÑA',
+    };
+  }).filter(x => x.r !== 'VARIOS').sort((a,b) => b.v - a.v);
+
+  // Obtener datos Meta para el periodo
+  let metaByCamp = {};
+  if (META_IS_DAILY && Array.isArray(META_DATA)) {
+    // Datos diarios: filtrar y agregar
+    const metaFilt = META_DATA.filter(r => r.f >= desde && r.f <= hasta);
+    metaFilt.forEach(r => {
+      if (!metaByCamp[r.k]) metaByCamp[r.k] = {g: 0, cv: 0, adsets: {}};
+      metaByCamp[r.k].g  += r.g;
+      metaByCamp[r.k].cv += r.cv;
+      if (!metaByCamp[r.k].adsets[r.a]) metaByCamp[r.k].adsets[r.a] = {g: 0, cv: 0};
+      metaByCamp[r.k].adsets[r.a].g  += r.g;
+      metaByCamp[r.k].adsets[r.a].cv += r.cv;
+    });
+    // Calcular CPC y convertir adsets a array
+    Object.keys(metaByCamp).forEach(k => {
+      const m = metaByCamp[k];
+      m.cpc = m.cv > 0 ? m.g / m.cv : null;
+      m.adsets = Object.entries(m.adsets).map(([n, d]) => ({
+        n, g: d.g, cv: d.cv, cpc: d.cv > 0 ? d.g/d.cv : null
+      })).sort((a,b) => (a.cpc||9999)-(b.cpc||9999));
+    });
+  } else if (!Array.isArray(META_DATA)) {
+    // Datos agregados 30d: usar tal cual
+    metaByCamp = META_DATA;
+  }
+
+  // Agrupar rubros por campaña Meta
+  const byCamp = {};
+  rubroArr.forEach(r => {
+    if (!byCamp[r.mc]) byCamp[r.mc] = {v: 0, c: 0, txs: 0, rubros: []};
+    byCamp[r.mc].v += r.v;
+    byCamp[r.mc].c += r.c;
+    byCamp[r.mc].txs += r.txs;
+    byCamp[r.mc].rubros.push(r);
+  });
+
+  let campArr = Object.entries(byCamp).map(([camp, d]) => {
+    const mup = d.c > 0 ? d.v / d.c : null;
+    const meta = metaByCamp[camp] || {};
+    const g = meta.g || 0;
+    const cv = meta.cv || 0;
+    return {
+      camp, v: d.v, c: d.c, txs: d.txs,
+      mup, margen: mup && mup > 1 ? (1-1/mup)*100 : null,
+      g, cv, cpc: meta.cpc || (cv > 0 ? g/cv : null),
+      roi: g > 0 ? d.v/g : null,
+      adsets: meta.adsets || [],
+    };
+  }).sort((a,b) => b.v - a.v);
+
+  // Renderizar
+  renderKPIs(campArr, metaByCamp);
+  renderCamp(campArr);
+  renderRubros(rubroArr);
+  renderInsights(campArr, rubroArr);
+
+  // Actualizar título y nota
+  const dias = Math.round((new Date(hasta) - new Date(desde)) / 86400000) + 1;
+  const dsFmt = desde.split('-').reverse().join('/');
+  const htFmt = hasta.split('-').reverse().join('/');
+  document.getElementById('hdr-titulo').textContent =
+    `Ventas WEB x Pauta Meta Ads — ${dsFmt} al ${htFmt} (${dias} dias)`;
+}
+
+// ── Render KPIs ──────────────────────────────────────────────────────────────
+function renderKPIs(campArr, metaByCamp) {
+  const totalV = campArr.reduce((s,r) => s + r.v, 0);
+  const totalG = campArr.reduce((s,r) => s + r.g, 0);
+  const rubActivos = new Set(ERP_DATA
+    .filter(r => {
+      const d=document.getElementById('inp-desde').value;
+      const h=document.getElementById('inp-hasta').value;
+      return r.f>=d && r.f<=h;
+    }).map(r => r.r)).size;
+
+  document.getElementById('kv-venta').textContent   = fmtM(totalV);
+  document.getElementById('kv-rubros').textContent  = rubActivos;
+  document.getElementById('kv-gasto').textContent   = totalG > 0 ? fmtM(totalG) : '—';
+  document.getElementById('kv-roi').textContent     = totalG > 0 ? (totalV/totalG).toFixed(1) + 'x' : '—';
+
+  const withCpc = campArr.filter(r => r.cpc);
+  if (withCpc.length) {
+    const cpcMax = withCpc.reduce((a,b) => b.cpc > a.cpc ? b : a);
+    const cpcMin = withCpc.reduce((a,b) => b.cpc < a.cpc ? b : a);
+    document.getElementById('kv-cpc-max').textContent  = fmtArs(cpcMax.cpc);
+    document.getElementById('kl-cpc-max').textContent  = `CPC mas caro (${cpcMax.camp})`;
+    document.getElementById('kv-cpc-min').textContent  = fmtArs(cpcMin.cpc);
+    document.getElementById('kl-cpc-min').textContent  = `CPC mas barato (${cpcMin.camp})`;
+  } else {
+    document.getElementById('kv-cpc-max').textContent = '—';
+    document.getElementById('kv-cpc-min').textContent = '—';
+  }
+}
+
+// ── Render tabla por campaña ─────────────────────────────────────────────────
+function renderCamp(campArr) {
+  const maxV = Math.max(...campArr.map(r => r.v), 1);
+  let html = '';
+  campArr.forEach((r, i) => {
+    const col    = COLS[r.camp] || '#9E9E9E';
+    const bw     = Math.round(r.v / maxV * 100);
+    const mupS   = r.mup  ? r.mup.toFixed(3)  : '—';
+    const mgnS   = r.margen ? fmtPct(r.margen) : '—';
+    const gastoS = r.g > 0  ? fmtK(r.g)        : '—';
+    const convS  = r.cv > 0 ? r.cv.toFixed(0)  : '—';
+    const cpcS   = r.cpc    ? fmtArs(r.cpc)    : '—';
+    const roiS   = r.roi    ? r.roi.toFixed(1) + 'x' : '—';
+    const cpcC   = cpcColor(r.cpc);
+    const roiC   = roiColor(r.roi);
+    const tagSP  = r.g === 0 ? '<span style="background:#fce4ec;color:#c62828;font-size:.65rem;padding:1px 6px;border-radius:5px;font-weight:700;margin-left:4px">SIN PAUTA</span>' : '';
+    const sug    = NOMBRE_SUG[r.camp] || '';
+
+    // Adsets
+    let adsHtml = '';
+    (r.adsets || []).forEach(ad => {
+      const ac = cpcColor(ad.cpc);
+      const as = ad.cpc ? fmtArs(ad.cpc) : '—';
+      adsHtml += `<div style="display:flex;align-items:center;gap:8px;padding:3px 0;border-top:1px solid #f0f0f0">
+        <span style="color:#aaa;font-size:.68rem">&#9492;</span>
+        <span style="font-size:.75rem;color:#555;flex:1">${ad.n}</span>
+        <span style="font-size:.73rem;color:#777;white-space:nowrap">${fmtK(ad.g)} &middot; ${ad.cv.toFixed(0)} conv</span>
+        <span style="font-weight:700;font-size:.75rem;color:${ac};white-space:nowrap">${as}</span>
+      </div>`;
+    });
+
+    html += `<tr style="${i%2===0 ? 'background:#f7fafd' : ''}">
+      <td style="padding:9px 10px">
+        <div style="font-weight:700;font-size:.84rem;color:${col};margin-bottom:1px">${r.camp}${tagSP}</div>
+        <div style="font-size:.7rem;color:#999;font-style:italic;margin-bottom:5px">${sug}</div>
+        <div style="background:#fafafa;border:1px solid #eee;border-radius:5px;padding:4px 8px">${adsHtml || '<div style="color:#ccc;font-size:.72rem;text-align:center">sin datos pauta</div>'}</div>
+      </td>
+      <td style="padding:9px 10px;font-size:.82rem">
+        ${fmtM(r.v)}
+        <div style="height:5px;background:#e0e0e0;border-radius:3px;margin-top:3px;overflow:hidden">
+          <div style="width:${bw}%;height:100%;background:${col};opacity:.7;border-radius:3px"></div>
+        </div>
+      </td>
+      <td style="padding:9px 10px;text-align:center;font-weight:700;font-size:.85rem">${mupS}</td>
+      <td style="padding:9px 10px;text-align:center;font-size:.82rem">${mgnS}</td>
+      <td style="padding:9px 10px;text-align:center;font-size:.82rem">${r.txs}</td>
+      <td style="padding:9px 10px;text-align:center;font-size:.82rem">${gastoS}</td>
+      <td style="padding:9px 10px;text-align:center;font-size:.82rem">${convS}</td>
+      <td style="padding:9px 10px;text-align:center;font-weight:800;color:${cpcC};font-size:.85rem">${cpcS}</td>
+      <td style="padding:9px 10px;text-align:center;font-weight:800;color:${roiC};font-size:.85rem">${roiS}</td>
+    </tr>`;
+  });
+  document.getElementById('tbody-camp').innerHTML = html || '<tr><td colspan="9" class="sin-datos">Sin datos para el periodo seleccionado</td></tr>';
+}
+
+// ── Render tabla por rubro ────────────────────────────────────────────────────
+function renderRubros(rubroArr) {
+  const maxV = Math.max(...rubroArr.map(r => r.v), 1);
+  const total = rubroArr.reduce((s,r) => s + r.v, 0);
+  let html = '';
+  rubroArr.forEach((r, i) => {
+    const col  = COLS[r.mc] || '#9E9E9E';
+    const bw   = Math.round(r.v / maxV * 100);
+    const pct  = total > 0 ? (r.v/total*100).toFixed(1) : '0.0';
+    const mupS = r.mup ? r.mup.toFixed(3) : '—';
+    const mgnS = r.margen ? fmtPct(r.margen) : '—';
+    const tagSP = r.mc === 'SIN CAMPAÑA' ? '<span style="background:#fce4ec;color:#c62828;font-size:.62rem;padding:1px 4px;border-radius:4px;margin-left:4px">SIN PAUTA</span>' : '';
+    html += `<tr style="${i%2===0 ? 'background:#f7fafd' : ''}">
+      <td style="padding:8px 10px;font-size:.82rem">${r.r}${tagSP}</td>
+      <td style="padding:8px 10px;font-size:.75rem;color:${col};font-weight:700">${r.mc}</td>
+      <td style="padding:8px 10px;font-size:.82rem">
+        ${fmtM(r.v)} <span style="color:#999;font-size:.72rem">(${pct}%)</span>
+        <div style="height:4px;background:#e0e0e0;border-radius:2px;margin-top:3px;overflow:hidden">
+          <div style="width:${bw}%;height:100%;background:${col};opacity:.65;border-radius:2px"></div>
+        </div>
+      </td>
+      <td style="padding:8px 10px;text-align:center;font-weight:700;font-size:.83rem">${mupS}</td>
+      <td style="padding:8px 10px;text-align:center;font-size:.82rem">${mgnS}</td>
+      <td style="padding:8px 10px;text-align:center;font-size:.78rem">${r.txs}</td>
+    </tr>`;
+  });
+  document.getElementById('tbody-rubro').innerHTML = html || '<tr><td colspan="6" class="sin-datos">Sin datos para el periodo seleccionado</td></tr>';
+
+  const total_txs = rubroArr.reduce((s,r) => s + r.txs, 0);
+  document.getElementById('nota-rubro').textContent =
+    `${total_txs} transacciones · ${rubroArr.length} rubros · Canal: Web (CBROCCHETTO, FDIAZ, CAMPOO WEB)`;
+}
+
+// ── Render insights dinamicos ─────────────────────────────────────────────────
+const HCOL = {
+  success: ['#e8f5e9','#2e7d32','#c8e6c9'],
+  warning: ['#fff8e1','#e65100','#ffe082'],
+  info:    ['#e3f2fd','#1565c0','#bbdefb'],
+  alert:   ['#fdecea','#c62828','#ffcdd2'],
+};
+
+function insightCard(icon, titulo, desc, nivel) {
+  const [bg, tc] = HCOL[nivel];
+  return `<div class="insight" style="background:${bg};border-color:${tc}">
+    <div class="it" style="color:${tc}">${icon} ${titulo}</div>
+    <div class="id">${desc}</div>
+  </div>`;
+}
+
+function renderInsights(campArr, rubroArr) {
+  const con_pauta = campArr.filter(r => r.g > 0);
+  if (!con_pauta.length) {
+    document.getElementById('insights-panel').innerHTML =
+      '<div class="sin-datos">Sin datos Meta para el periodo seleccionado</div>';
+    return;
+  }
+  let html = '';
+
+  // Mejor ROI
+  const bestRoi = con_pauta.reduce((a,b) => (b.roi||0) > (a.roi||0) ? b : a);
+  if (bestRoi.roi) html += insightCard('&#127942;',
+    `${bestRoi.camp}: mejor ROI del periodo`,
+    `${fmtM(bestRoi.v)} en ventas ERP / ${fmtK(bestRoi.g)} gasto = ${bestRoi.roi.toFixed(1)}x.` +
+    (bestRoi.mup ? ` MUP ${bestRoi.mup.toFixed(3)} &mdash; margen ${bestRoi.margen ? fmtPct(bestRoi.margen) : '—'}.` : ''),
+    'success');
+
+  // Mejor CPC
+  const bestCpc = con_pauta.filter(r => r.cpc).reduce((a,b) => (b.cpc < a.cpc) ? b : a, {cpc: Infinity});
+  if (bestCpc.camp) html += insightCard('&#127942;',
+    `${bestCpc.camp}: CPC mas bajo (${fmtArs(bestCpc.cpc)})`,
+    `${bestCpc.cv.toFixed(0)} conversaciones WPP con ${fmtK(bestCpc.g)} invertidos. ` +
+    `Si las conversiones no cierran, el cuello de botella es el proceso de venta, no la pauta.`,
+    'success');
+
+  // Mayor CPC
+  const worstCpc = con_pauta.filter(r => r.cpc).reduce((a,b) => (b.cpc > a.cpc) ? b : a, {cpc: -Infinity});
+  if (worstCpc.camp && worstCpc.camp !== bestCpc.camp) html += insightCard('&#9888;&#65039;',
+    `${worstCpc.camp}: CPC mas caro (${fmtArs(worstCpc.cpc)})`,
+    `Cada consulta WPP cuesta ${fmtArs(worstCpc.cpc)}. ` +
+    (worstCpc.roi ? `ROI ${worstCpc.roi.toFixed(1)}x &mdash; ` : '') +
+    `Revisar segmentacion o creatividades para bajar el costo de contacto.`,
+    'warning');
+
+  // Rubros sin pauta con volumen
+  const sinPauta = rubroArr.filter(r => r.mc === 'SIN CAMPAÑA').sort((a,b) => b.v - a.v);
+  if (sinPauta.length && sinPauta[0].v > 1e6) html += insightCard('&#128161;',
+    `${sinPauta[0].r}: ${fmtM(sinPauta[0].v)} en ventas WEB sin campaña dedicada`,
+    `MUP ${sinPauta[0].mup ? sinPauta[0].mup.toFixed(3) : '—'}. ` +
+    `Evaluar incluirlo en una campaña existente o crear conjunto especifico.`,
+    'info');
+
+  // Campaña con ROI bajo pero con pauta
+  const lowRoi = con_pauta.filter(r => r.roi && r.roi < 3);
+  if (lowRoi.length) lowRoi.forEach(r => {
+    html += insightCard('&#128680;',
+      `${r.camp}: ROI bajo (${r.roi.toFixed(1)}x)`,
+      `${fmtM(r.v)} venta / ${fmtK(r.g)} gasto. Revisar si el rubro que cubre esta campaña vende bien en web o si la segmentacion necesita ajuste.`,
+      'alert');
+  });
+
+  document.getElementById('insights-panel').innerHTML = html || '<div class="sin-datos">Sin hallazgos significativos en el periodo</div>';
+}
+
+// ── Inicializacion ───────────────────────────────────────────────────────────
+document.addEventListener('DOMContentLoaded', () => {
+  document.getElementById('btn30').classList.add('active');
+  aplicar();
+});
+</script>
 </body>
 </html>
