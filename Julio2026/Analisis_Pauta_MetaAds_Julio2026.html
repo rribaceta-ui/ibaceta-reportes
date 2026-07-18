@@ -3,7 +3,7 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width,initial-scale=1.0">
-<title>Análisis Pauta Meta Ads — May–Jun 2026</title>
+<title>Análisis Pauta Meta Ads</title>
 <link href="https://fonts.googleapis.com/css2?family=Montserrat:wght@400;600;700;800&family=Open+Sans:wght@400;600&display=swap" rel="stylesheet">
 <style>
 *{box-sizing:border-box;margin:0;padding:0}
@@ -11,7 +11,13 @@ body{font-family:'Open Sans',sans-serif;background:#F0F2F5;color:#333}
 header{background:#00548A;padding:14px 26px;display:flex;justify-content:space-between;align-items:center;flex-wrap:wrap;gap:8px}
 header h1{font-family:'Montserrat',sans-serif;font-size:1rem;font-weight:800;color:#fff}
 header .sub{font-size:.72rem;color:rgba(255,255,255,0.7);margin-top:2px}
-.pbd{background:#F1891B;color:#fff;padding:4px 13px;border-radius:18px;font-family:'Montserrat',sans-serif;font-size:.73rem;font-weight:700}
+.filtro-bar{background:#fff;border-bottom:3px solid #F1891B;padding:10px 26px;display:flex;align-items:center;gap:12px;flex-wrap:wrap}
+.filtro-bar label{font-family:'Montserrat',sans-serif;font-size:.75rem;font-weight:700;color:#00548A}
+.filtro-bar input[type=date]{border:1px solid #ccc;border-radius:5px;padding:4px 8px;font-size:.8rem;font-family:'Open Sans',sans-serif}
+.filtro-bar input[type=date]:focus{outline:2px solid #00548A}
+.btn-preset{background:#F0F2F5;border:1px solid #ccc;border-radius:14px;padding:4px 11px;font-size:.72rem;font-family:'Montserrat',sans-serif;font-weight:700;cursor:pointer;color:#555;transition:all .15s}
+.btn-preset:hover,.btn-preset.active{background:#00548A;color:#fff;border-color:#00548A}
+.btn-aplicar{background:#F1891B;color:#fff;border:none;border-radius:5px;padding:5px 14px;font-size:.78rem;font-family:'Montserrat',sans-serif;font-weight:700;cursor:pointer}
 .wrap{max-width:1380px;margin:0 auto;padding:16px 14px}
 .kpi-row{display:grid;grid-template-columns:repeat(auto-fit,minmax(160px,1fr));gap:12px;margin-bottom:18px}
 .kpi{background:#fff;border-radius:8px;border-top:4px solid #F1891B;box-shadow:0 1px 6px rgba(0,0,0,0.08);padding:14px;text-align:center}
@@ -29,435 +35,410 @@ thead th{background:#00548A;color:#fff;padding:8px 10px;text-align:left;font-fam
 tbody tr:hover{background:#e8f1f9!important}
 td{border-bottom:1px solid #eaeef2;vertical-align:middle}
 .section-title{font-family:'Montserrat',sans-serif;font-size:.93rem;font-weight:800;color:#00548A;text-transform:uppercase;letter-spacing:.4px;margin:20px 0 8px;padding-left:10px;border-left:4px solid #F1891B}
+.sin-datos{text-align:center;color:#aaa;font-style:italic;padding:20px;font-size:.82rem}
 footer{background:#333;color:#bbb;text-align:center;padding:10px;font-size:.7rem;margin-top:20px}
 </style>
 </head>
 <body>
+
 <header>
   <div>
     <div class="sub">El Cristorante S.A. — Análisis de Performance Publicitaria</div>
-    <h1>Análisis Pauta Meta Ads — 2026-06-18 al 2026-07-17 (últimos 30 días)</h1>
+    <h1 id="hdr-titulo">Análisis Pauta Meta Ads — cargando...</h1>
   </div>
-  <span class="pbd">30 días</span>
 </header>
 
+<div class="filtro-bar">
+  <label>DESDE</label>
+  <input type="date" id="inp-desde" value="2026-06-19" min="2026-06-19" max="2026-07-18">
+  <label>HASTA</label>
+  <input type="date" id="inp-hasta" value="2026-07-18" min="2026-06-19" max="2026-07-18">
+  <button class="btn-aplicar" onclick="aplicar()">Aplicar</button>
+  <button class="btn-preset" onclick="setPreset(7)">7 d</button>
+  <button class="btn-preset" onclick="setPreset(14)">14 d</button>
+  <button class="btn-preset" onclick="setPreset(30)" id="btn30">30 d</button>
+  <button class="btn-preset" onclick="setPreset(60)">60 d</button>
+  <span style="font-size:.68rem;color:#888;font-style:italic;margin-left:auto">Solo campañas con gasto en el período seleccionado</span>
+</div>
+
 <div class="wrap">
+  <div class="kpi-row">
+    <div class="kpi bl"><div class="kv" id="kv-gasto">—</div><div class="kl">Gasto total</div></div>
+    <div class="kpi"><div class="kv or" id="kv-conv">—</div><div class="kl">Conversaciones WPP</div></div>
+    <div class="kpi"><div class="kv" id="kv-cpc">—</div><div class="kl">CPC promedio global</div></div>
+    <div class="kpi gr"><div class="kv gr" id="kv-cpc-web">—</div><div class="kl">CPC WEB (canal)</div></div>
+    <div class="kpi"><div class="kv or" id="kv-cpc-sal">—</div><div class="kl">CPC Salones (canal)</div></div>
+    <div class="kpi"><div class="kv" id="kv-camps">—</div><div class="kl">Campañas activas</div></div>
+  </div>
 
-<!-- KPIs globales -->
-<div class="kpi-row">
-  <div class="kpi bl"><div class="kv">$13.14M</div><div class="kl">Gasto total</div></div>
-  <div class="kpi"><div class="kv or">7,212</div><div class="kl">Conversaciones WPP</div></div>
-  <div class="kpi "><div class="kv ">$1,822</div><div class="kl">CPC promedio global</div></div>
-  <div class="kpi"><div class="kv">7.72M</div><div class="kl">Impresiones</div></div>
-  <div class="kpi gr"><div class="kv gr">$1,780</div><div class="kl">CPC WEB (canal)</div></div>
-  <div class="kpi"><div class="kv or">$1,549</div><div class="kl">CPC Salones (canal)</div></div>
-</div>
+  <div class="g2">
+    <div class="card">
+      <h3>Distribución del gasto por tipo de campaña</h3>
+      <div id="bars-tipo"></div>
+    </div>
+    <div class="card">
+      <h3>Hallazgos clave</h3>
+      <div id="hallazgos"></div>
+    </div>
+  </div>
 
-<div class="g2">
-  <!-- Distribución gasto -->
+  <div class="section-title">Campañas WEB — WhatsApp conversions</div>
   <div class="card">
-    <h3>Distribución del gasto por tipo de campaña</h3>
-    <div style="margin-bottom:12px">
-  <div style="display:flex;justify-content:space-between;font-size:.79rem;margin-bottom:3px">
-    <span style="font-weight:700;color:#00548A">WEB</span>
-    <span style="color:#555">$5.75M · 43.7% · 3230 conv · CPC $1,780</span>
-  </div>
-  <div style="height:18px;background:#f0f0f0;border-radius:4px;overflow:hidden">
-    <div style="width:93.3%;height:100%;background:#00548A;border-radius:4px;opacity:.85"></div>
-  </div>
-</div><div style="margin-bottom:12px">
-  <div style="display:flex;justify-content:space-between;font-size:.79rem;margin-bottom:3px">
-    <span style="font-weight:700;color:#F1891B">SALON/CALLE</span>
-    <span style="color:#555">$6.16M · 46.9% · 3976 conv · CPC $1,549</span>
-  </div>
-  <div style="height:18px;background:#f0f0f0;border-radius:4px;overflow:hidden">
-    <div style="width:100.0%;height:100%;background:#F1891B;border-radius:4px;opacity:.85"></div>
-  </div>
-</div><div style="margin-bottom:12px">
-  <div style="display:flex;justify-content:space-between;font-size:.79rem;margin-bottom:3px">
-    <span style="font-weight:700;color:#9c27b0">BRANDING</span>
-    <span style="color:#555">$0.49M · 3.7% · 2 conv · CPC $242,546</span>
-  </div>
-  <div style="height:18px;background:#f0f0f0;border-radius:4px;overflow:hidden">
-    <div style="width:7.9%;height:100%;background:#9c27b0;border-radius:4px;opacity:.85"></div>
-  </div>
-</div><div style="margin-bottom:12px">
-  <div style="display:flex;justify-content:space-between;font-size:.79rem;margin-bottom:3px">
-    <span style="font-weight:700;color:#aaa">OTRO</span>
-    <span style="color:#555">$0.75M · 5.7% · 4 conv · CPC $186,616</span>
-  </div>
-  <div style="height:18px;background:#f0f0f0;border-radius:4px;overflow:hidden">
-    <div style="width:12.1%;height:100%;background:#aaa;border-radius:4px;opacity:.85"></div>
-  </div>
-</div>
-    <p style="font-size:.73rem;color:#888;margin-top:8px">WEB 41.5% · Salones/Calle 46.9% · Branding 8.3% · Hot Sale 3.3%</p>
+    <div style="font-size:.78rem;color:#666;margin-bottom:10px" id="resumen-web"></div>
+    <div class="tbl"><table>
+      <thead><tr><th>Campaña</th><th>Gasto</th><th>% canal</th><th>Conv WPP</th><th>CPC</th><th>Estado</th></tr></thead>
+      <tbody id="tbody-web"></tbody>
+    </table></div>
+    <p style="font-size:.72rem;color:#888;margin-top:8px">🟢 Eficiente &lt; $1.500 &middot; 🟡 Aceptable $1.500–$2.500 &middot; 🔴 Caro &gt; $2.500 &middot; ⚫ Sin conversiones</p>
   </div>
 
-  <!-- Hallazgos críticos -->
+  <div class="section-title">Campañas Salones + Calle</div>
   <div class="card">
-    <h3>Hallazgos clave</h3>
-    <div style="background:#fdecea;border-left:4px solid #c62828;border-radius:6px;padding:12px 14px;margin-bottom:10px">
-  <div style="font-family:'Montserrat',sans-serif;font-weight:700;font-size:.85rem;color:#c62828;margin-bottom:4px">🔴 SAN LUIS tiene el CPC más caro de toda la cuenta</div>
-  <div style="font-size:.79rem;color:#555;line-height:1.5">$6,746/conv — 5x más que WEB HOGAR ($984). Mismo presupuesto que otros salones ($0.77M/mes), 92 conversaciones. Revisar creatividades, audiencia y zona de entrega.</div>
-</div><div style="background:#fdecea;border-left:4px solid #c62828;border-radius:6px;padding:12px 14px;margin-bottom:10px">
-  <div style="font-family:'Montserrat',sans-serif;font-weight:700;font-size:.85rem;color:#c62828;margin-bottom:4px">🔴 BRANDING gasta $1M con 7 conversaciones</div>
-  <div style="font-size:.79rem;color:#555;line-height:1.5">$1,048,287 en ECMM (Verticales, Freezers, Hogar, Tráfico Equipamiento). CPC implícito: $149,755. Sin objetivo de conversión WPP, el gasto no es medible en resultado de negocio.</div>
-</div><div style="background:#fff8e1;border-left:4px solid #e65100;border-radius:6px;padding:12px 14px;margin-bottom:10px">
-  <div style="font-family:'Montserrat',sans-serif;font-weight:700;font-size:.85rem;color:#e65100;margin-bottom:4px">🟡 REFRIGERACION y ALMACEN concentran el 51% del gasto WEB con el CPC más caro</div>
-  <div style="font-size:.79rem;color:#555;line-height:1.5">REFRIGERACION: $1,350,715 · CPC $1,963 | ALMACEN: $1,346,401 · CPC $1,751. Entre los dos suman $2.7M. HOGAR y GASTRONOMIA son 2x más eficientes con menos presupuesto.</div>
-</div><div style="background:#e8f5e9;border-left:4px solid #2e7d32;border-radius:6px;padding:12px 14px;margin-bottom:10px">
-  <div style="font-family:'Montserrat',sans-serif;font-weight:700;font-size:.85rem;color:#2e7d32;margin-bottom:4px">🟢 HOGAR y GASTRONOMIA son las campañas WEB más eficientes</div>
-  <div style="font-size:.79rem;color:#555;line-height:1.5">HOGAR: CPC $984 · 1,164 conv · $1.1M gasto. GASTRONOMIA: CPC $885 · 409 conv · $362k. Son los dos mejores CPC de toda la cuenta. Candidatos a escalar presupuesto.</div>
-</div><div style="background:#e8f5e9;border-left:4px solid #2e7d32;border-radius:6px;padding:12px 14px;margin-bottom:10px">
-  <div style="font-family:'Montserrat',sans-serif;font-weight:700;font-size:.85rem;color:#2e7d32;margin-bottom:4px">🟢 CALLE EQUIPAMIENTO tiene el mejor CPC de salones ($1,232)</div>
-  <div style="font-size:.79rem;color:#555;line-height:1.5">276 conversaciones con $340k. Muy por debajo del promedio de salones ($2,694). Estructura y creatividad funcionan — replicar en otras ciudades Calle.</div>
-</div><div style="background:#fff8e1;border-left:4px solid #e65100;border-radius:6px;padding:12px 14px;margin-bottom:10px">
-  <div style="font-family:'Montserrat',sans-serif;font-weight:700;font-size:.85rem;color:#e65100;margin-bottom:4px">🟡 VILLA MERCEDES y RIO CUARTO tienen CPC 80% por encima del promedio de salones</div>
-  <div style="font-size:.79rem;color:#555;line-height:1.5">Villa Mercedes: $4,095 · Río Cuarto: $3,786 vs. promedio salones $2,694. Pueden ser mercados más chicos — revisar si el volumen de audiencia es suficiente o si el presupuesto es excesivo para el alcance.</div>
-</div><div style="background:#fff8e1;border-left:4px solid #e65100;border-radius:6px;padding:12px 14px;margin-bottom:10px">
-  <div style="font-family:'Montserrat',sans-serif;font-weight:700;font-size:.85rem;color:#e65100;margin-bottom:4px">🟡 No hay campañas de awareness/video (TOFU) estructuradas</div>
-  <div style="font-size:.79rem;color:#555;line-height:1.5">Las campañas ECMM son objetivo compras/tráfico, no video/reach. Para construir demanda en rubros ESCALAR (MUP alto) se necesita una capa TOFU con ThruPlay antes de las conversiones WPP.</div>
-</div><div style="background:#fff8e1;border-left:4px solid #e65100;border-radius:6px;padding:12px 14px;margin-bottom:10px">
-  <div style="font-family:'Montserrat',sans-serif;font-weight:700;font-size:.85rem;color:#e65100;margin-bottom:4px">🟡 Fragmentación: 31 campañas activas</div>
-  <div style="font-size:.79rem;color:#555;line-height:1.5">31 campañas · 51 conjuntos · 60 anuncios. El algoritmo de Meta (Andromeda) penaliza la fragmentación: presupuestos pequeños por conjunto → fases de aprendizaje permanentes → CPCs más altos. Consolidar donde sea posible.</div>
-</div>
+    <div style="font-size:.78rem;color:#666;margin-bottom:10px" id="resumen-sal"></div>
+    <div class="tbl"><table>
+      <thead><tr><th>Campaña</th><th>Gasto</th><th>% canal</th><th>Conv WPP</th><th>CPC</th><th>Estado</th></tr></thead>
+      <tbody id="tbody-sal"></tbody>
+    </table></div>
+    <p style="font-size:.72rem;color:#888;margin-top:8px">Benchmark objetivo: &lt; $2.000/conv</p>
+  </div>
+
+  <div class="section-title">Campañas Branding / ECMM + Otras</div>
+  <div class="card">
+    <div class="tbl"><table>
+      <thead><tr><th>Campaña</th><th>Gasto</th><th>Tipo</th></tr></thead>
+      <tbody id="tbody-brand"></tbody>
+    </table></div>
+    <p style="font-size:.72rem;color:#888;margin-top:8px">Sin objetivo WPP — el impacto en negocio no es directamente medible.</p>
   </div>
 </div>
 
-<!-- Campañas WEB -->
-<div class="section-title">Campañas WEB — WhatsApp conversions</div>
-<div class="card">
-  <div style="font-size:.78rem;color:#666;margin-bottom:10px">
-    Gasto total WEB: <strong>$5.75M</strong> ·
-    Conversaciones: <strong>3,230</strong> ·
-    CPC canal: <strong style="color:#2e7d32">$1,780</strong>
-  </div>
-  <div class="tbl"><table>
-    <thead><tr><th>Campaña</th><th>Gasto</th><th>% canal</th><th>Conv WPP</th><th>CPC</th><th>Estado</th></tr></thead>
-    <tbody><tr style="background:#f7fafd">
-  <td style="padding:8px 10px;font-weight:600;font-size:.82rem">GASTRONOMIA</td>
-  <td style="padding:8px 10px;font-size:.82rem">
-    $0.18M
-    <div style="height:5px;background:#e0e0e0;border-radius:3px;margin-top:3px;overflow:hidden"><div style="width:10%;height:100%;background:#00548A;border-radius:3px;opacity:.7"></div></div>
-  </td>
-  <td style="padding:8px 10px;text-align:center;font-size:.82rem">3.2%</td>
-  <td style="padding:8px 10px;text-align:center;font-weight:700;font-size:.88rem">206</td>
-  <td style="padding:8px 10px;text-align:center;font-weight:800;color:#2e7d32;font-size:.88rem">$888</td>
-  <td style="padding:8px 10px;text-align:center;font-size:.75rem">🟢 Eficiente</td>
-</tr><tr style="">
-  <td style="padding:8px 10px;font-weight:600;font-size:.82rem">HOGAR</td>
-  <td style="padding:8px 10px;font-size:.82rem">
-    $0.54M
-    <div style="height:5px;background:#e0e0e0;border-radius:3px;margin-top:3px;overflow:hidden"><div style="width:31%;height:100%;background:#00548A;border-radius:3px;opacity:.7"></div></div>
-  </td>
-  <td style="padding:8px 10px;text-align:center;font-size:.82rem">9.4%</td>
-  <td style="padding:8px 10px;text-align:center;font-weight:700;font-size:.88rem">554</td>
-  <td style="padding:8px 10px;text-align:center;font-weight:800;color:#2e7d32;font-size:.88rem">$975</td>
-  <td style="padding:8px 10px;text-align:center;font-size:.75rem">🟢 Eficiente</td>
-</tr><tr style="background:#f7fafd">
-  <td style="padding:8px 10px;font-weight:600;font-size:.82rem">WEB | Hogar (B2C)</td>
-  <td style="padding:8px 10px;font-size:.82rem">
-    $0.53M
-    <div style="height:5px;background:#e0e0e0;border-radius:3px;margin-top:3px;overflow:hidden"><div style="width:30%;height:100%;background:#00548A;border-radius:3px;opacity:.7"></div></div>
-  </td>
-  <td style="padding:8px 10px;text-align:center;font-size:.82rem">9.2%</td>
-  <td style="padding:8px 10px;text-align:center;font-weight:700;font-size:.88rem">486</td>
-  <td style="padding:8px 10px;text-align:center;font-weight:800;color:#2e7d32;font-size:.88rem">$1,088</td>
-  <td style="padding:8px 10px;text-align:center;font-size:.75rem">🟢 Eficiente</td>
-</tr><tr style="">
-  <td style="padding:8px 10px;font-weight:600;font-size:.82rem">WEB | Hogar (B2C) - WSP 4487</td>
-  <td style="padding:8px 10px;font-size:.82rem">
-    $0.20M
-    <div style="height:5px;background:#e0e0e0;border-radius:3px;margin-top:3px;overflow:hidden"><div style="width:11%;height:100%;background:#00548A;border-radius:3px;opacity:.7"></div></div>
-  </td>
-  <td style="padding:8px 10px;text-align:center;font-size:.82rem">3.5%</td>
-  <td style="padding:8px 10px;text-align:center;font-weight:700;font-size:.88rem">183</td>
-  <td style="padding:8px 10px;text-align:center;font-weight:800;color:#2e7d32;font-size:.88rem">$1,104</td>
-  <td style="padding:8px 10px;text-align:center;font-size:.75rem">🟢 Eficiente</td>
-</tr><tr style="background:#f7fafd">
-  <td style="padding:8px 10px;font-weight:600;font-size:.82rem">EQUIPAMIENTO</td>
-  <td style="padding:8px 10px;font-size:.82rem">
-    $0.28M
-    <div style="height:5px;background:#e0e0e0;border-radius:3px;margin-top:3px;overflow:hidden"><div style="width:15%;height:100%;background:#00548A;border-radius:3px;opacity:.7"></div></div>
-  </td>
-  <td style="padding:8px 10px;text-align:center;font-size:.82rem">4.8%</td>
-  <td style="padding:8px 10px;text-align:center;font-weight:700;font-size:.88rem">229</td>
-  <td style="padding:8px 10px;text-align:center;font-weight:800;color:#2e7d32;font-size:.88rem">$1,210</td>
-  <td style="padding:8px 10px;text-align:center;font-size:.75rem">🟢 Eficiente</td>
-</tr><tr style="">
-  <td style="padding:8px 10px;font-weight:600;font-size:.82rem">CARNICERIA</td>
-  <td style="padding:8px 10px;font-size:.82rem">
-    $0.09M
-    <div style="height:5px;background:#e0e0e0;border-radius:3px;margin-top:3px;overflow:hidden"><div style="width:5%;height:100%;background:#00548A;border-radius:3px;opacity:.7"></div></div>
-  </td>
-  <td style="padding:8px 10px;text-align:center;font-size:.82rem">1.6%</td>
-  <td style="padding:8px 10px;text-align:center;font-weight:700;font-size:.88rem">75</td>
-  <td style="padding:8px 10px;text-align:center;font-weight:800;color:#2e7d32;font-size:.88rem">$1,219</td>
-  <td style="padding:8px 10px;text-align:center;font-size:.75rem">🟢 Eficiente</td>
-</tr><tr style="background:#f7fafd">
-  <td style="padding:8px 10px;font-weight:600;font-size:.82rem">PANADERIA</td>
-  <td style="padding:8px 10px;font-size:.82rem">
-    $0.13M
-    <div style="height:5px;background:#e0e0e0;border-radius:3px;margin-top:3px;overflow:hidden"><div style="width:7%;height:100%;background:#00548A;border-radius:3px;opacity:.7"></div></div>
-  </td>
-  <td style="padding:8px 10px;text-align:center;font-size:.82rem">2.3%</td>
-  <td style="padding:8px 10px;text-align:center;font-weight:700;font-size:.88rem">93</td>
-  <td style="padding:8px 10px;text-align:center;font-weight:800;color:#2e7d32;font-size:.88rem">$1,441</td>
-  <td style="padding:8px 10px;text-align:center;font-size:.75rem">🟢 Eficiente</td>
-</tr><tr style="">
-  <td style="padding:8px 10px;font-weight:600;font-size:.82rem">ALMACEN</td>
-  <td style="padding:8px 10px;font-size:.82rem">
-    $0.64M
-    <div style="height:5px;background:#e0e0e0;border-radius:3px;margin-top:3px;overflow:hidden"><div style="width:36%;height:100%;background:#00548A;border-radius:3px;opacity:.7"></div></div>
-  </td>
-  <td style="padding:8px 10px;text-align:center;font-size:.82rem">11.1%</td>
-  <td style="padding:8px 10px;text-align:center;font-weight:700;font-size:.88rem">309</td>
-  <td style="padding:8px 10px;text-align:center;font-weight:800;color:#e65100;font-size:.88rem">$2,057</td>
-  <td style="padding:8px 10px;text-align:center;font-size:.75rem">🟡 Aceptable</td>
-</tr><tr style="background:#f7fafd">
-  <td style="padding:8px 10px;font-weight:600;font-size:.82rem">REFRIGERACION</td>
-  <td style="padding:8px 10px;font-size:.82rem">
-    $0.66M
-    <div style="height:5px;background:#e0e0e0;border-radius:3px;margin-top:3px;overflow:hidden"><div style="width:37%;height:100%;background:#00548A;border-radius:3px;opacity:.7"></div></div>
-  </td>
-  <td style="padding:8px 10px;text-align:center;font-size:.82rem">11.4%</td>
-  <td style="padding:8px 10px;text-align:center;font-weight:700;font-size:.88rem">290</td>
-  <td style="padding:8px 10px;text-align:center;font-weight:800;color:#e65100;font-size:.88rem">$2,264</td>
-  <td style="padding:8px 10px;text-align:center;font-size:.75rem">🟡 Aceptable</td>
-</tr><tr style="">
-  <td style="padding:8px 10px;font-weight:600;font-size:.82rem">WEB | Equipamiento Profesional (B2B)</td>
-  <td style="padding:8px 10px;font-size:.82rem">
-    $1.74M
-    <div style="height:5px;background:#e0e0e0;border-radius:3px;margin-top:3px;overflow:hidden"><div style="width:100%;height:100%;background:#00548A;border-radius:3px;opacity:.7"></div></div>
-  </td>
-  <td style="padding:8px 10px;text-align:center;font-size:.82rem">30.3%</td>
-  <td style="padding:8px 10px;text-align:center;font-weight:700;font-size:.88rem">647</td>
-  <td style="padding:8px 10px;text-align:center;font-weight:800;color:#e65100;font-size:.88rem">$2,692</td>
-  <td style="padding:8px 10px;text-align:center;font-size:.75rem">🔴 Caro</td>
-</tr><tr style="background:#f7fafd">
-  <td style="padding:8px 10px;font-weight:600;font-size:.82rem">WEB | Equipamiento Profesional (B2B) - WSP 4487</td>
-  <td style="padding:8px 10px;font-size:.82rem">
-    $0.69M
-    <div style="height:5px;background:#e0e0e0;border-radius:3px;margin-top:3px;overflow:hidden"><div style="width:39%;height:100%;background:#00548A;border-radius:3px;opacity:.7"></div></div>
-  </td>
-  <td style="padding:8px 10px;text-align:center;font-size:.82rem">12.1%</td>
-  <td style="padding:8px 10px;text-align:center;font-weight:700;font-size:.88rem">158</td>
-  <td style="padding:8px 10px;text-align:center;font-weight:800;color:#c62828;font-size:.88rem">$4,387</td>
-  <td style="padding:8px 10px;text-align:center;font-size:.75rem">🔴 Caro</td>
-</tr><tr style="">
-  <td style="padding:8px 10px;font-weight:600;font-size:.82rem">WEB | Branding / Awareness (TOFU) - Copia</td>
-  <td style="padding:8px 10px;font-size:.82rem">
-    $0.07M
-    <div style="height:5px;background:#e0e0e0;border-radius:3px;margin-top:3px;overflow:hidden"><div style="width:3%;height:100%;background:#00548A;border-radius:3px;opacity:.7"></div></div>
-  </td>
-  <td style="padding:8px 10px;text-align:center;font-size:.82rem">1.1%</td>
-  <td style="padding:8px 10px;text-align:center;font-weight:700;font-size:.88rem">0</td>
-  <td style="padding:8px 10px;text-align:center;font-weight:800;color:#aaa;font-size:.88rem">S/D</td>
-  <td style="padding:8px 10px;text-align:center;font-size:.75rem">🔴 Caro</td>
-</tr></tbody>
-  </table></div>
-  <p style="font-size:.72rem;color:#888;margin-top:8px">🟢 Eficiente &lt; $1,500 · 🟡 Aceptable $1,500–$2,500 · 🔴 Caro &gt; $2,500</p>
-</div>
+<footer id="pie">El Cristorante S.A. — IBACETA &middot; Análisis Pauta Meta Ads</footer>
 
-<!-- Campañas Salones -->
-<div class="section-title">Campañas Salones + Calle + Hot Sale</div>
-<div class="card">
-  <div style="font-size:.78rem;color:#666;margin-bottom:10px">
-    Gasto total Salones: <strong>$6.16M</strong> ·
-    Conversaciones: <strong>3,976</strong> ·
-    CPC canal: <strong style="color:#e65100">$1,549</strong>
-  </div>
-  <div class="tbl"><table>
-    <thead><tr><th>Campaña</th><th>Gasto</th><th>% canal</th><th>Conv WPP</th><th>CPC</th><th>Estado</th></tr></thead>
-    <tbody><tr style="background:#f7fafd">
-  <td style="padding:8px 10px;font-weight:600;font-size:.82rem">SAN JUAN</td>
-  <td style="padding:8px 10px;font-size:.82rem">
-    $0.60M
-    <div style="height:5px;background:#e0e0e0;border-radius:3px;margin-top:3px;overflow:hidden"><div style="width:28%;height:100%;background:#F1891B;border-radius:3px;opacity:.7"></div></div>
-  </td>
-  <td style="padding:8px 10px;text-align:center;font-size:.82rem">9.7%</td>
-  <td style="padding:8px 10px;text-align:center;font-weight:700;font-size:.88rem">754</td>
-  <td style="padding:8px 10px;text-align:center;font-weight:800;color:#2e7d32;font-size:.88rem">$793</td>
-  <td style="padding:8px 10px;text-align:center;font-size:.75rem">🟢 Eficiente</td>
-</tr><tr style="">
-  <td style="padding:8px 10px;font-weight:600;font-size:.82rem">CÓRDOBA</td>
-  <td style="padding:8px 10px;font-size:.82rem">
-    $0.29M
-    <div style="height:5px;background:#e0e0e0;border-radius:3px;margin-top:3px;overflow:hidden"><div style="width:13%;height:100%;background:#F1891B;border-radius:3px;opacity:.7"></div></div>
-  </td>
-  <td style="padding:8px 10px;text-align:center;font-size:.82rem">4.7%</td>
-  <td style="padding:8px 10px;text-align:center;font-weight:700;font-size:.88rem">241</td>
-  <td style="padding:8px 10px;text-align:center;font-weight:800;color:#2e7d32;font-size:.88rem">$1,194</td>
-  <td style="padding:8px 10px;text-align:center;font-size:.75rem">🟢 Eficiente</td>
-</tr><tr style="background:#f7fafd">
-  <td style="padding:8px 10px;font-weight:600;font-size:.82rem">MENDOZA</td>
-  <td style="padding:8px 10px;font-size:.82rem">
-    $2.11M
-    <div style="height:5px;background:#e0e0e0;border-radius:3px;margin-top:3px;overflow:hidden"><div style="width:100%;height:100%;background:#F1891B;border-radius:3px;opacity:.7"></div></div>
-  </td>
-  <td style="padding:8px 10px;text-align:center;font-size:.82rem">34.3%</td>
-  <td style="padding:8px 10px;text-align:center;font-weight:700;font-size:.88rem">1761</td>
-  <td style="padding:8px 10px;text-align:center;font-weight:800;color:#2e7d32;font-size:.88rem">$1,201</td>
-  <td style="padding:8px 10px;text-align:center;font-size:.75rem">🟢 Eficiente</td>
-</tr><tr style="">
-  <td style="padding:8px 10px;font-weight:600;font-size:.82rem">CALLE | EQUIPAMIENTO</td>
-  <td style="padding:8px 10px;font-size:.82rem">
-    $0.17M
-    <div style="height:5px;background:#e0e0e0;border-radius:3px;margin-top:3px;overflow:hidden"><div style="width:8%;height:100%;background:#F1891B;border-radius:3px;opacity:.7"></div></div>
-  </td>
-  <td style="padding:8px 10px;text-align:center;font-size:.82rem">2.8%</td>
-  <td style="padding:8px 10px;text-align:center;font-weight:700;font-size:.88rem">134</td>
-  <td style="padding:8px 10px;text-align:center;font-weight:800;color:#2e7d32;font-size:.88rem">$1,270</td>
-  <td style="padding:8px 10px;text-align:center;font-size:.75rem">🟢 Eficiente</td>
-</tr><tr style="background:#f7fafd">
-  <td style="padding:8px 10px;font-weight:600;font-size:.82rem">SAN LUIS</td>
-  <td style="padding:8px 10px;font-size:.82rem">
-    $0.44M
-    <div style="height:5px;background:#e0e0e0;border-radius:3px;margin-top:3px;overflow:hidden"><div style="width:20%;height:100%;background:#F1891B;border-radius:3px;opacity:.7"></div></div>
-  </td>
-  <td style="padding:8px 10px;text-align:center;font-size:.82rem">7.2%</td>
-  <td style="padding:8px 10px;text-align:center;font-weight:700;font-size:.88rem">289</td>
-  <td style="padding:8px 10px;text-align:center;font-weight:800;color:#e65100;font-size:.88rem">$1,531</td>
-  <td style="padding:8px 10px;text-align:center;font-size:.75rem">🟡 Aceptable</td>
-</tr><tr style="">
-  <td style="padding:8px 10px;font-weight:600;font-size:.82rem">VILLA KRAUSE</td>
-  <td style="padding:8px 10px;font-size:.82rem">
-    $0.29M
-    <div style="height:5px;background:#e0e0e0;border-radius:3px;margin-top:3px;overflow:hidden"><div style="width:13%;height:100%;background:#F1891B;border-radius:3px;opacity:.7"></div></div>
-  </td>
-  <td style="padding:8px 10px;text-align:center;font-size:.82rem">4.7%</td>
-  <td style="padding:8px 10px;text-align:center;font-weight:700;font-size:.88rem">137</td>
-  <td style="padding:8px 10px;text-align:center;font-weight:800;color:#e65100;font-size:.88rem">$2,131</td>
-  <td style="padding:8px 10px;text-align:center;font-size:.75rem">🟡 Aceptable</td>
-</tr><tr style="background:#f7fafd">
-  <td style="padding:8px 10px;font-weight:600;font-size:.82rem">ALAMEDA</td>
-  <td style="padding:8px 10px;font-size:.82rem">
-    $0.43M
-    <div style="height:5px;background:#e0e0e0;border-radius:3px;margin-top:3px;overflow:hidden"><div style="width:20%;height:100%;background:#F1891B;border-radius:3px;opacity:.7"></div></div>
-  </td>
-  <td style="padding:8px 10px;text-align:center;font-size:.82rem">7.1%</td>
-  <td style="padding:8px 10px;text-align:center;font-weight:700;font-size:.88rem">201</td>
-  <td style="padding:8px 10px;text-align:center;font-weight:800;color:#e65100;font-size:.88rem">$2,161</td>
-  <td style="padding:8px 10px;text-align:center;font-size:.75rem">🟡 Aceptable</td>
-</tr><tr style="">
-  <td style="padding:8px 10px;font-weight:600;font-size:.82rem">SAN JUAN</td>
-  <td style="padding:8px 10px;font-size:.82rem">
-    $0.22M
-    <div style="height:5px;background:#e0e0e0;border-radius:3px;margin-top:3px;overflow:hidden"><div style="width:10%;height:100%;background:#F1891B;border-radius:3px;opacity:.7"></div></div>
-  </td>
-  <td style="padding:8px 10px;text-align:center;font-size:.82rem">3.5%</td>
-  <td style="padding:8px 10px;text-align:center;font-weight:700;font-size:.88rem">83</td>
-  <td style="padding:8px 10px;text-align:center;font-weight:800;color:#e65100;font-size:.88rem">$2,609</td>
-  <td style="padding:8px 10px;text-align:center;font-size:.75rem">🟡 Aceptable</td>
-</tr><tr style="background:#f7fafd">
-  <td style="padding:8px 10px;font-weight:600;font-size:.82rem">SAN RAFAEL</td>
-  <td style="padding:8px 10px;font-size:.82rem">
-    $0.29M
-    <div style="height:5px;background:#e0e0e0;border-radius:3px;margin-top:3px;overflow:hidden"><div style="width:13%;height:100%;background:#F1891B;border-radius:3px;opacity:.7"></div></div>
-  </td>
-  <td style="padding:8px 10px;text-align:center;font-size:.82rem">4.8%</td>
-  <td style="padding:8px 10px;text-align:center;font-weight:700;font-size:.88rem">91</td>
-  <td style="padding:8px 10px;text-align:center;font-weight:800;color:#c62828;font-size:.88rem">$3,229</td>
-  <td style="padding:8px 10px;text-align:center;font-size:.75rem">🔴 Caro</td>
-</tr><tr style="">
-  <td style="padding:8px 10px;font-weight:600;font-size:.82rem">RIO CUARTO</td>
-  <td style="padding:8px 10px;font-size:.82rem">
-    $0.30M
-    <div style="height:5px;background:#e0e0e0;border-radius:3px;margin-top:3px;overflow:hidden"><div style="width:13%;height:100%;background:#F1891B;border-radius:3px;opacity:.7"></div></div>
-  </td>
-  <td style="padding:8px 10px;text-align:center;font-size:.82rem">4.8%</td>
-  <td style="padding:8px 10px;text-align:center;font-weight:700;font-size:.88rem">87</td>
-  <td style="padding:8px 10px;text-align:center;font-weight:800;color:#c62828;font-size:.88rem">$3,397</td>
-  <td style="padding:8px 10px;text-align:center;font-size:.75rem">🔴 Caro</td>
-</tr><tr style="background:#f7fafd">
-  <td style="padding:8px 10px;font-weight:600;font-size:.82rem">MAIPU</td>
-  <td style="padding:8px 10px;font-size:.82rem">
-    $0.30M
-    <div style="height:5px;background:#e0e0e0;border-radius:3px;margin-top:3px;overflow:hidden"><div style="width:14%;height:100%;background:#F1891B;border-radius:3px;opacity:.7"></div></div>
-  </td>
-  <td style="padding:8px 10px;text-align:center;font-size:.82rem">4.9%</td>
-  <td style="padding:8px 10px;text-align:center;font-weight:700;font-size:.88rem">80</td>
-  <td style="padding:8px 10px;text-align:center;font-weight:800;color:#c62828;font-size:.88rem">$3,797</td>
-  <td style="padding:8px 10px;text-align:center;font-size:.75rem">🔴 Caro</td>
-</tr><tr style="">
-  <td style="padding:8px 10px;font-weight:600;font-size:.82rem">REFUERZO - SAN LUIS<span style="background:#fff3e0;color:#e65100;padding:1px 6px;border-radius:5px;font-size:.65rem;font-weight:700;margin-left:6px">REFUERZO</span></td>
-  <td style="padding:8px 10px;font-size:.82rem">
-    $0.12M
-    <div style="height:5px;background:#e0e0e0;border-radius:3px;margin-top:3px;overflow:hidden"><div style="width:5%;height:100%;background:#F1891B;border-radius:3px;opacity:.7"></div></div>
-  </td>
-  <td style="padding:8px 10px;text-align:center;font-size:.82rem">1.9%</td>
-  <td style="padding:8px 10px;text-align:center;font-weight:700;font-size:.88rem">28</td>
-  <td style="padding:8px 10px;text-align:center;font-weight:800;color:#c62828;font-size:.88rem">$4,234</td>
-  <td style="padding:8px 10px;text-align:center;font-size:.75rem">🔴 Caro</td>
-</tr><tr style="background:#f7fafd">
-  <td style="padding:8px 10px;font-weight:600;font-size:.82rem">VILLA MERCEDES</td>
-  <td style="padding:8px 10px;font-size:.82rem">
-    $0.30M
-    <div style="height:5px;background:#e0e0e0;border-radius:3px;margin-top:3px;overflow:hidden"><div style="width:14%;height:100%;background:#F1891B;border-radius:3px;opacity:.7"></div></div>
-  </td>
-  <td style="padding:8px 10px;text-align:center;font-size:.82rem">4.9%</td>
-  <td style="padding:8px 10px;text-align:center;font-weight:700;font-size:.88rem">65</td>
-  <td style="padding:8px 10px;text-align:center;font-weight:800;color:#c62828;font-size:.88rem">$4,621</td>
-  <td style="padding:8px 10px;text-align:center;font-size:.75rem">🔴 Caro</td>
-</tr><tr style="">
-  <td style="padding:8px 10px;font-weight:600;font-size:.82rem">SAN LUIS</td>
-  <td style="padding:8px 10px;font-size:.82rem">
-    $0.29M
-    <div style="height:5px;background:#e0e0e0;border-radius:3px;margin-top:3px;overflow:hidden"><div style="width:13%;height:100%;background:#F1891B;border-radius:3px;opacity:.7"></div></div>
-  </td>
-  <td style="padding:8px 10px;text-align:center;font-size:.82rem">4.8%</td>
-  <td style="padding:8px 10px;text-align:center;font-weight:700;font-size:.88rem">25</td>
-  <td style="padding:8px 10px;text-align:center;font-weight:800;color:#c62828;font-size:.88rem">$11,735</td>
-  <td style="padding:8px 10px;text-align:center;font-size:.75rem">🔴 Caro</td>
-</tr></tbody>
-  </table></div>
-  <p style="font-size:.72rem;color:#888;margin-top:8px">Promedio salones: $2,694/conv · Benchmark objetivo: &lt;$2,000</p>
-</div>
+<script>
+const META_DATA   = [{"f": "2026-06-19", "c": "CALLE | WPP | EQUIPAMIENTO | ABO | ABR26", "g": 9582.41, "cv": 6.0}, {"f": "2026-06-19", "c": "ECMM | TRAFICO | EQUIPAMIENTO | ABO | REGULAR", "g": 10455.17, "cv": 0.0}, {"f": "2026-06-19", "c": "ECMM | VENTA | FREEZERS | ABO | REGULAR", "g": 6171.11, "cv": 0.0}, {"f": "2026-06-19", "c": "ECMM | VENTA | HOGAR | ABO | REGULAR", "g": 15852.76, "cv": 0.0}, {"f": "2026-06-19", "c": "ECMM | VENTA | VERTICALES | CBO | REGULAR", "g": 2820.97, "cv": 0.0}, {"f": "2026-06-19", "c": "REFUERZO - SALON | SAN LUIS | WPP | GENERAL | ABO | REGULAR", "g": 8477.35, "cv": 1.0}, {"f": "2026-06-19", "c": "SALON | ALAMEDA | WPP | GENERAL | ABO | REGULAR", "g": 24133.25, "cv": 13.0}, {"f": "2026-06-19", "c": "SALON | MAIPU | WPP | GENERAL | ABO | REGULAR", "g": 18221.97, "cv": 10.0}, {"f": "2026-06-19", "c": "SALON | RIO CUARTO | WPP | CLIENTIFY | GENERAL | ABO | REGULAR", "g": 16889.71, "cv": 6.0}, {"f": "2026-06-19", "c": "SALON | SAN JUAN | WPP | GENERAL | ABO | REGULAR", "g": 17510.66, "cv": 6.0}, {"f": "2026-06-19", "c": "SALON | SAN LUIS | WPP | GENERAL | ABO | REGULAR", "g": 16726.83, "cv": 2.0}, {"f": "2026-06-19", "c": "SALON | SAN RAFAEL | WPP | GENERAL | ABO | REGULAR", "g": 16444.47, "cv": 4.0}, {"f": "2026-06-19", "c": "SALON | VILLA KRAUSE | WPP | GENERAL | ABO | REGULAR", "g": 16101.29, "cv": 5.0}, {"f": "2026-06-19", "c": "SALON | VILLA MERCEDES | WPP | CLIENTIFY | GENERAL | ABO | REGULAR", "g": 19912.1, "cv": 2.0}, {"f": "2026-06-19", "c": "WEB | WPP | ALMACEN | ABO | REGULAR | ABR 26", "g": 38705.37, "cv": 20.0}, {"f": "2026-06-19", "c": "WEB | WPP | CARNICERIA | ABO | REGULAR | ABR 26", "g": 5435.21, "cv": 3.0}, {"f": "2026-06-19", "c": "WEB | WPP | EQUIPAMIENTO | ABO | ABR 26", "g": 19397.37, "cv": 20.0}, {"f": "2026-06-19", "c": "WEB | WPP | GASTRONOMIA | ABO | REGULAR | ABR 26", "g": 10521.91, "cv": 11.0}, {"f": "2026-06-19", "c": "WEB | WPP | HOGAR | ABO | TEST | MAY26", "g": 24851.61, "cv": 24.0}, {"f": "2026-06-19", "c": "WEB | WPP | PANADERIA | ABO | REGULAR | ABR 26", "g": 7580.22, "cv": 5.0}, {"f": "2026-06-19", "c": "WEB | WPP | REFRIGERACION | ABO | REGULAR | ABR 26", "g": 39149.45, "cv": 20.0}, {"f": "2026-06-20", "c": "CALLE | WPP | EQUIPAMIENTO | ABO | ABR26", "g": 9236.14, "cv": 9.0}, {"f": "2026-06-20", "c": "ECMM | TRAFICO | EQUIPAMIENTO | ABO | REGULAR", "g": 10240.02, "cv": 0.0}, {"f": "2026-06-20", "c": "ECMM | VENTA | FREEZERS | ABO | REGULAR", "g": 5375.71, "cv": 0.0}, {"f": "2026-06-20", "c": "ECMM | VENTA | HOGAR | ABO | REGULAR", "g": 14386.67, "cv": 0.0}, {"f": "2026-06-20", "c": "ECMM | VENTA | VERTICALES | CBO | REGULAR", "g": 2436.32, "cv": 0.0}, {"f": "2026-06-20", "c": "REFUERZO - SALON | SAN LUIS | WPP | GENERAL | ABO | REGULAR", "g": 6545.24, "cv": 1.0}, {"f": "2026-06-20", "c": "SALON | ALAMEDA | WPP | GENERAL | ABO | REGULAR", "g": 21252.27, "cv": 17.0}, {"f": "2026-06-20", "c": "SALON | MAIPU | WPP | GENERAL | ABO | REGULAR", "g": 15094.44, "cv": 0.0}, {"f": "2026-06-20", "c": "SALON | RIO CUARTO | WPP | CLIENTIFY | GENERAL | ABO | REGULAR", "g": 13861.55, "cv": 3.0}, {"f": "2026-06-20", "c": "SALON | SAN JUAN | WPP | GENERAL | ABO | REGULAR", "g": 16667.73, "cv": 4.0}, {"f": "2026-06-20", "c": "SALON | SAN LUIS | WPP | GENERAL | ABO | REGULAR", "g": 11966.89, "cv": 1.0}, {"f": "2026-06-20", "c": "SALON | SAN RAFAEL | WPP | GENERAL | ABO | REGULAR", "g": 13272.34, "cv": 6.0}, {"f": "2026-06-20", "c": "SALON | VILLA KRAUSE | WPP | GENERAL | ABO | REGULAR", "g": 14210.43, "cv": 7.0}, {"f": "2026-06-20", "c": "SALON | VILLA MERCEDES | WPP | CLIENTIFY | GENERAL | ABO | REGULAR", "g": 13344.48, "cv": 2.0}, {"f": "2026-06-20", "c": "WEB | WPP | ALMACEN | ABO | REGULAR | ABR 26", "g": 40094.52, "cv": 14.0}, {"f": "2026-06-20", "c": "WEB | WPP | CARNICERIA | ABO | REGULAR | ABR 26", "g": 4809.97, "cv": 5.0}, {"f": "2026-06-20", "c": "WEB | WPP | EQUIPAMIENTO | ABO | ABR 26", "g": 17758.49, "cv": 15.0}, {"f": "2026-06-20", "c": "WEB | WPP | GASTRONOMIA | ABO | REGULAR | ABR 26", "g": 8686.28, "cv": 6.0}, {"f": "2026-06-20", "c": "WEB | WPP | HOGAR | ABO | TEST | MAY26", "g": 23227.07, "cv": 22.0}, {"f": "2026-06-20", "c": "WEB | WPP | PANADERIA | ABO | REGULAR | ABR 26", "g": 6518.62, "cv": 5.0}, {"f": "2026-06-20", "c": "WEB | WPP | REFRIGERACION | ABO | REGULAR | ABR 26", "g": 37902.6, "cv": 21.0}, {"f": "2026-06-21", "c": "CALLE | WPP | EQUIPAMIENTO | ABO | ABR26", "g": 11295.08, "cv": 5.0}, {"f": "2026-06-21", "c": "ECMM | TRAFICO | EQUIPAMIENTO | ABO | REGULAR", "g": 11108.76, "cv": 0.0}, {"f": "2026-06-21", "c": "ECMM | VENTA | FREEZERS | ABO | REGULAR", "g": 6684.41, "cv": 0.0}, {"f": "2026-06-21", "c": "ECMM | VENTA | HOGAR | ABO | REGULAR", "g": 17266.31, "cv": 0.0}, {"f": "2026-06-21", "c": "ECMM | VENTA | VERTICALES | CBO | REGULAR", "g": 3289.98, "cv": 0.0}, {"f": "2026-06-21", "c": "REFUERZO - SALON | SAN LUIS | WPP | GENERAL | ABO | REGULAR", "g": 8393.77, "cv": 3.0}, {"f": "2026-06-21", "c": "SALON | ALAMEDA | WPP | GENERAL | ABO | REGULAR", "g": 25025.59, "cv": 4.0}, {"f": "2026-06-21", "c": "SALON | MAIPU | WPP | GENERAL | ABO | REGULAR", "g": 18187.04, "cv": 1.0}, {"f": "2026-06-21", "c": "SALON | RIO CUARTO | WPP | CLIENTIFY | GENERAL | ABO | REGULAR", "g": 23353.07, "cv": 3.0}, {"f": "2026-06-21", "c": "SALON | SAN JUAN | WPP | GENERAL | ABO | REGULAR", "g": 17788.19, "cv": 3.0}, {"f": "2026-06-21", "c": "SALON | SAN LUIS | WPP | GENERAL | ABO | REGULAR", "g": 18353.85, "cv": 1.0}, {"f": "2026-06-21", "c": "SALON | SAN RAFAEL | WPP | GENERAL | ABO | REGULAR", "g": 17964.5, "cv": 3.0}, {"f": "2026-06-21", "c": "SALON | VILLA KRAUSE | WPP | GENERAL | ABO | REGULAR", "g": 15664.07, "cv": 2.0}, {"f": "2026-06-21", "c": "SALON | VILLA MERCEDES | WPP | CLIENTIFY | GENERAL | ABO | REGULAR", "g": 20291.83, "cv": 5.0}, {"f": "2026-06-21", "c": "WEB | WPP | ALMACEN | ABO | REGULAR | ABR 26", "g": 44819.58, "cv": 21.0}, {"f": "2026-06-21", "c": "WEB | WPP | CARNICERIA | ABO | REGULAR | ABR 26", "g": 7299.93, "cv": 6.0}, {"f": "2026-06-21", "c": "WEB | WPP | EQUIPAMIENTO | ABO | ABR 26", "g": 20627.9, "cv": 8.0}, {"f": "2026-06-21", "c": "WEB | WPP | GASTRONOMIA | ABO | REGULAR | ABR 26", "g": 14439.13, "cv": 10.0}, {"f": "2026-06-21", "c": "WEB | WPP | HOGAR | ABO | TEST | MAY26", "g": 30178.67, "cv": 22.0}, {"f": "2026-06-21", "c": "WEB | WPP | PANADERIA | ABO | REGULAR | ABR 26", "g": 10939.52, "cv": 10.0}, {"f": "2026-06-21", "c": "WEB | WPP | REFRIGERACION | ABO | REGULAR | ABR 26", "g": 48226.67, "cv": 12.0}, {"f": "2026-06-22", "c": "CALLE | WPP | EQUIPAMIENTO | ABO | ABR26", "g": 15673.06, "cv": 11.0}, {"f": "2026-06-22", "c": "ECMM | TRAFICO | EQUIPAMIENTO | ABO | REGULAR", "g": 10608.91, "cv": 0.0}, {"f": "2026-06-22", "c": "ECMM | VENTA | FREEZERS | ABO | REGULAR", "g": 6528.78, "cv": 0.0}, {"f": "2026-06-22", "c": "ECMM | VENTA | HOGAR | ABO | REGULAR", "g": 19954.48, "cv": 0.0}, {"f": "2026-06-22", "c": "ECMM | VENTA | VERTICALES | CBO | REGULAR", "g": 3712.58, "cv": 0.0}, {"f": "2026-06-22", "c": "REFUERZO - SALON | SAN LUIS | WPP | GENERAL | ABO | REGULAR", "g": 9350.42, "cv": 2.0}, {"f": "2026-06-22", "c": "SALON | ALAMEDA | WPP | GENERAL | ABO | REGULAR", "g": 43369.66, "cv": 8.0}, {"f": "2026-06-22", "c": "SALON | MAIPU | WPP | GENERAL | ABO | REGULAR", "g": 26371.19, "cv": 7.0}, {"f": "2026-06-22", "c": "SALON | RIO CUARTO | WPP | CLIENTIFY | GENERAL | ABO | REGULAR", "g": 27889.3, "cv": 5.0}, {"f": "2026-06-22", "c": "SALON | SAN JUAN | WPP | GENERAL | ABO | REGULAR", "g": 32562.14, "cv": 9.0}, {"f": "2026-06-22", "c": "SALON | SAN LUIS | WPP | GENERAL | ABO | REGULAR", "g": 26435.37, "cv": 3.0}, {"f": "2026-06-22", "c": "SALON | SAN RAFAEL | WPP | GENERAL | ABO | REGULAR", "g": 25562.55, "cv": 2.0}, {"f": "2026-06-22", "c": "SALON | VILLA KRAUSE | WPP | GENERAL | ABO | REGULAR", "g": 25655.74, "cv": 5.0}, {"f": "2026-06-22", "c": "SALON | VILLA MERCEDES | WPP | CLIENTIFY | GENERAL | ABO | REGULAR", "g": 27265.04, "cv": 5.0}, {"f": "2026-06-22", "c": "WEB | WPP | ALMACEN | ABO | REGULAR | ABR 26", "g": 57086.88, "cv": 29.0}, {"f": "2026-06-22", "c": "WEB | WPP | CARNICERIA | ABO | REGULAR | ABR 26", "g": 8423.87, "cv": 2.0}, {"f": "2026-06-22", "c": "WEB | WPP | EQUIPAMIENTO | ABO | ABR 26", "g": 21646.13, "cv": 19.0}, {"f": "2026-06-22", "c": "WEB | WPP | GASTRONOMIA | ABO | REGULAR | ABR 26", "g": 18221.3, "cv": 21.0}, {"f": "2026-06-22", "c": "WEB | WPP | HOGAR | ABO | TEST | MAY26", "g": 55627.56, "cv": 55.0}, {"f": "2026-06-22", "c": "WEB | WPP | PANADERIA | ABO | REGULAR | ABR 26", "g": 12807.97, "cv": 10.0}, {"f": "2026-06-22", "c": "WEB | WPP | REFRIGERACION | ABO | REGULAR | ABR 26", "g": 59217.66, "cv": 20.0}, {"f": "2026-06-23", "c": "CALLE | WPP | EQUIPAMIENTO | ABO | ABR26", "g": 15856.42, "cv": 11.0}, {"f": "2026-06-23", "c": "CONCURSO | Con una mano en el corazon | Trafico |  inscripciones", "g": 6704.82, "cv": 0.0}, {"f": "2026-06-23", "c": "ECMM | TRAFICO | EQUIPAMIENTO | ABO | REGULAR", "g": 9097.28, "cv": 0.0}, {"f": "2026-06-23", "c": "ECMM | VENTA | FREEZERS | ABO | REGULAR", "g": 6488.86, "cv": 0.0}, {"f": "2026-06-23", "c": "ECMM | VENTA | HOGAR | ABO | REGULAR", "g": 17343.43, "cv": 0.0}, {"f": "2026-06-23", "c": "ECMM | VENTA | VERTICALES | CBO | REGULAR", "g": 3596.66, "cv": 0.0}, {"f": "2026-06-23", "c": "REFUERZO - SALON | SAN LUIS | WPP | GENERAL | ABO | REGULAR", "g": 10551.86, "cv": 4.0}, {"f": "2026-06-23", "c": "SALON | ALAMEDA | WPP | GENERAL | ABO | REGULAR", "g": 45899.42, "cv": 16.0}, {"f": "2026-06-23", "c": "SALON | MAIPU | WPP | GENERAL | ABO | REGULAR", "g": 32273.88, "cv": 12.0}, {"f": "2026-06-23", "c": "SALON | RIO CUARTO | WPP | CLIENTIFY | GENERAL | ABO | REGULAR", "g": 28752.89, "cv": 11.0}, {"f": "2026-06-23", "c": "SALON | SAN JUAN | WPP | GENERAL | ABO | REGULAR", "g": 36057.29, "cv": 22.0}, {"f": "2026-06-23", "c": "SALON | SAN LUIS | WPP | GENERAL | ABO | REGULAR", "g": 27949.44, "cv": 1.0}, {"f": "2026-06-23", "c": "SALON | SAN RAFAEL | WPP | GENERAL | ABO | REGULAR", "g": 32044.97, "cv": 8.0}, {"f": "2026-06-23", "c": "SALON | VILLA KRAUSE | WPP | GENERAL | ABO | REGULAR", "g": 31741.06, "cv": 14.0}, {"f": "2026-06-23", "c": "SALON | VILLA MERCEDES | WPP | CLIENTIFY | GENERAL | ABO | REGULAR", "g": 29155.87, "cv": 6.0}, {"f": "2026-06-23", "c": "WEB | WPP | ALMACEN | ABO | REGULAR | ABR 26", "g": 52884.92, "cv": 32.0}, {"f": "2026-06-23", "c": "WEB | WPP | CARNICERIA | ABO | REGULAR | ABR 26", "g": 8097.28, "cv": 4.0}, {"f": "2026-06-23", "c": "WEB | WPP | EQUIPAMIENTO | ABO | ABR 26", "g": 21203.38, "cv": 21.0}, {"f": "2026-06-23", "c": "WEB | WPP | GASTRONOMIA | ABO | REGULAR | ABR 26", "g": 15186.23, "cv": 20.0}, {"f": "2026-06-23", "c": "WEB | WPP | HOGAR | ABO | TEST | MAY26", "g": 54320.19, "cv": 54.0}, {"f": "2026-06-23", "c": "WEB | WPP | PANADERIA | ABO | REGULAR | ABR 26", "g": 11609.86, "cv": 6.0}, {"f": "2026-06-23", "c": "WEB | WPP | REFRIGERACION | ABO | REGULAR | ABR 26", "g": 54876.92, "cv": 26.0}, {"f": "2026-06-24", "c": "CALLE | WPP | EQUIPAMIENTO | ABO | ABR26", "g": 11347.83, "cv": 8.0}, {"f": "2026-06-24", "c": "CONCURSO | Con una mano en el corazon | Trafico |  inscripciones", "g": 7411.6, "cv": 0.0}, {"f": "2026-06-24", "c": "ECMM | TRAFICO | EQUIPAMIENTO | ABO | REGULAR", "g": 9971.68, "cv": 0.0}, {"f": "2026-06-24", "c": "ECMM | VENTA | FREEZERS | ABO | REGULAR", "g": 6430.81, "cv": 0.0}, {"f": "2026-06-24", "c": "ECMM | VENTA | HOGAR | ABO | REGULAR", "g": 17248.02, "cv": 1.0}, {"f": "2026-06-24", "c": "ECMM | VENTA | VERTICALES | CBO | REGULAR", "g": 3200.45, "cv": 0.0}, {"f": "2026-06-24", "c": "REFUERZO - SALON | SAN LUIS | WPP | GENERAL | ABO | REGULAR", "g": 8500.25, "cv": 0.0}, {"f": "2026-06-24", "c": "SALON | ALAMEDA | WPP | GENERAL | ABO | REGULAR", "g": 34277.1, "cv": 27.0}, {"f": "2026-06-24", "c": "SALON | MAIPU | WPP | GENERAL | ABO | REGULAR", "g": 25453.91, "cv": 6.0}, {"f": "2026-06-24", "c": "SALON | RIO CUARTO | WPP | CLIENTIFY | GENERAL | ABO | REGULAR", "g": 22482.0, "cv": 12.0}, {"f": "2026-06-24", "c": "SALON | SAN JUAN | WPP | GENERAL | ABO | REGULAR", "g": 6713.02, "cv": 2.0}, {"f": "2026-06-24", "c": "SALON | SAN LUIS | WPP | GENERAL | ABO | REGULAR", "g": 22919.77, "cv": 5.0}, {"f": "2026-06-24", "c": "SALON | SAN RAFAEL | WPP | GENERAL | ABO | REGULAR", "g": 23336.5, "cv": 8.0}, {"f": "2026-06-24", "c": "SALON | VILLA KRAUSE | WPP | GENERAL | ABO | REGULAR", "g": 26142.69, "cv": 14.0}, {"f": "2026-06-24", "c": "SALON | VILLA MERCEDES | WPP | CLIENTIFY | GENERAL | ABO | REGULAR", "g": 22925.72, "cv": 5.0}, {"f": "2026-06-24", "c": "WEB | WPP | ALMACEN | ABO | REGULAR | ABR 26", "g": 46255.88, "cv": 15.0}, {"f": "2026-06-24", "c": "WEB | WPP | CARNICERIA | ABO | REGULAR | ABR 26", "g": 6605.03, "cv": 6.0}, {"f": "2026-06-24", "c": "WEB | WPP | EQUIPAMIENTO | ABO | ABR 26", "g": 21728.09, "cv": 17.0}, {"f": "2026-06-24", "c": "WEB | WPP | GASTRONOMIA | ABO | REGULAR | ABR 26", "g": 13915.78, "cv": 22.0}, {"f": "2026-06-24", "c": "WEB | WPP | HOGAR | ABO | TEST | MAY26", "g": 43973.31, "cv": 34.0}, {"f": "2026-06-24", "c": "WEB | WPP | PANADERIA | ABO | REGULAR | ABR 26", "g": 9117.54, "cv": 4.0}, {"f": "2026-06-24", "c": "WEB | WPP | REFRIGERACION | ABO | REGULAR | ABR 26", "g": 48730.53, "cv": 23.0}, {"f": "2026-06-25", "c": "CALLE | WPP | EQUIPAMIENTO | ABO | ABR26", "g": 10594.99, "cv": 10.0}, {"f": "2026-06-25", "c": "CONCURSO | Con una mano en el corazon | Trafico |  inscripciones", "g": 8506.48, "cv": 0.0}, {"f": "2026-06-25", "c": "ECMM | TRAFICO | EQUIPAMIENTO | ABO | REGULAR", "g": 10122.07, "cv": 0.0}, {"f": "2026-06-25", "c": "ECMM | VENTA | FREEZERS | ABO | REGULAR", "g": 5777.49, "cv": 0.0}, {"f": "2026-06-25", "c": "ECMM | VENTA | HOGAR | ABO | REGULAR", "g": 13684.59, "cv": 0.0}, {"f": "2026-06-25", "c": "ECMM | VENTA | VERTICALES | CBO | REGULAR", "g": 2767.44, "cv": 0.0}, {"f": "2026-06-25", "c": "REFUERZO - SALON | SAN LUIS | WPP | GENERAL | ABO | REGULAR", "g": 7138.35, "cv": 4.0}, {"f": "2026-06-25", "c": "SALON | ALAMEDA | WPP | GENERAL | ABO | REGULAR", "g": 26219.1, "cv": 15.0}, {"f": "2026-06-25", "c": "SALON | MAIPU | WPP | GENERAL | ABO | REGULAR", "g": 18356.05, "cv": 5.0}, {"f": "2026-06-25", "c": "SALON | RIO CUARTO | WPP | CLIENTIFY | GENERAL | ABO | REGULAR", "g": 17673.18, "cv": 8.0}, {"f": "2026-06-25", "c": "SALON | SAN JUAN | WPP | GENERAL | ABO | REGULAR", "g": 0.0, "cv": 1.0}, {"f": "2026-06-25", "c": "SALON | SAN LUIS | WPP | GENERAL | ABO | REGULAR", "g": 18240.3, "cv": 3.0}, {"f": "2026-06-25", "c": "SALON | SAN RAFAEL | WPP | GENERAL | ABO | REGULAR", "g": 17396.88, "cv": 14.0}, {"f": "2026-06-25", "c": "SALON | VILLA KRAUSE | WPP | GENERAL | ABO | REGULAR", "g": 18583.13, "cv": 12.0}, {"f": "2026-06-25", "c": "SALON | VILLA MERCEDES | WPP | CLIENTIFY | GENERAL | ABO | REGULAR", "g": 17889.42, "cv": 4.0}, {"f": "2026-06-25", "c": "WEB | WPP | ALMACEN | ABO | REGULAR | ABR 26", "g": 40743.24, "cv": 17.0}, {"f": "2026-06-25", "c": "WEB | WPP | CARNICERIA | ABO | REGULAR | ABR 26", "g": 6124.64, "cv": 6.0}, {"f": "2026-06-25", "c": "WEB | WPP | EQUIPAMIENTO | ABO | ABR 26", "g": 19383.17, "cv": 14.0}, {"f": "2026-06-25", "c": "WEB | WPP | GASTRONOMIA | ABO | REGULAR | ABR 26", "g": 11590.61, "cv": 15.0}, {"f": "2026-06-25", "c": "WEB | WPP | HOGAR | ABO | TEST | MAY26", "g": 36953.63, "cv": 43.0}, {"f": "2026-06-25", "c": "WEB | WPP | PANADERIA | ABO | REGULAR | ABR 26", "g": 8467.51, "cv": 2.0}, {"f": "2026-06-25", "c": "WEB | WPP | REFRIGERACION | ABO | REGULAR | ABR 26", "g": 42173.09, "cv": 23.0}, {"f": "2026-06-26", "c": "CALLE | WPP | EQUIPAMIENTO | ABO | ABR26", "g": 10007.62, "cv": 12.0}, {"f": "2026-06-26", "c": "CONCURSO | Con una mano en el corazon | Trafico |  inscripciones", "g": 7087.31, "cv": 1.0}, {"f": "2026-06-26", "c": "ECMM | TRAFICO | EQUIPAMIENTO | ABO | REGULAR", "g": 9573.23, "cv": 0.0}, {"f": "2026-06-26", "c": "ECMM | VENTA | FREEZERS | ABO | REGULAR", "g": 5024.89, "cv": 0.0}, {"f": "2026-06-26", "c": "ECMM | VENTA | HOGAR | ABO | REGULAR", "g": 14159.32, "cv": 0.0}, {"f": "2026-06-26", "c": "ECMM | VENTA | VERTICALES | CBO | REGULAR", "g": 2237.9, "cv": 0.0}, {"f": "2026-06-26", "c": "REFUERZO - SALON | SAN LUIS | WPP | GENERAL | ABO | REGULAR", "g": 5838.27, "cv": 0.0}, {"f": "2026-06-26", "c": "SALON | ALAMEDA | WPP | GENERAL | ABO | REGULAR", "g": 19616.35, "cv": 12.0}, {"f": "2026-06-26", "c": "SALON | MAIPU | WPP | GENERAL | ABO | REGULAR", "g": 13812.78, "cv": 3.0}, {"f": "2026-06-26", "c": "SALON | RIO CUARTO | WPP | CLIENTIFY | GENERAL | ABO | REGULAR", "g": 14518.82, "cv": 2.0}, {"f": "2026-06-26", "c": "SALON | SAN JUAN | WPP | GENERAL | ABO | REGULAR", "g": 0.0, "cv": 0.0}, {"f": "2026-06-26", "c": "SALON | SAN LUIS | WPP | GENERAL | ABO | REGULAR", "g": 15667.93, "cv": 0.0}, {"f": "2026-06-26", "c": "SALON | SAN RAFAEL | WPP | GENERAL | ABO | REGULAR", "g": 13697.7, "cv": 4.0}, {"f": "2026-06-26", "c": "SALON | VILLA KRAUSE | WPP | GENERAL | ABO | REGULAR", "g": 14053.1, "cv": 8.0}, {"f": "2026-06-26", "c": "SALON | VILLA MERCEDES | WPP | CLIENTIFY | GENERAL | ABO | REGULAR", "g": 14807.48, "cv": 6.0}, {"f": "2026-06-26", "c": "WEB | WPP | ALMACEN | ABO | REGULAR | ABR 26", "g": 35279.16, "cv": 20.0}, {"f": "2026-06-26", "c": "WEB | WPP | CARNICERIA | ABO | REGULAR | ABR 26", "g": 4652.79, "cv": 5.0}, {"f": "2026-06-26", "c": "WEB | WPP | EQUIPAMIENTO | ABO | ABR 26", "g": 18360.86, "cv": 14.0}, {"f": "2026-06-26", "c": "WEB | WPP | GASTRONOMIA | ABO | REGULAR | ABR 26", "g": 10026.0, "cv": 12.0}, {"f": "2026-06-26", "c": "WEB | WPP | HOGAR | ABO | TEST | MAY26", "g": 33382.99, "cv": 48.0}, {"f": "2026-06-26", "c": "WEB | WPP | PANADERIA | ABO | REGULAR | ABR 26", "g": 7152.93, "cv": 7.0}, {"f": "2026-06-26", "c": "WEB | WPP | REFRIGERACION | ABO | REGULAR | ABR 26", "g": 35187.94, "cv": 16.0}, {"f": "2026-06-27", "c": "CALLE | WPP | EQUIPAMIENTO | ABO | ABR26", "g": 9158.86, "cv": 2.0}, {"f": "2026-06-27", "c": "CONCURSO | Con una mano en el corazon | Trafico |  inscripciones", "g": 5599.47, "cv": 0.0}, {"f": "2026-06-27", "c": "ECMM | TRAFICO | EQUIPAMIENTO | ABO | REGULAR", "g": 9479.37, "cv": 0.0}, {"f": "2026-06-27", "c": "ECMM | VENTA | FREEZERS | ABO | REGULAR", "g": 5057.58, "cv": 0.0}, {"f": "2026-06-27", "c": "ECMM | VENTA | HOGAR | ABO | REGULAR", "g": 12287.55, "cv": 0.0}, {"f": "2026-06-27", "c": "ECMM | VENTA | VERTICALES | CBO | REGULAR", "g": 2135.46, "cv": 0.0}, {"f": "2026-06-27", "c": "REFUERZO - SALON | SAN LUIS | WPP | GENERAL | ABO | REGULAR", "g": 6191.62, "cv": 0.0}, {"f": "2026-06-27", "c": "SALON | ALAMEDA | WPP | GENERAL | ABO | REGULAR", "g": 17655.58, "cv": 14.0}, {"f": "2026-06-27", "c": "SALON | MAIPU | WPP | GENERAL | ABO | REGULAR", "g": 12159.33, "cv": 5.0}, {"f": "2026-06-27", "c": "SALON | RIO CUARTO | WPP | CLIENTIFY | GENERAL | ABO | REGULAR", "g": 12091.0, "cv": 3.0}, {"f": "2026-06-27", "c": "SALON | SAN JUAN | WPP | GENERAL | ABO | REGULAR", "g": 0.0, "cv": 1.0}, {"f": "2026-06-27", "c": "SALON | SAN LUIS | WPP | GENERAL | ABO | REGULAR", "g": 13787.56, "cv": 0.0}, {"f": "2026-06-27", "c": "SALON | SAN RAFAEL | WPP | GENERAL | ABO | REGULAR", "g": 13305.55, "cv": 6.0}, {"f": "2026-06-27", "c": "SALON | VILLA KRAUSE | WPP | GENERAL | ABO | REGULAR", "g": 11299.17, "cv": 2.0}, {"f": "2026-06-27", "c": "SALON | VILLA MERCEDES | WPP | CLIENTIFY | GENERAL | ABO | REGULAR", "g": 14568.88, "cv": 4.0}, {"f": "2026-06-27", "c": "WEB | WPP | ALMACEN | ABO | REGULAR | ABR 26", "g": 37757.44, "cv": 16.0}, {"f": "2026-06-27", "c": "WEB | WPP | CARNICERIA | ABO | REGULAR | ABR 26", "g": 4229.63, "cv": 1.0}, {"f": "2026-06-27", "c": "WEB | WPP | EQUIPAMIENTO | ABO | ABR 26", "g": 16909.32, "cv": 13.0}, {"f": "2026-06-27", "c": "WEB | WPP | GASTRONOMIA | ABO | REGULAR | ABR 26", "g": 7595.94, "cv": 10.0}, {"f": "2026-06-27", "c": "WEB | WPP | HOGAR | ABO | TEST | MAY26", "g": 28355.13, "cv": 41.0}, {"f": "2026-06-27", "c": "WEB | WPP | PANADERIA | ABO | REGULAR | ABR 26", "g": 6257.14, "cv": 3.0}, {"f": "2026-06-27", "c": "WEB | WPP | REFRIGERACION | ABO | REGULAR | ABR 26", "g": 36958.91, "cv": 18.0}, {"f": "2026-06-28", "c": "CALLE | WPP | EQUIPAMIENTO | ABO | ABR26", "g": 13491.16, "cv": 8.0}, {"f": "2026-06-28", "c": "CONCURSO | Con una mano en el corazon | Trafico |  inscripciones", "g": 9179.52, "cv": 0.0}, {"f": "2026-06-28", "c": "ECMM | TRAFICO | EQUIPAMIENTO | ABO | REGULAR", "g": 10910.3, "cv": 0.0}, {"f": "2026-06-28", "c": "ECMM | VENTA | FREEZERS | ABO | REGULAR", "g": 6299.79, "cv": 0.0}, {"f": "2026-06-28", "c": "ECMM | VENTA | HOGAR | ABO | REGULAR", "g": 16515.88, "cv": 0.0}, {"f": "2026-06-28", "c": "ECMM | VENTA | VERTICALES | CBO | REGULAR", "g": 3621.09, "cv": 0.0}, {"f": "2026-06-28", "c": "REFUERZO - SALON | SAN LUIS | WPP | GENERAL | ABO | REGULAR", "g": 8462.98, "cv": 5.0}, {"f": "2026-06-28", "c": "SALON | ALAMEDA | WPP | GENERAL | ABO | REGULAR", "g": 29994.96, "cv": 13.0}, {"f": "2026-06-28", "c": "SALON | MAIPU | WPP | GENERAL | ABO | REGULAR", "g": 20126.54, "cv": 5.0}, {"f": "2026-06-28", "c": "SALON | RIO CUARTO | WPP | CLIENTIFY | GENERAL | ABO | REGULAR", "g": 22587.37, "cv": 3.0}, {"f": "2026-06-28", "c": "SALON | SAN LUIS | WPP | GENERAL | ABO | REGULAR", "g": 19573.58, "cv": 0.0}, {"f": "2026-06-28", "c": "SALON | SAN RAFAEL | WPP | GENERAL | ABO | REGULAR", "g": 19970.25, "cv": 4.0}, {"f": "2026-06-28", "c": "SALON | VILLA KRAUSE | WPP | GENERAL | ABO | REGULAR", "g": 18395.08, "cv": 10.0}, {"f": "2026-06-28", "c": "SALON | VILLA MERCEDES | WPP | CLIENTIFY | GENERAL | ABO | REGULAR", "g": 23822.53, "cv": 3.0}, {"f": "2026-06-28", "c": "WEB | WPP | ALMACEN | ABO | REGULAR | ABR 26", "g": 47002.94, "cv": 17.0}, {"f": "2026-06-28", "c": "WEB | WPP | CARNICERIA | ABO | REGULAR | ABR 26", "g": 7529.49, "cv": 5.0}, {"f": "2026-06-28", "c": "WEB | WPP | EQUIPAMIENTO | ABO | ABR 26", "g": 20635.36, "cv": 20.0}, {"f": "2026-06-28", "c": "WEB | WPP | GASTRONOMIA | ABO | REGULAR | ABR 26", "g": 15859.79, "cv": 16.0}, {"f": "2026-06-28", "c": "WEB | WPP | HOGAR | ABO | TEST | MAY26", "g": 44661.5, "cv": 30.0}, {"f": "2026-06-28", "c": "WEB | WPP | PANADERIA | ABO | REGULAR | ABR 26", "g": 11278.38, "cv": 6.0}, {"f": "2026-06-28", "c": "WEB | WPP | REFRIGERACION | ABO | REGULAR | ABR 26", "g": 50892.46, "cv": 19.0}, {"f": "2026-06-29", "c": "CALLE | WPP | EQUIPAMIENTO | ABO | ABR26", "g": 12531.55, "cv": 10.0}, {"f": "2026-06-29", "c": "CONCURSO | Con una mano en el corazon | Trafico |  inscripciones", "g": 8335.13, "cv": 0.0}, {"f": "2026-06-29", "c": "ECMM | TRAFICO | EQUIPAMIENTO | ABO | REGULAR", "g": 9483.53, "cv": 0.0}, {"f": "2026-06-29", "c": "ECMM | VENTA | FREEZERS | ABO | REGULAR", "g": 6473.04, "cv": 0.0}, {"f": "2026-06-29", "c": "ECMM | VENTA | HOGAR | ABO | REGULAR", "g": 17102.17, "cv": 0.0}, {"f": "2026-06-29", "c": "ECMM | VENTA | VERTICALES | CBO | REGULAR", "g": 3646.87, "cv": 0.0}, {"f": "2026-06-29", "c": "REFUERZO - SALON | SAN LUIS | WPP | GENERAL | ABO | REGULAR", "g": 9765.28, "cv": 3.0}, {"f": "2026-06-29", "c": "SALON | ALAMEDA | WPP | GENERAL | ABO | REGULAR", "g": 39178.93, "cv": 16.0}, {"f": "2026-06-29", "c": "SALON | MAIPU | WPP | GENERAL | ABO | REGULAR", "g": 27203.05, "cv": 7.0}, {"f": "2026-06-29", "c": "SALON | RIO CUARTO | WPP | CLIENTIFY | GENERAL | ABO | REGULAR", "g": 27408.15, "cv": 4.0}, {"f": "2026-06-29", "c": "SALON | SAN LUIS | WPP | GENERAL | ABO | REGULAR", "g": 26466.25, "cv": 3.0}, {"f": "2026-06-29", "c": "SALON | SAN RAFAEL | WPP | GENERAL | ABO | REGULAR", "g": 24751.12, "cv": 7.0}, {"f": "2026-06-29", "c": "SALON | VILLA KRAUSE | WPP | GENERAL | ABO | REGULAR", "g": 27195.85, "cv": 19.0}, {"f": "2026-06-29", "c": "SALON | VILLA MERCEDES | WPP | CLIENTIFY | GENERAL | ABO | REGULAR", "g": 26570.86, "cv": 8.0}, {"f": "2026-06-29", "c": "WEB | WPP | ALMACEN | ABO | REGULAR | ABR 26", "g": 56261.15, "cv": 38.0}, {"f": "2026-06-29", "c": "WEB | WPP | CARNICERIA | ABO | REGULAR | ABR 26", "g": 7536.77, "cv": 13.0}, {"f": "2026-06-29", "c": "WEB | WPP | EQUIPAMIENTO | ABO | ABR 26", "g": 21965.29, "cv": 18.0}, {"f": "2026-06-29", "c": "WEB | WPP | GASTRONOMIA | ABO | REGULAR | ABR 26", "g": 16100.49, "cv": 18.0}, {"f": "2026-06-29", "c": "WEB | WPP | HOGAR | ABO | TEST | MAY26", "g": 47802.83, "cv": 47.0}, {"f": "2026-06-29", "c": "WEB | WPP | PANADERIA | ABO | REGULAR | ABR 26", "g": 11686.48, "cv": 16.0}, {"f": "2026-06-29", "c": "WEB | WPP | REFRIGERACION | ABO | REGULAR | ABR 26", "g": 58581.06, "cv": 33.0}, {"f": "2026-06-30", "c": "CALLE | WPP | EQUIPAMIENTO | ABO | ABR26", "g": 17096.76, "cv": 11.0}, {"f": "2026-06-30", "c": "CONCURSO | Con una mano en el corazon | Trafico |  inscripciones", "g": 2517.34, "cv": 0.0}, {"f": "2026-06-30", "c": "ECMM | TRAFICO | EQUIPAMIENTO | ABO | REGULAR", "g": 10355.33, "cv": 0.0}, {"f": "2026-06-30", "c": "ECMM | VENTA | FREEZERS | ABO | REGULAR", "g": 6323.76, "cv": 0.0}, {"f": "2026-06-30", "c": "ECMM | VENTA | HOGAR | ABO | REGULAR", "g": 16554.42, "cv": 1.0}, {"f": "2026-06-30", "c": "ECMM | VENTA | VERTICALES | CBO | REGULAR", "g": 3368.28, "cv": 0.0}, {"f": "2026-06-30", "c": "REFUERZO - SALON | SAN LUIS | WPP | GENERAL | ABO | REGULAR", "g": 12219.29, "cv": 3.0}, {"f": "2026-06-30", "c": "SALON | ALAMEDA | WPP | GENERAL | ABO | REGULAR", "g": 42373.66, "cv": 20.0}, {"f": "2026-06-30", "c": "SALON | MAIPU | WPP | GENERAL | ABO | REGULAR", "g": 30381.98, "cv": 11.0}, {"f": "2026-06-30", "c": "SALON | RIO CUARTO | WPP | CLIENTIFY | GENERAL | ABO | REGULAR", "g": 27878.95, "cv": 13.0}, {"f": "2026-06-30", "c": "SALON | SAN JUAN | WPP | GENERAL | ABO | REGULAR", "g": 24259.22, "cv": 5.0}, {"f": "2026-06-30", "c": "SALON | SAN LUIS | WPP | GENERAL | ABO | REGULAR", "g": 30708.51, "cv": 2.0}, {"f": "2026-06-30", "c": "SALON | SAN RAFAEL | WPP | GENERAL | ABO | REGULAR", "g": 31227.8, "cv": 11.0}, {"f": "2026-06-30", "c": "SALON | VILLA KRAUSE | WPP | GENERAL | ABO | REGULAR", "g": 29607.48, "cv": 17.0}, {"f": "2026-06-30", "c": "SALON | VILLA MERCEDES | WPP | CLIENTIFY | GENERAL | ABO | REGULAR", "g": 28346.33, "cv": 7.0}, {"f": "2026-06-30", "c": "WEB | WPP | ALMACEN | ABO | REGULAR | ABR 26", "g": 52673.82, "cv": 19.0}, {"f": "2026-06-30", "c": "WEB | WPP | CARNICERIA | ABO | REGULAR | ABR 26", "g": 8213.42, "cv": 9.0}, {"f": "2026-06-30", "c": "WEB | WPP | EQUIPAMIENTO | ABO | ABR 26", "g": 21645.79, "cv": 16.0}, {"f": "2026-06-30", "c": "WEB | WPP | GASTRONOMIA | ABO | REGULAR | ABR 26", "g": 15423.06, "cv": 19.0}, {"f": "2026-06-30", "c": "WEB | WPP | HOGAR | ABO | TEST | MAY26", "g": 49267.47, "cv": 54.0}, {"f": "2026-06-30", "c": "WEB | WPP | PANADERIA | ABO | REGULAR | ABR 26", "g": 11450.32, "cv": 7.0}, {"f": "2026-06-30", "c": "WEB | WPP | REFRIGERACION | ABO | REGULAR | ABR 26", "g": 55747.99, "cv": 28.0}, {"f": "2026-07-01", "c": "Branding / Awareness (TOFU)", "g": 17432.71, "cv": 0.0}, {"f": "2026-07-01", "c": "CALLE | WPP | EQUIPAMIENTO | ABO | ABR26", "g": 13076.51, "cv": 16.0}, {"f": "2026-07-01", "c": "ECMM | TRAFICO | EQUIPAMIENTO | ABO | REGULAR", "g": 7761.44, "cv": 0.0}, {"f": "2026-07-01", "c": "ECMM | VENTA | FREEZERS | ABO | REGULAR", "g": 4916.4, "cv": 0.0}, {"f": "2026-07-01", "c": "ECMM | VENTA | HOGAR | ABO | REGULAR", "g": 13111.94, "cv": 0.0}, {"f": "2026-07-01", "c": "ECMM | VENTA | VERTICALES | CBO | REGULAR", "g": 2377.22, "cv": 0.0}, {"f": "2026-07-01", "c": "REFUERZO - SALON | SAN LUIS | WPP | GENERAL | ABO | REGULAR", "g": 8782.16, "cv": 2.0}, {"f": "2026-07-01", "c": "SALON | ALAMEDA | WPP | GENERAL | ABO | REGULAR", "g": 34689.45, "cv": 16.0}, {"f": "2026-07-01", "c": "SALON | CÓRDOBA", "g": 3108.67, "cv": 0.0}, {"f": "2026-07-01", "c": "SALON | MAIPU | WPP | GENERAL | ABO | REGULAR", "g": 24463.07, "cv": 3.0}, {"f": "2026-07-01", "c": "SALON | MENDOZA", "g": 45144.65, "cv": 41.0}, {"f": "2026-07-01", "c": "SALON | RIO CUARTO | WPP | CLIENTIFY | GENERAL | ABO | REGULAR", "g": 20570.01, "cv": 5.0}, {"f": "2026-07-01", "c": "SALON | SAN JUAN", "g": 15006.32, "cv": 18.0}, {"f": "2026-07-01", "c": "SALON | SAN JUAN | WPP | GENERAL | ABO | REGULAR", "g": 39117.64, "cv": 18.0}, {"f": "2026-07-01", "c": "SALON | SAN LUIS", "g": 6061.91, "cv": 9.0}, {"f": "2026-07-01", "c": "SALON | SAN LUIS | WPP | GENERAL | ABO | REGULAR", "g": 24270.58, "cv": 2.0}, {"f": "2026-07-01", "c": "SALON | SAN RAFAEL | WPP | GENERAL | ABO | REGULAR", "g": 23232.76, "cv": 4.0}, {"f": "2026-07-01", "c": "SALON | VILLA KRAUSE | WPP | GENERAL | ABO | REGULAR", "g": 22005.74, "cv": 13.0}, {"f": "2026-07-01", "c": "SALON | VILLA MERCEDES | WPP | CLIENTIFY | GENERAL | ABO | REGULAR", "g": 19789.62, "cv": 2.0}, {"f": "2026-07-01", "c": "WEB | Equipamiento Profesional (B2B)", "g": 7841.25, "cv": 0.0}, {"f": "2026-07-01", "c": "WEB | Hogar (B2C)", "g": 7795.69, "cv": 1.0}, {"f": "2026-07-01", "c": "WEB | WPP | ALMACEN | ABO | REGULAR | ABR 26", "g": 40895.11, "cv": 23.0}, {"f": "2026-07-01", "c": "WEB | WPP | CARNICERIA | ABO | REGULAR | ABR 26", "g": 6105.45, "cv": 6.0}, {"f": "2026-07-01", "c": "WEB | WPP | EQUIPAMIENTO | ABO | ABR 26", "g": 15999.67, "cv": 12.0}, {"f": "2026-07-01", "c": "WEB | WPP | GASTRONOMIA | ABO | REGULAR | ABR 26", "g": 12139.94, "cv": 17.0}, {"f": "2026-07-01", "c": "WEB | WPP | HOGAR | ABO | TEST | MAY26", "g": 39544.99, "cv": 54.0}, {"f": "2026-07-01", "c": "WEB | WPP | PANADERIA | ABO | REGULAR | ABR 26", "g": 9440.71, "cv": 7.0}, {"f": "2026-07-01", "c": "WEB | WPP | REFRIGERACION | ABO | REGULAR | ABR 26", "g": 42210.62, "cv": 11.0}, {"f": "2026-07-02", "c": "Branding / Awareness (TOFU)", "g": 56496.11, "cv": 0.0}, {"f": "2026-07-02", "c": "CALLE | WPP | EQUIPAMIENTO | ABO | ABR26", "g": 0.0, "cv": 1.0}, {"f": "2026-07-02", "c": "ECMM | TRAFICO | EQUIPAMIENTO | ABO | REGULAR", "g": 0.0, "cv": 0.0}, {"f": "2026-07-02", "c": "ECMM | VENTA | FREEZERS | ABO | REGULAR", "g": 0.0, "cv": 0.0}, {"f": "2026-07-02", "c": "ECMM | VENTA | HOGAR | ABO | REGULAR", "g": 0.0, "cv": 0.0}, {"f": "2026-07-02", "c": "REFUERZO - SALON | SAN LUIS | WPP | GENERAL | ABO | REGULAR", "g": 0.0, "cv": 0.0}, {"f": "2026-07-02", "c": "SALON | ALAMEDA | WPP | GENERAL | ABO | REGULAR", "g": 0.0, "cv": 1.0}, {"f": "2026-07-02", "c": "SALON | CÓRDOBA", "g": 31417.13, "cv": 10.0}, {"f": "2026-07-02", "c": "SALON | MAIPU | WPP | GENERAL | ABO | REGULAR", "g": 0.0, "cv": 0.0}, {"f": "2026-07-02", "c": "SALON | MENDOZA", "g": 156131.14, "cv": 237.0}, {"f": "2026-07-02", "c": "SALON | RIO CUARTO | WPP | CLIENTIFY | GENERAL | ABO | REGULAR", "g": 0.0, "cv": 0.0}, {"f": "2026-07-02", "c": "SALON | SAN JUAN", "g": 40739.94, "cv": 96.0}, {"f": "2026-07-02", "c": "SALON | SAN JUAN | WPP | GENERAL | ABO | REGULAR", "g": 0.0, "cv": 1.0}, {"f": "2026-07-02", "c": "SALON | SAN LUIS", "g": 18672.79, "cv": 25.0}, {"f": "2026-07-02", "c": "SALON | VILLA KRAUSE | WPP | GENERAL | ABO | REGULAR", "g": 0.0, "cv": 0.0}, {"f": "2026-07-02", "c": "WEB | Equipamiento Profesional (B2B)", "g": 236198.5, "cv": 94.0}, {"f": "2026-07-02", "c": "WEB | Hogar (B2C)", "g": 70000.0, "cv": 56.0}, {"f": "2026-07-02", "c": "WEB | WPP | ALMACEN | ABO | REGULAR | ABR 26", "g": 0.0, "cv": 1.0}, {"f": "2026-07-02", "c": "WEB | WPP | CARNICERIA | ABO | REGULAR | ABR 26", "g": 0.0, "cv": 1.0}, {"f": "2026-07-02", "c": "WEB | WPP | EQUIPAMIENTO | ABO | ABR 26", "g": 0.0, "cv": 0.0}, {"f": "2026-07-02", "c": "WEB | WPP | GASTRONOMIA | ABO | REGULAR | ABR 26", "g": 0.0, "cv": 0.0}, {"f": "2026-07-02", "c": "WEB | WPP | HOGAR | ABO | TEST | MAY26", "g": 0.0, "cv": 2.0}, {"f": "2026-07-02", "c": "WEB | WPP | PANADERIA | ABO | REGULAR | ABR 26", "g": 0.0, "cv": 0.0}, {"f": "2026-07-02", "c": "WEB | WPP | REFRIGERACION | ABO | REGULAR | ABR 26", "g": 0.0, "cv": 0.0}, {"f": "2026-07-03", "c": "Branding / Awareness (TOFU)", "g": 41043.2, "cv": 0.0}, {"f": "2026-07-03", "c": "CALLE | WPP | EQUIPAMIENTO | ABO | ABR26", "g": 0.0, "cv": 1.0}, {"f": "2026-07-03", "c": "ECMM | TRAFICO | EQUIPAMIENTO | ABO | REGULAR", "g": 0.0, "cv": 0.0}, {"f": "2026-07-03", "c": "ECMM | VENTA | HOGAR | ABO | REGULAR", "g": 0.0, "cv": 0.0}, {"f": "2026-07-03", "c": "SALON | ALAMEDA | WPP | GENERAL | ABO | REGULAR", "g": 0.0, "cv": 0.0}, {"f": "2026-07-03", "c": "SALON | CÓRDOBA", "g": 17002.77, "cv": 17.0}, {"f": "2026-07-03", "c": "SALON | MAIPU | WPP | GENERAL | ABO | REGULAR", "g": 0.0, "cv": 0.0}, {"f": "2026-07-03", "c": "SALON | MENDOZA", "g": 146923.99, "cv": 177.0}, {"f": "2026-07-03", "c": "SALON | RIO CUARTO | WPP | CLIENTIFY | GENERAL | ABO | REGULAR", "g": 0.0, "cv": 0.0}, {"f": "2026-07-03", "c": "SALON | SAN JUAN", "g": 48793.23, "cv": 63.0}, {"f": "2026-07-03", "c": "SALON | SAN LUIS", "g": 25665.58, "cv": 23.0}, {"f": "2026-07-03", "c": "SALON | SAN LUIS | WPP | GENERAL | ABO | REGULAR", "g": 0.0, "cv": 0.0}, {"f": "2026-07-03", "c": "WEB | Equipamiento Profesional (B2B)", "g": 181415.55, "cv": 62.0}, {"f": "2026-07-03", "c": "WEB | Hogar (B2C)", "g": 45956.3, "cv": 50.0}, {"f": "2026-07-03", "c": "WEB | WPP | ALMACEN | ABO | REGULAR | ABR 26", "g": 0.0, "cv": 1.0}, {"f": "2026-07-03", "c": "WEB | WPP | HOGAR | ABO | TEST | MAY26", "g": 0.0, "cv": 0.0}, {"f": "2026-07-03", "c": "WEB | WPP | PANADERIA | ABO | REGULAR | ABR 26", "g": 0.0, "cv": 0.0}, {"f": "2026-07-04", "c": "Branding / Awareness (TOFU)", "g": 48779.77, "cv": 0.0}, {"f": "2026-07-04", "c": "ECMM | VENTA | HOGAR | ABO | REGULAR", "g": 0.0, "cv": 0.0}, {"f": "2026-07-04", "c": "SALON | CÓRDOBA", "g": 14271.48, "cv": 17.0}, {"f": "2026-07-04", "c": "SALON | MAIPU | WPP | GENERAL | ABO | REGULAR", "g": 0.0, "cv": 0.0}, {"f": "2026-07-04", "c": "SALON | MENDOZA", "g": 107127.54, "cv": 125.0}, {"f": "2026-07-04", "c": "SALON | SAN JUAN", "g": 30285.29, "cv": 63.0}, {"f": "2026-07-04", "c": "SALON | SAN LUIS", "g": 23917.92, "cv": 30.0}, {"f": "2026-07-04", "c": "WEB | Equipamiento Profesional (B2B)", "g": 172614.53, "cv": 40.0}, {"f": "2026-07-04", "c": "WEB | Hogar (B2C)", "g": 57650.78, "cv": 55.0}, {"f": "2026-07-04", "c": "WEB | WPP | HOGAR | ABO | TEST | MAY26", "g": 0.0, "cv": 0.0}, {"f": "2026-07-05", "c": "Branding / Awareness (TOFU)", "g": 35530.56, "cv": 0.0}, {"f": "2026-07-05", "c": "ECMM | VENTA | FREEZERS | ABO | REGULAR", "g": 0.0, "cv": 0.0}, {"f": "2026-07-05", "c": "ECMM | VENTA | HOGAR | ABO | REGULAR", "g": 0.0, "cv": 0.0}, {"f": "2026-07-05", "c": "REFUERZO - SALON | SAN LUIS | WPP | GENERAL | ABO | REGULAR", "g": 0.0, "cv": 0.0}, {"f": "2026-07-05", "c": "SALON | CÓRDOBA", "g": 18051.87, "cv": 18.0}, {"f": "2026-07-05", "c": "SALON | MENDOZA", "g": 121255.98, "cv": 108.0}, {"f": "2026-07-05", "c": "SALON | SAN JUAN", "g": 36176.78, "cv": 64.0}, {"f": "2026-07-05", "c": "SALON | SAN LUIS", "g": 27355.92, "cv": 31.0}, {"f": "2026-07-05", "c": "SALON | SAN RAFAEL | WPP | GENERAL | ABO | REGULAR", "g": 0.0, "cv": 0.0}, {"f": "2026-07-05", "c": "WEB | Equipamiento Profesional (B2B)", "g": 127131.33, "cv": 41.0}, {"f": "2026-07-05", "c": "WEB | Hogar (B2C)", "g": 34006.24, "cv": 35.0}, {"f": "2026-07-06", "c": "Branding / Awareness (TOFU)", "g": 34286.65, "cv": 0.0}, {"f": "2026-07-06", "c": "CALLE | WPP | EQUIPAMIENTO | ABO | ABR26", "g": 0.0, "cv": 0.0}, {"f": "2026-07-06", "c": "ECMM | TRAFICO | EQUIPAMIENTO | ABO | REGULAR", "g": 0.0, "cv": 0.0}, {"f": "2026-07-06", "c": "ECMM | VENTA | FREEZERS | ABO | REGULAR", "g": 0.0, "cv": 0.0}, {"f": "2026-07-06", "c": "ECMM | VENTA | HOGAR | ABO | REGULAR", "g": 0.0, "cv": 0.0}, {"f": "2026-07-06", "c": "ECMM | VENTA | VERTICALES | CBO | REGULAR", "g": 0.0, "cv": 0.0}, {"f": "2026-07-06", "c": "SALON | ALAMEDA | WPP | GENERAL | ABO | REGULAR", "g": 0.0, "cv": 0.0}, {"f": "2026-07-06", "c": "SALON | CÓRDOBA", "g": 17899.97, "cv": 23.0}, {"f": "2026-07-06", "c": "SALON | MENDOZA", "g": 149742.25, "cv": 149.0}, {"f": "2026-07-06", "c": "SALON | SAN JUAN", "g": 41332.26, "cv": 75.0}, {"f": "2026-07-06", "c": "SALON | SAN LUIS", "g": 30208.9, "cv": 25.0}, {"f": "2026-07-06", "c": "SALON | SAN LUIS | WPP | GENERAL | ABO | REGULAR", "g": 0.0, "cv": 0.0}, {"f": "2026-07-06", "c": "SALON | SAN RAFAEL | WPP | GENERAL | ABO | REGULAR", "g": 0.0, "cv": 1.0}, {"f": "2026-07-06", "c": "WEB | Equipamiento Profesional (B2B)", "g": 154167.36, "cv": 67.0}, {"f": "2026-07-06", "c": "WEB | Hogar (B2C)", "g": 49734.56, "cv": 74.0}, {"f": "2026-07-06", "c": "WEB | WPP | HOGAR | ABO | TEST | MAY26", "g": 0.0, "cv": 0.0}, {"f": "2026-07-07", "c": "Branding / Awareness (TOFU)", "g": 34404.04, "cv": 0.0}, {"f": "2026-07-07", "c": "ECMM | VENTA | FREEZERS | ABO | REGULAR", "g": 0.0, "cv": 0.0}, {"f": "2026-07-07", "c": "ECMM | VENTA | HOGAR | ABO | REGULAR", "g": 0.0, "cv": 0.0}, {"f": "2026-07-07", "c": "SALON | CÓRDOBA", "g": 17804.53, "cv": 22.0}, {"f": "2026-07-07", "c": "SALON | MENDOZA", "g": 134790.51, "cv": 95.0}, {"f": "2026-07-07", "c": "SALON | SAN JUAN", "g": 36949.48, "cv": 43.0}, {"f": "2026-07-07", "c": "SALON | SAN LUIS", "g": 28693.43, "cv": 20.0}, {"f": "2026-07-07", "c": "WEB | Equipamiento Profesional (B2B)", "g": 149360.66, "cv": 54.0}, {"f": "2026-07-07", "c": "WEB | Hogar (B2C)", "g": 45303.23, "cv": 48.0}, {"f": "2026-07-08", "c": "Branding / Awareness (TOFU)", "g": 18745.75, "cv": 0.0}, {"f": "2026-07-08", "c": "SALON | CÓRDOBA", "g": 21406.34, "cv": 20.0}, {"f": "2026-07-08", "c": "SALON | MENDOZA", "g": 145318.64, "cv": 118.0}, {"f": "2026-07-08", "c": "SALON | SAN JUAN", "g": 41607.7, "cv": 42.0}, {"f": "2026-07-08", "c": "SALON | SAN LUIS", "g": 31124.08, "cv": 10.0}, {"f": "2026-07-08", "c": "WEB | Branding / Awareness (TOFU) - Copia", "g": 11125.17, "cv": 0.0}, {"f": "2026-07-08", "c": "WEB | Equipamiento Profesional (B2B)", "g": 90017.41, "cv": 28.0}, {"f": "2026-07-08", "c": "WEB | Equipamiento Profesional (B2B) - WSP 4487", "g": 26840.41, "cv": 8.0}, {"f": "2026-07-08", "c": "WEB | Hogar (B2C)", "g": 27258.35, "cv": 17.0}, {"f": "2026-07-08", "c": "WEB | Hogar (B2C) - WSP 4487", "g": 16856.97, "cv": 12.0}, {"f": "2026-07-09", "c": "Branding / Awareness (TOFU)", "g": 0.0, "cv": 0.0}, {"f": "2026-07-09", "c": "SALON | CÓRDOBA", "g": 16666.2, "cv": 13.0}, {"f": "2026-07-09", "c": "SALON | MENDOZA", "g": 129057.36, "cv": 109.0}, {"f": "2026-07-09", "c": "SALON | SAN JUAN", "g": 37286.27, "cv": 38.0}, {"f": "2026-07-09", "c": "SALON | SAN LUIS", "g": 31740.61, "cv": 12.0}, {"f": "2026-07-09", "c": "WEB | Branding / Awareness (TOFU) - Copia", "g": 36093.77, "cv": 0.0}, {"f": "2026-07-09", "c": "WEB | Equipamiento Profesional (B2B)", "g": 0.0, "cv": 3.0}, {"f": "2026-07-09", "c": "WEB | Equipamiento Profesional (B2B) - WSP 4487", "g": 136464.05, "cv": 23.0}, {"f": "2026-07-09", "c": "WEB | Hogar (B2C)", "g": 0.0, "cv": 0.0}, {"f": "2026-07-09", "c": "WEB | Hogar (B2C) - WSP 4487", "g": 43696.94, "cv": 42.0}, {"f": "2026-07-10", "c": "Branding / Awareness (TOFU)", "g": 50473.41, "cv": 0.0}, {"f": "2026-07-10", "c": "SALON | CÓRDOBA", "g": 17910.89, "cv": 19.0}, {"f": "2026-07-10", "c": "SALON | MENDOZA", "g": 143139.29, "cv": 114.0}, {"f": "2026-07-10", "c": "SALON | SAN JUAN", "g": 35976.34, "cv": 41.0}, {"f": "2026-07-10", "c": "SALON | SAN LUIS", "g": 32053.02, "cv": 5.0}, {"f": "2026-07-10", "c": "WEB | Branding / Awareness (TOFU) - Copia", "g": 18586.79, "cv": 0.0}, {"f": "2026-07-10", "c": "WEB | Equipamiento Profesional (B2B)", "g": 0.0, "cv": 2.0}, {"f": "2026-07-10", "c": "WEB | Equipamiento Profesional (B2B) - WSP 4487", "g": 153401.69, "cv": 37.0}, {"f": "2026-07-10", "c": "WEB | Hogar (B2C) - WSP 4487", "g": 37396.67, "cv": 56.0}, {"f": "2026-07-11", "c": "Branding / Awareness (TOFU)", "g": 26433.71, "cv": 0.0}, {"f": "2026-07-11", "c": "SALON | CÓRDOBA", "g": 16260.2, "cv": 11.0}, {"f": "2026-07-11", "c": "SALON | MENDOZA", "g": 126106.36, "cv": 73.0}, {"f": "2026-07-11", "c": "SALON | SAN JUAN", "g": 35458.32, "cv": 24.0}, {"f": "2026-07-11", "c": "SALON | SAN LUIS", "g": 28003.98, "cv": 9.0}, {"f": "2026-07-11", "c": "WEB | Equipamiento Profesional (B2B)", "g": 0.0, "cv": 0.0}, {"f": "2026-07-11", "c": "WEB | Equipamiento Profesional (B2B) - WSP 4487", "g": 117829.26, "cv": 26.0}, {"f": "2026-07-11", "c": "WEB | Hogar (B2C)", "g": 0.0, "cv": 0.0}, {"f": "2026-07-11", "c": "WEB | Hogar (B2C) - WSP 4487", "g": 30918.31, "cv": 23.0}, {"f": "2026-07-12", "c": "Branding / Awareness (TOFU)", "g": 34577.3, "cv": 0.0}, {"f": "2026-07-12", "c": "SALON | CÓRDOBA", "g": 20443.48, "cv": 13.0}, {"f": "2026-07-12", "c": "SALON | MENDOZA", "g": 153279.18, "cv": 77.0}, {"f": "2026-07-12", "c": "SALON | SAN JUAN", "g": 42840.8, "cv": 33.0}, {"f": "2026-07-12", "c": "SALON | SAN LUIS", "g": 33255.18, "cv": 11.0}, {"f": "2026-07-12", "c": "WEB | Equipamiento Profesional (B2B)", "g": 0.0, "cv": 0.0}, {"f": "2026-07-12", "c": "WEB | Equipamiento Profesional (B2B) - WSP 4487", "g": 168608.28, "cv": 33.0}, {"f": "2026-07-12", "c": "WEB | Hogar (B2C) - WSP 4487", "g": 44201.94, "cv": 22.0}, {"f": "2026-07-13", "c": "Branding / Awareness (TOFU)", "g": 47254.55, "cv": 0.0}, {"f": "2026-07-13", "c": "SALON | CÓRDOBA", "g": 23182.17, "cv": 22.0}, {"f": "2026-07-13", "c": "SALON | MENDOZA", "g": 168182.07, "cv": 100.0}, {"f": "2026-07-13", "c": "SALON | SAN JUAN", "g": 48354.3, "cv": 57.0}, {"f": "2026-07-13", "c": "SALON | SAN LUIS", "g": 39767.46, "cv": 25.0}, {"f": "2026-07-13", "c": "WEB | Equipamiento Profesional (B2B)", "g": 92172.29, "cv": 33.0}, {"f": "2026-07-13", "c": "WEB | Equipamiento Profesional (B2B) - WSP 4487", "g": 90071.78, "cv": 30.0}, {"f": "2026-07-13", "c": "WEB | Hogar (B2C)", "g": 25050.77, "cv": 10.0}, {"f": "2026-07-13", "c": "WEB | Hogar (B2C) - WSP 4487", "g": 28898.59, "cv": 28.0}, {"f": "2026-07-14", "c": "Branding / Awareness (TOFU)", "g": 70800.68, "cv": 2.0}, {"f": "2026-07-14", "c": "SALON | CÓRDOBA", "g": 16880.81, "cv": 14.0}, {"f": "2026-07-14", "c": "SALON | MENDOZA", "g": 138888.38, "cv": 75.0}, {"f": "2026-07-14", "c": "SALON | SAN JUAN", "g": 37825.5, "cv": 38.0}, {"f": "2026-07-14", "c": "SALON | SAN LUIS", "g": 29193.35, "cv": 17.0}, {"f": "2026-07-14", "c": "WEB | Equipamiento Profesional (B2B)", "g": 196451.23, "cv": 89.0}, {"f": "2026-07-14", "c": "WEB | Equipamiento Profesional (B2B) - WSP 4487", "g": 0.0, "cv": 0.0}, {"f": "2026-07-14", "c": "WEB | Hogar (B2C)", "g": 65701.9, "cv": 52.0}, {"f": "2026-07-14", "c": "WEB | Hogar (B2C) - WSP 4487", "g": 0.0, "cv": 0.0}, {"f": "2026-07-15", "c": "Branding / Awareness (TOFU)", "g": 68640.62, "cv": 0.0}, {"f": "2026-07-15", "c": "SALON | CÓRDOBA", "g": 17206.29, "cv": 12.0}, {"f": "2026-07-15", "c": "SALON | MENDOZA", "g": 119856.98, "cv": 72.0}, {"f": "2026-07-15", "c": "SALON | SAN JUAN", "g": 33080.07, "cv": 21.0}, {"f": "2026-07-15", "c": "SALON | SAN LUIS", "g": 28969.12, "cv": 21.0}, {"f": "2026-07-15", "c": "WEB | Equipamiento Profesional (B2B)", "g": 185710.26, "cv": 74.0}, {"f": "2026-07-15", "c": "WEB | Equipamiento Profesional (B2B) - WSP 4487", "g": 0.0, "cv": 0.0}, {"f": "2026-07-15", "c": "WEB | Hogar (B2C)", "g": 49279.24, "cv": 35.0}, {"f": "2026-07-16", "c": "Branding / Awareness (TOFU)", "g": 77925.36, "cv": 1.0}, {"f": "2026-07-16", "c": "SALON | CÓRDOBA", "g": 17188.88, "cv": 8.0}, {"f": "2026-07-16", "c": "SALON | MENDOZA", "g": 120667.65, "cv": 85.0}, {"f": "2026-07-16", "c": "SALON | SAN JUAN", "g": 34195.38, "cv": 38.0}, {"f": "2026-07-16", "c": "SALON | SAN LUIS", "g": 26264.94, "cv": 16.0}, {"f": "2026-07-16", "c": "WEB | Equipamiento Profesional (B2B)", "g": 139554.58, "cv": 53.0}, {"f": "2026-07-16", "c": "WEB | Equipamiento Profesional (B2B) - WSP 4487", "g": 0.0, "cv": 1.0}, {"f": "2026-07-16", "c": "WEB | Hogar (B2C)", "g": 47995.84, "cv": 48.0}, {"f": "2026-07-17", "c": "Branding / Awareness (TOFU)", "g": 66297.33, "cv": 1.0}, {"f": "2026-07-17", "c": "SALON | CÓRDOBA", "g": 15281.86, "cv": 4.0}, {"f": "2026-07-17", "c": "SALON | CÓRDOBA - Copia 17/7", "g": 3265.65, "cv": 0.0}, {"f": "2026-07-17", "c": "SALON | MENDOZA", "g": 105766.96, "cv": 43.0}, {"f": "2026-07-17", "c": "SALON | MENDOZA - Copia 17/7", "g": 13205.3, "cv": 7.0}, {"f": "2026-07-17", "c": "SALON | SAN JUAN", "g": 27097.78, "cv": 12.0}, {"f": "2026-07-17", "c": "SALON | SAN JUAN - Copia 17/7", "g": 6184.02, "cv": 8.0}, {"f": "2026-07-17", "c": "SALON | SAN LUIS", "g": 23084.33, "cv": 3.0}, {"f": "2026-07-17", "c": "SALON | SAN LUIS - Copia 17/7", "g": 4510.83, "cv": 0.0}, {"f": "2026-07-17", "c": "WEB | Equipamiento Profesional (B2B)", "g": 125974.46, "cv": 40.0}, {"f": "2026-07-17", "c": "WEB | Equipamiento Profesional (B2B) - WSP 0368 (17/7)", "g": 16607.76, "cv": 4.0}, {"f": "2026-07-17", "c": "WEB | Equipamiento Profesional (B2B) - WSP 4487", "g": 0.0, "cv": 0.0}, {"f": "2026-07-17", "c": "WEB | Hogar (B2C)", "g": 33083.67, "cv": 38.0}, {"f": "2026-07-17", "c": "WEB | Hogar (B2C) - WSP 0368 (17/7)", "g": 4664.75, "cv": 1.0}, {"f": "2026-07-18", "c": "Branding / Awareness (TOFU)", "g": 35559.9, "cv": 0.0}, {"f": "2026-07-18", "c": "SALON | CÓRDOBA - Copia 17/7", "g": 12731.76, "cv": 9.0}, {"f": "2026-07-18", "c": "SALON | MENDOZA", "g": 0.0, "cv": 3.0}, {"f": "2026-07-18", "c": "SALON | MENDOZA - Copia 17/7", "g": 105727.23, "cv": 51.0}, {"f": "2026-07-18", "c": "SALON | SAN JUAN", "g": 0.0, "cv": 0.0}, {"f": "2026-07-18", "c": "SALON | SAN JUAN - Copia 17/7", "g": 29211.96, "cv": 21.0}, {"f": "2026-07-18", "c": "SALON | SAN LUIS", "g": 0.0, "cv": 0.0}, {"f": "2026-07-18", "c": "SALON | SAN LUIS - Copia 17/7", "g": 20443.76, "cv": 12.0}, {"f": "2026-07-18", "c": "WEB | Equipamiento Profesional (B2B)", "g": 0.0, "cv": 0.0}, {"f": "2026-07-18", "c": "WEB | Equipamiento Profesional (B2B) - WSP 0368 (17/7)", "g": 104910.39, "cv": 48.0}, {"f": "2026-07-18", "c": "WEB | Equipamiento Profesional (B2B) - WSP 4487", "g": 0.0, "cv": 0.0}, {"f": "2026-07-18", "c": "WEB | Hogar (B2C)", "g": 0.0, "cv": 1.0}, {"f": "2026-07-18", "c": "WEB | Hogar (B2C) - WSP 0368 (17/7)", "g": 32077.31, "cv": 32.0}, {"f": "2026-07-18", "c": "WEB | Hogar (B2C) - WSP 4487", "g": 0.0, "cv": 0.0}];
+const META_MAX    = '2026-07-18';
 
-<!-- Branding -->
-<div class="section-title">Campañas Branding / ECMM</div>
-<div class="card">
-  <div style="font-size:.78rem;color:#666;margin-bottom:10px">
-    Gasto total BRANDING: <strong>$0.49M</strong> (8.3% del total) · Sin objetivo WPP · CPM bajo ($645–$1,905)
-  </div>
-  <div class="tbl"><table>
-    <thead><tr><th>Campaña</th><th>Gasto</th><th>Impresiones</th><th>CPM</th><th>Resultados</th><th>Tipo resultado</th></tr></thead>
-    <tbody>
-    <tr style="background:#f7fafd">
-      <td style="padding:8px 10px;font-size:.82rem">TRAFICO | EQUIPAMIENTO</td>
-      <td style="padding:8px 10px;font-size:.82rem;font-weight:600">$0.14M</td>
-      <td style="padding:8px 10px;font-size:.82rem">210,566</td>
-      <td style="padding:8px 10px;font-size:.82rem;font-weight:700">$657</td>
-      <td style="padding:8px 10px;text-align:center;font-size:.82rem">0</td>
-      <td style="padding:8px 10px;font-size:.76rem;color:#888">Compras/Tráfico web</td>
-    </tr><tr style="">
-      <td style="padding:8px 10px;font-size:.82rem">VENTA | FREEZERS</td>
-      <td style="padding:8px 10px;font-size:.82rem;font-weight:600">$0.08M</td>
-      <td style="padding:8px 10px;font-size:.82rem">79,096</td>
-      <td style="padding:8px 10px;font-size:.82rem;font-weight:700">$1,053</td>
-      <td style="padding:8px 10px;text-align:center;font-size:.82rem">0</td>
-      <td style="padding:8px 10px;font-size:.76rem;color:#888">Compras/Tráfico web</td>
-    </tr><tr style="background:#f7fafd">
-      <td style="padding:8px 10px;font-size:.82rem">VENTA | HOGAR</td>
-      <td style="padding:8px 10px;font-size:.82rem;font-weight:600">$0.22M</td>
-      <td style="padding:8px 10px;font-size:.82rem">179,337</td>
-      <td style="padding:8px 10px;font-size:.82rem;font-weight:700">$1,232</td>
-      <td style="padding:8px 10px;text-align:center;font-size:.82rem">2</td>
-      <td style="padding:8px 10px;font-size:.76rem;color:#888">Compras/Tráfico web</td>
-    </tr><tr style="">
-      <td style="padding:8px 10px;font-size:.82rem">VENTA | VERTICALES</td>
-      <td style="padding:8px 10px;font-size:.82rem;font-weight:600">$0.04M</td>
-      <td style="padding:8px 10px;font-size:.82rem">17,036</td>
-      <td style="padding:8px 10px;font-size:.82rem;font-weight:700">$2,495</td>
-      <td style="padding:8px 10px;text-align:center;font-size:.82rem">0</td>
-      <td style="padding:8px 10px;font-size:.76rem;color:#888">Compras/Tráfico web</td>
-    </tr>
-    </tbody>
-  </table></div>
-  <p style="font-size:.72rem;color:#888;margin-top:8px">Sin métricas de conversación WPP → el impacto en negocio no es directamente medible. Evaluar migrar a objetivo ThruPlay (video) para construir audiencias cálidas.</p>
-</div>
+// ── Utilidades ────────────────────────────────────────────────────────────────
+const fmtM   = v => '$' + (v/1e6).toFixed(2) + 'M';
+const fmtK   = v => '$' + (v/1e3).toFixed(0) + 'k';
+const fmtArs = v => '$' + Math.round(v).toLocaleString('es-AR');
+const fmtPct = v => v.toFixed(1) + '%';
 
-</div>
-<footer>El Cristorante S.A. — IBACETA · Análisis Pauta Meta Ads · May 13 – Jun 11 2026 · 107 registros procesados</footer>
+function tipoCampa(n) {
+  n = (n || '').toUpperCase();
+  if (n.includes('HOT SALE')) return 'HOT SALE';
+  if (n.startsWith('WEB'))    return 'WEB';
+  if (n.includes('ECMM'))     return 'BRANDING';
+  if (n.includes('SALON') || n.includes('CALLE')) return 'SALON/CALLE';
+  return 'OTRO';
+}
+
+function cleanCamp(n, tipo) {
+  n = String(n);
+  if (tipo === 'WEB') {
+    return n.replace(/^WEB \| WPP \| /, '')
+            .replace(/ \| ABO \| REGULAR.*$/, '')
+            .replace(/ \| ABO \|.*$/, '')
+            .replace(/ \| .*$/, '')
+            .trim();
+  }
+  if (tipo === 'SALON/CALLE' || tipo === 'HOT SALE') {
+    return n.replace(/^SALON \| /, '')
+            .replace(/^CALLE \| WPP \| EQUIPAMIENTO.*/, 'CALLE | EQUIPAMIENTO')
+            .replace(/ \| WPP \| GENERAL.*$/, '')
+            .replace(/ \| WPP \| CLIENTIFY.*$/, '')
+            .replace(/^REFUERZO - SALON \| /, 'REFUERZO | ')
+            .replace(/^HOT SALE 2026 \| /, 'HOT SALE | ')
+            .replace('HOT SALE WEB 2026', 'HOT SALE | WEB')
+            .trim();
+  }
+  if (tipo === 'BRANDING') {
+    return n.replace(/^ECMM \| /, '').replace(/ \| ABO \|.*$/, '').replace(/ \| CBO \|.*$/, '').trim();
+  }
+  return n;
+}
+
+function cpcColor(cpc) {
+  if (!cpc || isNaN(cpc)) return '#9E9E9E';
+  if (cpc < 1500) return '#2e7d32';
+  if (cpc < 2500) return '#e65100';
+  return '#c62828';
+}
+function cpcEstado(cpc) {
+  if (!cpc || isNaN(cpc)) return '⚫ Sin conv';
+  if (cpc < 1500) return '🟢 Eficiente';
+  if (cpc < 2500) return '🟡 Aceptable';
+  return '🔴 Caro';
+}
+
+// ── Preset ───────────────────────────────────────────────────────────────────
+function setPreset(dias) {
+  document.querySelectorAll('.btn-preset').forEach(b => b.classList.remove('active'));
+  event.target.classList.add('active');
+  const hasta = new Date(META_MAX + 'T00:00:00');
+  const desde = new Date(hasta);
+  desde.setDate(hasta.getDate() - dias + 1);
+  document.getElementById('inp-hasta').value = META_MAX;
+  document.getElementById('inp-desde').value = desde.toISOString().slice(0,10);
+  aplicar();
+}
+
+// ── Aplicar ───────────────────────────────────────────────────────────────────
+function aplicar() {
+  const desde = document.getElementById('inp-desde').value;
+  const hasta  = document.getElementById('inp-hasta').value;
+  if (!desde || !hasta || desde > hasta) { alert('Rango inválido.'); return; }
+
+  // Filtrar por fecha
+  const filt = META_DATA.filter(r => r.f >= desde && r.f <= hasta);
+
+  // Agregar por campaña
+  const byCamp = {};
+  filt.forEach(r => {
+    if (!byCamp[r.c]) byCamp[r.c] = {g: 0, cv: 0, tipo: tipoCampa(r.c)};
+    byCamp[r.c].g  += r.g;
+    byCamp[r.c].cv += r.cv;
+  });
+
+  // Solo campañas con gasto > 0
+  const camps = Object.entries(byCamp)
+    .filter(([,d]) => d.g > 0)
+    .map(([c, d]) => ({
+      c, g: d.g, cv: d.cv,
+      tipo: d.tipo,
+      cpc: d.cv > 0 ? d.g / d.cv : null,
+      nombre: cleanCamp(c, d.tipo),
+    }));
+
+  const totG  = camps.reduce((s,r) => s + r.g, 0);
+  const totCv = camps.reduce((s,r) => s + r.cv, 0);
+  const cpcG  = totCv > 0 ? totG / totCv : null;
+
+  const byTipo = {};
+  camps.forEach(r => {
+    if (!byTipo[r.tipo]) byTipo[r.tipo] = {g: 0, cv: 0};
+    byTipo[r.tipo].g  += r.g;
+    byTipo[r.tipo].cv += r.cv;
+  });
+
+  const webG  = byTipo['WEB']?.g || 0;
+  const webCv = byTipo['WEB']?.cv || 0;
+  const salG  = (byTipo['SALON/CALLE']?.g || 0) + (byTipo['HOT SALE']?.g || 0);
+  const salCv = (byTipo['SALON/CALLE']?.cv || 0) + (byTipo['HOT SALE']?.cv || 0);
+
+  // KPIs
+  document.getElementById('kv-gasto').textContent   = fmtM(totG);
+  document.getElementById('kv-conv').textContent    = totCv.toFixed(0);
+  document.getElementById('kv-cpc').textContent     = cpcG ? fmtArs(cpcG) : '—';
+  document.getElementById('kv-cpc-web').textContent = webCv > 0 ? fmtArs(webG/webCv) : '—';
+  document.getElementById('kv-cpc-sal').textContent = salCv > 0 ? fmtArs(salG/salCv) : '—';
+  document.getElementById('kv-camps').textContent   = camps.length;
+
+  // Título
+  const dias = Math.round((new Date(hasta) - new Date(desde)) / 86400000) + 1;
+  const dsFmt = desde.split('-').reverse().join('/');
+  const htFmt = hasta.split('-').reverse().join('/');
+  document.getElementById('hdr-titulo').textContent =
+    `Análisis Pauta Meta Ads — ${dsFmt} al ${htFmt} (${dias} días)`;
+
+  renderTipo(byTipo, totG);
+  renderTabla('tbody-web',   'resumen-web', camps, 'WEB',          totG);
+  renderTabla('tbody-sal',   'resumen-sal', camps, 'SALON/CALLE',  totG, true);
+  renderBrand(camps);
+  renderHallazgos(camps, byTipo, totG, cpcG);
+
+  document.getElementById('pie').textContent =
+    `El Cristorante S.A. — IBACETA · Análisis Pauta Meta Ads · ${dsFmt} al ${htFmt} · ${filt.length} registros`;
+}
+
+// ── Render: barras por tipo ───────────────────────────────────────────────────
+function renderTipo(byTipo, totG) {
+  const order = [['WEB','#00548A'],['SALON/CALLE','#F1891B'],['BRANDING','#9c27b0'],['HOT SALE','#2e7d32'],['OTRO','#aaa']];
+  const maxG  = Math.max(...Object.values(byTipo).map(d => d.g), 1);
+  let h = '';
+  order.forEach(([t, col]) => {
+    const d = byTipo[t];
+    if (!d || d.g === 0) return;
+    const w    = d.g / maxG * 100;
+    const cpc  = d.cv > 0 ? fmtArs(d.g / d.cv) : 'N/A';
+    const pct  = (d.g / totG * 100).toFixed(1);
+    h += `<div style="margin-bottom:12px">
+      <div style="display:flex;justify-content:space-between;font-size:.79rem;margin-bottom:3px">
+        <span style="font-weight:700;color:${col}">${t}</span>
+        <span style="color:#555">${fmtM(d.g)} · ${pct}% · ${d.cv.toFixed(0)} conv · CPC ${cpc}</span>
+      </div>
+      <div style="height:18px;background:#f0f0f0;border-radius:4px;overflow:hidden">
+        <div style="width:${w.toFixed(1)}%;height:100%;background:${col};border-radius:4px;opacity:.85"></div>
+      </div>
+    </div>`;
+  });
+  document.getElementById('bars-tipo').innerHTML = h || '<div class="sin-datos">Sin datos</div>';
+}
+
+// ── Render: tabla campañas ────────────────────────────────────────────────────
+function renderTabla(tbodyId, resumenId, camps, tipo, totG, incluirHS) {
+  const rows = camps
+    .filter(r => r.tipo === tipo || (incluirHS && r.tipo === 'HOT SALE'))
+    .sort((a,b) => (a.cpc||9e9) - (b.cpc||9e9));
+  const canalG  = rows.reduce((s,r) => s + r.g, 0);
+  const canalCv = rows.reduce((s,r) => s + r.cv, 0);
+  const canalCpc = canalCv > 0 ? canalG / canalCv : null;
+  const maxG = Math.max(...rows.map(r => r.g), 1);
+
+  if (resumenId) {
+    const col = tipo === 'WEB' ? '#2e7d32' : '#e65100';
+    document.getElementById(resumenId).innerHTML =
+      `Gasto total: <strong>${fmtM(canalG)}</strong> &middot; Conversaciones: <strong>${canalCv.toFixed(0)}</strong> &middot; CPC canal: <strong style="color:${col}">${canalCpc ? fmtArs(canalCpc) : '—'}</strong>`;
+  }
+
+  if (!rows.length) {
+    document.getElementById(tbodyId).innerHTML = `<tr><td colspan="6" class="sin-datos">Sin campañas activas en el período</td></tr>`;
+    return;
+  }
+
+  let h = '';
+  rows.forEach((r, i) => {
+    const bw   = Math.round(r.g / maxG * 100);
+    const pct  = (r.g / canalG * 100).toFixed(1);
+    const col  = tipo === 'WEB' ? '#00548A' : '#F1891B';
+    const cpcC = cpcColor(r.cpc);
+    const cpcS = r.cpc ? fmtArs(r.cpc) : '—';
+    const est  = cpcEstado(r.cpc);
+    const tag  = r.tipo === 'HOT SALE'
+      ? '<span style="background:#e8f5e9;color:#2e7d32;padding:1px 6px;border-radius:5px;font-size:.65rem;font-weight:700;margin-left:6px">HOT SALE</span>' : '';
+    h += `<tr style="${i%2===0?'background:#f7fafd':''}">
+      <td style="padding:8px 10px;font-weight:600;font-size:.82rem">${r.nombre}${tag}</td>
+      <td style="padding:8px 10px;font-size:.82rem">
+        ${fmtM(r.g)}
+        <div style="height:5px;background:#e0e0e0;border-radius:3px;margin-top:3px;overflow:hidden">
+          <div style="width:${bw}%;height:100%;background:${col};border-radius:3px;opacity:.7"></div>
+        </div>
+      </td>
+      <td style="padding:8px 10px;text-align:center;font-size:.82rem">${pct}%</td>
+      <td style="padding:8px 10px;text-align:center;font-weight:700;font-size:.88rem">${r.cv.toFixed(0)}</td>
+      <td style="padding:8px 10px;text-align:center;font-weight:800;color:${cpcC};font-size:.88rem">${cpcS}</td>
+      <td style="padding:8px 10px;text-align:center;font-size:.75rem">${est}</td>
+    </tr>`;
+  });
+  document.getElementById(tbodyId).innerHTML = h;
+}
+
+// ── Render: branding + otro ───────────────────────────────────────────────────
+function renderBrand(camps) {
+  const rows = camps.filter(r => r.tipo === 'BRANDING' || r.tipo === 'OTRO')
+                    .sort((a,b) => b.g - a.g);
+  if (!rows.length) {
+    document.getElementById('tbody-brand').innerHTML = `<tr><td colspan="3" class="sin-datos">Sin campañas en el período</td></tr>`;
+    return;
+  }
+  let h = '';
+  rows.forEach((r, i) => {
+    const tipoLbl = r.tipo === 'BRANDING'
+      ? '<span style="background:#f3e5f5;color:#7b1fa2;padding:1px 6px;border-radius:5px;font-size:.65rem;font-weight:700">BRANDING</span>'
+      : '<span style="background:#f5f5f5;color:#555;padding:1px 6px;border-radius:5px;font-size:.65rem;font-weight:700">OTRO</span>';
+    h += `<tr style="${i%2===0?'background:#f7fafd':''}">
+      <td style="padding:8px 10px;font-size:.82rem;font-weight:600">${r.nombre}</td>
+      <td style="padding:8px 10px;font-size:.82rem;font-weight:700">${fmtM(r.g)}</td>
+      <td style="padding:8px 10px">${tipoLbl}</td>
+    </tr>`;
+  });
+  document.getElementById('tbody-brand').innerHTML = h;
+}
+
+// ── Render: hallazgos automáticos ─────────────────────────────────────────────
+function renderHallazgos(camps, byTipo, totG, cpcG) {
+  const HCOL = {
+    alert:   ['#fdecea','#c62828'],
+    warning: ['#fff8e1','#e65100'],
+    success: ['#e8f5e9','#2e7d32'],
+    info:    ['#e3f2fd','#1565c0'],
+  };
+  function h(nivel, titulo, desc) {
+    const [bg, tc] = HCOL[nivel];
+    return `<div style="background:${bg};border-left:4px solid ${tc};border-radius:6px;padding:11px 14px;margin-bottom:9px">
+      <div style="font-family:'Montserrat',sans-serif;font-weight:700;font-size:.84rem;color:${tc};margin-bottom:3px">${titulo}</div>
+      <div style="font-size:.78rem;color:#555;line-height:1.5">${desc}</div>
+    </div>`;
+  }
+
+  const web = camps.filter(r => r.tipo === 'WEB' && r.g > 0);
+  const sal = camps.filter(r => (r.tipo === 'SALON/CALLE' || r.tipo === 'HOT SALE') && r.g > 0);
+  const brand = camps.filter(r => r.tipo === 'BRANDING' && r.g > 0);
+  let html = '';
+
+  // 1. Campañas sin conversiones con gasto significativo
+  const sinConv = camps.filter(r => r.cv === 0 && r.g > 50000);
+  if (sinConv.length) {
+    const lista = sinConv.map(r => `${r.nombre} (${fmtK(r.g)})`).join(', ');
+    html += h('alert', `${sinConv.length} campaña${sinConv.length>1?'s':''} con gasto sin conversiones`,
+      `${lista}. Revisar objetivo, creatividad o audiencia — cada peso gastado no genera WPP.`);
+  }
+
+  // 2. Campaña WEB más cara vs más barata
+  const webConConv = web.filter(r => r.cpc);
+  if (webConConv.length >= 2) {
+    const cara   = webConConv.reduce((a,b) => b.cpc > a.cpc ? b : a);
+    const barata = webConConv.reduce((a,b) => b.cpc < a.cpc ? b : a);
+    const ratio  = cara.cpc / barata.cpc;
+    if (ratio > 2) {
+      html += h('warning', `${cara.nombre} es ${ratio.toFixed(0)}x más cara que ${barata.nombre}`,
+        `CPC más caro: ${fmtArs(cara.cpc)} (${fmtK(cara.g)} gastados, ${cara.cv.toFixed(0)} conv). ` +
+        `CPC más barato: ${fmtArs(barata.cpc)} (${fmtK(barata.g)} gastados, ${barata.cv.toFixed(0)} conv). ` +
+        `Evaluar reasignar presupuesto hacia la campaña eficiente.`);
+    }
+  }
+
+  // 3. Mejor CPC WEB
+  if (webConConv.length) {
+    const mejor = webConConv.reduce((a,b) => b.cpc < a.cpc ? b : a);
+    if (mejor.cpc < 1500) {
+      html += h('success', `${mejor.nombre} tiene el mejor CPC WEB (${fmtArs(mejor.cpc)})`,
+        `${mejor.cv.toFixed(0)} conversaciones con ${fmtK(mejor.g)} invertidos. Candidato a escalar presupuesto.`);
+    }
+  }
+
+  // 4. Mejor CPC Salones
+  const salConConv = sal.filter(r => r.cpc);
+  if (salConConv.length) {
+    const mejor = salConConv.reduce((a,b) => b.cpc < a.cpc ? b : a);
+    html += h(mejor.cpc < 2000 ? 'success' : 'info', `${mejor.nombre} tiene el mejor CPC de salones (${fmtArs(mejor.cpc)})`,
+      `${mejor.cv.toFixed(0)} conversaciones con ${fmtK(mejor.g)}. ` +
+      (mejor.cpc < 2000 ? 'Estructura y creatividad funcionan — replicar en otras ciudades.' : 'Aceptable, pero hay margen para mejorar.'));
+  }
+
+  // 5. Salones más caros
+  const salCaros = salConConv.filter(r => r.cpc > 3000).sort((a,b) => b.cpc - a.cpc);
+  if (salCaros.length) {
+    const lista = salCaros.slice(0,3).map(r => `${r.nombre} (${fmtArs(r.cpc)})`).join(', ');
+    html += h('warning', `CPC elevado en salones: ${salCaros.length} campaña${salCaros.length>1?'s':''} sobre $3.000`,
+      `${lista}. Revisar audiencia y zona de entrega — puede ser mercado pequeño o presupuesto excesivo.`);
+  }
+
+  // 6. Branding sin WPP
+  if (brand.length) {
+    const bG = brand.reduce((s,r) => s + r.g, 0);
+    html += h('info', `Branding: ${fmtM(bG)} sin objetivo WPP (${brand.length} campaña${brand.length>1?'s':''} ECMM)`,
+      `Sin conversaciones WPP, el impacto en negocio no es medible. ` +
+      `Evaluar migrar a objetivo ThruPlay (video) para construir audiencias cálidas antes de las campañas de conversión.`);
+  }
+
+  // 7. Concentración de gasto
+  const topCamp = camps.filter(r => r.g > 0).sort((a,b) => b.g - a.g).slice(0,3);
+  const topPct  = topCamp.reduce((s,r) => s + r.g, 0) / totG * 100;
+  if (topPct > 60 && camps.length > 4) {
+    html += h('info', `Top 3 campañas concentran el ${topPct.toFixed(0)}% del gasto`,
+      topCamp.map(r => `${r.nombre}: ${fmtK(r.g)} (${(r.g/totG*100).toFixed(0)}%)`).join(' · '));
+  }
+
+  document.getElementById('hallazgos').innerHTML = html ||
+    '<div class="sin-datos">Sin hallazgos significativos en el período seleccionado</div>';
+}
+
+// Iniciar con valores por defecto
+document.addEventListener('DOMContentLoaded', () => {
+  document.getElementById('btn30').classList.add('active');
+  aplicar();
+});
+</script>
 </body>
 </html>
