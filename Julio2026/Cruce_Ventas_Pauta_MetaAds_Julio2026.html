@@ -93,7 +93,7 @@ footer{background:#333;color:#bbb;text-align:center;padding:10px;font-size:.7rem
         </tr></thead>
         <tbody id="tbody-camp"></tbody>
       </table></div>
-      <p class="nota" id="nota-tabla">ROI v/g = Venta ERP / Gasto Meta &middot; CPC = costo por conversacion WPP</p>
+      <p class="nota" id="nota-tabla">ROI v/g = Venta ERP / Gasto Meta &middot; CPC = costo por conversacion WPP &middot; ~ERP anuncio = atribucion estimada proporcional a conversaciones WPP (no es medicion directa)</p>
     </div>
     <div class="card">
       <h3>Hallazgos del cruce</h3>
@@ -346,16 +346,23 @@ function renderCamp(campArr, byCampGeo) {
       const erpS = erpGeo > 1e5 ? fmtM(erpGeo) : erpGeo > 0 ? fmtK(erpGeo) : '—';
       const roiA = (erpGeo > 0 && ad.g > 0) ? (erpGeo / ad.g).toFixed(1) + 'x' : '';
 
-      // Anuncios individuales dentro del conjunto
+      // Anuncios individuales — atribución ERP proporcional por conversaciones WPP
       let adsInner = '';
+      const totalConvConj = ad.cv || 0;
       (ad.ads || []).forEach(anuncio => {
-        const anCpc  = anuncio.cpc ? fmtArs(anuncio.cpc) : '—';
-        const anCpcC = cpcColor(anuncio.cpc);
-        adsInner += `<div style="display:flex;align-items:center;gap:6px;padding:2px 0 2px 12px;border-top:1px dashed #ebebeb">
+        const anCpc    = anuncio.cpc ? fmtArs(anuncio.cpc) : '—';
+        const anCpcC   = cpcColor(anuncio.cpc);
+        const convShare = totalConvConj > 0 ? anuncio.cv / totalConvConj : 0;
+        const erpAtrib  = erpGeo * convShare;
+        const pctS      = convShare > 0 ? (convShare * 100).toFixed(0) + '%' : '—';
+        const erpAtribS = erpAtrib > 1e5 ? fmtM(erpAtrib) : erpAtrib > 0 ? fmtK(erpAtrib) : '—';
+        adsInner += `<div style="display:grid;grid-template-columns:auto 1fr auto auto auto auto;align-items:center;gap:6px;padding:2px 0 2px 12px;border-top:1px dashed #ebebeb">
           <span style="color:#ccc;font-size:.64rem">&#9492;</span>
           <span style="font-size:.71rem;color:#666;flex:1;min-width:0;overflow:hidden;text-overflow:ellipsis;white-space:nowrap" title="${anuncio.n}">${anuncio.n}</span>
           <span style="font-size:.69rem;color:#999;white-space:nowrap">${fmtK(anuncio.g)} &middot; ${anuncio.cv.toFixed(0)} conv</span>
           <span style="font-weight:700;font-size:.71rem;color:${anCpcC};white-space:nowrap">${anCpc}</span>
+          <span style="font-size:.68rem;color:#aaa;white-space:nowrap">${pctS} conv</span>
+          <span style="font-size:.71rem;color:#00548A;font-weight:700;white-space:nowrap" title="ERP estimado (atribucion por conv WPP)">~${erpAtribS}</span>
         </div>`;
       });
 
