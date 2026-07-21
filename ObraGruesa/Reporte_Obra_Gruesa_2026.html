@@ -1,0 +1,366 @@
+<!DOCTYPE html>
+<html lang="es"><head>
+<meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Obra Gruesa — Ventas en Toneladas | Ibaceta</title>
+<link href="https://fonts.googleapis.com/css2?family=Montserrat:wght@400;600;700;800&family=Open+Sans:wght@400;600&display=swap" rel="stylesheet">
+<style>
+:root{--p:#00548A;--a:#F1891B;--t:#5B9BD5;--bg:#F5F5F5;--s:#FFF;--tx:#333;--rad:6px;--sh:0 2px 8px rgba(0,0,0,.08);
+--fh:'Montserrat',sans-serif;--fb:'Open Sans',sans-serif;}
+*{box-sizing:border-box;margin:0;padding:0}
+body{font-family:var(--fb);background:var(--bg);color:var(--tx);line-height:1.5}
+.wrap{max-width:1080px;margin:0 auto;padding:0 20px 60px}
+header{background:var(--p);color:#fff;padding:28px 0}
+header .wrap{padding-bottom:0;display:flex;align-items:center;justify-content:space-between;flex-wrap:wrap;gap:12px}
+.brand{font-family:var(--fh);font-weight:800;font-size:26px;letter-spacing:.5px}
+.brand span{color:var(--a)}
+.sub{font-family:var(--fh);font-weight:600;font-size:13px;opacity:.92;margin-top:4px}
+.tag{background:var(--a);color:#fff;font-family:var(--fh);font-weight:700;font-size:12px;padding:6px 12px;border-radius:20px}
+h2{font-family:var(--fh);font-weight:700;color:var(--p);font-size:19px;margin:38px 0 14px;padding-bottom:8px;border-bottom:2px solid #e7e7e7}
+.note{font-size:12.5px;color:#777;margin-top:-6px;margin-bottom:14px}
+.kpis{display:grid;grid-template-columns:repeat(auto-fit,minmax(200px,1fr));gap:16px;margin-top:24px}
+.kpi{background:var(--s);border-top:4px solid var(--a);border-radius:var(--rad);box-shadow:var(--sh);padding:18px 20px}
+.kpi .lbl{font-family:var(--fh);font-weight:600;font-size:12px;color:#888;text-transform:uppercase;letter-spacing:.5px}
+.kpi .val{font-family:var(--fh);font-weight:800;font-size:30px;color:var(--p);margin:6px 0 2px}
+.kpi .val small{font-size:15px;font-weight:600;color:#999}
+.kpi .foot{font-size:13px;color:#666}
+.callout{display:flex;gap:14px;align-items:flex-start;background:#fff6ec;border-left:4px solid var(--a);border-radius:var(--rad);padding:16px 18px;margin-top:22px;font-size:13.5px;line-height:1.55}
+.co-ic{flex:0 0 24px;height:24px;border-radius:50%;background:var(--a);color:#fff;font-family:var(--fh);font-weight:800;text-align:center;line-height:24px}
+.co-hl{font-family:var(--fh);font-weight:700;color:var(--p);white-space:nowrap}
+.card{background:var(--s);border-radius:var(--rad);box-shadow:var(--sh);padding:22px}
+.legend{display:flex;gap:18px;font-size:12.5px;margin-bottom:12px;align-items:center}
+.legend i{display:inline-block;width:14px;height:14px;border-radius:3px;margin-right:6px;vertical-align:-2px}
+.brow{display:grid;grid-template-columns:190px 1fr 86px;gap:14px;align-items:center;padding:9px 0;border-bottom:1px solid #f0f0f0}
+.blabel{font-size:13px;font-weight:600}
+.bars{display:flex;flex-direction:column;gap:4px}
+.bline{display:flex;align-items:center;gap:8px}
+.bseg{height:15px;border-radius:3px;min-width:2px}
+.b25{background:#5B9BD5}.b26{background:var(--p)}
+.bv{font-size:11.5px;font-weight:700;color:var(--p);font-variant-numeric:tabular-nums}
+.bv25{color:#8aa6c0;font-weight:600}
+.byoy{text-align:right}
+.chip{font-family:var(--fh);font-weight:700;font-size:11px;padding:3px 7px;border-radius:12px;white-space:nowrap}
+.chip-up{background:#e3f1e6;color:#1f8a3b}.chip-down{background:#fae3e3;color:#c0392b}.chip-new{background:#fdecd6;color:#b5650f}.chip-na{background:#ececec;color:#888}
+table{width:100%;border-collapse:collapse;font-size:13px;background:var(--s);border-radius:var(--rad);overflow:hidden;box-shadow:var(--sh)}
+thead th{background:var(--p);color:#fff;font-family:var(--fh);font-weight:600;padding:11px 12px;text-align:right;font-size:12px}
+thead th:first-child{text-align:left}
+tbody td{padding:9px 12px;border-bottom:1px solid #eee}
+tbody tr:nth-child(even){background:#fafafa}
+.art{font-weight:600}.num{text-align:right;font-variant-numeric:tabular-nums}
+.grid2{display:grid;grid-template-columns:1fr 1fr;gap:20px}
+.svgline{width:100%;height:auto}
+.axl{font-size:11px;fill:#999;text-anchor:middle;font-family:var(--fb)}
+footer{background:#333;color:#bbb;font-size:12px;padding:18px 0;margin-top:40px;text-align:center}
+@media(max-width:620px){.grid2{grid-template-columns:1fr}.brow{grid-template-columns:108px 1fr 70px;gap:8px}.blabel{font-size:12px}}
+</style></head><body>
+<header><div class="wrap">
+  <div><div class="brand">IBACETA<span>.</span></div><div class="sub">Obra Gruesa / Multiespacio — Ventas en Toneladas</div></div>
+  <div class="tag">Ene – 23 Jun · 2025 vs 2026</div>
+</div></header>
+<div class="wrap">
+
+  <div class="kpis">
+    <div class="kpi"><div class="lbl">Toneladas 2026</div><div class="val">223,9 <small>Tn</small></div><div class="foot"><span class="chip chip-up">▲ 20,0%</span> vs 186,5 Tn en 2025</div></div>
+    <div class="kpi"><div class="lbl">Unidades vendidas</div><div class="val">32.713</div><div class="foot"><span class="chip chip-up">▲ 38,6%</span> vs 23.607 un. 2025</div></div>
+    <div class="kpi"><div class="lbl">Facturación 2026</div><div class="val"><small>$</small>488,3 <small>M</small></div><div class="foot"><span class="chip chip-up">▲ 41,0%</span> vs $346,5 M 2025</div></div>
+    <div class="kpi"><div class="lbl">Precio promedio / kg</div><div class="val"><small>$</small>2.181</div><div class="foot">2025: $1.858 /kg</div></div>
+  </div>
+
+  <div class="callout">
+    <div class="co-ic">!</div>
+    <div>
+      <strong>El tubo redondo no se comercializaba en 2025</strong> (había stock, sin ventas): pasó de 14,3 Tn a 33,7 Tn.
+      Su incorporación a la venta infla el crecimiento total. Descontándolo, el crecimiento comparable de obra gruesa es
+      <span class="co-hl"><span class="chip chip-up">▲ 10,4%</span> (172,2 → 190,2 Tn)</span>, frente al +20,0% del total.
+    </div>
+  </div>
+
+  <h2>Evolución mensual (toneladas)</h2>
+  <div class="card">
+    <div class="legend"><span><i style="background:#F1891B"></i>2026</span><span><i style="background:#5B9BD5"></i>2025</span></div>
+    <svg viewBox="0 0 620 220" class="svgline">
+      <polyline points="34,92 144,106 255,69 365,118 476,110 586,76" fill="none" stroke="#5B9BD5" stroke-width="2.5"/>
+      <polyline points="34,70 144,66 255,34 365,74 476,104 586,69" fill="none" stroke="#F1891B" stroke-width="3"/>
+      <circle cx="34" cy="92" r="3" fill="#5B9BD5"/><circle cx="144" cy="106" r="3" fill="#5B9BD5"/><circle cx="255" cy="69" r="3" fill="#5B9BD5"/><circle cx="365" cy="118" r="3" fill="#5B9BD5"/><circle cx="476" cy="110" r="3" fill="#5B9BD5"/><circle cx="586" cy="76" r="3" fill="#5B9BD5"/><circle cx="34" cy="70" r="4" fill="#F1891B"/><circle cx="144" cy="66" r="4" fill="#F1891B"/><circle cx="255" cy="34" r="4" fill="#F1891B"/><circle cx="365" cy="74" r="4" fill="#F1891B"/><circle cx="476" cy="104" r="4" fill="#F1891B"/><circle cx="586" cy="69" r="4" fill="#F1891B"/><text x="34" y="210" class="axl">Ene</text><text x="144" y="210" class="axl">Feb</text><text x="255" y="210" class="axl">Mar</text><text x="365" y="210" class="axl">Abr</text><text x="476" y="210" class="axl">May</text><text x="586" y="210" class="axl">Jun</text>
+    </svg>
+  </div>
+
+  <h2>Toneladas por rubro</h2>
+  <p class="note">Barra clara = 2025 · barra azul = 2026 · variación interanual a la derecha.</p>
+  <div class="card">
+    <div class="legend"><span><i style="background:#00548A"></i>2026 (Tn)</span><span><i style="background:#5B9BD5"></i>2025 (Tn)</span></div>
+    
+        <div class="brow">
+          <div class="blabel">Estructurales</div>
+          <div class="bars">
+            <div class="bline"><div class="bseg b26" style="width:100.0%"></div><span class="bv">111,3</span></div>
+            <div class="bline"><div class="bseg b25" style="width:65.0%"></div><span class="bv bv25">72,4</span></div>
+          </div>
+          <div class="byoy"><span class="chip chip-up">▲ 53,8%</span></div>
+        </div>
+        <div class="brow">
+          <div class="blabel">Perfil C Metalico</div>
+          <div class="bars">
+            <div class="bline"><div class="bseg b26" style="width:23.8%"></div><span class="bv">26,4</span></div>
+            <div class="bline"><div class="bseg b25" style="width:15.2%"></div><span class="bv bv25">16,9</span></div>
+          </div>
+          <div class="byoy"><span class="chip chip-up">▲ 56,4%</span></div>
+        </div>
+        <div class="brow">
+          <div class="blabel">Hierros</div>
+          <div class="bars">
+            <div class="bline"><div class="bseg b26" style="width:20.4%"></div><span class="bv">22,8</span></div>
+            <div class="bline"><div class="bseg b25" style="width:21.6%"></div><span class="bv bv25">24,1</span></div>
+          </div>
+          <div class="byoy"><span class="chip chip-down">▼ 5,5%</span></div>
+        </div>
+        <div class="brow">
+          <div class="blabel">Chapa Techo</div>
+          <div class="bars">
+            <div class="bline"><div class="bseg b26" style="width:16.5%"></div><span class="bv">18,4</span></div>
+            <div class="bline"><div class="bseg b25" style="width:20.1%"></div><span class="bv bv25">22,4</span></div>
+          </div>
+          <div class="byoy"><span class="chip chip-down">▼ 18,0%</span></div>
+        </div>
+        <div class="brow">
+          <div class="blabel">Hierro Liso</div>
+          <div class="bars">
+            <div class="bline"><div class="bseg b26" style="width:11.8%"></div><span class="bv">13,2</span></div>
+            <div class="bline"><div class="bseg b25" style="width:8.4%"></div><span class="bv bv25">9,4</span></div>
+          </div>
+          <div class="byoy"><span class="chip chip-up">▲ 40,1%</span></div>
+        </div>
+        <div class="brow">
+          <div class="blabel">Chapas</div>
+          <div class="bars">
+            <div class="bline"><div class="bseg b26" style="width:10.0%"></div><span class="bv">11,1</span></div>
+            <div class="bline"><div class="bseg b25" style="width:18.3%"></div><span class="bv bv25">20,3</span></div>
+          </div>
+          <div class="byoy"><span class="chip chip-down">▼ 45,4%</span></div>
+        </div>
+        <div class="brow">
+          <div class="blabel">Planchuelas</div>
+          <div class="bars">
+            <div class="bline"><div class="bseg b26" style="width:8.5%"></div><span class="bv">9,5</span></div>
+            <div class="bline"><div class="bseg b25" style="width:5.1%"></div><span class="bv bv25">5,7</span></div>
+          </div>
+          <div class="byoy"><span class="chip chip-up">▲ 66,7%</span></div>
+        </div>
+        <div class="brow">
+          <div class="blabel">Perfil Angular</div>
+          <div class="bars">
+            <div class="bline"><div class="bseg b26" style="width:8.4%"></div><span class="bv">9,3</span></div>
+            <div class="bline"><div class="bseg b25" style="width:7.7%"></div><span class="bv bv25">8,6</span></div>
+          </div>
+          <div class="byoy"><span class="chip chip-up">▲ 8,3%</span></div>
+        </div>
+        <div class="brow">
+          <div class="blabel">Hierros Grandes</div>
+          <div class="bars">
+            <div class="bline"><div class="bseg b26" style="width:1.8%"></div><span class="bv">2,0</span></div>
+            <div class="bline"><div class="bseg b25" style="width:6.1%"></div><span class="bv bv25">6,7</span></div>
+          </div>
+          <div class="byoy"><span class="chip chip-down">▼ 70,2%</span></div>
+        </div>
+  </div>
+
+  <h2>Mix por familia de producto</h2>
+  <div class="card">
+        <div class="brow">
+          <div class="blabel">Tubo Cuadrado</div>
+          <div class="bars">
+            <div class="bline"><div class="bseg b26" style="width:94.9%"></div><span class="bv">40,5</span></div>
+            <div class="bline"><div class="bseg b25" style="width:74.9%"></div><span class="bv bv25">32,0</span></div>
+          </div>
+          <div class="byoy"><span class="chip chip-up">▲ 26,7%</span></div>
+        </div>
+        <div class="brow">
+          <div class="blabel">Hierros</div>
+          <div class="bars">
+            <div class="bline"><div class="bseg b26" style="width:88.8%"></div><span class="bv">37,9</span></div>
+            <div class="bline"><div class="bseg b25" style="width:94.2%"></div><span class="bv bv25">40,2</span></div>
+          </div>
+          <div class="byoy"><span class="chip chip-down">▼ 5,7%</span></div>
+        </div>
+        <div class="brow">
+          <div class="blabel">Tubo Rectangular</div>
+          <div class="bars">
+            <div class="bline"><div class="bseg b26" style="width:86.0%"></div><span class="bv">36,8</span></div>
+            <div class="bline"><div class="bseg b25" style="width:60.4%"></div><span class="bv bv25">25,8</span></div>
+          </div>
+          <div class="byoy"><span class="chip chip-up">▲ 42,6%</span></div>
+        </div>
+        <div class="brow">
+          <div class="blabel">Perfiles</div>
+          <div class="bars">
+            <div class="bline"><div class="bseg b26" style="width:83.7%"></div><span class="bv">35,8</span></div>
+            <div class="bline"><div class="bseg b25" style="width:59.8%"></div><span class="bv bv25">25,5</span></div>
+          </div>
+          <div class="byoy"><span class="chip chip-up">▲ 40,1%</span></div>
+        </div>
+        <div class="brow">
+          <div class="blabel">Tubo Redondo</div>
+          <div class="bars">
+            <div class="bline"><div class="bseg b26" style="width:78.9%"></div><span class="bv">33,7</span></div>
+            <div class="bline"><div class="bseg b25" style="width:33.4%"></div><span class="bv bv25">14,3</span></div>
+          </div>
+          <div class="byoy"><span class="chip chip-up">▲ 136,0%</span></div>
+        </div>
+        <div class="brow">
+          <div class="blabel">Chapas</div>
+          <div class="bars">
+            <div class="bline"><div class="bseg b26" style="width:69.0%"></div><span class="bv">29,5</span></div>
+            <div class="bline"><div class="bseg b25" style="width:100.0%"></div><span class="bv bv25">42,7</span></div>
+          </div>
+          <div class="byoy"><span class="chip chip-down">▼ 31,0%</span></div>
+        </div>
+        <div class="brow">
+          <div class="blabel">Planchuelas</div>
+          <div class="bars">
+            <div class="bline"><div class="bseg b26" style="width:22.1%"></div><span class="bv">9,5</span></div>
+            <div class="bline"><div class="bseg b25" style="width:13.3%"></div><span class="bv bv25">5,7</span></div>
+          </div>
+          <div class="byoy"><span class="chip chip-up">▲ 66,7%</span></div>
+        </div>
+        <div class="brow">
+          <div class="blabel">Estructurales (Otros)</div>
+          <div class="bars">
+            <div class="bline"><div class="bseg b26" style="width:0.7%"></div><span class="bv">0,3</span></div>
+            <div class="bline"><div class="bseg b25" style="width:0.7%"></div><span class="bv bv25">0,3</span></div>
+          </div>
+          <div class="byoy"><span class="chip chip-down">▼ 6,7%</span></div>
+        </div></div>
+
+  <h2>Top 15 artículos por toneladas (2026)</h2>
+  <table>
+    <thead><tr><th>Artículo</th><th>Unidades</th><th>Tn 2026</th><th>Facturación</th><th>Tn 2025</th><th>YoY</th></tr></thead>
+    <tbody><tr>
+          <td class="art">Tubo Redondo 22.22X0.90</td>
+          <td class="num">7.901</td>
+          <td class="num">22,8</td>
+          <td class="num">$51.725.714</td>
+          <td class="num">5,7</td>
+          <td class="num"><span class="chip chip-up">▲ 298,6%</span></td>
+        </tr><tr>
+          <td class="art">Acindar Barra Adn 8Mm L12Mt 150850 Gv538</td>
+          <td class="num">2.010</td>
+          <td class="num">9,6</td>
+          <td class="num">$16.988.845</td>
+          <td class="num">10,7</td>
+          <td class="num"><span class="chip chip-down">▼ 9,8%</span></td>
+        </tr><tr>
+          <td class="art">Hierro Nervado 10 Mm 12Mts Adn420</td>
+          <td class="num">864</td>
+          <td class="num">6,4</td>
+          <td class="num">$12.071.971</td>
+          <td class="num">3,3</td>
+          <td class="num"><span class="chip chip-up">▲ 95,5%</span></td>
+        </tr><tr>
+          <td class="art">Acindar Barra Adn 6Mm L12Mt 150849 Gv538</td>
+          <td class="num">2.383</td>
+          <td class="num">6,3</td>
+          <td class="num">$11.951.740</td>
+          <td class="num">7,3</td>
+          <td class="num"><span class="chip chip-down">▼ 13,3%</span></td>
+        </tr><tr>
+          <td class="art">Tubo Cuadrado 40X40X1.60</td>
+          <td class="num">371</td>
+          <td class="num">4,3</td>
+          <td class="num">$9.722.048</td>
+          <td class="num">2,7</td>
+          <td class="num"><span class="chip chip-up">▲ 58,5%</span></td>
+        </tr><tr>
+          <td class="art">Chapa 18 1220X2440   1.2Mm</td>
+          <td class="num">143</td>
+          <td class="num">4,2</td>
+          <td class="num">$9.467.663</td>
+          <td class="num">4,4</td>
+          <td class="num"><span class="chip chip-down">▼ 4,0%</span></td>
+        </tr><tr>
+          <td class="art">Hierro Liso 12.7Mm 6Mt</td>
+          <td class="num">693</td>
+          <td class="num">4,1</td>
+          <td class="num">$7.314.770</td>
+          <td class="num">1,6</td>
+          <td class="num"><span class="chip chip-up">▲ 152,9%</span></td>
+        </tr><tr>
+          <td class="art">Perfil C 120X50X2 12Mts</td>
+          <td class="num">83</td>
+          <td class="num">3,9</td>
+          <td class="num">$7.688.742</td>
+          <td class="num">1,9</td>
+          <td class="num"><span class="chip chip-up">▲ 107,5%</span></td>
+        </tr><tr>
+          <td class="art">Perfil C 120X50X2.5 12Mts</td>
+          <td class="num">64</td>
+          <td class="num">3,5</td>
+          <td class="num">$7.501.190</td>
+          <td class="num">0,4</td>
+          <td class="num"><span class="chip chip-up">▲ 700,0%</span></td>
+        </tr><tr>
+          <td class="art">Tubo Rectangular 40X60X1.60</td>
+          <td class="num">233</td>
+          <td class="num">3,4</td>
+          <td class="num">$7.109.921</td>
+          <td class="num">1,2</td>
+          <td class="num"><span class="chip chip-up">▲ 177,4%</span></td>
+        </tr><tr>
+          <td class="art">Tubo Rectangular 40X80X1.60</td>
+          <td class="num">191</td>
+          <td class="num">3,4</td>
+          <td class="num">$7.302.505</td>
+          <td class="num">2,8</td>
+          <td class="num"><span class="chip chip-up">▲ 19,4%</span></td>
+        </tr><tr>
+          <td class="art">Tubo Redondo 12.70X0.90</td>
+          <td class="num">2.100</td>
+          <td class="num">3,3</td>
+          <td class="num">$9.397.649</td>
+          <td class="num">0,8</td>
+          <td class="num"><span class="chip chip-up">▲ 326,0%</span></td>
+        </tr><tr>
+          <td class="art">Perfil C 80X40X1.60 12Mts</td>
+          <td class="num">111</td>
+          <td class="num">3,0</td>
+          <td class="num">$6.608.432</td>
+          <td class="num">0,3</td>
+          <td class="num"><span class="chip chip-up">▲ 825,0%</span></td>
+        </tr><tr>
+          <td class="art">Perfil C 100X40X2 X 12Mts</td>
+          <td class="num">83</td>
+          <td class="num">2,9</td>
+          <td class="num">$5.885.680</td>
+          <td class="num">0,0</td>
+          <td class="num"><span class="chip chip-na">s/base</span></td>
+        </tr><tr>
+          <td class="art">Hierro Liso 14Mm X 12Mts</td>
+          <td class="num">194</td>
+          <td class="num">2,8</td>
+          <td class="num">$4.667.831</td>
+          <td class="num">1,4</td>
+          <td class="num"><span class="chip chip-up">▲ 102,1%</span></td>
+        </tr></tbody>
+  </table>
+
+  <h2>Toneladas por sucursal</h2>
+  <div class="card">
+        <div class="brow">
+          <div class="blabel">Rrdigital                             Bo 021</div>
+          <div class="bars">
+            <div class="bline"><div class="bseg b26" style="width:100.0%"></div><span class="bv">223,9</span></div>
+            <div class="bline"><div class="bseg b25" style="width:83.2%"></div><span class="bv bv25">186,4</span></div>
+          </div>
+          <div class="byoy"><span class="chip chip-up">▲ 20,1%</span></div>
+        </div>
+        <div class="brow">
+          <div class="blabel">Videla Castillo 01</div>
+          <div class="bars">
+            <div class="bline"><div class="bseg b26" style="width:0.0%"></div><span class="bv">0,0</span></div>
+            <div class="bline"><div class="bseg b25" style="width:0.1%"></div><span class="bv bv25">0,1</span></div>
+          </div>
+          <div class="byoy"><span class="chip chip-down">▼ 100,0%</span></div>
+        </div></div>
+
+</div>
+<footer>IBACETA · Reporte de Obra Gruesa en toneladas · Generado automáticamente · Datos al 21/07/2026<br>
+Peso por unidad (KG_X_UNIDAD) tomado del ERP · Comparación a igual tramo del año</footer>
+</body></html>
