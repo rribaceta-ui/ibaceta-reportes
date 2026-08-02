@@ -89,6 +89,9 @@
   .modal-footer { padding: 7px 16px; background: #f7f7f7; border-top: 1px solid #e0e0e0;
     font-size: 11px; color: #aaa; text-align: right; flex-shrink: 0; }
 </style>
+    <meta http-equiv="Cache-Control" content="no-cache, no-store, must-revalidate">
+    <meta http-equiv="Pragma" content="no-cache">
+    <meta http-equiv="Expires" content="0">
 </head>
 <body>
 <div class="tabs">
@@ -427,6 +430,21 @@ function buildModalTable() {
 
 buildTable(eq_cant,  'eq-body',  '#243F60', 'cant', 'eq');
 buildTable(hog_cant, 'hog-body', '#1E3A14', 'cant', 'hog');
+</script>
+<div id="_ibaceta_ts" style="position:fixed;bottom:14px;right:14px;z-index:99999;
+font-family:Arial,sans-serif;font-size:11px;padding:5px 12px;border-radius:20px;
+background:rgba(15,15,25,.93);color:#ddd;box-shadow:0 2px 10px rgba(0,0,0,.55);
+border-left:4px solid #3fb950;pointer-events:none;line-height:1.5">
+  &#9201; <b>Generado:</b> 02/08/2026 10:56
+</div>
+<script>
+(function(){
+  var gen=new Date("2026-08-02T10:56:29"),hrs=(new Date()-gen)/3600000;
+  var el=document.getElementById("_ibaceta_ts");if(!el)return;
+  if(hrs>24){el.style.borderColor="#f85149";el.style.color="#ffcccc";
+    el.innerHTML+=" &nbsp;<span style=\"color:#f85149;font-weight:bold\">&#9888; +24h</span>";}
+  else if(hrs>12){el.style.borderColor="#f8961e";}
+})();
 </script>
 </body>
 </html>
