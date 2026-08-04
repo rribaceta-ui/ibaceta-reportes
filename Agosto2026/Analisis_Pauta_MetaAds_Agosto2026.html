@@ -1,0 +1,462 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width,initial-scale=1.0">
+<title>Análisis Pauta Meta Ads</title>
+<link href="https://fonts.googleapis.com/css2?family=Montserrat:wght@400;600;700;800&family=Open+Sans:wght@400;600&display=swap" rel="stylesheet">
+<style>
+*{box-sizing:border-box;margin:0;padding:0}
+body{font-family:'Open Sans',sans-serif;background:#F0F2F5;color:#333}
+header{background:#00548A;padding:14px 26px;display:flex;justify-content:space-between;align-items:center;flex-wrap:wrap;gap:8px}
+header h1{font-family:'Montserrat',sans-serif;font-size:1rem;font-weight:800;color:#fff}
+header .sub{font-size:.72rem;color:rgba(255,255,255,0.7);margin-top:2px}
+.filtro-bar{background:#fff;border-bottom:3px solid #F1891B;padding:10px 26px;display:flex;align-items:center;gap:12px;flex-wrap:wrap}
+.filtro-bar label{font-family:'Montserrat',sans-serif;font-size:.75rem;font-weight:700;color:#00548A}
+.filtro-bar input[type=date]{border:1px solid #ccc;border-radius:5px;padding:4px 8px;font-size:.8rem;font-family:'Open Sans',sans-serif}
+.filtro-bar input[type=date]:focus{outline:2px solid #00548A}
+.btn-preset{background:#F0F2F5;border:1px solid #ccc;border-radius:14px;padding:4px 11px;font-size:.72rem;font-family:'Montserrat',sans-serif;font-weight:700;cursor:pointer;color:#555;transition:all .15s}
+.btn-preset:hover,.btn-preset.active{background:#00548A;color:#fff;border-color:#00548A}
+.btn-aplicar{background:#F1891B;color:#fff;border:none;border-radius:5px;padding:5px 14px;font-size:.78rem;font-family:'Montserrat',sans-serif;font-weight:700;cursor:pointer}
+.wrap{max-width:1380px;margin:0 auto;padding:16px 14px}
+.kpi-row{display:grid;grid-template-columns:repeat(auto-fit,minmax(160px,1fr));gap:12px;margin-bottom:18px}
+.kpi{background:#fff;border-radius:8px;border-top:4px solid #F1891B;box-shadow:0 1px 6px rgba(0,0,0,0.08);padding:14px;text-align:center}
+.kpi.bl{border-top-color:#00548A}.kpi.gr{border-top-color:#2e7d32}.kpi.pu{border-top-color:#9c27b0}
+.kv{font-family:'Montserrat',sans-serif;font-size:1.5rem;font-weight:800;color:#00548A}
+.kv.or{color:#F1891B}.kv.gr{color:#2e7d32}.kv.rd{color:#c62828}
+.kl{font-size:.73rem;color:#777;margin-top:2px}
+.g2{display:grid;grid-template-columns:1fr 1fr;gap:16px;margin-bottom:16px}
+@media(max-width:760px){.g2{grid-template-columns:1fr}}
+.card{background:#fff;border-radius:8px;box-shadow:0 1px 6px rgba(0,0,0,0.08);padding:16px;margin-bottom:16px}
+.card h3{font-family:'Montserrat',sans-serif;font-size:.87rem;font-weight:700;color:#00548A;margin-bottom:12px;text-transform:uppercase;letter-spacing:.4px;border-bottom:2px solid #F1891B;padding-bottom:6px}
+.tbl{overflow-x:auto}
+table{width:100%;border-collapse:collapse}
+thead th{background:#00548A;color:#fff;padding:8px 10px;text-align:left;font-family:'Montserrat',sans-serif;font-weight:600;font-size:.76rem;white-space:nowrap}
+tbody tr:hover{background:#e8f1f9!important}
+td{border-bottom:1px solid #eaeef2;vertical-align:middle}
+.section-title{font-family:'Montserrat',sans-serif;font-size:.93rem;font-weight:800;color:#00548A;text-transform:uppercase;letter-spacing:.4px;margin:20px 0 8px;padding-left:10px;border-left:4px solid #F1891B}
+.sin-datos{text-align:center;color:#aaa;font-style:italic;padding:20px;font-size:.82rem}
+footer{background:#333;color:#bbb;text-align:center;padding:10px;font-size:.7rem;margin-top:20px}
+</style>
+    <meta http-equiv="Cache-Control" content="no-cache, no-store, must-revalidate">
+    <meta http-equiv="Pragma" content="no-cache">
+    <meta http-equiv="Expires" content="0">
+</head>
+<body>
+
+<header>
+  <div>
+    <div class="sub">El Cristorante S.A. — Análisis de Performance Publicitaria</div>
+    <h1 id="hdr-titulo">Análisis Pauta Meta Ads — cargando...</h1>
+  </div>
+</header>
+
+<div class="filtro-bar">
+  <label>DESDE</label>
+  <input type="date" id="inp-desde" value="2026-07-06" min="2026-07-06" max="2026-08-04">
+  <label>HASTA</label>
+  <input type="date" id="inp-hasta" value="2026-08-04" min="2026-07-06" max="2026-08-04">
+  <button class="btn-aplicar" onclick="aplicar()">Aplicar</button>
+  <button class="btn-preset" onclick="setPreset(7)">7 d</button>
+  <button class="btn-preset" onclick="setPreset(14)">14 d</button>
+  <button class="btn-preset" onclick="setPreset(30)" id="btn30">30 d</button>
+  <button class="btn-preset" onclick="setPreset(60)">60 d</button>
+  <span style="font-size:.68rem;color:#888;font-style:italic;margin-left:auto">Solo campañas con gasto en el período seleccionado</span>
+</div>
+
+<div class="wrap">
+  <div class="kpi-row">
+    <div class="kpi bl"><div class="kv" id="kv-gasto">—</div><div class="kl">Gasto total</div></div>
+    <div class="kpi"><div class="kv or" id="kv-conv">—</div><div class="kl">Conversaciones WPP</div></div>
+    <div class="kpi"><div class="kv" id="kv-cpc">—</div><div class="kl">CPC promedio global</div></div>
+    <div class="kpi gr"><div class="kv gr" id="kv-cpc-web">—</div><div class="kl">CPC WEB (canal)</div></div>
+    <div class="kpi"><div class="kv or" id="kv-cpc-sal">—</div><div class="kl">CPC Salones (canal)</div></div>
+    <div class="kpi"><div class="kv" id="kv-camps">—</div><div class="kl">Campañas activas</div></div>
+  </div>
+
+  <div class="g2">
+    <div class="card">
+      <h3>Distribución del gasto por tipo de campaña</h3>
+      <div id="bars-tipo"></div>
+    </div>
+    <div class="card">
+      <h3>Hallazgos clave</h3>
+      <div id="hallazgos"></div>
+    </div>
+  </div>
+
+  <div class="section-title">Campañas WEB — WhatsApp conversions</div>
+  <div class="card">
+    <div style="font-size:.78rem;color:#666;margin-bottom:10px" id="resumen-web"></div>
+    <div class="tbl"><table>
+      <thead><tr><th>Campaña</th><th>Gasto</th><th>% canal</th><th>Conv WPP</th><th>CPC</th><th>Estado</th></tr></thead>
+      <tbody id="tbody-web"></tbody>
+    </table></div>
+    <p style="font-size:.72rem;color:#888;margin-top:8px">🟢 Eficiente &lt; $1.500 &middot; 🟡 Aceptable $1.500–$2.500 &middot; 🔴 Caro &gt; $2.500 &middot; ⚫ Sin conversiones</p>
+  </div>
+
+  <div class="section-title">Campañas Salones + Calle</div>
+  <div class="card">
+    <div style="font-size:.78rem;color:#666;margin-bottom:10px" id="resumen-sal"></div>
+    <div class="tbl"><table>
+      <thead><tr><th>Campaña</th><th>Gasto</th><th>% canal</th><th>Conv WPP</th><th>CPC</th><th>Estado</th></tr></thead>
+      <tbody id="tbody-sal"></tbody>
+    </table></div>
+    <p style="font-size:.72rem;color:#888;margin-top:8px">Benchmark objetivo: &lt; $2.000/conv</p>
+  </div>
+
+  <div class="section-title">Campañas Branding / ECMM + Otras</div>
+  <div class="card">
+    <div class="tbl"><table>
+      <thead><tr><th>Campaña</th><th>Gasto</th><th>Tipo</th></tr></thead>
+      <tbody id="tbody-brand"></tbody>
+    </table></div>
+    <p style="font-size:.72rem;color:#888;margin-top:8px">Sin objetivo WPP — el impacto en negocio no es directamente medible.</p>
+  </div>
+</div>
+
+<footer id="pie">El Cristorante S.A. — IBACETA &middot; Análisis Pauta Meta Ads</footer>
+
+<script>
+const META_DATA   = [{"f": "2026-07-06", "c": "Branding / Awareness (TOFU)", "g": 34286.65, "cv": 0.0}, {"f": "2026-07-06", "c": "CALLE | WPP | EQUIPAMIENTO | ABO | ABR26", "g": 0.0, "cv": 0.0}, {"f": "2026-07-06", "c": "ECMM | TRAFICO | EQUIPAMIENTO | ABO | REGULAR", "g": 0.0, "cv": 0.0}, {"f": "2026-07-06", "c": "ECMM | VENTA | FREEZERS | ABO | REGULAR", "g": 0.0, "cv": 0.0}, {"f": "2026-07-06", "c": "ECMM | VENTA | HOGAR | ABO | REGULAR", "g": 0.0, "cv": 0.0}, {"f": "2026-07-06", "c": "ECMM | VENTA | VERTICALES | CBO | REGULAR", "g": 0.0, "cv": 0.0}, {"f": "2026-07-06", "c": "SALON | ALAMEDA | WPP | GENERAL | ABO | REGULAR", "g": 0.0, "cv": 0.0}, {"f": "2026-07-06", "c": "SALON | CÓRDOBA", "g": 17899.97, "cv": 23.0}, {"f": "2026-07-06", "c": "SALON | MENDOZA", "g": 149742.25, "cv": 149.0}, {"f": "2026-07-06", "c": "SALON | SAN JUAN", "g": 41332.26, "cv": 75.0}, {"f": "2026-07-06", "c": "SALON | SAN LUIS", "g": 30208.9, "cv": 25.0}, {"f": "2026-07-06", "c": "SALON | SAN LUIS | WPP | GENERAL | ABO | REGULAR", "g": 0.0, "cv": 0.0}, {"f": "2026-07-06", "c": "SALON | SAN RAFAEL | WPP | GENERAL | ABO | REGULAR", "g": 0.0, "cv": 1.0}, {"f": "2026-07-06", "c": "WEB | Equipamiento Profesional (B2B)", "g": 154167.36, "cv": 67.0}, {"f": "2026-07-06", "c": "WEB | Hogar (B2C)", "g": 49734.56, "cv": 74.0}, {"f": "2026-07-06", "c": "WEB | WPP | HOGAR | ABO | TEST | MAY26", "g": 0.0, "cv": 0.0}, {"f": "2026-07-07", "c": "Branding / Awareness (TOFU)", "g": 34404.04, "cv": 0.0}, {"f": "2026-07-07", "c": "ECMM | VENTA | FREEZERS | ABO | REGULAR", "g": 0.0, "cv": 0.0}, {"f": "2026-07-07", "c": "ECMM | VENTA | HOGAR | ABO | REGULAR", "g": 0.0, "cv": 0.0}, {"f": "2026-07-07", "c": "SALON | CÓRDOBA", "g": 17804.53, "cv": 22.0}, {"f": "2026-07-07", "c": "SALON | MENDOZA", "g": 134790.51, "cv": 95.0}, {"f": "2026-07-07", "c": "SALON | SAN JUAN", "g": 36949.48, "cv": 43.0}, {"f": "2026-07-07", "c": "SALON | SAN LUIS", "g": 28693.43, "cv": 20.0}, {"f": "2026-07-07", "c": "WEB | Equipamiento Profesional (B2B)", "g": 149360.66, "cv": 54.0}, {"f": "2026-07-07", "c": "WEB | Hogar (B2C)", "g": 45303.23, "cv": 48.0}, {"f": "2026-07-08", "c": "Branding / Awareness (TOFU)", "g": 18745.75, "cv": 0.0}, {"f": "2026-07-08", "c": "SALON | CÓRDOBA", "g": 21406.34, "cv": 20.0}, {"f": "2026-07-08", "c": "SALON | MENDOZA", "g": 145318.64, "cv": 118.0}, {"f": "2026-07-08", "c": "SALON | SAN JUAN", "g": 41607.7, "cv": 42.0}, {"f": "2026-07-08", "c": "SALON | SAN LUIS", "g": 31124.08, "cv": 10.0}, {"f": "2026-07-08", "c": "WEB | Branding / Awareness (TOFU) - Copia", "g": 11125.17, "cv": 0.0}, {"f": "2026-07-08", "c": "WEB | Equipamiento Profesional (B2B)", "g": 90017.41, "cv": 28.0}, {"f": "2026-07-08", "c": "WEB | Equipamiento Profesional (B2B) - WSP 4487", "g": 26840.41, "cv": 8.0}, {"f": "2026-07-08", "c": "WEB | Hogar (B2C)", "g": 27258.35, "cv": 17.0}, {"f": "2026-07-08", "c": "WEB | Hogar (B2C) - WSP 4487", "g": 16856.97, "cv": 12.0}, {"f": "2026-07-09", "c": "Branding / Awareness (TOFU)", "g": 0.0, "cv": 0.0}, {"f": "2026-07-09", "c": "SALON | CÓRDOBA", "g": 16666.2, "cv": 13.0}, {"f": "2026-07-09", "c": "SALON | MENDOZA", "g": 129057.36, "cv": 109.0}, {"f": "2026-07-09", "c": "SALON | SAN JUAN", "g": 37286.27, "cv": 38.0}, {"f": "2026-07-09", "c": "SALON | SAN LUIS", "g": 31740.61, "cv": 12.0}, {"f": "2026-07-09", "c": "WEB | Branding / Awareness (TOFU) - Copia", "g": 36093.77, "cv": 0.0}, {"f": "2026-07-09", "c": "WEB | Equipamiento Profesional (B2B)", "g": 0.0, "cv": 3.0}, {"f": "2026-07-09", "c": "WEB | Equipamiento Profesional (B2B) - WSP 4487", "g": 136464.05, "cv": 23.0}, {"f": "2026-07-09", "c": "WEB | Hogar (B2C)", "g": 0.0, "cv": 0.0}, {"f": "2026-07-09", "c": "WEB | Hogar (B2C) - WSP 4487", "g": 43696.94, "cv": 42.0}, {"f": "2026-07-10", "c": "Branding / Awareness (TOFU)", "g": 50473.41, "cv": 0.0}, {"f": "2026-07-10", "c": "SALON | CÓRDOBA", "g": 17910.89, "cv": 19.0}, {"f": "2026-07-10", "c": "SALON | MENDOZA", "g": 143139.29, "cv": 114.0}, {"f": "2026-07-10", "c": "SALON | SAN JUAN", "g": 35976.34, "cv": 41.0}, {"f": "2026-07-10", "c": "SALON | SAN LUIS", "g": 32053.02, "cv": 5.0}, {"f": "2026-07-10", "c": "WEB | Branding / Awareness (TOFU) - Copia", "g": 18586.79, "cv": 0.0}, {"f": "2026-07-10", "c": "WEB | Equipamiento Profesional (B2B)", "g": 0.0, "cv": 2.0}, {"f": "2026-07-10", "c": "WEB | Equipamiento Profesional (B2B) - WSP 4487", "g": 153401.69, "cv": 37.0}, {"f": "2026-07-10", "c": "WEB | Hogar (B2C) - WSP 4487", "g": 37396.67, "cv": 56.0}, {"f": "2026-07-11", "c": "Branding / Awareness (TOFU)", "g": 26433.71, "cv": 0.0}, {"f": "2026-07-11", "c": "SALON | CÓRDOBA", "g": 16260.2, "cv": 11.0}, {"f": "2026-07-11", "c": "SALON | MENDOZA", "g": 126106.36, "cv": 73.0}, {"f": "2026-07-11", "c": "SALON | SAN JUAN", "g": 35458.32, "cv": 24.0}, {"f": "2026-07-11", "c": "SALON | SAN LUIS", "g": 28003.98, "cv": 9.0}, {"f": "2026-07-11", "c": "WEB | Equipamiento Profesional (B2B)", "g": 0.0, "cv": 0.0}, {"f": "2026-07-11", "c": "WEB | Equipamiento Profesional (B2B) - WSP 4487", "g": 117829.26, "cv": 26.0}, {"f": "2026-07-11", "c": "WEB | Hogar (B2C)", "g": 0.0, "cv": 0.0}, {"f": "2026-07-11", "c": "WEB | Hogar (B2C) - WSP 4487", "g": 30918.31, "cv": 23.0}, {"f": "2026-07-12", "c": "Branding / Awareness (TOFU)", "g": 34577.3, "cv": 0.0}, {"f": "2026-07-12", "c": "SALON | CÓRDOBA", "g": 20443.48, "cv": 13.0}, {"f": "2026-07-12", "c": "SALON | MENDOZA", "g": 153279.18, "cv": 77.0}, {"f": "2026-07-12", "c": "SALON | SAN JUAN", "g": 42840.8, "cv": 33.0}, {"f": "2026-07-12", "c": "SALON | SAN LUIS", "g": 33255.18, "cv": 11.0}, {"f": "2026-07-12", "c": "WEB | Equipamiento Profesional (B2B)", "g": 0.0, "cv": 0.0}, {"f": "2026-07-12", "c": "WEB | Equipamiento Profesional (B2B) - WSP 4487", "g": 168608.28, "cv": 33.0}, {"f": "2026-07-12", "c": "WEB | Hogar (B2C) - WSP 4487", "g": 44201.94, "cv": 22.0}, {"f": "2026-07-13", "c": "Branding / Awareness (TOFU)", "g": 47254.55, "cv": 0.0}, {"f": "2026-07-13", "c": "SALON | CÓRDOBA", "g": 23182.17, "cv": 22.0}, {"f": "2026-07-13", "c": "SALON | MENDOZA", "g": 168182.07, "cv": 100.0}, {"f": "2026-07-13", "c": "SALON | SAN JUAN", "g": 48354.3, "cv": 57.0}, {"f": "2026-07-13", "c": "SALON | SAN LUIS", "g": 39767.46, "cv": 25.0}, {"f": "2026-07-13", "c": "WEB | Equipamiento Profesional (B2B)", "g": 92172.29, "cv": 33.0}, {"f": "2026-07-13", "c": "WEB | Equipamiento Profesional (B2B) - WSP 4487", "g": 90071.78, "cv": 30.0}, {"f": "2026-07-13", "c": "WEB | Hogar (B2C)", "g": 25050.77, "cv": 10.0}, {"f": "2026-07-13", "c": "WEB | Hogar (B2C) - WSP 4487", "g": 28898.59, "cv": 28.0}, {"f": "2026-07-14", "c": "Branding / Awareness (TOFU)", "g": 70800.68, "cv": 2.0}, {"f": "2026-07-14", "c": "SALON | CÓRDOBA", "g": 16880.81, "cv": 14.0}, {"f": "2026-07-14", "c": "SALON | MENDOZA", "g": 138888.38, "cv": 75.0}, {"f": "2026-07-14", "c": "SALON | SAN JUAN", "g": 37825.5, "cv": 38.0}, {"f": "2026-07-14", "c": "SALON | SAN LUIS", "g": 29193.35, "cv": 17.0}, {"f": "2026-07-14", "c": "WEB | Equipamiento Profesional (B2B)", "g": 196451.23, "cv": 89.0}, {"f": "2026-07-14", "c": "WEB | Equipamiento Profesional (B2B) - WSP 4487", "g": 0.0, "cv": 0.0}, {"f": "2026-07-14", "c": "WEB | Hogar (B2C)", "g": 65701.9, "cv": 52.0}, {"f": "2026-07-14", "c": "WEB | Hogar (B2C) - WSP 4487", "g": 0.0, "cv": 0.0}, {"f": "2026-07-15", "c": "Branding / Awareness (TOFU)", "g": 68640.62, "cv": 0.0}, {"f": "2026-07-15", "c": "SALON | CÓRDOBA", "g": 17206.29, "cv": 12.0}, {"f": "2026-07-15", "c": "SALON | MENDOZA", "g": 119856.98, "cv": 72.0}, {"f": "2026-07-15", "c": "SALON | SAN JUAN", "g": 33080.07, "cv": 21.0}, {"f": "2026-07-15", "c": "SALON | SAN LUIS", "g": 28969.12, "cv": 21.0}, {"f": "2026-07-15", "c": "WEB | Equipamiento Profesional (B2B)", "g": 185710.26, "cv": 74.0}, {"f": "2026-07-15", "c": "WEB | Equipamiento Profesional (B2B) - WSP 4487", "g": 0.0, "cv": 0.0}, {"f": "2026-07-15", "c": "WEB | Hogar (B2C)", "g": 49279.24, "cv": 35.0}, {"f": "2026-07-16", "c": "Branding / Awareness (TOFU)", "g": 77925.36, "cv": 1.0}, {"f": "2026-07-16", "c": "SALON | CÓRDOBA", "g": 17188.88, "cv": 8.0}, {"f": "2026-07-16", "c": "SALON | MENDOZA", "g": 120667.65, "cv": 85.0}, {"f": "2026-07-16", "c": "SALON | SAN JUAN", "g": 34195.38, "cv": 38.0}, {"f": "2026-07-16", "c": "SALON | SAN LUIS", "g": 26264.94, "cv": 16.0}, {"f": "2026-07-16", "c": "WEB | Equipamiento Profesional (B2B)", "g": 139554.58, "cv": 53.0}, {"f": "2026-07-16", "c": "WEB | Equipamiento Profesional (B2B) - WSP 4487", "g": 0.0, "cv": 1.0}, {"f": "2026-07-16", "c": "WEB | Hogar (B2C)", "g": 47995.84, "cv": 48.0}, {"f": "2026-07-17", "c": "Branding / Awareness (TOFU)", "g": 66322.41, "cv": 1.0}, {"f": "2026-07-17", "c": "SALON | CÓRDOBA", "g": 15293.84, "cv": 4.0}, {"f": "2026-07-17", "c": "SALON | CÓRDOBA - Copia 17/7", "g": 3266.74, "cv": 0.0}, {"f": "2026-07-17", "c": "SALON | MENDOZA", "g": 105817.9, "cv": 43.0}, {"f": "2026-07-17", "c": "SALON | MENDOZA - Copia 17/7", "g": 13209.38, "cv": 7.0}, {"f": "2026-07-17", "c": "SALON | SAN JUAN", "g": 27104.44, "cv": 12.0}, {"f": "2026-07-17", "c": "SALON | SAN JUAN - Copia 17/7", "g": 6194.87, "cv": 8.0}, {"f": "2026-07-17", "c": "SALON | SAN LUIS", "g": 23101.15, "cv": 3.0}, {"f": "2026-07-17", "c": "SALON | SAN LUIS - Copia 17/7", "g": 4519.79, "cv": 0.0}, {"f": "2026-07-17", "c": "WEB | Equipamiento Profesional (B2B)", "g": 126005.84, "cv": 40.0}, {"f": "2026-07-17", "c": "WEB | Equipamiento Profesional (B2B) - WSP 0368 (17/7)", "g": 16628.61, "cv": 4.0}, {"f": "2026-07-17", "c": "WEB | Equipamiento Profesional (B2B) - WSP 4487", "g": 0.0, "cv": 0.0}, {"f": "2026-07-17", "c": "WEB | Hogar (B2C)", "g": 33086.77, "cv": 38.0}, {"f": "2026-07-17", "c": "WEB | Hogar (B2C) - WSP 0368 (17/7)", "g": 4668.34, "cv": 1.0}, {"f": "2026-07-18", "c": "Branding / Awareness (TOFU)", "g": 71755.26, "cv": 0.0}, {"f": "2026-07-18", "c": "SALON | CÓRDOBA - Copia 17/7", "g": 17148.8, "cv": 11.0}, {"f": "2026-07-18", "c": "SALON | MENDOZA", "g": 0.0, "cv": 3.0}, {"f": "2026-07-18", "c": "SALON | MENDOZA - Copia 17/7", "g": 133225.82, "cv": 68.0}, {"f": "2026-07-18", "c": "SALON | SAN JUAN", "g": 0.0, "cv": 0.0}, {"f": "2026-07-18", "c": "SALON | SAN JUAN - Copia 17/7", "g": 36793.05, "cv": 22.0}, {"f": "2026-07-18", "c": "SALON | SAN LUIS", "g": 0.0, "cv": 0.0}, {"f": "2026-07-18", "c": "SALON | SAN LUIS - Copia 17/7", "g": 29629.32, "cv": 19.0}, {"f": "2026-07-18", "c": "WEB | Equipamiento Profesional (B2B)", "g": 0.0, "cv": 0.0}, {"f": "2026-07-18", "c": "WEB | Equipamiento Profesional (B2B) - WSP 0368 (17/7)", "g": 134513.55, "cv": 64.0}, {"f": "2026-07-18", "c": "WEB | Equipamiento Profesional (B2B) - WSP 4487", "g": 0.0, "cv": 0.0}, {"f": "2026-07-18", "c": "WEB | Hogar (B2C)", "g": 0.0, "cv": 1.0}, {"f": "2026-07-18", "c": "WEB | Hogar (B2C) - WSP 0368 (17/7)", "g": 40173.78, "cv": 40.0}, {"f": "2026-07-18", "c": "WEB | Hogar (B2C) - WSP 4487", "g": 0.0, "cv": 0.0}, {"f": "2026-07-19", "c": "Branding / Awareness (TOFU)", "g": 66709.33, "cv": 0.0}, {"f": "2026-07-19", "c": "SALON | CÓRDOBA - Copia 17/7", "g": 13359.26, "cv": 2.0}, {"f": "2026-07-19", "c": "SALON | MENDOZA - Copia 17/7", "g": 109485.1, "cv": 33.0}, {"f": "2026-07-19", "c": "SALON | SAN JUAN - Copia 17/7", "g": 24826.61, "cv": 10.0}, {"f": "2026-07-19", "c": "SALON | SAN LUIS", "g": 0.0, "cv": 1.0}, {"f": "2026-07-19", "c": "SALON | SAN LUIS - Copia 17/7", "g": 20224.5, "cv": 4.0}, {"f": "2026-07-19", "c": "WEB | Equipamiento Profesional (B2B) - WSP 0368 (17/7)", "g": 125263.01, "cv": 34.0}, {"f": "2026-07-19", "c": "WEB | Hogar (B2C) - WSP 0368 (17/7)", "g": 33096.64, "cv": 23.0}, {"f": "2026-07-20", "c": "Branding / Awareness (TOFU)", "g": 95661.12, "cv": 1.0}, {"f": "2026-07-20", "c": "SALON | CÓRDOBA - Copia 17/7", "g": 19626.0, "cv": 7.0}, {"f": "2026-07-20", "c": "SALON | MENDOZA - Copia 17/7", "g": 152222.56, "cv": 69.0}, {"f": "2026-07-20", "c": "SALON | SAN JUAN - Copia 17/7", "g": 40683.3, "cv": 22.0}, {"f": "2026-07-20", "c": "SALON | SAN LUIS - Copia 17/7", "g": 35235.74, "cv": 10.0}, {"f": "2026-07-20", "c": "WEB | Equipamiento Profesional (B2B)", "g": 0.0, "cv": 0.0}, {"f": "2026-07-20", "c": "WEB | Equipamiento Profesional (B2B) - WSP 0368 (17/7)", "g": 145110.72, "cv": 59.0}, {"f": "2026-07-20", "c": "WEB | Hogar (B2C)", "g": 0.0, "cv": 0.0}, {"f": "2026-07-20", "c": "WEB | Hogar (B2C) - WSP 0368 (17/7)", "g": 51106.4, "cv": 59.0}, {"f": "2026-07-21", "c": "Branding / Awareness (TOFU)", "g": 86870.83, "cv": 3.0}, {"f": "2026-07-21", "c": "SALON | CÓRDOBA - Copia 17/7", "g": 22925.05, "cv": 6.0}, {"f": "2026-07-21", "c": "SALON | MENDOZA", "g": 0.0, "cv": 0.0}, {"f": "2026-07-21", "c": "SALON | MENDOZA - Copia 17/7", "g": 169676.75, "cv": 66.0}, {"f": "2026-07-21", "c": "SALON | SAN JUAN - Copia 17/7", "g": 48729.1, "cv": 26.0}, {"f": "2026-07-21", "c": "SALON | SAN LUIS - Copia 17/7", "g": 37125.2, "cv": 20.0}, {"f": "2026-07-21", "c": "WEB | Equipamiento Profesional (B2B) - WSP 0368 (17/7)", "g": 172903.23, "cv": 73.0}, {"f": "2026-07-21", "c": "WEB | Hogar (B2C) - WSP 0368 (17/7)", "g": 51056.58, "cv": 50.0}, {"f": "2026-07-22", "c": "Branding / Awareness (TOFU)", "g": 54970.64, "cv": 0.0}, {"f": "2026-07-22", "c": "SALON | CÓRDOBA - Copia 17/7", "g": 20792.6, "cv": 11.0}, {"f": "2026-07-22", "c": "SALON | MENDOZA - Copia 17/7", "g": 141377.39, "cv": 64.0}, {"f": "2026-07-22", "c": "SALON | SAN JUAN - Copia 17/7", "g": 42137.45, "cv": 33.0}, {"f": "2026-07-22", "c": "SALON | SAN LUIS - Copia 17/7", "g": 34380.66, "cv": 17.0}, {"f": "2026-07-22", "c": "WEB | Equipamiento Profesional (B2B) - WSP 0368 (17/7)", "g": 138979.14, "cv": 70.0}, {"f": "2026-07-22", "c": "WEB | Hogar (B2C)", "g": 0.0, "cv": 0.0}, {"f": "2026-07-22", "c": "WEB | Hogar (B2C) - WSP 0368 (17/7)", "g": 40667.57, "cv": 41.0}, {"f": "2026-07-23", "c": "Branding / Awareness (TOFU)", "g": 74778.67, "cv": 0.0}, {"f": "2026-07-23", "c": "SALON | CÓRDOBA - Copia 17/7", "g": 17485.54, "cv": 17.0}, {"f": "2026-07-23", "c": "SALON | MENDOZA - Copia 17/7", "g": 123851.72, "cv": 69.0}, {"f": "2026-07-23", "c": "SALON | SAN JUAN - Copia 17/7", "g": 38228.47, "cv": 31.0}, {"f": "2026-07-23", "c": "SALON | SAN LUIS - Copia 17/7", "g": 30015.71, "cv": 19.0}, {"f": "2026-07-23", "c": "WEB | Equipamiento Profesional (B2B) - WSP 0368 (17/7)", "g": 114809.94, "cv": 57.0}, {"f": "2026-07-23", "c": "WEB | Hogar (B2C) - WSP 0368 (17/7)", "g": 32488.32, "cv": 45.0}, {"f": "2026-07-24", "c": "Branding / Awareness (TOFU)", "g": 54438.21, "cv": 0.0}, {"f": "2026-07-24", "c": "SALON | CÓRDOBA - Copia 17/7", "g": 15826.46, "cv": 14.0}, {"f": "2026-07-24", "c": "SALON | MENDOZA - Copia 17/7", "g": 122266.89, "cv": 57.0}, {"f": "2026-07-24", "c": "SALON | SAN JUAN - Copia 17/7", "g": 35523.99, "cv": 25.0}, {"f": "2026-07-24", "c": "SALON | SAN LUIS - Copia 17/7", "g": 26697.24, "cv": 10.0}, {"f": "2026-07-24", "c": "WEB | Equipamiento Profesional (B2B) - WSP 0368 (17/7)", "g": 120907.44, "cv": 41.0}, {"f": "2026-07-24", "c": "WEB | Hogar (B2C) - WSP 0368 (17/7)", "g": 36870.89, "cv": 34.0}, {"f": "2026-07-25", "c": "Branding / Awareness (TOFU)", "g": 56515.86, "cv": 0.0}, {"f": "2026-07-25", "c": "SALON | CÓRDOBA - Copia 17/7", "g": 15985.09, "cv": 8.0}, {"f": "2026-07-25", "c": "SALON | MENDOZA - Copia 17/7", "g": 126118.49, "cv": 65.0}, {"f": "2026-07-25", "c": "SALON | SAN JUAN - Copia 17/7", "g": 35724.09, "cv": 29.0}, {"f": "2026-07-25", "c": "SALON | SAN LUIS - Copia 17/7", "g": 25800.6, "cv": 14.0}, {"f": "2026-07-25", "c": "WEB | Equipamiento Profesional (B2B) - WSP 0368 (17/7)", "g": 127026.52, "cv": 53.0}, {"f": "2026-07-25", "c": "WEB | Hogar (B2C) - WSP 0368 (17/7)", "g": 34713.6, "cv": 24.0}, {"f": "2026-07-26", "c": "Branding / Awareness (TOFU)", "g": 98369.87, "cv": 0.0}, {"f": "2026-07-26", "c": "SALON | CÓRDOBA - Copia 17/7", "g": 13437.51, "cv": 8.0}, {"f": "2026-07-26", "c": "SALON | MENDOZA - Copia 17/7", "g": 108043.86, "cv": 59.0}, {"f": "2026-07-26", "c": "SALON | SAN JUAN - Copia 17/7", "g": 28773.18, "cv": 16.0}, {"f": "2026-07-26", "c": "SALON | SAN LUIS - Copia 17/7", "g": 24273.04, "cv": 13.0}, {"f": "2026-07-26", "c": "WEB | Equipamiento Profesional (B2B) - WSP 0368 (17/7)", "g": 99807.35, "cv": 46.0}, {"f": "2026-07-26", "c": "WEB | Hogar (B2C) - WSP 0368 (17/7)", "g": 33680.94, "cv": 38.0}, {"f": "2026-07-27", "c": "Branding / Awareness (TOFU)", "g": 54716.35, "cv": 0.0}, {"f": "2026-07-27", "c": "SALON | CÓRDOBA - Copia 17/7", "g": 22652.51, "cv": 9.0}, {"f": "2026-07-27", "c": "SALON | MENDOZA - Copia 17/7", "g": 168226.55, "cv": 76.0}, {"f": "2026-07-27", "c": "SALON | SAN JUAN - Copia 17/7", "g": 46831.69, "cv": 29.0}, {"f": "2026-07-27", "c": "SALON | SAN LUIS - Copia 17/7", "g": 40369.3, "cv": 17.0}, {"f": "2026-07-27", "c": "WEB | Equipamiento Profesional (B2B) - WSP 0368 (17/7)", "g": 156933.6, "cv": 75.0}, {"f": "2026-07-27", "c": "WEB | Hogar (B2C) - WSP 0368 (17/7)", "g": 43866.13, "cv": 34.0}, {"f": "2026-07-28", "c": "Branding / Awareness (TOFU)", "g": 44016.98, "cv": 0.0}, {"f": "2026-07-28", "c": "SALON | CÓRDOBA - Copia 17/7", "g": 24226.92, "cv": 14.0}, {"f": "2026-07-28", "c": "SALON | MENDOZA - Copia 17/7", "g": 187233.98, "cv": 92.0}, {"f": "2026-07-28", "c": "SALON | SAN JUAN - Copia 17/7", "g": 53080.32, "cv": 39.0}, {"f": "2026-07-28", "c": "SALON | SAN LUIS - Copia 17/7", "g": 42183.73, "cv": 13.0}, {"f": "2026-07-28", "c": "WEB | Equipamiento Profesional (B2B) - WSP 0368 (17/7)", "g": 213940.34, "cv": 84.0}, {"f": "2026-07-28", "c": "WEB | Hogar (B2C) - WSP 0368 (17/7)", "g": 63145.46, "cv": 61.0}, {"f": "2026-07-29", "c": "Branding / Awareness (TOFU)", "g": 25085.78, "cv": 0.0}, {"f": "2026-07-29", "c": "SALON | CÓRDOBA - Copia 17/7", "g": 24346.18, "cv": 14.0}, {"f": "2026-07-29", "c": "SALON | MENDOZA - Copia 17/7", "g": 177852.87, "cv": 86.0}, {"f": "2026-07-29", "c": "SALON | SAN JUAN - Copia 17/7", "g": 52512.99, "cv": 33.0}, {"f": "2026-07-29", "c": "SALON | SAN LUIS - Copia 17/7", "g": 34152.52, "cv": 19.0}, {"f": "2026-07-29", "c": "WEB | Equipamiento Profesional (B2B) - WSP 0368 (17/7)", "g": 150085.27, "cv": 64.0}, {"f": "2026-07-29", "c": "WEB | Hogar (B2C) - WSP 0368 (17/7)", "g": 45642.25, "cv": 47.0}, {"f": "2026-07-30", "c": "Branding / Awareness (TOFU)", "g": 32910.02, "cv": 0.0}, {"f": "2026-07-30", "c": "SALON | CÓRDOBA - Copia 17/7", "g": 17399.63, "cv": 15.0}, {"f": "2026-07-30", "c": "SALON | MENDOZA - Copia 17/7", "g": 117262.49, "cv": 85.0}, {"f": "2026-07-30", "c": "SALON | SAN JUAN - Copia 17/7", "g": 27441.45, "cv": 31.0}, {"f": "2026-07-30", "c": "SALON | SAN LUIS - Copia 17/7", "g": 22212.64, "cv": 10.0}, {"f": "2026-07-30", "c": "WEB | Equipamiento Profesional (B2B) - WSP 0368 (17/7)", "g": 118731.2, "cv": 65.0}, {"f": "2026-07-30", "c": "WEB | Hogar (B2C) - WSP 0368 (17/7)", "g": 31207.08, "cv": 39.0}, {"f": "2026-07-31", "c": "Branding / Awareness (TOFU)", "g": 41230.82, "cv": 0.0}, {"f": "2026-07-31", "c": "SALON | CÓRDOBA - Copia 17/7", "g": 12946.14, "cv": 8.0}, {"f": "2026-07-31", "c": "SALON | MENDOZA - Copia 17/7", "g": 94893.07, "cv": 60.0}, {"f": "2026-07-31", "c": "SALON | SAN JUAN - Copia 17/7", "g": 32873.73, "cv": 30.0}, {"f": "2026-07-31", "c": "SALON | SAN LUIS - Copia 17/7", "g": 24644.45, "cv": 13.0}, {"f": "2026-07-31", "c": "WEB | Equipamiento Profesional (B2B) - WSP 0368 (17/7)", "g": 119121.57, "cv": 74.0}, {"f": "2026-07-31", "c": "WEB | Hogar (B2C) - WSP 0368 (17/7)", "g": 35890.72, "cv": 38.0}, {"f": "2026-08-01", "c": "Branding / Awareness (TOFU)", "g": 38161.07, "cv": 0.0}, {"f": "2026-08-01", "c": "SALON | CÓRDOBA - Copia 17/7", "g": 9824.21, "cv": 9.0}, {"f": "2026-08-01", "c": "SALON | MENDOZA - Copia 17/7", "g": 81704.19, "cv": 40.0}, {"f": "2026-08-01", "c": "SALON | SAN JUAN - Copia 17/7", "g": 22466.5, "cv": 14.0}, {"f": "2026-08-01", "c": "SALON | SAN LUIS - Copia 17/7", "g": 18970.58, "cv": 16.0}, {"f": "2026-08-01", "c": "WEB | Equipamiento Profesional (B2B) - WSP 0368 (17/7)", "g": 82444.7, "cv": 58.0}, {"f": "2026-08-01", "c": "WEB | Hogar (B2C) - WSP 0368 (17/7)", "g": 25942.93, "cv": 25.0}, {"f": "2026-08-02", "c": "Branding / Awareness (TOFU)", "g": 34001.67, "cv": 0.0}, {"f": "2026-08-02", "c": "SALON | CÓRDOBA - Copia 17/7", "g": 10922.15, "cv": 4.0}, {"f": "2026-08-02", "c": "SALON | MENDOZA - Copia 17/7", "g": 107753.78, "cv": 58.0}, {"f": "2026-08-02", "c": "SALON | SAN JUAN - Copia 17/7", "g": 34776.13, "cv": 20.0}, {"f": "2026-08-02", "c": "SALON | SAN LUIS - Copia 17/7", "g": 23486.03, "cv": 7.0}, {"f": "2026-08-02", "c": "WEB | Equipamiento Profesional (B2B) - WSP 0368 (17/7)", "g": 113493.2, "cv": 65.0}, {"f": "2026-08-02", "c": "WEB | Hogar (B2C) - WSP 0368 (17/7)", "g": 33566.01, "cv": 37.0}, {"f": "2026-08-03", "c": "Branding / Awareness (TOFU)", "g": 30767.12, "cv": 0.0}, {"f": "2026-08-03", "c": "SALON | CÓRDOBA - Copia 17/7", "g": 22190.55, "cv": 9.0}, {"f": "2026-08-03", "c": "SALON | MENDOZA - Copia 17/7", "g": 187769.37, "cv": 84.0}, {"f": "2026-08-03", "c": "SALON | SAN JUAN - Copia 17/7", "g": 38171.87, "cv": 24.0}, {"f": "2026-08-03", "c": "SALON | SAN LUIS - Copia 17/7", "g": 37634.64, "cv": 16.0}, {"f": "2026-08-03", "c": "WEB | Equipamiento Profesional (B2B) - WSP 0368 (17/7)", "g": 147709.42, "cv": 61.0}, {"f": "2026-08-03", "c": "WEB | Hogar (B2C) - WSP 0368 (17/7)", "g": 52944.74, "cv": 54.0}, {"f": "2026-08-04", "c": "Branding / Awareness (TOFU)", "g": 11265.04, "cv": 0.0}, {"f": "2026-08-04", "c": "SALON | CÓRDOBA - Copia 17/7", "g": 5875.91, "cv": 2.0}, {"f": "2026-08-04", "c": "SALON | MENDOZA - Copia 17/7", "g": 31799.9, "cv": 13.0}, {"f": "2026-08-04", "c": "SALON | SAN JUAN - Copia 17/7", "g": 6930.63, "cv": 3.0}, {"f": "2026-08-04", "c": "SALON | SAN LUIS - Copia 17/7", "g": 4064.36, "cv": 2.0}, {"f": "2026-08-04", "c": "WEB | Equipamiento Profesional (B2B) - WSP 0368 (17/7)", "g": 24081.02, "cv": 9.0}, {"f": "2026-08-04", "c": "WEB | Hogar (B2C) - WSP 0368 (17/7)", "g": 5712.2, "cv": 4.0}];
+const META_MAX    = '2026-08-04';
+
+// ── Utilidades ────────────────────────────────────────────────────────────────
+const fmtM   = v => '$' + (v/1e6).toFixed(2) + 'M';
+const fmtK   = v => '$' + (v/1e3).toFixed(0) + 'k';
+const fmtArs = v => '$' + Math.round(v).toLocaleString('es-AR');
+const fmtPct = v => v.toFixed(1) + '%';
+
+function tipoCampa(n) {
+  n = (n || '').toUpperCase();
+  if (n.includes('HOT SALE')) return 'HOT SALE';
+  if (n.startsWith('WEB'))    return 'WEB';
+  if (n.includes('ECMM'))     return 'BRANDING';
+  if (n.includes('SALON') || n.includes('CALLE')) return 'SALON/CALLE';
+  return 'OTRO';
+}
+
+function cleanCamp(n, tipo) {
+  n = String(n);
+  if (tipo === 'WEB') {
+    return n.replace(/^WEB \| WPP \| /, '')
+            .replace(/ \| ABO \| REGULAR.*$/, '')
+            .replace(/ \| ABO \|.*$/, '')
+            .replace(/ \| .*$/, '')
+            .trim();
+  }
+  if (tipo === 'SALON/CALLE' || tipo === 'HOT SALE') {
+    return n.replace(/^SALON \| /, '')
+            .replace(/^CALLE \| WPP \| EQUIPAMIENTO.*/, 'CALLE | EQUIPAMIENTO')
+            .replace(/ \| WPP \| GENERAL.*$/, '')
+            .replace(/ \| WPP \| CLIENTIFY.*$/, '')
+            .replace(/^REFUERZO - SALON \| /, 'REFUERZO | ')
+            .replace(/^HOT SALE 2026 \| /, 'HOT SALE | ')
+            .replace('HOT SALE WEB 2026', 'HOT SALE | WEB')
+            .trim();
+  }
+  if (tipo === 'BRANDING') {
+    return n.replace(/^ECMM \| /, '').replace(/ \| ABO \|.*$/, '').replace(/ \| CBO \|.*$/, '').trim();
+  }
+  return n;
+}
+
+function cpcColor(cpc) {
+  if (!cpc || isNaN(cpc)) return '#9E9E9E';
+  if (cpc < 1500) return '#2e7d32';
+  if (cpc < 2500) return '#e65100';
+  return '#c62828';
+}
+function cpcEstado(cpc) {
+  if (!cpc || isNaN(cpc)) return '⚫ Sin conv';
+  if (cpc < 1500) return '🟢 Eficiente';
+  if (cpc < 2500) return '🟡 Aceptable';
+  return '🔴 Caro';
+}
+
+// ── Preset ───────────────────────────────────────────────────────────────────
+function setPreset(dias) {
+  document.querySelectorAll('.btn-preset').forEach(b => b.classList.remove('active'));
+  event.target.classList.add('active');
+  const hasta = new Date(META_MAX + 'T00:00:00');
+  const desde = new Date(hasta);
+  desde.setDate(hasta.getDate() - dias + 1);
+  document.getElementById('inp-hasta').value = META_MAX;
+  document.getElementById('inp-desde').value = desde.toISOString().slice(0,10);
+  aplicar();
+}
+
+// ── Aplicar ───────────────────────────────────────────────────────────────────
+function aplicar() {
+  const desde = document.getElementById('inp-desde').value;
+  const hasta  = document.getElementById('inp-hasta').value;
+  if (!desde || !hasta || desde > hasta) { alert('Rango inválido.'); return; }
+
+  // Filtrar por fecha
+  const filt = META_DATA.filter(r => r.f >= desde && r.f <= hasta);
+
+  // Agregar por campaña
+  const byCamp = {};
+  filt.forEach(r => {
+    if (!byCamp[r.c]) byCamp[r.c] = {g: 0, cv: 0, tipo: tipoCampa(r.c)};
+    byCamp[r.c].g  += r.g;
+    byCamp[r.c].cv += r.cv;
+  });
+
+  // Solo campañas con gasto > 0
+  const camps = Object.entries(byCamp)
+    .filter(([,d]) => d.g > 0)
+    .map(([c, d]) => ({
+      c, g: d.g, cv: d.cv,
+      tipo: d.tipo,
+      cpc: d.cv > 0 ? d.g / d.cv : null,
+      nombre: cleanCamp(c, d.tipo),
+    }));
+
+  const totG  = camps.reduce((s,r) => s + r.g, 0);
+  const totCv = camps.reduce((s,r) => s + r.cv, 0);
+  const cpcG  = totCv > 0 ? totG / totCv : null;
+
+  const byTipo = {};
+  camps.forEach(r => {
+    if (!byTipo[r.tipo]) byTipo[r.tipo] = {g: 0, cv: 0};
+    byTipo[r.tipo].g  += r.g;
+    byTipo[r.tipo].cv += r.cv;
+  });
+
+  const webG  = byTipo['WEB']?.g || 0;
+  const webCv = byTipo['WEB']?.cv || 0;
+  const salG  = (byTipo['SALON/CALLE']?.g || 0) + (byTipo['HOT SALE']?.g || 0);
+  const salCv = (byTipo['SALON/CALLE']?.cv || 0) + (byTipo['HOT SALE']?.cv || 0);
+
+  // KPIs
+  document.getElementById('kv-gasto').textContent   = fmtM(totG);
+  document.getElementById('kv-conv').textContent    = totCv.toFixed(0);
+  document.getElementById('kv-cpc').textContent     = cpcG ? fmtArs(cpcG) : '—';
+  document.getElementById('kv-cpc-web').textContent = webCv > 0 ? fmtArs(webG/webCv) : '—';
+  document.getElementById('kv-cpc-sal').textContent = salCv > 0 ? fmtArs(salG/salCv) : '—';
+  document.getElementById('kv-camps').textContent   = camps.length;
+
+  // Título
+  const dias = Math.round((new Date(hasta) - new Date(desde)) / 86400000) + 1;
+  const dsFmt = desde.split('-').reverse().join('/');
+  const htFmt = hasta.split('-').reverse().join('/');
+  document.getElementById('hdr-titulo').textContent =
+    `Análisis Pauta Meta Ads — ${dsFmt} al ${htFmt} (${dias} días)`;
+
+  renderTipo(byTipo, totG);
+  renderTabla('tbody-web',   'resumen-web', camps, 'WEB',          totG);
+  renderTabla('tbody-sal',   'resumen-sal', camps, 'SALON/CALLE',  totG, true);
+  renderBrand(camps);
+  renderHallazgos(camps, byTipo, totG, cpcG);
+
+  document.getElementById('pie').textContent =
+    `El Cristorante S.A. — IBACETA · Análisis Pauta Meta Ads · ${dsFmt} al ${htFmt} · ${filt.length} registros`;
+}
+
+// ── Render: barras por tipo ───────────────────────────────────────────────────
+function renderTipo(byTipo, totG) {
+  const order = [['WEB','#00548A'],['SALON/CALLE','#F1891B'],['BRANDING','#9c27b0'],['HOT SALE','#2e7d32'],['OTRO','#aaa']];
+  const maxG  = Math.max(...Object.values(byTipo).map(d => d.g), 1);
+  let h = '';
+  order.forEach(([t, col]) => {
+    const d = byTipo[t];
+    if (!d || d.g === 0) return;
+    const w    = d.g / maxG * 100;
+    const cpc  = d.cv > 0 ? fmtArs(d.g / d.cv) : 'N/A';
+    const pct  = (d.g / totG * 100).toFixed(1);
+    h += `<div style="margin-bottom:12px">
+      <div style="display:flex;justify-content:space-between;font-size:.79rem;margin-bottom:3px">
+        <span style="font-weight:700;color:${col}">${t}</span>
+        <span style="color:#555">${fmtM(d.g)} · ${pct}% · ${d.cv.toFixed(0)} conv · CPC ${cpc}</span>
+      </div>
+      <div style="height:18px;background:#f0f0f0;border-radius:4px;overflow:hidden">
+        <div style="width:${w.toFixed(1)}%;height:100%;background:${col};border-radius:4px;opacity:.85"></div>
+      </div>
+    </div>`;
+  });
+  document.getElementById('bars-tipo').innerHTML = h || '<div class="sin-datos">Sin datos</div>';
+}
+
+// ── Render: tabla campañas ────────────────────────────────────────────────────
+function renderTabla(tbodyId, resumenId, camps, tipo, totG, incluirHS) {
+  const rows = camps
+    .filter(r => r.tipo === tipo || (incluirHS && r.tipo === 'HOT SALE'))
+    .sort((a,b) => (a.cpc||9e9) - (b.cpc||9e9));
+  const canalG  = rows.reduce((s,r) => s + r.g, 0);
+  const canalCv = rows.reduce((s,r) => s + r.cv, 0);
+  const canalCpc = canalCv > 0 ? canalG / canalCv : null;
+  const maxG = Math.max(...rows.map(r => r.g), 1);
+
+  if (resumenId) {
+    const col = tipo === 'WEB' ? '#2e7d32' : '#e65100';
+    document.getElementById(resumenId).innerHTML =
+      `Gasto total: <strong>${fmtM(canalG)}</strong> &middot; Conversaciones: <strong>${canalCv.toFixed(0)}</strong> &middot; CPC canal: <strong style="color:${col}">${canalCpc ? fmtArs(canalCpc) : '—'}</strong>`;
+  }
+
+  if (!rows.length) {
+    document.getElementById(tbodyId).innerHTML = `<tr><td colspan="6" class="sin-datos">Sin campañas activas en el período</td></tr>`;
+    return;
+  }
+
+  let h = '';
+  rows.forEach((r, i) => {
+    const bw   = Math.round(r.g / maxG * 100);
+    const pct  = (r.g / canalG * 100).toFixed(1);
+    const col  = tipo === 'WEB' ? '#00548A' : '#F1891B';
+    const cpcC = cpcColor(r.cpc);
+    const cpcS = r.cpc ? fmtArs(r.cpc) : '—';
+    const est  = cpcEstado(r.cpc);
+    const tag  = r.tipo === 'HOT SALE'
+      ? '<span style="background:#e8f5e9;color:#2e7d32;padding:1px 6px;border-radius:5px;font-size:.65rem;font-weight:700;margin-left:6px">HOT SALE</span>' : '';
+    h += `<tr style="${i%2===0?'background:#f7fafd':''}">
+      <td style="padding:8px 10px;font-weight:600;font-size:.82rem">${r.nombre}${tag}</td>
+      <td style="padding:8px 10px;font-size:.82rem">
+        ${fmtM(r.g)}
+        <div style="height:5px;background:#e0e0e0;border-radius:3px;margin-top:3px;overflow:hidden">
+          <div style="width:${bw}%;height:100%;background:${col};border-radius:3px;opacity:.7"></div>
+        </div>
+      </td>
+      <td style="padding:8px 10px;text-align:center;font-size:.82rem">${pct}%</td>
+      <td style="padding:8px 10px;text-align:center;font-weight:700;font-size:.88rem">${r.cv.toFixed(0)}</td>
+      <td style="padding:8px 10px;text-align:center;font-weight:800;color:${cpcC};font-size:.88rem">${cpcS}</td>
+      <td style="padding:8px 10px;text-align:center;font-size:.75rem">${est}</td>
+    </tr>`;
+  });
+  document.getElementById(tbodyId).innerHTML = h;
+}
+
+// ── Render: branding + otro ───────────────────────────────────────────────────
+function renderBrand(camps) {
+  const rows = camps.filter(r => r.tipo === 'BRANDING' || r.tipo === 'OTRO')
+                    .sort((a,b) => b.g - a.g);
+  if (!rows.length) {
+    document.getElementById('tbody-brand').innerHTML = `<tr><td colspan="3" class="sin-datos">Sin campañas en el período</td></tr>`;
+    return;
+  }
+  let h = '';
+  rows.forEach((r, i) => {
+    const tipoLbl = r.tipo === 'BRANDING'
+      ? '<span style="background:#f3e5f5;color:#7b1fa2;padding:1px 6px;border-radius:5px;font-size:.65rem;font-weight:700">BRANDING</span>'
+      : '<span style="background:#f5f5f5;color:#555;padding:1px 6px;border-radius:5px;font-size:.65rem;font-weight:700">OTRO</span>';
+    h += `<tr style="${i%2===0?'background:#f7fafd':''}">
+      <td style="padding:8px 10px;font-size:.82rem;font-weight:600">${r.nombre}</td>
+      <td style="padding:8px 10px;font-size:.82rem;font-weight:700">${fmtM(r.g)}</td>
+      <td style="padding:8px 10px">${tipoLbl}</td>
+    </tr>`;
+  });
+  document.getElementById('tbody-brand').innerHTML = h;
+}
+
+// ── Render: hallazgos automáticos ─────────────────────────────────────────────
+function renderHallazgos(camps, byTipo, totG, cpcG) {
+  const HCOL = {
+    alert:   ['#fdecea','#c62828'],
+    warning: ['#fff8e1','#e65100'],
+    success: ['#e8f5e9','#2e7d32'],
+    info:    ['#e3f2fd','#1565c0'],
+  };
+  function h(nivel, titulo, desc) {
+    const [bg, tc] = HCOL[nivel];
+    return `<div style="background:${bg};border-left:4px solid ${tc};border-radius:6px;padding:11px 14px;margin-bottom:9px">
+      <div style="font-family:'Montserrat',sans-serif;font-weight:700;font-size:.84rem;color:${tc};margin-bottom:3px">${titulo}</div>
+      <div style="font-size:.78rem;color:#555;line-height:1.5">${desc}</div>
+    </div>`;
+  }
+
+  const web = camps.filter(r => r.tipo === 'WEB' && r.g > 0);
+  const sal = camps.filter(r => (r.tipo === 'SALON/CALLE' || r.tipo === 'HOT SALE') && r.g > 0);
+  const brand = camps.filter(r => r.tipo === 'BRANDING' && r.g > 0);
+  let html = '';
+
+  // 1. Campañas sin conversiones con gasto significativo
+  const sinConv = camps.filter(r => r.cv === 0 && r.g > 50000);
+  if (sinConv.length) {
+    const lista = sinConv.map(r => `${r.nombre} (${fmtK(r.g)})`).join(', ');
+    html += h('alert', `${sinConv.length} campaña${sinConv.length>1?'s':''} con gasto sin conversiones`,
+      `${lista}. Revisar objetivo, creatividad o audiencia — cada peso gastado no genera WPP.`);
+  }
+
+  // 2. Campaña WEB más cara vs más barata
+  const webConConv = web.filter(r => r.cpc);
+  if (webConConv.length >= 2) {
+    const cara   = webConConv.reduce((a,b) => b.cpc > a.cpc ? b : a);
+    const barata = webConConv.reduce((a,b) => b.cpc < a.cpc ? b : a);
+    const ratio  = cara.cpc / barata.cpc;
+    if (ratio > 2) {
+      html += h('warning', `${cara.nombre} es ${ratio.toFixed(0)}x más cara que ${barata.nombre}`,
+        `CPC más caro: ${fmtArs(cara.cpc)} (${fmtK(cara.g)} gastados, ${cara.cv.toFixed(0)} conv). ` +
+        `CPC más barato: ${fmtArs(barata.cpc)} (${fmtK(barata.g)} gastados, ${barata.cv.toFixed(0)} conv). ` +
+        `Evaluar reasignar presupuesto hacia la campaña eficiente.`);
+    }
+  }
+
+  // 3. Mejor CPC WEB
+  if (webConConv.length) {
+    const mejor = webConConv.reduce((a,b) => b.cpc < a.cpc ? b : a);
+    if (mejor.cpc < 1500) {
+      html += h('success', `${mejor.nombre} tiene el mejor CPC WEB (${fmtArs(mejor.cpc)})`,
+        `${mejor.cv.toFixed(0)} conversaciones con ${fmtK(mejor.g)} invertidos. Candidato a escalar presupuesto.`);
+    }
+  }
+
+  // 4. Mejor CPC Salones
+  const salConConv = sal.filter(r => r.cpc);
+  if (salConConv.length) {
+    const mejor = salConConv.reduce((a,b) => b.cpc < a.cpc ? b : a);
+    html += h(mejor.cpc < 2000 ? 'success' : 'info', `${mejor.nombre} tiene el mejor CPC de salones (${fmtArs(mejor.cpc)})`,
+      `${mejor.cv.toFixed(0)} conversaciones con ${fmtK(mejor.g)}. ` +
+      (mejor.cpc < 2000 ? 'Estructura y creatividad funcionan — replicar en otras ciudades.' : 'Aceptable, pero hay margen para mejorar.'));
+  }
+
+  // 5. Salones más caros
+  const salCaros = salConConv.filter(r => r.cpc > 3000).sort((a,b) => b.cpc - a.cpc);
+  if (salCaros.length) {
+    const lista = salCaros.slice(0,3).map(r => `${r.nombre} (${fmtArs(r.cpc)})`).join(', ');
+    html += h('warning', `CPC elevado en salones: ${salCaros.length} campaña${salCaros.length>1?'s':''} sobre $3.000`,
+      `${lista}. Revisar audiencia y zona de entrega — puede ser mercado pequeño o presupuesto excesivo.`);
+  }
+
+  // 6. Branding sin WPP
+  if (brand.length) {
+    const bG = brand.reduce((s,r) => s + r.g, 0);
+    html += h('info', `Branding: ${fmtM(bG)} sin objetivo WPP (${brand.length} campaña${brand.length>1?'s':''} ECMM)`,
+      `Sin conversaciones WPP, el impacto en negocio no es medible. ` +
+      `Evaluar migrar a objetivo ThruPlay (video) para construir audiencias cálidas antes de las campañas de conversión.`);
+  }
+
+  // 7. Concentración de gasto
+  const topCamp = camps.filter(r => r.g > 0).sort((a,b) => b.g - a.g).slice(0,3);
+  const topPct  = topCamp.reduce((s,r) => s + r.g, 0) / totG * 100;
+  if (topPct > 60 && camps.length > 4) {
+    html += h('info', `Top 3 campañas concentran el ${topPct.toFixed(0)}% del gasto`,
+      topCamp.map(r => `${r.nombre}: ${fmtK(r.g)} (${(r.g/totG*100).toFixed(0)}%)`).join(' · '));
+  }
+
+  document.getElementById('hallazgos').innerHTML = html ||
+    '<div class="sin-datos">Sin hallazgos significativos en el período seleccionado</div>';
+}
+
+// Iniciar con valores por defecto
+document.addEventListener('DOMContentLoaded', () => {
+  document.getElementById('btn30').classList.add('active');
+  aplicar();
+});
+</script>
+<div id="_ibaceta_ts" style="position:fixed;bottom:14px;right:14px;z-index:99999;
+font-family:Arial,sans-serif;font-size:11px;padding:5px 12px;border-radius:20px;
+background:rgba(15,15,25,.93);color:#ddd;box-shadow:0 2px 10px rgba(0,0,0,.55);
+border-left:4px solid #3fb950;pointer-events:none;line-height:1.5">
+  &#9201; <b>Generado:</b> 04/08/2026 09:01
+</div>
+<script>
+(function(){
+  var gen=new Date("2026-08-04T09:01:31"),hrs=(new Date()-gen)/3600000;
+  var el=document.getElementById("_ibaceta_ts");if(!el)return;
+  if(hrs>24){el.style.borderColor="#f85149";el.style.color="#ffcccc";
+    el.innerHTML+=" &nbsp;<span style=\"color:#f85149;font-weight:bold\">&#9888; +24h</span>";}
+  else if(hrs>12){el.style.borderColor="#f8961e";}
+})();
+</script>
+</body>
+</html>
