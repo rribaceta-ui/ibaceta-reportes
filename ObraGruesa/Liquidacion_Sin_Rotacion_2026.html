@@ -1,0 +1,290 @@
+<!-- reporte liquidacion sin rotacion -->
+<link href="https://fonts.googleapis.com/css2?family=Montserrat:wght@400;600;700;800&family=Open+Sans:wght@400;600&display=swap" rel="stylesheet">
+<style>
+:root{--azul:#00548A;--naranja:#F1891B;--bg:#F5F5F5;--sup:#FFFFFF;--tx:#333333;--tx-inv:#FFFFFF;
+--radius:6px;--shadow:0 2px 8px rgba(0,0,0,.08);--borde:#E3E6EA;}
+*{box-sizing:border-box;}
+body{margin:0;background:var(--bg);color:var(--tx);font-family:'Open Sans',Arial,sans-serif;font-size:14px;line-height:1.55;}
+h1,h2,h3,.kpi-val,th{font-family:'Montserrat',Arial,sans-serif;}
+.wrap{max-width:1220px;margin:0 auto;padding:0 20px 60px;}
+header{background:var(--azul);color:var(--tx-inv);padding:30px 0 26px;}
+header .wrap{padding-bottom:0;}
+.marca{font-family:'Montserrat',sans-serif;font-weight:800;font-size:26px;letter-spacing:.5px;}
+.marca span{color:var(--naranja);}
+header h1{font-size:26px;font-weight:700;margin:14px 0 6px;}
+header p{margin:0;opacity:.9;font-size:14px;}
+.tag{display:inline-block;background:rgba(255,255,255,.15);border-left:3px solid var(--naranja);
+padding:4px 10px;border-radius:3px;font-size:12.5px;margin-top:12px;}
+.kpis{display:grid;grid-template-columns:repeat(auto-fit,minmax(190px,1fr));gap:14px;margin:-26px 0 30px;}
+.kpi{background:var(--sup);border-top:4px solid var(--naranja);border-radius:var(--radius);
+box-shadow:var(--shadow);padding:16px 18px;}
+.kpi-lab{font-size:11.5px;text-transform:uppercase;letter-spacing:.6px;color:#6B7280;margin-bottom:6px;}
+.kpi-val{font-size:23px;font-weight:700;color:var(--azul);line-height:1.2;}
+.kpi-sub{font-size:12px;color:#6B7280;margin-top:3px;}
+.kpi.alerta{border-top-color:#C0392B;} .kpi.alerta .kpi-val{color:#C0392B;}
+section{background:var(--sup);border-radius:var(--radius);box-shadow:var(--shadow);
+padding:22px 24px 26px;margin-bottom:26px;}
+h2{font-size:19px;color:var(--azul);margin:0 0 4px;}
+h2 .n{background:var(--naranja);color:#fff;border-radius:4px;padding:1px 9px;font-size:15px;margin-right:9px;}
+.sub{color:#6B7280;font-size:13px;margin:0 0 18px;}
+table{width:100%;border-collapse:collapse;font-size:13px;}
+thead th{background:var(--azul);color:#fff;text-align:right;padding:9px 10px;font-weight:600;font-size:12px;
+position:sticky;top:0;}
+thead th:first-child,thead th.l{text-align:left;}
+tbody td{padding:8px 10px;text-align:right;border-bottom:1px solid var(--borde);}
+tbody td:first-child,tbody td.l{text-align:left;}
+tbody tr:nth-child(even){background:var(--bg);}
+tbody tr:hover{background:#EAF2F8;}
+tfoot td{padding:10px;font-weight:700;border-top:2px solid var(--azul);text-align:right;background:#EAF2F8;}
+tfoot td:first-child{text-align:left;}
+.badge{color:#fff;padding:2px 9px;border-radius:11px;font-size:11px;font-weight:600;white-space:nowrap;
+display:inline-block;font-family:'Montserrat',sans-serif;}
+.leyenda{display:flex;flex-wrap:wrap;gap:10px;margin:16px 0 4px;}
+.leyenda div{background:var(--bg);border-radius:var(--radius);padding:10px 14px;flex:1 1 200px;
+border-left:4px solid #ccc;}
+.leyenda b{display:block;font-family:'Montserrat',sans-serif;font-size:13px;margin-bottom:2px;}
+.leyenda small{color:#6B7280;font-size:12px;}
+details{border:1px solid var(--borde);border-radius:var(--radius);margin-bottom:10px;overflow:hidden;}
+details[open]{box-shadow:var(--shadow);}
+summary{cursor:pointer;padding:11px 15px;background:var(--bg);font-family:'Montserrat',sans-serif;
+font-weight:600;font-size:13.5px;color:var(--azul);display:flex;justify-content:space-between;
+align-items:center;gap:14px;list-style:none;}
+summary::-webkit-details-marker{display:none;}
+summary::before{content:'▸';color:var(--naranja);font-size:15px;margin-right:2px;}
+details[open] summary::before{content:'▾';}
+summary .met{font-family:'Open Sans',sans-serif;font-weight:400;font-size:12.5px;color:#6B7280;
+text-align:right;white-space:nowrap;}
+summary .met b{color:var(--tx);font-weight:600;}
+.tabla-wrap{overflow-x:auto;}
+.alerta-box{background:#FDF2F0;border-left:4px solid #C0392B;padding:13px 16px;border-radius:var(--radius);
+margin:16px 0 0;font-size:13px;}
+.alerta-box b{color:#C0392B;font-family:'Montserrat',sans-serif;}
+.nota{background:var(--bg);border-left:4px solid var(--naranja);padding:14px 17px;border-radius:var(--radius);
+font-size:12.5px;color:#555;}
+.nota b{font-family:'Montserrat',sans-serif;color:var(--azul);}
+.nota ul{margin:8px 0 0;padding-left:18px;} .nota li{margin-bottom:5px;}
+footer{background:#333;color:#CFCFCF;padding:20px 0;font-size:12px;margin-top:10px;}
+footer .wrap{padding-bottom:0;display:flex;justify-content:space-between;flex-wrap:wrap;gap:10px;}
+footer b{color:#fff;font-family:'Montserrat',sans-serif;}
+@media(max-width:640px){.kpi-val{font-size:19px;}summary{flex-direction:column;align-items:flex-start;}}
+</style>
+<header><div class="wrap"><div class="marca">IBACETA<span>.</span></div>
+<h1>Liquidación de productos sin rotación</h1>
+<p>Multiespacio Obra Gruesa &middot; Local 21 &middot; RRDIGITAL BO 021</p>
+<div class="tag">Ventas del 01/01/2026 al 12/08/2026 &middot; stock al 12/08/2026</div></div></header>
+<div class="wrap">
+<div class="kpis">
+<div class="kpi"><div class="kpi-lab">Ítems en seguimiento</div><div class="kpi-val">137 + 4</div><div class="kpi-sub">137 artículos y 4 rubros completos</div></div>
+<div class="kpi"><div class="kpi-lab">Vendido en 2026</div><div class="kpi-val">$156.063.421</div><div class="kpi-sub">14.116 unidades</div></div>
+<div class="kpi"><div class="kpi-lab">Vendido últimos 90 días</div><div class="kpi-val">5.274 un.</div><div class="kpi-sub">37% de las unidades del año</div></div>
+<div class="kpi"><div class="kpi-lab">Stock actual depósito 21</div><div class="kpi-val">45.205 un.</div><div class="kpi-sub">$260.884.026 a costo c/IVA</div></div>
+<div class="kpi alerta"><div class="kpi-lab">Sin venta hace 90 días</div><div class="kpi-val">47 art.</div><div class="kpi-sub">$29.701.915 inmovilizados</div></div>
+</div>
+<section><h2>Cómo leer el estado de cada producto</h2><p class="sub">Se calcula cruzando la venta de 2026, la venta de los últimos 90 días y el stock que queda hoy en el depósito.</p><div class="leyenda">
+<div style="border-left-color:#5B9BD5"><b>Agotado &middot; 20 artículos</b><small>Se vendió todo. No queda stock: objetivo cumplido.</small></div>
+<div style="border-left-color:#1E8449"><b>En salida &middot; 27 artículos</b><small>Vende bien: al ritmo actual el stock se agota en 3 meses o menos.</small></div>
+<div style="border-left-color:#B7791F"><b>Con saldo &middot; 43 artículos</b><small>Vende, pero el stock alcanza para más de 3 meses.</small></div>
+<div style="border-left-color:#C0392B"><b>Sin venta en 90 dias &middot; 47 artículos</b><small>Tiene stock y no vendió una sola unidad en los últimos 90 días. Acá está el problema.</small></div>
+</div>
+<div class="alerta-box"><b>Foco inmediato:</b> 47 artículos con stock llevan 90 días sin vender, por $29.701.915 a costo. Los tres de mayor peso: Hormigonera Duroll 150Lts Rueda Maciza (14 un.); Placa Cielorraso Desmontable Aconcagua 0.6 (2.385 un.); Chapa Perforada 20 Red 4Mm 1X2 (39 un.).</div>
+</section>
+<section><h2><span class="n">1</span>Rubros sin detalle de artículo</h2><p class="sub">En el listado original estos cuatro rubros venían con una sola línea, sin especificar artículos. Las cifras corresponden al rubro completo.</p><div class="tabla-wrap"><table><thead><tr><th class="l">Rubro</th><th>Un. 2026</th><th>Vendido 2026</th><th>Un. últ. 90 días</th><th>Stock dep. 21</th><th>Stock total</th><th>Inmovilizado c/IVA</th></tr></thead><tbody>
+<tr><td class="l"><b>Alambre Neg Recocido</b></td><td>1.527</td><td>$4.693.795</td><td>910</td><td>6.841</td><td>7.051</td><td>$17.750.351</td></tr>
+<tr><td class="l"><b>Bombas</b></td><td>41</td><td>$4.221.293</td><td>10</td><td>113</td><td>113</td><td>$13.086.723</td></tr>
+<tr><td class="l"><b>Riego</b></td><td>584</td><td>$1.819.564</td><td>330</td><td>13.142</td><td>13.142</td><td>$21.915.918</td></tr>
+<tr><td class="l"><b>Clavos</b></td><td>331</td><td>$1.381.856</td><td>213</td><td>2.891</td><td>2.923</td><td>$11.304.921</td></tr>
+</tbody><tfoot><tr><td>Total</td><td>2.483</td><td>$12.116.508</td><td>1.463</td><td>22.987</td><td>23.229</td><td>$64.057.913</td></tr></tfoot></table></div></section>
+<section><h2><span class="n">2</span>Rubros con artículos detallados</h2><p class="sub">Los 137 artículos marcados en el listado, agrupados por su rubro actual del ERP. Primero el consolidado y abajo el detalle de cada uno.</p><div class="tabla-wrap"><table><thead><tr><th class="l">Rubro</th><th>Art.</th><th>Sin venta 90d</th><th>Un. 2026</th><th>Vendido 2026</th><th>Un. últ. 90 días</th><th>Stock dep. 21</th><th>Inmovilizado c/IVA</th></tr></thead><tbody>
+<tr><td class="l"><b>Hierros</b></td><td>5</td><td><b style="color:#C0392B">1</b></td><td>5.567</td><td>$47.724.342</td><td>2.523</td><td>13.776</td><td>$76.167.608</td></tr>
+<tr><td class="l"><b>Ceramico Porcelanato</b></td><td>32</td><td><b style="color:#C0392B">8</b></td><td>2.403</td><td>$34.252.353</td><td>537</td><td>1.184</td><td>$16.037.711</td></tr>
+<tr><td class="l"><b>Mallas Acero</b></td><td>5</td><td>&mdash;</td><td>287</td><td>$16.320.804</td><td>126</td><td>856</td><td>$47.968.888</td></tr>
+<tr><td class="l"><b>Pegamentos Y Pastina</b></td><td>3</td><td><b style="color:#C0392B">1</b></td><td>1.153</td><td>$12.434.514</td><td>244</td><td>103</td><td>$732.233</td></tr>
+<tr><td class="l"><b>Chapas</b></td><td>11</td><td><b style="color:#C0392B">3</b></td><td>156</td><td>$8.798.423</td><td>68</td><td>992</td><td>$13.595.532</td></tr>
+<tr><td class="l"><b>Metal Desplegado</b></td><td>9</td><td><b style="color:#C0392B">2</b></td><td>129</td><td>$6.883.672</td><td>41</td><td>74</td><td>$5.027.838</td></tr>
+<tr><td class="l"><b>Membranas</b></td><td>8</td><td><b style="color:#C0392B">1</b></td><td>263</td><td>$5.105.364</td><td>56</td><td>150</td><td>$3.880.538</td></tr>
+<tr><td class="l"><b>Pinturas</b></td><td>16</td><td><b style="color:#C0392B">8</b></td><td>135</td><td>$3.578.134</td><td>17</td><td>64</td><td>$1.211.381</td></tr>
+<tr><td class="l"><b>Albanileria</b></td><td>14</td><td><b style="color:#C0392B">8</b></td><td>242</td><td>$3.488.937</td><td>25</td><td>182</td><td>$11.727.376</td></tr>
+<tr><td class="l"><b>Yesero</b></td><td>2</td><td><b style="color:#C0392B">1</b></td><td>769</td><td>$1.967.029</td><td>38</td><td>199</td><td>$244.874</td></tr>
+<tr><td class="l"><b>Drywall</b></td><td>3</td><td><b style="color:#C0392B">1</b></td><td>335</td><td>$1.293.008</td><td>103</td><td>4.056</td><td>$10.331.935</td></tr>
+<tr><td class="l"><b>Herramientas A 21%</b></td><td>4</td><td><b style="color:#C0392B">1</b></td><td>6</td><td>$1.015.619</td><td>2</td><td>5</td><td>$109.481</td></tr>
+<tr><td class="l"><b>Piscinas</b></td><td>11</td><td><b style="color:#C0392B">10</b></td><td>76</td><td>$606.799</td><td>0</td><td>232</td><td>$1.173.361</td></tr>
+<tr><td class="l"><b>Accesorios Pintura</b></td><td>11</td><td><b style="color:#C0392B">2</b></td><td>104</td><td>$264.221</td><td>19</td><td>75</td><td>$96.486</td></tr>
+<tr><td class="l"><b>Herramientas A 10.5%</b></td><td>1</td><td>&mdash;</td><td>3</td><td>$171.036</td><td>2</td><td>1</td><td>$38.675</td></tr>
+<tr><td class="l"><b>Hierros Grandes</b></td><td>1</td><td>&mdash;</td><td>3</td><td>$22.555</td><td>9</td><td>267</td><td>$8.467.835</td></tr>
+<tr><td class="l"><b>Heramientas Manuales</b></td><td>1</td><td>&mdash;</td><td>2</td><td>$20.103</td><td>1</td><td>2</td><td>$14.359</td></tr>
+</tbody><tfoot><tr><td>Total</td><td>137</td><td>47</td><td>11.633</td><td>$143.946.914</td><td>3.811</td><td>22.218</td><td>$196.826.113</td></tr></tfoot></table></div>
+<h3 style="color:#00548A;margin:28px 0 12px;font-size:16px;">Detalle artículo por artículo</h3>
+<details><summary><span>Hierros (5 art.)</span><span class="met">$47.724.342 en 2026 &middot; <b>13.776 un.</b> en stock &middot; <b style="color:#C0392B">1 sin venta 90d</b></span></summary><div class="tabla-wrap"><table><thead><tr><th class="l">Artículo</th><th>Un. 2026</th><th>Vendido 2026</th><th>Un. 90d</th><th>Últ. venta</th><th>Stock 21</th><th>Cobertura</th><th class="l">Estado</th></tr></thead><tbody>
+<tr><td class="l">Acindar Barra Adn 8Mm L12Mt 150850 Gv538</td><td>2.095</td><td>$20.275.536</td><td>761</td><td>12/08/2026</td><td>1.935</td><td>6,8 m</td><td class="l"><span class="badge" style="background:#B7791F">Con saldo</span></td></tr>
+<tr><td class="l">Acindar Barra Adn 6Mm L12Mt 150849 Gv538</td><td>2.586</td><td>$14.182.701</td><td>1.430</td><td>10/08/2026</td><td>11.622</td><td>33,1 m</td><td class="l"><span class="badge" style="background:#B7791F">Con saldo</span></td></tr>
+<tr><td class="l">Hierro Nervado 10 Mm 12Mts Adn420</td><td>866</td><td>$12.914.450</td><td>322</td><td>23/07/2026</td><td>127</td><td>1,1 m</td><td class="l"><span class="badge" style="background:#1E8449">En salida</span></td></tr>
+<tr><td class="l">Hierro Cuadrado 12.7  6Mts</td><td>18</td><td>$291.875</td><td>10</td><td>15/07/2026</td><td>52</td><td>21,3 m</td><td class="l"><span class="badge" style="background:#B7791F">Con saldo</span></td></tr>
+<tr><td class="l">Hierro Cuadrado 14.29</td><td>2</td><td>$59.779</td><td>0</td><td>24/01/2026</td><td>40</td><td>147,2 m</td><td class="l"><span class="badge" style="background:#C0392B">Sin venta en 90 dias</span></td></tr>
+</tbody></table></div></details>
+<details><summary><span>Ceramico Porcelanato (32 art.)</span><span class="met">$34.252.353 en 2026 &middot; <b>1.184 un.</b> en stock &middot; <b style="color:#C0392B">8 sin venta 90d</b></span></summary><div class="tabla-wrap"><table><thead><tr><th class="l">Artículo</th><th>Un. 2026</th><th>Vendido 2026</th><th>Un. 90d</th><th>Últ. venta</th><th>Stock 21</th><th>Cobertura</th><th class="l">Estado</th></tr></thead><tbody>
+<tr><td class="l">Spl Porcelanato Calypso Gris Brillante 53X53 Caja 2Mts</td><td>105</td><td>$2.823.897</td><td>33</td><td>03/07/2026</td><td>32</td><td>2,2 m</td><td class="l"><span class="badge" style="background:#1E8449">En salida</span></td></tr>
+<tr><td class="l">Ceramico Lourdes Eucalito Gris 56X56 Caja 2.17M2</td><td>178</td><td>$2.584.509</td><td>86</td><td>12/08/2026</td><td>77</td><td>3,2 m</td><td class="l"><span class="badge" style="background:#B7791F">Con saldo</span></td></tr>
+<tr><td class="l">Ceramico Animana Gris Mate 36X36 2.33Mts.Caja</td><td>186</td><td>$2.360.736</td><td>-17</td><td>20/07/2026</td><td>21</td><td>0,8 m</td><td class="l"><span class="badge" style="background:#C0392B">Sin venta en 90 dias</span></td></tr>
+<tr><td class="l">Ceramico Lourdes Travertino Brillante Gris 56X56 Caja 2.17Mt</td><td>153</td><td>$2.308.029</td><td>20</td><td>03/06/2026</td><td>8</td><td>0,4 m</td><td class="l"><span class="badge" style="background:#1E8449">En salida</span></td></tr>
+<tr><td class="l">Ceramico Lourdes Travertino Plus Gris 35X35 Caja 2.22</td><td>172</td><td>$2.197.136</td><td>46</td><td>12/08/2026</td><td>71</td><td>3,0 m</td><td class="l"><span class="badge" style="background:#1E8449">En salida</span></td></tr>
+<tr><td class="l">Ceramico Lourdes Leno Albino 56X56 Caja 2.17</td><td>91</td><td>$1.420.510</td><td>30</td><td>28/07/2026</td><td>28</td><td>2,3 m</td><td class="l"><span class="badge" style="background:#1E8449">En salida</span></td></tr>
+<tr><td class="l">Porcelanato Spl Hd Patagonico Mercurio 53X53 Caja 1.69Mts</td><td>51</td><td>$1.386.084</td><td>4</td><td>27/06/2026</td><td>84</td><td>12,1 m</td><td class="l"><span class="badge" style="background:#B7791F">Con saldo</span></td></tr>
+<tr><td class="l">Ceramico Esteco Beige Brillante 36X36  2.33Mts.Caja</td><td>113</td><td>$1.382.184</td><td>24</td><td>18/07/2026</td><td>4</td><td>0,3 m</td><td class="l"><span class="badge" style="background:#1E8449">En salida</span></td></tr>
+<tr><td class="l">Ceramico Lourdes Eucalipto Marron Caja 2.17Mts</td><td>92</td><td>$1.347.310</td><td>39</td><td>04/08/2026</td><td>119</td><td>9,5 m</td><td class="l"><span class="badge" style="background:#B7791F">Con saldo</span></td></tr>
+<tr><td class="l">Ceramico Zenta Beige Mate 36X36</td><td>106</td><td>$1.323.268</td><td>40</td><td>05/06/2026</td><td>1</td><td>0,1 m</td><td class="l"><span class="badge" style="background:#1E8449">En salida</span></td></tr>
+<tr><td class="l">Ceramico Lourdes Tafi Gris 35X35 Caja 2.2</td><td>106</td><td>$1.288.599</td><td>27</td><td>14/07/2026</td><td>128</td><td>8,9 m</td><td class="l"><span class="badge" style="background:#B7791F">Con saldo</span></td></tr>
+<tr><td class="l">Spl Porcelanato Onicciata Brillante 53X53 2Mts</td><td>47</td><td>$1.160.173</td><td>3</td><td>03/07/2026</td><td>7</td><td>1,1 m</td><td class="l"><span class="badge" style="background:#1E8449">En salida</span></td></tr>
+<tr><td class="l">Ceramico Quijano Gris Brillante 36X36 2.33Mts.Caja</td><td>88</td><td>$1.149.357</td><td>8</td><td>03/07/2026</td><td>0</td><td>&mdash;</td><td class="l"><span class="badge" style="background:#5B9BD5">Agotado</span></td></tr>
+<tr><td class="l">Ceramico Animana Oxido Mate 36X36  2.33Mts Caja</td><td>102</td><td>$1.141.202</td><td>0</td><td>10/04/2026</td><td>4</td><td>0,3 m</td><td class="l"><span class="badge" style="background:#C0392B">Sin venta en 90 dias</span></td></tr>
+<tr><td class="l">Ceramico Encon Mix Mate 36X36 2.33Mts.Caja</td><td>75</td><td>$1.057.835</td><td>2</td><td>23/07/2026</td><td>9</td><td>0,9 m</td><td class="l"><span class="badge" style="background:#1E8449">En salida</span></td></tr>
+<tr><td class="l">Ceramico Lourdes Serrano Gris 25X35 Caja 2.22 M2</td><td>99</td><td>$1.037.176</td><td>8</td><td>08/07/2026</td><td>4</td><td>0,3 m</td><td class="l"><span class="badge" style="background:#1E8449">En salida</span></td></tr>
+<tr><td class="l">Ceramico Esteco Gris Brillante 36X36</td><td>86</td><td>$1.031.718</td><td>0</td><td>06/03/2026</td><td>0</td><td>&mdash;</td><td class="l"><span class="badge" style="background:#5B9BD5">Agotado</span></td></tr>
+<tr><td class="l">Ceramico Lourdes Porfido Verde 35X35 Caja 2.2 M2</td><td>76</td><td>$992.993</td><td>15</td><td>10/07/2026</td><td>135</td><td>13,1 m</td><td class="l"><span class="badge" style="background:#B7791F">Con saldo</span></td></tr>
+<tr><td class="l">Spl Porcelanato Hd Marmol Carrara Brillante 53X53 Caja 2Mts</td><td>34</td><td>$922.114</td><td>0</td><td>04/02/2026</td><td>2</td><td>0,4 m</td><td class="l"><span class="badge" style="background:#C0392B">Sin venta en 90 dias</span></td></tr>
+<tr><td class="l">Ceramico Quijano Beige Brillante 36X36 2.33Mts.Caja</td><td>66</td><td>$852.795</td><td>45</td><td>03/08/2026</td><td>6</td><td>0,7 m</td><td class="l"><span class="badge" style="background:#1E8449">En salida</span></td></tr>
+<tr><td class="l">Ceramico Lourdes Pino Oscuro 56X56 Caja 2.17Mts</td><td>51</td><td>$711.663</td><td>0</td><td>13/05/2026</td><td>58</td><td>8,4 m</td><td class="l"><span class="badge" style="background:#C0392B">Sin venta en 90 dias</span></td></tr>
+<tr><td class="l">Ceramico Lourdes Cotto Plus Gris 35X35 Caja 2.2M2</td><td>55</td><td>$701.052</td><td>18</td><td>17/07/2026</td><td>145</td><td>19,4 m</td><td class="l"><span class="badge" style="background:#B7791F">Con saldo</span></td></tr>
+<tr><td class="l">Ceramico Lourdes Grafito Marron 35X35 Caja 2.2M2</td><td>44</td><td>$582.601</td><td>29</td><td>10/06/2026</td><td>137</td><td>22,9 m</td><td class="l"><span class="badge" style="background:#B7791F">Con saldo</span></td></tr>
+<tr><td class="l">Ceramico Lourdes Firenza Brillante 56X56 Caja 2.17M2</td><td>32</td><td>$541.866</td><td>0</td><td>19/03/2026</td><td>12</td><td>2,8 m</td><td class="l"><span class="badge" style="background:#C0392B">Sin venta en 90 dias</span></td></tr>
+<tr><td class="l">Ceramico Animana Beige Mate 36X36  2.33Mts.Caja</td><td>36</td><td>$425.300</td><td>0</td><td>23/03/2026</td><td>2</td><td>0,4 m</td><td class="l"><span class="badge" style="background:#C0392B">Sin venta en 90 dias</span></td></tr>
+<tr><td class="l">Ceramico Molle Natural Brillante 36X36 2.33Mts.Caja</td><td>29</td><td>$397.005</td><td>22</td><td>10/08/2026</td><td>2</td><td>0,5 m</td><td class="l"><span class="badge" style="background:#1E8449">En salida</span></td></tr>
+<tr><td class="l">Ceramico Lourdes Muro Piedra Brick 31X53 Caja 1.48 M2</td><td>25</td><td>$291.186</td><td>22</td><td>11/08/2026</td><td>62</td><td>18,2 m</td><td class="l"><span class="badge" style="background:#B7791F">Con saldo</span></td></tr>
+<tr><td class="l">Ceramico Esteco Tiza Brillante 36X36 2.33Mts.Caja</td><td>22</td><td>$274.928</td><td>1</td><td>03/07/2026</td><td>3</td><td>1,0 m</td><td class="l"><span class="badge" style="background:#1E8449">En salida</span></td></tr>
+<tr><td class="l">Ceramico Encon Gris Mate 36X36 2.33Mts.Caja</td><td>18</td><td>$216.000</td><td>0</td><td>05/03/2026</td><td>8</td><td>3,3 m</td><td class="l"><span class="badge" style="background:#C0392B">Sin venta en 90 dias</span></td></tr>
+<tr><td class="l">Ceramico Payogasta Alt.Tran Marron Mate 36X36 2.33Mts.Caja</td><td>16</td><td>$202.446</td><td>1</td><td>23/05/2026</td><td>4</td><td>1,8 m</td><td class="l"><span class="badge" style="background:#1E8449">En salida</span></td></tr>
+<tr><td class="l">Pastina Keracolor Classic Beige 132 1Kg Mapei</td><td>41</td><td>$119.442</td><td>31</td><td>06/08/2026</td><td>10</td><td>1,8 m</td><td class="l"><span class="badge" style="background:#1E8449">En salida</span></td></tr>
+<tr><td class="l">Pastina Keracolor Classic Terracota  143 1Kg Mapei</td><td>8</td><td>$21.238</td><td>0</td><td>12/02/2026</td><td>1</td><td>0,9 m</td><td class="l"><span class="badge" style="background:#C0392B">Sin venta en 90 dias</span></td></tr>
+</tbody></table></div></details>
+<details><summary><span>Mallas Acero (5 art.)</span><span class="met">$16.320.804 en 2026 &middot; <b>856 un.</b> en stock</span></summary><div class="tabla-wrap"><table><thead><tr><th class="l">Artículo</th><th>Un. 2026</th><th>Vendido 2026</th><th>Un. 90d</th><th>Últ. venta</th><th>Stock 21</th><th>Cobertura</th><th class="l">Estado</th></tr></thead><tbody>
+<tr><td class="l">Malla Q131 15X15 5Mm  6X2.4</td><td>64</td><td>$4.244.672</td><td>34</td><td>12/08/2026</td><td>130</td><td>14,9 m</td><td class="l"><span class="badge" style="background:#B7791F">Con saldo</span></td></tr>
+<tr><td class="l">Malla R131 15 X 25 5Mm 6X2.4</td><td>80</td><td>$4.086.831</td><td>40</td><td>31/07/2026</td><td>22</td><td>2,0 m</td><td class="l"><span class="badge" style="background:#1E8449">En salida</span></td></tr>
+<tr><td class="l">Malla Q188 15X15 6Mm 6X2.40</td><td>31</td><td>$3.188.347</td><td>19</td><td>12/08/2026</td><td>238</td><td>56,5 m</td><td class="l"><span class="badge" style="background:#B7791F">Con saldo</span></td></tr>
+<tr><td class="l">Malla Jobshop 25X25X2.6  1.20X3.00</td><td>44</td><td>$2.645.855</td><td>21</td><td>11/08/2026</td><td>258</td><td>43,1 m</td><td class="l"><span class="badge" style="background:#B7791F">Con saldo</span></td></tr>
+<tr><td class="l">Malla Rl84 15X25X3.8  6X2Mts</td><td>68</td><td>$2.155.099</td><td>12</td><td>04/08/2026</td><td>208</td><td>22,5 m</td><td class="l"><span class="badge" style="background:#B7791F">Con saldo</span></td></tr>
+</tbody></table></div></details>
+<details><summary><span>Pegamentos Y Pastina (3 art.)</span><span class="met">$12.434.514 en 2026 &middot; <b>103 un.</b> en stock &middot; <b style="color:#C0392B">1 sin venta 90d</b></span></summary><div class="tabla-wrap"><table><thead><tr><th class="l">Artículo</th><th>Un. 2026</th><th>Vendido 2026</th><th>Un. 90d</th><th>Últ. venta</th><th>Stock 21</th><th>Cobertura</th><th class="l">Estado</th></tr></thead><tbody>
+<tr><td class="l">Pegamento Porcelanato Adesilex P9 25Kg Mapei</td><td>358</td><td>$6.595.532</td><td>20</td><td>01/08/2026</td><td>7</td><td>0,1 m</td><td class="l"><span class="badge" style="background:#1E8449">En salida</span></td></tr>
+<tr><td class="l">Pegamento Ceramicos Keraflor Plus Gris 25Kg Mapei</td><td>695</td><td>$4.573.383</td><td>224</td><td>12/08/2026</td><td>60</td><td>0,6 m</td><td class="l"><span class="badge" style="background:#1E8449">En salida</span></td></tr>
+<tr><td class="l">Pegamento Ceramicos Kerabond Plus Gris 25Kg Mapei</td><td>100</td><td>$1.265.599</td><td>0</td><td>06/04/2026</td><td>36</td><td>2,6 m</td><td class="l"><span class="badge" style="background:#C0392B">Sin venta en 90 dias</span></td></tr>
+</tbody></table></div></details>
+<details><summary><span>Chapas (11 art.)</span><span class="met">$8.798.423 en 2026 &middot; <b>992 un.</b> en stock &middot; <b style="color:#C0392B">3 sin venta 90d</b></span></summary><div class="tabla-wrap"><table><thead><tr><th class="l">Artículo</th><th>Un. 2026</th><th>Vendido 2026</th><th>Un. 90d</th><th>Últ. venta</th><th>Stock 21</th><th>Cobertura</th><th class="l">Estado</th></tr></thead><tbody>
+<tr><td class="l">Chapa 14  1.22X2.44   2.00Mm</td><td>32</td><td>$3.012.314</td><td>29</td><td>07/08/2026</td><td>58</td><td>13,3 m</td><td class="l"><span class="badge" style="background:#B7791F">Con saldo</span></td></tr>
+<tr><td class="l">Chapa 16 1220X2440  1.6Mm</td><td>20</td><td>$1.896.825</td><td>4</td><td>11/06/2026</td><td>15</td><td>5,5 m</td><td class="l"><span class="badge" style="background:#B7791F">Con saldo</span></td></tr>
+<tr><td class="l">Chapa Antideslizante 3.2  1.224 X 3.000</td><td>6</td><td>$1.424.046</td><td>1</td><td>25/07/2026</td><td>3</td><td>3,7 m</td><td class="l"><span class="badge" style="background:#B7791F">Con saldo</span></td></tr>
+<tr><td class="l">Chapa 16 1X2</td><td>13</td><td>$879.424</td><td>0</td><td>05/05/2026</td><td>28</td><td>15,8 m</td><td class="l"><span class="badge" style="background:#C0392B">Sin venta en 90 dias</span></td></tr>
+<tr><td class="l">Chapa Perforada 20 Trebol 1X2</td><td>5</td><td>$414.245</td><td>3</td><td>28/07/2026</td><td>0</td><td>&mdash;</td><td class="l"><span class="badge" style="background:#5B9BD5">Agotado</span></td></tr>
+<tr><td class="l">Chapa 22 1X2</td><td>10</td><td>$346.438</td><td>7</td><td>22/07/2026</td><td>11</td><td>8,1 m</td><td class="l"><span class="badge" style="background:#B7791F">Con saldo</span></td></tr>
+<tr><td class="l">Chapa Perforada 20 Red 4Mm 1X2</td><td>4</td><td>$322.695</td><td>0</td><td>19/03/2026</td><td>39</td><td>71,7 m</td><td class="l"><span class="badge" style="background:#C0392B">Sin venta en 90 dias</span></td></tr>
+<tr><td class="l">Chapa Perforada 20  Red 3Mm 1X2</td><td>3</td><td>$256.285</td><td>0</td><td>02/02/2026</td><td>21</td><td>51,5 m</td><td class="l"><span class="badge" style="background:#C0392B">Sin venta en 90 dias</span></td></tr>
+<tr><td class="l">Chapa Perforada 20 Punto Y Trebol 1X2</td><td>2</td><td>$167.916</td><td>0</td><td>12/03/2026</td><td>0</td><td>&mdash;</td><td class="l"><span class="badge" style="background:#5B9BD5">Agotado</span></td></tr>
+<tr><td class="l">Banda Selladora Base T101</td><td>28</td><td>$51.355</td><td>7</td><td>29/07/2026</td><td>290</td><td>76,2 m</td><td class="l"><span class="badge" style="background:#B7791F">Con saldo</span></td></tr>
+<tr><td class="l">Banda Selladora Base Sinusoidal</td><td>33</td><td>$26.880</td><td>17</td><td>30/07/2026</td><td>527</td><td>117,5 m</td><td class="l"><span class="badge" style="background:#B7791F">Con saldo</span></td></tr>
+</tbody></table></div></details>
+<details><summary><span>Metal Desplegado (9 art.)</span><span class="met">$6.883.672 en 2026 &middot; <b>74 un.</b> en stock &middot; <b style="color:#C0392B">2 sin venta 90d</b></span></summary><div class="tabla-wrap"><table><thead><tr><th class="l">Artículo</th><th>Un. 2026</th><th>Vendido 2026</th><th>Un. 90d</th><th>Últ. venta</th><th>Stock 21</th><th>Cobertura</th><th class="l">Estado</th></tr></thead><tbody>
+<tr><td class="l">Metal Desplegado 500.30.30 6.5Kg 1.5X3</td><td>22</td><td>$1.666.287</td><td>2</td><td>29/05/2026</td><td>1</td><td>0,3 m</td><td class="l"><span class="badge" style="background:#1E8449">En salida</span></td></tr>
+<tr><td class="l">Metal Desplegado 250.16.20 4Kg 1X3</td><td>30</td><td>$1.404.807</td><td>5</td><td>14/05/2026</td><td>0</td><td>&mdash;</td><td class="l"><span class="badge" style="background:#5B9BD5">Agotado</span></td></tr>
+<tr><td class="l">Metal Desplegado 500.30.30 6.5Kg 1X300</td><td>25</td><td>$1.286.878</td><td>7</td><td>08/08/2026</td><td>17</td><td>5,0 m</td><td class="l"><span class="badge" style="background:#B7791F">Con saldo</span></td></tr>
+<tr><td class="l">Metal Desplegado 250.16.20 4.5Kg 1 X 2</td><td>22</td><td>$819.419</td><td>18</td><td>12/08/2026</td><td>2</td><td>0,7 m</td><td class="l"><span class="badge" style="background:#1E8449">En salida</span></td></tr>
+<tr><td class="l">Metal Desplegado 500.30.30 6.5Kg 1X2</td><td>17</td><td>$630.982</td><td>6</td><td>30/07/2026</td><td>0</td><td>&mdash;</td><td class="l"><span class="badge" style="background:#5B9BD5">Agotado</span></td></tr>
+<tr><td class="l">Metal Desplegado 250.16.20 4 Kg 1500X3000</td><td>7</td><td>$503.272</td><td>2</td><td>07/08/2026</td><td>13</td><td>13,7 m</td><td class="l"><span class="badge" style="background:#B7791F">Con saldo</span></td></tr>
+<tr><td class="l">Metal Desplegado 300.30.30 10.2 1.5X3</td><td>2</td><td>$276.462</td><td>1</td><td>24/07/2026</td><td>12</td><td>44,2 m</td><td class="l"><span class="badge" style="background:#B7791F">Con saldo</span></td></tr>
+<tr><td class="l">Metal Desplegado 300.30.30  10.2 Kg   1 X 3</td><td>2</td><td>$216.235</td><td>0</td><td>12/03/2026</td><td>26</td><td>95,7 m</td><td class="l"><span class="badge" style="background:#C0392B">Sin venta en 90 dias</span></td></tr>
+<tr><td class="l">Metal Desplegado 450.16.20 2.6Kg 1.22X3</td><td>2</td><td>$79.330</td><td>0</td><td>09/01/2026</td><td>3</td><td>11,0 m</td><td class="l"><span class="badge" style="background:#C0392B">Sin venta en 90 dias</span></td></tr>
+</tbody></table></div></details>
+<details><summary><span>Membranas (8 art.)</span><span class="met">$5.105.364 en 2026 &middot; <b>150 un.</b> en stock &middot; <b style="color:#C0392B">1 sin venta 90d</b></span></summary><div class="tabla-wrap"><table><thead><tr><th class="l">Artículo</th><th>Un. 2026</th><th>Vendido 2026</th><th>Un. 90d</th><th>Últ. venta</th><th>Stock 21</th><th>Cobertura</th><th class="l">Estado</th></tr></thead><tbody>
+<tr><td class="l">Aislante Bekover Aluminio Puro Doble 10Mm Rollo 1X20 Mts</td><td>21</td><td>$1.301.277</td><td>13</td><td>12/08/2026</td><td>42</td><td>14,7 m</td><td class="l"><span class="badge" style="background:#B7791F">Con saldo</span></td></tr>
+<tr><td class="l">Aislante Bekover Aluminio Puro Simple 10Mm Rollo 1X20Mt</td><td>30</td><td>$1.123.819</td><td>15</td><td>04/07/2026</td><td>4</td><td>1,0 m</td><td class="l"><span class="badge" style="background:#1E8449">En salida</span></td></tr>
+<tr><td class="l">Membrana Megaflex Geo Trans X40Kg</td><td>6</td><td>$780.172</td><td>0</td><td>15/01/2026</td><td>0</td><td>&mdash;</td><td class="l"><span class="badge" style="background:#5B9BD5">Agotado</span></td></tr>
+<tr><td class="l">Pintura Asfaltica 10 Lts Kartonsec</td><td>17</td><td>$679.670</td><td>2</td><td>18/06/2026</td><td>6</td><td>2,6 m</td><td class="l"><span class="badge" style="background:#1E8449">En salida</span></td></tr>
+<tr><td class="l">Membrana Autoadhesiva  Megafacil 15Cm Por Metro</td><td>168</td><td>$608.456</td><td>23</td><td>07/07/2026</td><td>50</td><td>2,2 m</td><td class="l"><span class="badge" style="background:#1E8449">En salida</span></td></tr>
+<tr><td class="l">Emulsion Asfaltica Cajax18Kg 4636</td><td>13</td><td>$433.122</td><td>1</td><td>25/07/2026</td><td>17</td><td>9,6 m</td><td class="l"><span class="badge" style="background:#B7791F">Con saldo</span></td></tr>
+<tr><td class="l">Fieltro Asfaltico Kartonsec Rubersec 40 Mts</td><td>7</td><td>$119.876</td><td>2</td><td>17/07/2026</td><td>21</td><td>22,1 m</td><td class="l"><span class="badge" style="background:#B7791F">Con saldo</span></td></tr>
+<tr><td class="l">Pintura Asfaltica 18 Lts Kartonsec</td><td>1</td><td>$58.972</td><td>0</td><td>07/02/2026</td><td>10</td><td>73,6 m</td><td class="l"><span class="badge" style="background:#C0392B">Sin venta en 90 dias</span></td></tr>
+</tbody></table></div></details>
+<details><summary><span>Pinturas (16 art.)</span><span class="met">$3.578.134 en 2026 &middot; <b>64 un.</b> en stock &middot; <b style="color:#C0392B">8 sin venta 90d</b></span></summary><div class="tabla-wrap"><table><thead><tr><th class="l">Artículo</th><th>Un. 2026</th><th>Vendido 2026</th><th>Un. 90d</th><th>Últ. venta</th><th>Stock 21</th><th>Cobertura</th><th class="l">Estado</th></tr></thead><tbody>
+<tr><td class="l">Latex Exterior Interior Quimex Wennol 20L 201402000</td><td>27</td><td>$1.172.192</td><td>1</td><td>19/05/2026</td><td>0</td><td>&mdash;</td><td class="l"><span class="badge" style="background:#5B9BD5">Agotado</span></td></tr>
+<tr><td class="l">Antioxido Negro Quimex 4L</td><td>38</td><td>$1.029.509</td><td>7</td><td>30/07/2026</td><td>8</td><td>1,5 m</td><td class="l"><span class="badge" style="background:#1E8449">En salida</span></td></tr>
+<tr><td class="l">Esmalte Sint. Triple Accion Negro Quimex 4L</td><td>15</td><td>$462.939</td><td>6</td><td>07/08/2026</td><td>14</td><td>6,9 m</td><td class="l"><span class="badge" style="background:#B7791F">Con saldo</span></td></tr>
+<tr><td class="l">Esmalte Sintetico Negro Quimex 4L</td><td>9</td><td>$281.548</td><td>0</td><td>31/03/2026</td><td>3</td><td>2,5 m</td><td class="l"><span class="badge" style="background:#C0392B">Sin venta en 90 dias</span></td></tr>
+<tr><td class="l">Esmalte Sintetico Negro Quimex 1L</td><td>17</td><td>$138.961</td><td>0</td><td>30/03/2026</td><td>3</td><td>1,3 m</td><td class="l"><span class="badge" style="background:#C0392B">Sin venta en 90 dias</span></td></tr>
+<tr><td class="l">Esmalte Sintetico Quimex Negro Sec. Ultra Rap. 4L 269300400</td><td>2</td><td>$98.825</td><td>0</td><td>03/02/2026</td><td>0</td><td>&mdash;</td><td class="l"><span class="badge" style="background:#5B9BD5">Agotado</span></td></tr>
+<tr><td class="l">Esmalte Sintetico Satinado Blanco 1L</td><td>6</td><td>$74.463</td><td>2</td><td>10/07/2026</td><td>3</td><td>3,7 m</td><td class="l"><span class="badge" style="background:#B7791F">Con saldo</span></td></tr>
+<tr><td class="l">Latex Exterior Quimex Acrilmex Gris 4L 230100400</td><td>2</td><td>$59.525</td><td>0</td><td>12/01/2026</td><td>1</td><td>3,7 m</td><td class="l"><span class="badge" style="background:#C0392B">Sin venta en 90 dias</span></td></tr>
+<tr><td class="l">Pintura Sintetico Blanco Blanco Bri 1L</td><td>4</td><td>$59.011</td><td>1</td><td>17/06/2026</td><td>1</td><td>1,8 m</td><td class="l"><span class="badge" style="background:#1E8449">En salida</span></td></tr>
+<tr><td class="l">Latex Exterior Quimex Acrilmex Negro 4L 234900400</td><td>2</td><td>$54.346</td><td>0</td><td>04/03/2026</td><td>0</td><td>&mdash;</td><td class="l"><span class="badge" style="background:#5B9BD5">Agotado</span></td></tr>
+<tr><td class="l">Pintura Sintetico Blanco Bri 4L</td><td>1</td><td>$50.065</td><td>0</td><td>22/01/2026</td><td>7</td><td>51,5 m</td><td class="l"><span class="badge" style="background:#C0392B">Sin venta en 90 dias</span></td></tr>
+<tr><td class="l">Esmalte Sintetico Blanco 4L</td><td>1</td><td>$39.110</td><td>0</td><td>04/03/2026</td><td>6</td><td>44,2 m</td><td class="l"><span class="badge" style="background:#C0392B">Sin venta en 90 dias</span></td></tr>
+<tr><td class="l">Pintura Sintetico Blanco Sat 1L</td><td>2</td><td>$29.505</td><td>0</td><td>04/03/2026</td><td>3</td><td>11,0 m</td><td class="l"><span class="badge" style="background:#C0392B">Sin venta en 90 dias</span></td></tr>
+<tr><td class="l">Antioxido Negro Quimex 1L 2808.00100</td><td>2</td><td>$16.915</td><td>0</td><td>03/01/2026</td><td>0</td><td>&mdash;</td><td class="l"><span class="badge" style="background:#5B9BD5">Agotado</span></td></tr>
+<tr><td class="l">Entonador Iniversal Amarillo 3 Cc</td><td>6</td><td>$5.742</td><td>0</td><td>20/03/2026</td><td>4</td><td>4,9 m</td><td class="l"><span class="badge" style="background:#C0392B">Sin venta en 90 dias</span></td></tr>
+<tr><td class="l">Latex Acrilico Quimex Vinilmex Profesional Bl 1L</td><td>1</td><td>$5.480</td><td>0</td><td>14/02/2026</td><td>11</td><td>80,9 m</td><td class="l"><span class="badge" style="background:#C0392B">Sin venta en 90 dias</span></td></tr>
+</tbody></table></div></details>
+<details><summary><span>Albanileria (14 art.)</span><span class="met">$3.488.937 en 2026 &middot; <b>182 un.</b> en stock &middot; <b style="color:#C0392B">8 sin venta 90d</b></span></summary><div class="tabla-wrap"><table><thead><tr><th class="l">Artículo</th><th>Un. 2026</th><th>Vendido 2026</th><th>Un. 90d</th><th>Últ. venta</th><th>Stock 21</th><th>Cobertura</th><th class="l">Estado</th></tr></thead><tbody>
+<tr><td class="l">Yeso Yemaco X 40Kg</td><td>194</td><td>$2.191.931</td><td>17</td><td>28/07/2026</td><td>98</td><td>3,7 m</td><td class="l"><span class="badge" style="background:#B7791F">Con saldo</span></td></tr>
+<tr><td class="l">Hormigonera Duroll 150Lts Rueda Maciza</td><td>1</td><td>$784.999</td><td>0</td><td>04/02/2026</td><td>14</td><td>103,0 m</td><td class="l"><span class="badge" style="background:#C0392B">Sin venta en 90 dias</span></td></tr>
+<tr><td class="l">Carretilla Duroll 100Lts Rueda Neumatica</td><td>1</td><td>$198.850</td><td>0</td><td>07/02/2026</td><td>12</td><td>88,3 m</td><td class="l"><span class="badge" style="background:#C0392B">Sin venta en 90 dias</span></td></tr>
+<tr><td class="l">Carretilla Duroll 80Lts Rueda Neumatica</td><td>1</td><td>$133.254</td><td>0</td><td>24/02/2026</td><td>15</td><td>110,4 m</td><td class="l"><span class="badge" style="background:#C0392B">Sin venta en 90 dias</span></td></tr>
+<tr><td class="l">Balde Albanil Pastico</td><td>22</td><td>$78.017</td><td>3</td><td>16/07/2026</td><td>16</td><td>5,4 m</td><td class="l"><span class="badge" style="background:#B7791F">Con saldo</span></td></tr>
+<tr><td class="l">Fratacho Algarrobo 30 Cm Anemi</td><td>4</td><td>$19.792</td><td>0</td><td>23/03/2026</td><td>6</td><td>11,0 m</td><td class="l"><span class="badge" style="background:#C0392B">Sin venta en 90 dias</span></td></tr>
+<tr><td class="l">Llana Dentada 12X12 130X300</td><td>3</td><td>$18.895</td><td>1</td><td>10/06/2026</td><td>4</td><td>9,8 m</td><td class="l"><span class="badge" style="background:#B7791F">Con saldo</span></td></tr>
+<tr><td class="l">Cuchara Albanil 7 El Roble</td><td>2</td><td>$15.814</td><td>0</td><td>30/03/2026</td><td>3</td><td>11,0 m</td><td class="l"><span class="badge" style="background:#C0392B">Sin venta en 90 dias</span></td></tr>
+<tr><td class="l">Plomada Albanil 300G</td><td>3</td><td>$14.153</td><td>2</td><td>24/06/2026</td><td>4</td><td>9,8 m</td><td class="l"><span class="badge" style="background:#B7791F">Con saldo</span></td></tr>
+<tr><td class="l">Fratacho Plastico Goma Espuma 30Cm</td><td>4</td><td>$9.761</td><td>2</td><td>04/08/2026</td><td>2</td><td>3,7 m</td><td class="l"><span class="badge" style="background:#B7791F">Con saldo</span></td></tr>
+<tr><td class="l">Plomada Albanil 500G</td><td>1</td><td>$8.149</td><td>0</td><td>04/02/2026</td><td>2</td><td>14,7 m</td><td class="l"><span class="badge" style="background:#C0392B">Sin venta en 90 dias</span></td></tr>
+<tr><td class="l">Fratacho Plastico Gomaespuma 25 Cm</td><td>4</td><td>$7.478</td><td>0</td><td>30/04/2026</td><td>0</td><td>&mdash;</td><td class="l"><span class="badge" style="background:#5B9BD5">Agotado</span></td></tr>
+<tr><td class="l">Plomada Albanil 400G</td><td>1</td><td>$5.233</td><td>0</td><td>19/01/2026</td><td>3</td><td>22,1 m</td><td class="l"><span class="badge" style="background:#C0392B">Sin venta en 90 dias</span></td></tr>
+<tr><td class="l">Tanza Naranja Albanil Rollo X 100Mts</td><td>1</td><td>$2.612</td><td>0</td><td>19/01/2026</td><td>3</td><td>22,1 m</td><td class="l"><span class="badge" style="background:#C0392B">Sin venta en 90 dias</span></td></tr>
+</tbody></table></div></details>
+<details><summary><span>Yesero (2 art.)</span><span class="met">$1.967.029 en 2026 &middot; <b>199 un.</b> en stock &middot; <b style="color:#C0392B">1 sin venta 90d</b></span></summary><div class="tabla-wrap"><table><thead><tr><th class="l">Artículo</th><th>Un. 2026</th><th>Vendido 2026</th><th>Un. 90d</th><th>Últ. venta</th><th>Stock 21</th><th>Cobertura</th><th class="l">Estado</th></tr></thead><tbody>
+<tr><td class="l">Metal Desplegado Reforzado Yesero</td><td>743</td><td>$1.929.035</td><td>38</td><td>24/07/2026</td><td>10</td><td>0,1 m</td><td class="l"><span class="badge" style="background:#1E8449">En salida</span></td></tr>
+<tr><td class="l">Guardacanto Galva Yesero</td><td>26</td><td>$37.994</td><td>0</td><td>21/04/2026</td><td>189</td><td>53,5 m</td><td class="l"><span class="badge" style="background:#C0392B">Sin venta en 90 dias</span></td></tr>
+</tbody></table></div></details>
+<details><summary><span>Drywall (3 art.)</span><span class="met">$1.293.008 en 2026 &middot; <b>4.056 un.</b> en stock &middot; <b style="color:#C0392B">1 sin venta 90d</b></span></summary><div class="tabla-wrap"><table><thead><tr><th class="l">Artículo</th><th>Un. 2026</th><th>Vendido 2026</th><th>Un. 90d</th><th>Últ. venta</th><th>Stock 21</th><th>Cobertura</th><th class="l">Estado</th></tr></thead><tbody>
+<tr><td class="l">Perfil Omega 2.6Mts</td><td>287</td><td>$814.281</td><td>94</td><td>25/07/2026</td><td>1.636</td><td>41,9 m</td><td class="l"><span class="badge" style="background:#B7791F">Con saldo</span></td></tr>
+<tr><td class="l">Masilla Novoplack Lpu 7Kg</td><td>33</td><td>$432.065</td><td>9</td><td>07/08/2026</td><td>35</td><td>7,8 m</td><td class="l"><span class="badge" style="background:#B7791F">Con saldo</span></td></tr>
+<tr><td class="l">Placa Cielorraso Desmontable Aconcagua 0.61 X 0.61 8Mm</td><td>15</td><td>$46.662</td><td>0</td><td>05/03/2026</td><td>2.385</td><td>1.170,0 m</td><td class="l"><span class="badge" style="background:#C0392B">Sin venta en 90 dias</span></td></tr>
+</tbody></table></div></details>
+<details><summary><span>Herramientas A 21% (4 art.)</span><span class="met">$1.015.619 en 2026 &middot; <b>5 un.</b> en stock &middot; <b style="color:#C0392B">1 sin venta 90d</b></span></summary><div class="tabla-wrap"><table><thead><tr><th class="l">Artículo</th><th>Un. 2026</th><th>Vendido 2026</th><th>Un. 90d</th><th>Últ. venta</th><th>Stock 21</th><th>Cobertura</th><th class="l">Estado</th></tr></thead><tbody>
+<tr><td class="l">Taladro Atornillador C.Percutor Caterpiller Dx12B 18V Carg</td><td>1</td><td>$569.482</td><td>0</td><td>13/03/2026</td><td>0</td><td>&mdash;</td><td class="l"><span class="badge" style="background:#5B9BD5">Agotado</span></td></tr>
+<tr><td class="l">Amoladora Angular Caterpiller Catdx3711K 4.5P 750W Mal Disc</td><td>2</td><td>$311.995</td><td>1</td><td>06/07/2026</td><td>0</td><td>&mdash;</td><td class="l"><span class="badge" style="background:#5B9BD5">Agotado</span></td></tr>
+<tr><td class="l">Taladro Percutor Kld 700W 13Mm Kldtp700K</td><td>2</td><td>$119.754</td><td>1</td><td>16/06/2026</td><td>2</td><td>7,4 m</td><td class="l"><span class="badge" style="background:#B7791F">Con saldo</span></td></tr>
+<tr><td class="l">Tijera Corta Cano Fusion  Bulit Cco Tj 500</td><td>1</td><td>$14.388</td><td>0</td><td>24/02/2026</td><td>3</td><td>22,1 m</td><td class="l"><span class="badge" style="background:#C0392B">Sin venta en 90 dias</span></td></tr>
+</tbody></table></div></details>
+<details><summary><span>Piscinas (11 art.)</span><span class="met">$606.799 en 2026 &middot; <b>232 un.</b> en stock &middot; <b style="color:#C0392B">10 sin venta 90d</b></span></summary><div class="tabla-wrap"><table><thead><tr><th class="l">Artículo</th><th>Un. 2026</th><th>Vendido 2026</th><th>Un. 90d</th><th>Últ. venta</th><th>Stock 21</th><th>Cobertura</th><th class="l">Estado</th></tr></thead><tbody>
+<tr><td class="l">Manguera Flot 1.1.2 X Mt Abaflex Tecnoclor</td><td>25</td><td>$156.695</td><td>0</td><td>07/02/2026</td><td>20</td><td>5,9 m</td><td class="l"><span class="badge" style="background:#C0392B">Sin venta en 90 dias</span></td></tr>
+<tr><td class="l">Saca Hojas De Plastico 1.90Cm Reforz Mango Alum Tecnoclor</td><td>6</td><td>$90.250</td><td>0</td><td>18/02/2026</td><td>6</td><td>7,4 m</td><td class="l"><span class="badge" style="background:#C0392B">Sin venta en 90 dias</span></td></tr>
+<tr><td class="l">Pastilla Multifuncion Pote 1Kg Tecnoclor</td><td>8</td><td>$87.360</td><td>0</td><td>07/02/2026</td><td>34</td><td>31,3 m</td><td class="l"><span class="badge" style="background:#C0392B">Sin venta en 90 dias</span></td></tr>
+<tr><td class="l">Cloro Granulado Disolucion Rapida Pote 1Kg Tecnoclor</td><td>7</td><td>$63.727</td><td>0</td><td>10/02/2026</td><td>9</td><td>9,5 m</td><td class="l"><span class="badge" style="background:#C0392B">Sin venta en 90 dias</span></td></tr>
+<tr><td class="l">Manguera Flot 1.1.4 P.Metro X Mt Abaflex Tecnoclor</td><td>10</td><td>$56.561</td><td>0</td><td>09/02/2026</td><td>84</td><td>61,8 m</td><td class="l"><span class="badge" style="background:#C0392B">Sin venta en 90 dias</span></td></tr>
+<tr><td class="l">Clarificador Tecnofloc S X 1Lt Tecnoclor</td><td>11</td><td>$51.296</td><td>0</td><td>19/03/2026</td><td>22</td><td>14,7 m</td><td class="l"><span class="badge" style="background:#C0392B">Sin venta en 90 dias</span></td></tr>
+<tr><td class="l">Barrefondo Medialuna Con Cepillo Mavi Tecnoclor</td><td>2</td><td>$33.442</td><td>0</td><td>13/01/2026</td><td>6</td><td>22,1 m</td><td class="l"><span class="badge" style="background:#C0392B">Sin venta en 90 dias</span></td></tr>
+<tr><td class="l">Fluvial Barral Telescopio 3.60M 322120</td><td>1</td><td>$29.842</td><td>0</td><td>21/01/2026</td><td>0</td><td>&mdash;</td><td class="l"><span class="badge" style="background:#5B9BD5">Agotado</span></td></tr>
+<tr><td class="l">Boya Cloro Grande Tecnoclor</td><td>2</td><td>$18.184</td><td>0</td><td>04/02/2026</td><td>10</td><td>36,8 m</td><td class="l"><span class="badge" style="background:#C0392B">Sin venta en 90 dias</span></td></tr>
+<tr><td class="l">Alguicida Tecnocuat S  X 1Lt Tecnoclor</td><td>3</td><td>$13.990</td><td>0</td><td>14/01/2026</td><td>34</td><td>83,4 m</td><td class="l"><span class="badge" style="background:#C0392B">Sin venta en 90 dias</span></td></tr>
+<tr><td class="l">Fungicida Stronge X 1Lt Tecnoclor</td><td>1</td><td>$5.453</td><td>0</td><td>09/01/2026</td><td>7</td><td>51,5 m</td><td class="l"><span class="badge" style="background:#C0392B">Sin venta en 90 dias</span></td></tr>
+</tbody></table></div></details>
+<details><summary><span>Accesorios Pintura (11 art.)</span><span class="met">$264.221 en 2026 &middot; <b>75 un.</b> en stock &middot; <b style="color:#C0392B">2 sin venta 90d</b></span></summary><div class="tabla-wrap"><table><thead><tr><th class="l">Artículo</th><th>Un. 2026</th><th>Vendido 2026</th><th>Un. 90d</th><th>Últ. venta</th><th>Stock 21</th><th>Cobertura</th><th class="l">Estado</th></tr></thead><tbody>
+<tr><td class="l">Rodillo Lana Natural 22Cm Maxi 2000</td><td>10</td><td>$88.355</td><td>6</td><td>06/08/2026</td><td>10</td><td>7,4 m</td><td class="l"><span class="badge" style="background:#B7791F">Con saldo</span></td></tr>
+<tr><td class="l">Rodillo Lana Narural Aficionado 22Cm Bambi</td><td>10</td><td>$61.443</td><td>0</td><td>27/03/2026</td><td>-2</td><td>&mdash;</td><td class="l"><span class="badge" style="background:#5B9BD5">Agotado</span></td></tr>
+<tr><td class="l">Rodillo Mini Multiuso 8Cm Bambi</td><td>18</td><td>$18.233</td><td>6</td><td>27/07/2026</td><td>30</td><td>12,3 m</td><td class="l"><span class="badge" style="background:#B7791F">Con saldo</span></td></tr>
+<tr><td class="l">Rodillo Antigota 12Mm 22 Cm Tomy</td><td>3</td><td>$15.798</td><td>0</td><td>30/03/2026</td><td>-2</td><td>&mdash;</td><td class="l"><span class="badge" style="background:#5B9BD5">Agotado</span></td></tr>
+<tr><td class="l">Pincel Aficionado N10 Bambi</td><td>12</td><td>$13.996</td><td>0</td><td>20/04/2026</td><td>7</td><td>4,3 m</td><td class="l"><span class="badge" style="background:#C0392B">Sin venta en 90 dias</span></td></tr>
+<tr><td class="l">Rodillo Mini Esponja Con Funda 5Cm Amarillo</td><td>15</td><td>$12.825</td><td>6</td><td>06/08/2026</td><td>23</td><td>11,3 m</td><td class="l"><span class="badge" style="background:#B7791F">Con saldo</span></td></tr>
+<tr><td class="l">Pincel Aficionado N15</td><td>9</td><td>$12.821</td><td>0</td><td>04/04/2026</td><td>1</td><td>0,8 m</td><td class="l"><span class="badge" style="background:#C0392B">Sin venta en 90 dias</span></td></tr>
+<tr><td class="l">Rodillo Mini Esponja Con Funda 11Cm</td><td>12</td><td>$12.202</td><td>0</td><td>09/04/2026</td><td>0</td><td>&mdash;</td><td class="l"><span class="badge" style="background:#5B9BD5">Agotado</span></td></tr>
+<tr><td class="l">Rodillo Simil Lana 22Cm Bambi</td><td>3</td><td>$11.806</td><td>0</td><td>13/04/2026</td><td>0</td><td>&mdash;</td><td class="l"><span class="badge" style="background:#5B9BD5">Agotado</span></td></tr>
+<tr><td class="l">Pincel Aficionado N20 Bambi</td><td>5</td><td>$10.068</td><td>0</td><td>30/04/2026</td><td>0</td><td>&mdash;</td><td class="l"><span class="badge" style="background:#5B9BD5">Agotado</span></td></tr>
+<tr><td class="l">Rodillo Mini Esponja Con Funda 8Cm</td><td>7</td><td>$6.674</td><td>1</td><td>18/06/2026</td><td>8</td><td>8,4 m</td><td class="l"><span class="badge" style="background:#B7791F">Con saldo</span></td></tr>
+</tbody></table></div></details>
+<details><summary><span>Herramientas A 10.5% (1 art.)</span><span class="met">$171.036 en 2026 &middot; <b>1 un.</b> en stock</span></summary><div class="tabla-wrap"><table><thead><tr><th class="l">Artículo</th><th>Un. 2026</th><th>Vendido 2026</th><th>Un. 90d</th><th>Últ. venta</th><th>Stock 21</th><th>Cobertura</th><th class="l">Estado</th></tr></thead><tbody>
+<tr><td class="l">Termofusora 1500W Kld Kldtf1500</td><td>3</td><td>$171.036</td><td>2</td><td>30/07/2026</td><td>1</td><td>2,5 m</td><td class="l"><span class="badge" style="background:#1E8449">En salida</span></td></tr>
+</tbody></table></div></details>
+<details><summary><span>Hierros Grandes (1 art.)</span><span class="met">$22.555 en 2026 &middot; <b>267 un.</b> en stock</span></summary><div class="tabla-wrap"><table><thead><tr><th class="l">Artículo</th><th>Un. 2026</th><th>Vendido 2026</th><th>Un. 90d</th><th>Últ. venta</th><th>Stock 21</th><th>Cobertura</th><th class="l">Estado</th></tr></thead><tbody>
+<tr><td class="l">Hierro Nervado 16 12Mts Adn420</td><td>3</td><td>$22.555</td><td>9</td><td>22/07/2026</td><td>267</td><td>655,3 m</td><td class="l"><span class="badge" style="background:#B7791F">Con saldo</span></td></tr>
+</tbody></table></div></details>
+<details><summary><span>Heramientas Manuales (1 art.)</span><span class="met">$20.103 en 2026 &middot; <b>2 un.</b> en stock</span></summary><div class="tabla-wrap"><table><thead><tr><th class="l">Artículo</th><th>Un. 2026</th><th>Vendido 2026</th><th>Un. 90d</th><th>Últ. venta</th><th>Stock 21</th><th>Cobertura</th><th class="l">Estado</th></tr></thead><tbody>
+<tr><td class="l">Mezclador De Pintura 100X600 Hamilton Mdp600</td><td>2</td><td>$20.103</td><td>1</td><td>25/06/2026</td><td>2</td><td>7,4 m</td><td class="l"><span class="badge" style="background:#B7791F">Con saldo</span></td></tr>
+</tbody></table></div></details>
+</section>
+<section><h2>Cómo se construyó</h2><div class="nota"><b>Fuente y alcance</b><ul><li>Todo sale del ERP: vistas oficiales de ventas de salón y maestro de artículos, solo lectura. Ningún dato es estimado.</li><li>Alcance: local 21 (RRDIGITAL BO 021), ventas del 01/01/2026 al 12/08/2026.</li><li>El listado original define qué productos hay que liquidar. Sus cifras de venta no se usan: todos los números se reconstruyeron desde el ERP.</li><li>Los rubros son los actuales del ERP. 33 artículos figuran hoy en un rubro distinto al del listado, porque las asignaciones se corrigieron después.</li><li><i>Cobertura</i>: meses que tarda en agotarse el stock al ritmo de venta de 2026. <i>Inmovilizado</i>: stock del depósito 21 valuado al costo de reposición del maestro, que incluye IVA.</li><li>El artículo Masilla Novoplack LPU 7Kg venía repetido en dos rubros del listado (Drywall y Stell Frame): se consolidó en Drywall, su rubro real.</li></ul></div></section>
+</div><footer><div class="wrap"><span><b>IBACETA</b> &middot; El Cristorante S.A. &middot; Reporte interno</span><span>Generado el 12/08/2026 a las 17:28 h</span></div></footer>
