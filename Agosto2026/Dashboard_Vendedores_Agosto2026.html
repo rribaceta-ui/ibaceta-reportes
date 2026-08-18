@@ -203,11 +203,11 @@ body { background:var(--bg); color:var(--text); font-family:'Segoe UI',Arial,san
 <div class="header">
   <div class="header-left">
     <h1>🏪 Vendedores IBACETA — Agosto 2026</h1>
-    <p>Generado 18/08/2026 17:21</p>
+    <p>Generado 18/08/2026 19:40</p>
   </div>
   <div class="header-right" style="flex-direction:column;align-items:flex-end;gap:8px">
     <div style="display:flex;gap:10px;align-items:center">
-      <div class="gen-badge">Generado: 18/08/2026 17:21</div>
+      <div class="gen-badge">Generado: 18/08/2026 19:40</div>
       <div class="period-toggle">
         <button class="period-btn active" onclick="setModo('mtd')">Período</button>
         <button class="period-btn"        onclick="setModo('ytd')">Acumulado</button>
@@ -283,6 +283,9 @@ body { background:var(--bg); color:var(--text); font-family:'Segoe UI',Arial,san
           <th class="r" onclick="sortTable('tbl-salones-resumen',10)">UDS ↕</th>
           <th class="r" onclick="sortTable('tbl-salones-resumen',11)">TICKET PROM ↕</th>
           <th class="r" onclick="sortTable('tbl-salones-resumen',12)">YoY ↕</th>
+          <th class="r" onclick="sortTable('tbl-salones-resumen',13)">OBJETIVO ↕</th>
+          <th class="r" onclick="sortTable('tbl-salones-resumen',14)">CUMPL% ↕</th>
+          <th class="r" onclick="sortTable('tbl-salones-resumen',15)">RITMO ↕</th>
         </tr></thead>
         <tbody id="tbody-salones-resumen"></tbody>
       </table>
@@ -408,6 +411,7 @@ const TODOS_PERIODOS = {"Enero": {"mtd": {"kpi": {"venta": 2116682763.6561, "cos
 const SALON_COLORS = {"Alameda": "#00b4d8", "San Juan": "#f72585", "San Martín": "#4cc9f0", "San Rafael": "#f8961e", "Villa Krause": "#43aa8b", "San Luis": "#90be6d", "Río Cuarto": "#577590", "Maipú": "#f3722c", "Villa Mercedes": "#277da1", "Web": "#7209b7", "Mercado Libre": "#f59e0b", "Mayorista": "#10b981", "Mendoza Calle": "#a78bfa", "Obra Gruesa": "#fb923c"};
 const SECTOR_COLORS = ["#00b4d8", "#7209b7", "#f72585", "#4cc9f0", "#f8961e", "#43aa8b", "#90be6d", "#577590"];
 const MESES_ES = {"1": "Enero", "2": "Febrero", "3": "Marzo", "4": "Abril", "5": "Mayo", "6": "Junio", "7": "Julio", "8": "Agosto", "9": "Septiembre", "10": "Octubre", "11": "Noviembre", "12": "Diciembre"};
+const RITMOS_SALONES = {"Alameda": {"obj": 672098400.0, "cumpl": 0.4615, "ritmo": 0.76}, "Maipú": {"obj": 136656456.0, "cumpl": 0.4113, "ritmo": 0.6774}, "Río Cuarto": {"obj": 119393975.0, "cumpl": 0.4897, "ritmo": 0.8066}, "San Juan": {"obj": 200218597.0, "cumpl": 0.3409, "ritmo": 0.5615}, "San Luis": {"obj": 143263080.0, "cumpl": 0.2915, "ritmo": 0.4802}, "San Martín": {"obj": 119240727.0, "cumpl": 0.1768, "ritmo": 0.2911}, "San Rafael": {"obj": 173189146.0, "cumpl": 0.4842, "ritmo": 0.7975}, "Villa Krause": {"obj": 115961063.0, "cumpl": 0.418, "ritmo": 0.6885}, "Villa Mercedes": {"obj": 112572945.0, "cumpl": 0.4286, "ritmo": 0.7059}, "Mayorista": {"obj": 116070387.0, "cumpl": 0.1471, "ritmo": 0.2422}, "Web": {"obj": 135388430.0, "cumpl": 0.458, "ritmo": 0.7544}, "Obra Gruesa": {"obj": 215179647.33, "cumpl": 0.4621, "ritmo": 0.7611}, "Panetti Bs As": {"obj": 114400000.0, "cumpl": 0.3391, "ritmo": 0.5586}, "Mercado Libre": {"obj": 167430008.0, "cumpl": 0.78, "ritmo": 1.2847}, "Mendoza Calle": {"obj": 660436135.73, "cumpl": 0.2159, "ritmo": 0.3555}};
 
 let _periodo_sel = 'Agosto';
 let _modo = 'mtd';
@@ -748,6 +752,21 @@ function renderTblSalonesResumen() {
     html += '<td class="r">'+fmtN(s.uds)+'</td>';
     html += '<td class="r">'+fmtM(s.ticket_prom)+'</td>';
     html += '<td class="r">'+deltaHtml(s.delta)+'</td>';
+    var robj = RITMOS_SALONES[s.SALON];
+    if (robj) {
+      html += '<td class="r" style="color:var(--muted)">'+fmtM(robj.obj)+'</td>';
+      var cpct = robj.cumpl != null ? fmtPct(robj.cumpl) : '—';
+      var cc = robj.cumpl != null ? (robj.cumpl >= 0.90 ? '#3fb950' : robj.cumpl >= 0.70 ? '#f8961e' : '#f85149') : 'var(--muted)';
+      html += '<td class="r" style="color:'+cc+';font-weight:700">'+cpct+'</td>';
+      if (robj.ritmo != null) {
+        var rc = robj.ritmo >= 1.05 ? '#3fb950' : robj.ritmo >= 0.90 ? '#f8961e' : '#f85149';
+        html += '<td class="r" style="color:'+rc+';font-weight:700">'+robj.ritmo.toFixed(2)+'x</td>';
+      } else {
+        html += '<td class="r" style="color:var(--muted)">—</td>';
+      }
+    } else {
+      html += '<td style="color:var(--muted)">—</td><td style="color:var(--muted)">—</td><td style="color:var(--muted)">—</td>';
+    }
     html += '</tr>';
   });
   document.getElementById('tbody-salones-resumen').innerHTML = html;
@@ -1144,11 +1163,11 @@ renderAll();
 font-family:Arial,sans-serif;font-size:11px;padding:5px 12px;border-radius:20px;
 background:rgba(15,15,25,.93);color:#ddd;box-shadow:0 2px 10px rgba(0,0,0,.55);
 border-left:4px solid #3fb950;pointer-events:none;line-height:1.5">
-  &#9201; <b>Generado:</b> 18/08/2026 17:41
+  &#9201; <b>Generado:</b> 18/08/2026 19:45
 </div>
 <script>
 (function(){
-  var gen=new Date("2026-08-18T17:41:41"),hrs=(new Date()-gen)/3600000;
+  var gen=new Date("2026-08-18T19:45:11"),hrs=(new Date()-gen)/3600000;
   var el=document.getElementById("_ibaceta_ts");if(!el)return;
   if(hrs>24){el.style.borderColor="#f85149";el.style.color="#ffcccc";
     el.innerHTML+=" &nbsp;<span style=\"color:#f85149;font-weight:bold\">&#9888; +24h</span>";}
