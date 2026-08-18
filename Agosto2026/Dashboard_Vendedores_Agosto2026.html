@@ -96,7 +96,6 @@ body { background:var(--bg); color:var(--text); font-family:'Segoe UI',Arial,san
 
 /* ── TABLE ── */
 .data-table { width:100%; border-collapse:collapse; font-size:12px; }
-#tbl-salones-resumen { min-width:1400px; }
 .data-table thead tr { background:var(--bg3); }
 .data-table th { padding:9px 12px; text-align:left; font-size:10px; color:var(--muted); text-transform:uppercase; letter-spacing:.5px; font-weight:700; white-space:nowrap; border-bottom:1px solid var(--border); cursor:pointer; user-select:none; }
 .data-table th:hover { color:var(--text); }
@@ -204,11 +203,11 @@ body { background:var(--bg); color:var(--text); font-family:'Segoe UI',Arial,san
 <div class="header">
   <div class="header-left">
     <h1>🏪 Vendedores IBACETA — Agosto 2026</h1>
-    <p>Generado 18/08/2026 19:47</p>
+    <p>Generado 18/08/2026 19:55</p>
   </div>
   <div class="header-right" style="flex-direction:column;align-items:flex-end;gap:8px">
     <div style="display:flex;gap:10px;align-items:center">
-      <div class="gen-badge">Generado: 18/08/2026 19:47</div>
+      <div class="gen-badge">Generado: 18/08/2026 19:55</div>
       <div class="period-toggle">
         <button class="period-btn active" onclick="setModo('mtd')">Período</button>
         <button class="period-btn"        onclick="setModo('ytd')">Acumulado</button>
@@ -223,6 +222,7 @@ body { background:var(--bg); color:var(--text); font-family:'Segoe UI',Arial,san
   <button class="tab-btn active" onclick="switchTab('resumen',this)">📊 Resumen</button>
   <button class="tab-btn"        onclick="switchTab('vendedores',this)">👤 Vendedores</button>
   <button class="tab-btn"        onclick="switchTab('salones',this)">🏪 Salones</button>
+  <button class="tab-btn"        onclick="switchTab('objetivos',this)">🎯 Objetivos</button>
   <button class="tab-btn"        onclick="switchTab('rubros',this)">📦 Rubros</button>
   <button class="tab-btn"        onclick="switchTab('productos',this)">📋 Productos</button>
 </div>
@@ -284,9 +284,6 @@ body { background:var(--bg); color:var(--text); font-family:'Segoe UI',Arial,san
           <th class="r" onclick="sortTable('tbl-salones-resumen',10)">UDS ↕</th>
           <th class="r" onclick="sortTable('tbl-salones-resumen',11)">TICKET PROM ↕</th>
           <th class="r" onclick="sortTable('tbl-salones-resumen',12)">YoY ↕</th>
-          <th class="r" onclick="sortTable('tbl-salones-resumen',13)">OBJETIVO ↕</th>
-          <th class="r" onclick="sortTable('tbl-salones-resumen',14)">CUMPL% ↕</th>
-          <th class="r" onclick="sortTable('tbl-salones-resumen',15)">RITMO ↕</th>
         </tr></thead>
         <tbody id="tbody-salones-resumen"></tbody>
       </table>
@@ -331,6 +328,27 @@ body { background:var(--bg); color:var(--text); font-family:'Segoe UI',Arial,san
     <div class="card-title">TOP RUBROS POR VENDEDOR <span>(click en vendedor para ver detalle)</span></div>
     <div id="vend-rubro-detail" style="color:var(--muted);font-size:12px;text-align:center;padding:20px">
       Seleccioná un vendedor de la tabla para ver su mix de rubros
+    </div>
+  </div>
+</div>
+
+<!-- ══════════════════ TAB: OBJETIVOS ══════════════════ -->
+<div class="tab-panel" id="panel-objetivos">
+  <div class="card">
+    <div class="card-title">CUMPLIMIENTO Y RITMO POR SALÓN — Agosto 2026</div>
+    <div class="tbl-wrap">
+      <table class="data-table" id="tbl-objetivos">
+        <thead><tr>
+          <th onclick="sortTable('tbl-objetivos',0)">SALÓN ↕</th>
+          <th class="r" onclick="sortTable('tbl-objetivos',1)">OBJETIVO VOL. ↕</th>
+          <th class="r" onclick="sortTable('tbl-objetivos',2)">VENTA REAL ↕</th>
+          <th class="r" onclick="sortTable('tbl-objetivos',3)">DIFERENCIA ↕</th>
+          <th onclick="sortTable('tbl-objetivos',4)">CUMPLIMIENTO ↕</th>
+          <th class="r" onclick="sortTable('tbl-objetivos',5)">RITMO ↕</th>
+          <th onclick="sortTable('tbl-objetivos',6)">ESTADO</th>
+        </tr></thead>
+        <tbody id="tbody-objetivos"></tbody>
+      </table>
     </div>
   </div>
 </div>
@@ -753,24 +771,85 @@ function renderTblSalonesResumen() {
     html += '<td class="r">'+fmtN(s.uds)+'</td>';
     html += '<td class="r">'+fmtM(s.ticket_prom)+'</td>';
     html += '<td class="r">'+deltaHtml(s.delta)+'</td>';
-    var robj = RITMOS_SALONES[s.SALON];
-    if (robj) {
-      html += '<td class="r" style="color:var(--muted)">'+fmtM(robj.obj)+'</td>';
-      var cpct = robj.cumpl != null ? fmtPct(robj.cumpl) : '—';
-      var cc = robj.cumpl != null ? (robj.cumpl >= 0.90 ? '#3fb950' : robj.cumpl >= 0.70 ? '#f8961e' : '#f85149') : 'var(--muted)';
-      html += '<td class="r" style="color:'+cc+';font-weight:700">'+cpct+'</td>';
-      if (robj.ritmo != null) {
-        var rc = robj.ritmo >= 1.05 ? '#3fb950' : robj.ritmo >= 0.90 ? '#f8961e' : '#f85149';
-        html += '<td class="r" style="color:'+rc+';font-weight:700">'+robj.ritmo.toFixed(2)+'x</td>';
-      } else {
-        html += '<td class="r" style="color:var(--muted)">—</td>';
-      }
-    } else {
-      html += '<td style="color:var(--muted)">—</td><td style="color:var(--muted)">—</td><td style="color:var(--muted)">—</td>';
-    }
     html += '</tr>';
   });
   document.getElementById('tbody-salones-resumen').innerHTML = html;
+}
+
+// ── RENDER TABLE OBJETIVOS ────────────────────────────────────────────────
+function renderTblObjetivos() {
+  var d = getData();
+  var ventaMap = {};
+  d.salones.forEach(function(s) { ventaMap[s.SALON] = s.total || 0; });
+
+  var keys = Object.keys(RITMOS_SALONES || {});
+  if (!keys.length) {
+    document.getElementById('tbody-objetivos').innerHTML =
+      '<tr><td colspan="7" style="text-align:center;color:var(--muted);padding:24px">' +
+      'Sin datos de objetivos — ejecutá el pipeline para generar el contexto del agente.</td></tr>';
+    return;
+  }
+
+  var rows = keys.map(function(salon) {
+    var rd = RITMOS_SALONES[salon];
+    return {
+      salon: salon,
+      obj:   rd.obj   || 0,
+      venta: ventaMap[salon] || 0,
+      cumpl: rd.cumpl != null ? rd.cumpl : null,
+      ritmo: rd.ritmo != null ? rd.ritmo : null
+    };
+  });
+  rows.sort(function(a, b) { return b.venta - a.venta; });
+
+  var html = '';
+  rows.forEach(function(r) {
+    var c    = salonColor(r.salon);
+    var dif  = r.venta - r.obj;
+    var dCol = dif >= 0 ? '#3fb950' : '#f85149';
+    var dStr = (dif >= 0 ? '+' : '') + fmtM(dif);
+
+    var cpct    = r.cumpl != null ? r.cumpl : 0;
+    var cColor  = cpct >= 0.90 ? '#3fb950' : cpct >= 0.70 ? '#f8961e' : '#f85149';
+    var cBar    = Math.min(cpct * 100, 100).toFixed(1);
+    var cumplHtml = r.cumpl != null
+      ? '<div style="display:flex;align-items:center;gap:6px">' +
+          '<div style="flex:1;height:6px;background:var(--border);border-radius:3px;min-width:60px">' +
+            '<div style="width:' + cBar + '%;height:6px;background:' + cColor + ';border-radius:3px"></div>' +
+          '</div>' +
+          '<span style="color:' + cColor + ';font-weight:700;min-width:42px">' + fmtPct(cpct) + '</span>' +
+        '</div>'
+      : '<span style="color:var(--muted)">—</span>';
+
+    var ritmoStr = r.ritmo != null ? r.ritmo.toFixed(2) + 'x' : '—';
+    var rColor   = r.ritmo != null
+      ? (r.ritmo >= 1.05 ? '#3fb950' : r.ritmo >= 0.90 ? '#f8961e' : '#f85149')
+      : 'var(--muted)';
+
+    var estado, eColor, eBg;
+    if (r.ritmo == null) {
+      estado = 'Sin datos'; eColor = 'var(--text)'; eBg = 'var(--border)';
+    } else if (r.ritmo >= 1.05) {
+      estado = 'En ritmo';  eColor = '#0d1117';     eBg = '#3fb950';
+    } else if (r.ritmo >= 0.90) {
+      estado = 'Cerca';     eColor = '#0d1117';     eBg = '#f8961e';
+    } else {
+      estado = 'Rezagado';  eColor = '#fff';        eBg = '#f85149';
+    }
+
+    html += '<tr>';
+    html += '<td class="name-cell"><span style="color:' + c + '">●</span> ' + r.salon + '</td>';
+    html += '<td class="r" style="color:var(--muted)">' + fmtM(r.obj) + '</td>';
+    html += '<td class="r">' + fmtM(r.venta) + '</td>';
+    html += '<td class="r" style="color:' + dCol + ';font-weight:700">' + dStr + '</td>';
+    html += '<td>' + cumplHtml + '</td>';
+    html += '<td class="r" style="color:' + rColor + ';font-weight:700">' + ritmoStr + '</td>';
+    html += '<td><span style="background:' + eBg + ';color:' + eColor + ';border-radius:10px;' +
+            'padding:2px 10px;font-size:11px;font-weight:700">' + estado + '</span></td>';
+    html += '</tr>';
+  });
+  document.getElementById('tbody-objetivos').innerHTML = html ||
+    '<tr><td colspan="7" style="text-align:center;color:var(--muted);padding:24px">Sin salones en el período.</td></tr>';
 }
 
 // ── RENDER SALON FILTER PILLS ─────────────────────────────────────────────
@@ -1128,6 +1207,7 @@ function renderAll() {
   renderDonut();
   renderSpark();
   renderTblSalonesResumen();
+  renderTblObjetivos();
   renderSalonPills();
   renderHbarVendedores();
   renderHbarVendMargen();
@@ -1164,11 +1244,11 @@ renderAll();
 font-family:Arial,sans-serif;font-size:11px;padding:5px 12px;border-radius:20px;
 background:rgba(15,15,25,.93);color:#ddd;box-shadow:0 2px 10px rgba(0,0,0,.55);
 border-left:4px solid #3fb950;pointer-events:none;line-height:1.5">
-  &#9201; <b>Generado:</b> 18/08/2026 19:47
+  &#9201; <b>Generado:</b> 18/08/2026 19:56
 </div>
 <script>
 (function(){
-  var gen=new Date("2026-08-18T19:47:56"),hrs=(new Date()-gen)/3600000;
+  var gen=new Date("2026-08-18T19:56:09"),hrs=(new Date()-gen)/3600000;
   var el=document.getElementById("_ibaceta_ts");if(!el)return;
   if(hrs>24){el.style.borderColor="#f85149";el.style.color="#ffcccc";
     el.innerHTML+=" &nbsp;<span style=\"color:#f85149;font-weight:bold\">&#9888; +24h</span>";}
