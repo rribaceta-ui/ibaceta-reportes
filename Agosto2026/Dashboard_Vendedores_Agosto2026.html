@@ -221,11 +221,11 @@ body { background:var(--bg); color:var(--text); font-family:'Segoe UI',Arial,san
 <div class="header">
   <div class="header-left">
     <h1>🏪 Vendedores IBACETA — Agosto 2026</h1>
-    <p>Generado 24/08/2026 18:16</p>
+    <p>Generado 24/08/2026 18:56</p>
   </div>
   <div class="header-right" style="flex-direction:column;align-items:flex-end;gap:8px">
     <div style="display:flex;gap:10px;align-items:center">
-      <div class="gen-badge">Generado: 24/08/2026 18:16</div>
+      <div class="gen-badge">Generado: 24/08/2026 18:56</div>
       <div class="period-toggle">
         <button class="period-btn active" onclick="setModo('mtd')">Período</button>
         <button class="period-btn"        onclick="setModo('ytd')">Acumulado</button>
@@ -373,10 +373,14 @@ body { background:var(--bg); color:var(--text); font-family:'Segoe UI',Arial,san
 
 <!-- ══════════════════ TAB: SALONES ══════════════════ -->
 <div class="tab-panel" id="panel-salones">
-  <div class="filter-pills" style="margin-bottom:12px">
-    <span style="font-size:11px;color:var(--muted);align-self:center;margin-right:4px;text-transform:uppercase;letter-spacing:.5px">Composición por</span>
+  <div class="filter-pills" style="margin-bottom:12px;align-items:center">
+    <span style="font-size:11px;color:var(--muted);margin-right:4px;text-transform:uppercase;letter-spacing:.5px">Composición por</span>
     <button class="pill active" id="pill-rubro"  onclick="setVistaSalon('rubro')">Rubros</button>
     <button class="pill"        id="pill-sector" onclick="setVistaSalon('sector')">Sectores</button>
+    <span style="width:1px;height:20px;background:var(--border);margin:0 8px"></span>
+    <span style="font-size:11px;color:var(--muted);margin-right:4px;text-transform:uppercase;letter-spacing:.5px">Medido en</span>
+    <button class="pill active" id="pill-monto"    onclick="setMetricaSalon('monto')">Monto</button>
+    <button class="pill"        id="pill-cantidad" onclick="setMetricaSalon('cantidad')">Cantidad</button>
   </div>
   <div class="salon-cards" id="salon-cards"></div>
 </div>
@@ -1006,14 +1010,25 @@ function showVendRubros(idx) {
 }
 
 // ── RENDER SALON CARDS ────────────────────────────────────────────────────
-// Composición de la tarjeta de salón: 'rubro' o 'sector'
-var VISTA_SALON = 'rubro';
+// Composición de la tarjeta de salón: qué se agrupa y en qué se mide
+var VISTA_SALON   = 'rubro';    // 'rubro' | 'sector'
+var METRICA_SALON = 'monto';    // 'monto' | 'cantidad'
+
 function setVistaSalon(v) {
   VISTA_SALON = v;
   var pr = document.getElementById('pill-rubro');
   var ps = document.getElementById('pill-sector');
   if (pr) pr.classList.toggle('active', v === 'rubro');
   if (ps) ps.classList.toggle('active', v === 'sector');
+  renderSalonCards();
+}
+
+function setMetricaSalon(m) {
+  METRICA_SALON = m;
+  var pm = document.getElementById('pill-monto');
+  var pc = document.getElementById('pill-cantidad');
+  if (pm) pm.classList.toggle('active', m === 'monto');
+  if (pc) pc.classList.toggle('active', m === 'cantidad');
   renderSalonCards();
 }
 
@@ -1045,27 +1060,32 @@ function renderSalonCards() {
     // Composición por RUBRO o SECTOR (según el selector): top 10 con scroll
     // propio + "Otros" fija al pie, para que los porcentajes sumen 100%.
     var esSector = (VISTA_SALON === 'sector');
+    var esCant   = (METRICA_SALON === 'cantidad');
     var fuente   = esSector ? d.salon_sector : d.salon_rubro;
     var campo    = esSector ? 'DESCRIPCION_SECTOR' : 'DESCRIPCION_RUBRO';
-    var etiqueta = esSector ? 'Venta por sector' : 'Venta por rubro';
-    var srub = (fuente || []).filter(function(r) { return r.SALON===s.SALON; })
-                             .sort(function(a,b){ return (b.total||0)-(a.total||0); });
+    var mcampo   = esCant ? 'uds' : 'total';           // métrica activa
+    var fmtV     = esCant ? fmtN : fmtM;               // formato acorde
+    var etiqueta = (esCant ? 'Unidades por ' : 'Venta por ') + (esSector ? 'sector' : 'rubro');
+    // El orden y los porcentajes siguen a la métrica elegida, no al monto
+    var srub = (fuente || []).filter(function(r) { return r.SALON===s.SALON && (r[mcampo]||0) > 0; })
+                             .sort(function(a,b){ return (b[mcampo]||0)-(a[mcampo]||0); });
     if (srub.length) {
-      var totR = srub.reduce(function(a,r){ return a+(r.total||0); }, 0);
+      var totR = srub.reduce(function(a,r){ return a+(r[mcampo]||0); }, 0);
       var topR = srub.slice(0,10);
       var resto = srub.slice(10);
-      var restoTot = resto.reduce(function(a,r){ return a+(r.total||0); }, 0);
+      var restoTot = resto.reduce(function(a,r){ return a+(r[mcampo]||0); }, 0);
       html += '<div style="margin-top:8px;font-size:10px;color:var(--muted);text-transform:uppercase;letter-spacing:.5px;margin-bottom:6px">'+etiqueta+'</div>';
       html += '<div class="rubro-scroll">';
       topR.forEach(function(r, i) {
-        var share = totR ? (r.total/totR) : 0;
+        var val = r[mcampo] || 0;
+        var share = totR ? (val/totR) : 0;
         var nom = r[campo];
         html += '<div style="padding:3px 0;border-bottom:1px solid var(--border)">';
         // flex:1 + min-width:0 en el nombre y flex:0 0 auto en el monto: sin
         // eso el navegador recorta el importe en vez del nombre del rubro.
         html += '<div style="display:flex;justify-content:space-between;align-items:baseline;font-size:11px;gap:6px">';
         html += '<span style="flex:1 1 auto;min-width:0;color:var(--text);overflow:hidden;text-overflow:ellipsis;white-space:nowrap" title="'+nom+'"><span style="color:var(--muted)">'+(i+1)+'.</span> '+nom+'</span>';
-        html += '<span style="flex:0 0 auto;color:'+c+';font-weight:600;white-space:nowrap">'+fmtM(r.total)+' <span style="color:var(--muted)">('+fmtPct(share)+')</span></span>';
+        html += '<span style="flex:0 0 auto;color:'+c+';font-weight:600;white-space:nowrap">'+fmtV(val)+' <span style="color:var(--muted)">('+fmtPct(share)+')</span></span>';
         html += '</div>';
         html += '<div style="height:3px;background:var(--border);border-radius:2px;margin-top:3px"><div style="width:'+(share*100).toFixed(1)+'%;height:3px;background:'+c+';border-radius:2px"></div></div>';
         html += '</div>';
@@ -1075,7 +1095,7 @@ function renderSalonCards() {
         var shareR = totR ? (restoTot/totR) : 0;
         html += '<div class="rubro-otros">';
         html += '<span style="flex:1 1 auto;min-width:0;overflow:hidden;text-overflow:ellipsis;white-space:nowrap">Otros ('+resto.length+(esSector ? ' sectores' : ' rubros')+')</span>';
-        html += '<span style="flex:0 0 auto;white-space:nowrap">'+fmtM(restoTot)+' ('+fmtPct(shareR)+')</span>';
+        html += '<span style="flex:0 0 auto;white-space:nowrap">'+fmtV(restoTot)+' ('+fmtPct(shareR)+')</span>';
         html += '</div>';
       }
     }
@@ -1304,11 +1324,11 @@ renderAll();
 font-family:Arial,sans-serif;font-size:11px;padding:5px 12px;border-radius:20px;
 background:rgba(15,15,25,.93);color:#ddd;box-shadow:0 2px 10px rgba(0,0,0,.55);
 border-left:4px solid #3fb950;pointer-events:none;line-height:1.5">
-  &#9201; <b>Generado:</b> 24/08/2026 18:52
+  &#9201; <b>Generado:</b> 24/08/2026 18:57
 </div>
 <script>
 (function(){
-  var gen=new Date("2026-08-24T18:52:11"),hrs=(new Date()-gen)/3600000;
+  var gen=new Date("2026-08-24T18:57:53"),hrs=(new Date()-gen)/3600000;
   var el=document.getElementById("_ibaceta_ts");if(!el)return;
   if(hrs>24){el.style.borderColor="#f85149";el.style.color="#ffcccc";
     el.innerHTML+=" &nbsp;<span style=\"color:#f85149;font-weight:bold\">&#9888; +24h</span>";}
