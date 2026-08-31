@@ -290,7 +290,7 @@ body{font-family:'Segoe UI',Arial,sans-serif;background:#f0f2f5;color:#1a1a2e}
 <div class="header">
   <div>
     <h1 id="header-title">📊 Cumplimiento Comercial — Septiembre 2026</h1>
-    <div class="sub" id="header-sub">día 30 de 28 · Generado 30/08/2026 21:31</div>
+    <div class="sub" id="header-sub">día 31 de 28 · Generado 31/08/2026 05:05</div>
   </div>
   <div style="display:flex;align-items:center;gap:10px">
     <span class="periodo-cerrado-badge" id="badge-cerrado">PERÍODO CERRADO</span>
@@ -312,7 +312,7 @@ body{font-family:'Segoe UI',Arial,sans-serif;background:#f0f2f5;color:#1a1a2e}
 <div id="panel-cumplimiento" class="main-panel active">
 
 <div class="kpi-fin-section">
-  <div class="kpi-fin-title" id="kpi-fin-title">📈 KPIs Financieros — Septiembre 2026 hasta día 30</div>
+  <div class="kpi-fin-title" id="kpi-fin-title">📈 KPIs Financieros — Septiembre 2026 hasta día 31</div>
   <div class="kpi-fin-grid" id="kpi-fin-grid"></div>
 </div>
 
@@ -387,11 +387,11 @@ var DATA_PROD    = [];
 var SECT         = [];
 var PREV_YEAR    = 2025;
 var KPIS_FINANC  = {"total": 0.0, "venta": 0.0, "costo": 0.0, "margen": 0.0, "margen_pct": 0, "mup": 0, "uds": 0.0, "tickets": 0, "ticket_prom": 0, "iva": 0.0, "intereses": 0.0, "tarjeta_pct": 0};
-var DIA_HOY     = 30;
+var DIA_HOY     = 31;
 var MES_ABREV   = 'Sep';
 // Avance teórico por puntos laborales (Lun-Vie=1pt, Sáb=0.5pt, Dom=0)
-var AVANCE_LABORAL_MES = 0.0;  // % requerido hoy en el período activo
-var AVANCE_LABORAL_YTD = 89.7;  // % requerido hoy en el acumulado anual
+var AVANCE_LABORAL_MES = 4.5;  // % requerido hoy en el período activo
+var AVANCE_LABORAL_YTD = 90.2;  // % requerido hoy en el acumulado anual
 var _sector = '', _filter = 'all';
 
 // ── NAVEGACIÓN PERÍODOS ────────────────────────────────────────────────────
@@ -402,7 +402,7 @@ var DATA_PROD_ORIG   = DATA_PROD;
 var KPIS_ORIG        = KPIS_FINANC;
 var DIA_HOY_ORIG     = DIA_HOY;
 var MES_ABREV_ORIG   = MES_ABREV;
-var GENERADO_STR     = '30/08/2026 21:31';
+var GENERADO_STR     = '31/08/2026 05:05';
 var ANIO_NUM         = 2026;
 
 function renderPeriodoNav(){
@@ -913,11 +913,11 @@ renderPeriodoNav();
 font-family:Arial,sans-serif;font-size:11px;padding:5px 12px;border-radius:20px;
 background:rgba(15,15,25,.93);color:#ddd;box-shadow:0 2px 10px rgba(0,0,0,.55);
 border-left:4px solid #3fb950;pointer-events:none;line-height:1.5">
-  &#9201; <b>Generado:</b> 30/08/2026 21:53
+  &#9201; <b>Generado:</b> 31/08/2026 05:40
 </div>
 <script>
 (function(){
-  var gen=new Date("2026-08-30T21:53:18"),hrs=(new Date()-gen)/3600000;
+  var gen=new Date("2026-08-31T05:40:55"),hrs=(new Date()-gen)/3600000;
   var el=document.getElementById("_ibaceta_ts");if(!el)return;
   if(hrs>24){el.style.borderColor="#f85149";el.style.color="#ffcccc";
     el.innerHTML+=" &nbsp;<span style=\"color:#f85149;font-weight:bold\">&#9888; +24h</span>";}
