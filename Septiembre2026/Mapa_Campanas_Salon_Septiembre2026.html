@@ -1,0 +1,148 @@
+<!DOCTYPE html><html lang="es"><head>
+<meta charset="UTF-8"><meta name="viewport" content="width=device-width,initial-scale=1.0">
+<title>Mapa de Campañas SALÓN — Meta Ads</title>
+<link href="https://fonts.googleapis.com/css2?family=Montserrat:wght@400;600;700;800&family=Open+Sans:wght@400;600&display=swap" rel="stylesheet">
+<style>
+*{box-sizing:border-box;margin:0;padding:0}
+body{font-family:'Open Sans',sans-serif;background:#F0F2F5;color:#333}
+header{background:#00548A;padding:14px 26px;display:flex;justify-content:space-between;align-items:center;flex-wrap:wrap;gap:8px}
+header h1{font-family:'Montserrat',sans-serif;font-size:1rem;font-weight:800;color:#fff}
+header .sub{font-size:.72rem;color:rgba(255,255,255,.7);margin-top:2px}
+.pbd{background:#F1891B;color:#fff;padding:4px 13px;border-radius:18px;font-size:.73rem;font-weight:700}
+.wrap{max-width:1180px;margin:0 auto;padding:16px 14px}
+.principio{background:#fff;border-radius:8px;box-shadow:0 1px 6px rgba(0,0,0,.08);padding:14px 18px;margin-bottom:14px;border-left:5px solid #F1891B}
+.principio h2{font-family:'Montserrat',sans-serif;font-size:.9rem;color:#00548A;margin-bottom:8px}
+.principio p{font-size:.8rem;color:#555;line-height:1.6}
+.kpi-row{display:grid;grid-template-columns:repeat(auto-fit,minmax(150px,1fr));gap:10px;margin-top:12px}
+.kpi{background:#f7f8fa;border-radius:7px;padding:10px;text-align:center}
+.kpi .v{font-family:'Montserrat',sans-serif;font-size:1.25rem;font-weight:800;color:#00548A}
+.kpi .l{font-size:.68rem;color:#888;margin-top:2px}
+.camp{background:#fff;border-radius:10px;box-shadow:0 2px 10px rgba(0,0,0,.1);margin-bottom:14px;overflow:hidden}
+.camp-head{padding:13px 18px;color:#fff;display:flex;justify-content:space-between;align-items:center;flex-wrap:wrap;gap:8px}
+.camp-head .t{font-family:'Montserrat',sans-serif;font-weight:800;font-size:1rem}
+.camp-head .st{font-size:.72rem;opacity:.85;margin-top:2px}
+.camp-head .bud{font-family:'Montserrat',sans-serif;font-weight:800;font-size:1.3rem;text-align:right}
+.camp-head .bud small{font-size:.68rem;font-weight:400;opacity:.85;display:block}
+.camp-body{padding:14px 18px}
+.adsets{display:grid;grid-template-columns:repeat(auto-fit,minmax(220px,1fr));gap:12px}
+.adset{border:1px solid #e5e9ee;border-radius:8px;padding:11px}
+.adset .ah{display:flex;justify-content:space-between;align-items:baseline;margin-bottom:4px}
+.adset .an{font-family:'Montserrat',sans-serif;font-weight:700;font-size:.82rem;color:#00548A}
+.adset .ab{font-weight:800;font-size:.88rem;color:#00548A}
+.adset .geo{font-size:.72rem;color:#666;margin-top:2px}
+.lbl{font-family:'Montserrat',sans-serif;font-size:.66rem;font-weight:700;color:#999;text-transform:uppercase;letter-spacing:.4px;margin-bottom:8px}
+.flow{background:#e3f2fd;border-radius:8px;padding:13px 16px;margin-bottom:14px;font-size:.78rem;color:#1565c0;line-height:1.6}
+.disc{background:#fff8e1;border-left:4px solid #e65100;border-radius:6px;padding:11px 14px;margin-top:6px;font-size:.76rem;color:#666;line-height:1.5}
+footer{background:#333;color:#bbb;text-align:center;padding:10px;font-size:.7rem;margin-top:20px}
+</style>    <meta http-equiv="Cache-Control" content="no-cache, no-store, must-revalidate">
+    <meta http-equiv="Pragma" content="no-cache">
+    <meta http-equiv="Expires" content="0">
+</head><body>
+<header><div><div class="sub">El Cristorante S.A. — Reestructuración de pauta de SALÓN</div>
+<h1>Mapa de Campañas de Salón — por cluster geográfico</h1></div>
+<span class="pbd">4 campañas · 7 conjuntos</span></header>
+<div class="wrap">
+
+<div class="principio">
+  <h2>El principio: una campaña por provincia, conjuntos por zona — el salón es dueño de su ciudad</h2>
+  <p>En las ciudades CON salón, pauta el salón ("vení al local"); el WEB se enfoca en las zonas SIN salón → <strong>no compiten en la subasta</strong>. Las campañas se separan por provincia, y dentro de cada una los conjuntos por sub-zona geográfica (mutuamente excluyente). El overlap fino dentro de un mismo Gran (Alameda+Maipú, San Juan+Villa Krause) <strong>se resuelve en la conversación</strong> — la pregunta de localidad en Clientify rutea al salón correcto.</p>
+  <div class="kpi-row">
+    <div class="kpi"><div class="v">4</div><div class="l">Campañas (por provincia)</div></div>
+    <div class="kpi"><div class="v">7</div><div class="l">Conjuntos (por zona)</div></div>
+    <div class="kpi"><div class="v">$198,000</div><div class="l">Presupuesto diario salón</div></div>
+    <div class="kpi"><div class="v">1</div><div class="l">Número WhatsApp (central)</div></div>
+  </div>
+</div>
+
+<div class="flow">
+  <strong>📲 Ruteo:</strong> Anuncio → <strong>número central</strong> (API WhatsApp + Clientify) → llega con parámetro de campaña/región → bot pregunta localidad → <strong>asigna al vendedor del salón más cercano</strong>. Cada lead queda etiquetado por zona para medir conversión.
+</div>
+
+<div class="camp">
+      <div class="camp-head" style="background:linear-gradient(135deg,#00548A,#00548Acc)">
+        <div><div class="t">SALÓN | MENDOZA</div><div class="st">Objetivo: Click-to-WhatsApp → número central · ruteo por localidad (Clientify)</div></div>
+        <div class="bud">$127,000<small>por día</small></div>
+      </div>
+      <div class="camp-body">
+        <div class="lbl">Conjuntos (separados por geografía = sin solapamiento)</div>
+        <div class="adsets"><div class="adset">
+          <div class="ah"><span class="an">Gran Mendoza <span style="background:#fff3e0;color:#e65100;font-size:.62rem;padding:1px 5px;border-radius:4px;font-weight:700">2 salones</span></span><span class="ab">$103,000/d</span></div>
+          <div class="geo">🏪 Alameda + Maipú</div>
+          <div class="geo" style="color:#888">📍 Capital, Godoy Cruz, Guaymallén, Las Heras, Luján, Maipú</div>
+        </div><div class="adset">
+          <div class="ah"><span class="an">San Rafael</span><span class="ab">$18,000/d</span></div>
+          <div class="geo">🏪 San Rafael</div>
+          <div class="geo" style="color:#888">📍 San Rafael, Gral. Alvear, Malargüe (sur)</div>
+        </div><div class="adset">
+          <div class="ah"><span class="an">San Martín</span><span class="ab">$6,000/d</span></div>
+          <div class="geo">🏪 San Martín</div>
+          <div class="geo" style="color:#888">📍 San Martín, Junín, Rivadavia, Sta. Rosa, La Paz (este)</div>
+        </div></div>
+      </div>
+    </div><div class="camp">
+      <div class="camp-head" style="background:linear-gradient(135deg,#1565C0,#1565C0cc)">
+        <div><div class="t">SALÓN | SAN JUAN</div><div class="st">Objetivo: Click-to-WhatsApp → número central · ruteo por localidad (Clientify)</div></div>
+        <div class="bud">$38,000<small>por día</small></div>
+      </div>
+      <div class="camp-body">
+        <div class="lbl">Conjuntos (separados por geografía = sin solapamiento)</div>
+        <div class="adsets"><div class="adset">
+          <div class="ah"><span class="an">Gran San Juan <span style="background:#fff3e0;color:#e65100;font-size:.62rem;padding:1px 5px;border-radius:4px;font-weight:700">2 salones</span></span><span class="ab">$38,000/d</span></div>
+          <div class="geo">🏪 San Juan + Villa Krause</div>
+          <div class="geo" style="color:#888">📍 Capital, Chimbas, Rawson, Rivadavia, Sta. Lucía, Pocito</div>
+        </div></div>
+      </div>
+    </div><div class="camp">
+      <div class="camp-head" style="background:linear-gradient(135deg,#5B9BD5,#5B9BD5cc)">
+        <div><div class="t">SALÓN | CÓRDOBA</div><div class="st">Objetivo: Click-to-WhatsApp → número central · ruteo por localidad (Clientify)</div></div>
+        <div class="bud">$18,000<small>por día</small></div>
+      </div>
+      <div class="camp-body">
+        <div class="lbl">Conjuntos (separados por geografía = sin solapamiento)</div>
+        <div class="adsets"><div class="adset">
+          <div class="ah"><span class="an">Río Cuarto</span><span class="ab">$18,000/d</span></div>
+          <div class="geo">🏪 Río Cuarto</div>
+          <div class="geo" style="color:#888">📍 Río Cuarto y sur de Córdoba</div>
+        </div></div>
+      </div>
+    </div><div class="camp">
+      <div class="camp-head" style="background:linear-gradient(135deg,#2E7D32,#2E7D32cc)">
+        <div><div class="t">SALÓN | SAN LUIS</div><div class="st">Objetivo: Click-to-WhatsApp → número central · ruteo por localidad (Clientify)</div></div>
+        <div class="bud">$15,000<small>por día</small></div>
+      </div>
+      <div class="camp-body">
+        <div class="lbl">Conjuntos (separados por geografía = sin solapamiento)</div>
+        <div class="adsets"><div class="adset">
+          <div class="ah"><span class="an">San Luis cap</span><span class="ab">$8,000/d</span></div>
+          <div class="geo">🏪 San Luis</div>
+          <div class="geo" style="color:#888">📍 San Luis capital y oeste</div>
+        </div><div class="adset">
+          <div class="ah"><span class="an">Villa Mercedes</span><span class="ab">$7,000/d</span></div>
+          <div class="geo">🏪 Villa Mercedes</div>
+          <div class="geo" style="color:#888">📍 Villa Mercedes, Justo Daract y este</div>
+        </div></div>
+      </div>
+    </div>
+
+<div class="disc">
+  💡 <strong>Presupuesto = punto de partida proporcional a la venta de cada zona</strong> (Mendoza 64%, San Juan 19%, Córdoba 9%, San Luis 7%). Ajustable: si se prioriza techo de crecimiento, bajar Mendoza (ya vende sola) y subir las zonas con potencial. <strong>Medición:</strong> no hay clic-a-venta — se lee por el movimiento de venta de cada salón en el Tablero de Omnicanalidad (índice B), con 1–2 semanas de delay.
+</div>
+
+</div>
+<footer>El Cristorante S.A. — IBACETA · Mapa de Campañas de Salón · Septiembre 2026</footer>
+<div id="_ibaceta_ts" style="position:fixed;bottom:14px;right:14px;z-index:99999;
+font-family:Arial,sans-serif;font-size:11px;padding:5px 12px;border-radius:20px;
+background:rgba(15,15,25,.93);color:#ddd;box-shadow:0 2px 10px rgba(0,0,0,.55);
+border-left:4px solid #3fb950;pointer-events:none;line-height:1.5">
+  &#9201; <b>Generado:</b> 31/08/2026 08:16
+</div>
+<script>
+(function(){
+  var gen=new Date("2026-08-31T08:16:21"),hrs=(new Date()-gen)/3600000;
+  var el=document.getElementById("_ibaceta_ts");if(!el)return;
+  if(hrs>24){el.style.borderColor="#f85149";el.style.color="#ffcccc";
+    el.innerHTML+=" &nbsp;<span style=\"color:#f85149;font-weight:bold\">&#9888; +24h</span>";}
+  else if(hrs>12){el.style.borderColor="#f8961e";}
+})();
+</script>
+</body></html>
