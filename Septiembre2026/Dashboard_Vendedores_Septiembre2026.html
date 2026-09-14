@@ -221,11 +221,11 @@ body { background:var(--bg); color:var(--text); font-family:'Segoe UI',Arial,san
 <div class="header">
   <div class="header-left">
     <h1>🏪 Vendedores IBACETA — Septiembre 2026</h1>
-    <p>Generado 13/09/2026 20:21</p>
+    <p>Generado 13/09/2026 21:01</p>
   </div>
   <div class="header-right" style="flex-direction:column;align-items:flex-end;gap:8px">
     <div style="display:flex;gap:10px;align-items:center">
-      <div class="gen-badge">Generado: 13/09/2026 20:21</div>
+      <div class="gen-badge">Generado: 13/09/2026 21:01</div>
       <div class="period-toggle">
         <button class="period-btn active" onclick="setModo('mtd')">Período</button>
         <button class="period-btn"        onclick="setModo('ytd')">Acumulado</button>
@@ -848,17 +848,22 @@ function renderTblObjetivos() {
         '</div>'
       : '<span style="color:var(--muted)">—</span>';
 
-    var ritmoStr = r.ritmo != null ? r.ritmo.toFixed(2) + 'x' : '—';
-    var rColor   = r.ritmo != null
-      ? (r.ritmo >= 1.05 ? '#3fb950' : r.ritmo >= 0.90 ? '#f8961e' : '#f85149')
+    // El ritmo se muestra con 2 decimales: el color tiene que evaluar EL MISMO
+    // numero que ve el lector. Sin redondear antes, San Juan con 0,898934 se
+    // mostraba "0.90x" en rojo y Rio Cuarto con 1,046295 se mostraba "1.05x"
+    // en naranja, los dos contradiciendo la leyenda. Verificado 13/09/2026.
+    var ritmoR   = r.ritmo != null ? Math.round(r.ritmo * 100) / 100 : null;
+    var ritmoStr = ritmoR != null ? ritmoR.toFixed(2) + 'x' : '—';
+    var rColor   = ritmoR != null
+      ? (ritmoR >= 1.05 ? '#3fb950' : ritmoR >= 0.90 ? '#f8961e' : '#f85149')
       : 'var(--muted)';
 
     var estado, eColor, eBg;
-    if (r.ritmo == null) {
+    if (ritmoR == null) {
       estado = 'Sin datos'; eColor = 'var(--text)'; eBg = 'var(--border)';
-    } else if (r.ritmo >= 1.05) {
+    } else if (ritmoR >= 1.05) {
       estado = 'En ritmo';  eColor = '#0d1117';     eBg = '#3fb950';
-    } else if (r.ritmo >= 0.90) {
+    } else if (ritmoR >= 0.90) {
       estado = 'Cerca';     eColor = '#0d1117';     eBg = '#f8961e';
     } else {
       estado = 'Rezagado';  eColor = '#fff';        eBg = '#f85149';
@@ -1375,11 +1380,11 @@ renderAll();
 font-family:Arial,sans-serif;font-size:11px;padding:5px 12px;border-radius:20px;
 background:rgba(15,15,25,.93);color:#ddd;box-shadow:0 2px 10px rgba(0,0,0,.55);
 border-left:4px solid #3fb950;pointer-events:none;line-height:1.5">
-  &#9201; <b>Generado:</b> 13/09/2026 20:25
+  &#9201; <b>Generado:</b> 13/09/2026 21:04
 </div>
 <script>
 (function(){
-  var gen=new Date("2026-09-13T20:25:31"),hrs=(new Date()-gen)/3600000;
+  var gen=new Date("2026-09-13T21:04:52"),hrs=(new Date()-gen)/3600000;
   var el=document.getElementById("_ibaceta_ts");if(!el)return;
   if(hrs>24){el.style.borderColor="#f85149";el.style.color="#ffcccc";
     el.innerHTML+=" &nbsp;<span style=\"color:#f85149;font-weight:bold\">&#9888; +24h</span>";}
