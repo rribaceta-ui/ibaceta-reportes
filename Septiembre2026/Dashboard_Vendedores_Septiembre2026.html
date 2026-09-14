@@ -221,11 +221,11 @@ body { background:var(--bg); color:var(--text); font-family:'Segoe UI',Arial,san
 <div class="header">
   <div class="header-left">
     <h1>🏪 Vendedores IBACETA — Septiembre 2026</h1>
-    <p>Generado 13/09/2026 21:26</p>
+    <p>Generado 13/09/2026 21:29</p>
   </div>
   <div class="header-right" style="flex-direction:column;align-items:flex-end;gap:8px">
     <div style="display:flex;gap:10px;align-items:center">
-      <div class="gen-badge">Generado: 13/09/2026 21:26</div>
+      <div class="gen-badge">Generado: 13/09/2026 21:29</div>
       <div class="period-toggle">
         <button class="period-btn active" onclick="setModo('mtd')">Período</button>
         <button class="period-btn"        onclick="setModo('ytd')">Acumulado</button>
@@ -1141,25 +1141,33 @@ function setSectorFilter(idx) {
   renderTblRubros();
 }
 
-function renderCanalPills() {
-  var d = getData();
+function getCanalList() {
   var vistos = {};
-  d.rubros.forEach(function(r) { if (r.CANAL) vistos[r.CANAL] = true; });
-  var lista = ['all'].concat(CANALES_ORDEN.filter(function(c) { return vistos[c]; }));
+  getData().rubros.forEach(function(r) { if (r.CANAL) vistos[r.CANAL] = true; });
+  return ['all'].concat(CANALES_ORDEN.filter(function(c) { return vistos[c]; }));
+}
+
+// El onclick pasa el INDICE, no el nombre: meter comillas escapadas dentro
+// de un f-string rompe el JS entero y el tablero queda en blanco sin aviso
+// (paso el 13/09/2026). Mismo patron que setSectorFilter.
+function renderCanalPills() {
+  var lista = getCanalList();
   var html = '';
-  lista.forEach(function(c) {
+  lista.forEach(function(c, i) {
     var lbl = c === 'all' ? 'Todos' : c;
     var col = c === 'all' ? '#8ac926' : (CANAL_COLORS[c] || '#00b4d8');
     var act = CUR_CANAL_FILTER === c ? 'active' : '';
-    html += '<button class="pill '+act+'" style="'+(act?'background:'+col+';':'')+
-            'border-color:'+col+';color:'+(act?'#000':col)+';" '+
-            'onclick="setCanalFilter(''+c+'')">'+lbl+'</button>';
+    html += '<button class="pill ' + act + '" style="' +
+            (act ? 'background:' + col + ';' : '') +
+            'border-color:' + col + ';color:' + (act ? '#000' : col) + ';" ' +
+            'onclick="setCanalFilter(' + i + ')">' + lbl + '</button>';
   });
   document.getElementById('canal-filter-pills').innerHTML = html;
 }
 
-function setCanalFilter(c) {
-  CUR_CANAL_FILTER = c;
+function setCanalFilter(idx) {
+  var lista = getCanalList();
+  CUR_CANAL_FILTER = lista[idx] !== undefined ? lista[idx] : 'all';
   renderCanalPills();
   renderHbarRubros();
   renderTblRubros();
@@ -1459,11 +1467,11 @@ renderAll();
 font-family:Arial,sans-serif;font-size:11px;padding:5px 12px;border-radius:20px;
 background:rgba(15,15,25,.93);color:#ddd;box-shadow:0 2px 10px rgba(0,0,0,.55);
 border-left:4px solid #3fb950;pointer-events:none;line-height:1.5">
-  &#9201; <b>Generado:</b> 13/09/2026 21:26
+  &#9201; <b>Generado:</b> 13/09/2026 21:29
 </div>
 <script>
 (function(){
-  var gen=new Date("2026-09-13T21:26:25"),hrs=(new Date()-gen)/3600000;
+  var gen=new Date("2026-09-13T21:29:37"),hrs=(new Date()-gen)/3600000;
   var el=document.getElementById("_ibaceta_ts");if(!el)return;
   if(hrs>24){el.style.borderColor="#f85149";el.style.color="#ffcccc";
     el.innerHTML+=" &nbsp;<span style=\"color:#f85149;font-weight:bold\">&#9888; +24h</span>";}
