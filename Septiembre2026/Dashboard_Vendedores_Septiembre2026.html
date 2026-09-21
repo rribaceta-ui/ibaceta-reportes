@@ -221,11 +221,11 @@ body { background:var(--bg); color:var(--text); font-family:'Segoe UI',Arial,san
 <div class="header">
   <div class="header-left">
     <h1>🏪 Vendedores IBACETA — Septiembre 2026</h1>
-    <p>Generado 20/09/2026 07:26</p>
+    <p>Generado 21/09/2026 07:27</p>
   </div>
   <div class="header-right" style="flex-direction:column;align-items:flex-end;gap:8px">
     <div style="display:flex;gap:10px;align-items:center">
-      <div class="gen-badge">Generado: 20/09/2026 07:26</div>
+      <div class="gen-badge">Generado: 21/09/2026 07:27</div>
       <div class="period-toggle">
         <button class="period-btn active" onclick="setModo('mtd')">Período</button>
         <button class="period-btn"        onclick="setModo('ytd')">Acumulado</button>
@@ -459,7 +459,7 @@ const TODOS_PERIODOS = {"Enero": {"mtd": {"kpi": {"venta": 2408312733.0389996, "
 const SALON_COLORS = {"Alameda": "#00b4d8", "San Juan": "#f72585", "San Martín": "#4cc9f0", "San Rafael": "#f8961e", "Villa Krause": "#43aa8b", "San Luis": "#90be6d", "Río Cuarto": "#577590", "Maipú": "#f3722c", "Villa Mercedes": "#277da1", "Web": "#7209b7", "Mercado Libre": "#f59e0b", "Mayorista": "#10b981", "Mendoza Calle": "#a78bfa", "Obra Gruesa": "#fb923c"};
 const SECTOR_COLORS = ["#00b4d8", "#7209b7", "#f72585", "#4cc9f0", "#f8961e", "#43aa8b", "#90be6d", "#577590"];
 const MESES_ES = {"1": "Enero", "2": "Febrero", "3": "Marzo", "4": "Abril", "5": "Mayo", "6": "Junio", "7": "Julio", "8": "Agosto", "9": "Septiembre", "10": "Octubre", "11": "Noviembre", "12": "Diciembre"};
-const RITMOS_SALONES = {"Alameda": {"obj": 685540368.0, "cumpl": 0.6906, "ritmo": 0.9208}, "Maipú": {"obj": 139389585.0, "cumpl": 0.5273, "ritmo": 0.7031}, "Río Cuarto": {"obj": 121781854.0, "cumpl": 0.7047, "ritmo": 0.9395}, "San Juan": {"obj": 200218597.0, "cumpl": 0.6143, "ritmo": 0.819}, "San Luis": {"obj": 146128342.0, "cumpl": 0.5583, "ritmo": 0.7445}, "San Martín": {"obj": 119240727.0, "cumpl": 0.3959, "ritmo": 0.5279}, "San Rafael": {"obj": 178384820.0, "cumpl": 0.8139, "ritmo": 1.0852}, "Villa Krause": {"obj": 118280285.0, "cumpl": 0.7978, "ritmo": 1.0637}, "Villa Mercedes": {"obj": 115950133.0, "cumpl": 0.5083, "ritmo": 0.6777}, "Mayorista": {"obj": 123034611.0, "cumpl": 0.1513, "ritmo": 0.2018}, "Web": {"obj": 139450083.0, "cumpl": 0.6744, "ritmo": 0.8992}, "Obra Gruesa": {"obj": 219483240.28, "cumpl": 0.6757, "ritmo": 0.901}, "Panetti Bs As": {"obj": 117832000.0, "cumpl": 0.7638, "ritmo": 1.0184}, "Mercado Libre": {"obj": 177475809.0, "cumpl": 1.0021, "ritmo": 1.3361}, "Mendoza Calle": {"obj": 483885080.33, "cumpl": 0.542, "ritmo": 0.7226}, "San Juan Calle": {"obj": 215327611.25, "cumpl": 0.6347, "ritmo": 0.8463}, "San Luis Calle": {"obj": 259022986.24, "cumpl": 0.5077, "ritmo": 0.6769}};
+const RITMOS_SALONES = {"Alameda": {"obj": 685540368.0, "cumpl": 0.7073, "ritmo": 0.943}, "Maipú": {"obj": 139389585.0, "cumpl": 0.5459, "ritmo": 0.7278}, "Río Cuarto": {"obj": 121781854.0, "cumpl": 0.7098, "ritmo": 0.9464}, "San Juan": {"obj": 200218597.0, "cumpl": 0.6629, "ritmo": 0.8839}, "San Luis": {"obj": 146128342.0, "cumpl": 0.5643, "ritmo": 0.7523}, "San Martín": {"obj": 119240727.0, "cumpl": 0.4658, "ritmo": 0.621}, "San Rafael": {"obj": 178384820.0, "cumpl": 0.8324, "ritmo": 1.1098}, "Villa Krause": {"obj": 118280285.0, "cumpl": 0.8455, "ritmo": 1.1273}, "Villa Mercedes": {"obj": 115950133.0, "cumpl": 0.5224, "ritmo": 0.6966}, "Mayorista": {"obj": 123034611.0, "cumpl": 0.1513, "ritmo": 0.2018}, "Web": {"obj": 139450083.0, "cumpl": 0.6879, "ritmo": 0.9172}, "Obra Gruesa": {"obj": 219483240.28, "cumpl": 0.715, "ritmo": 0.9534}, "Panetti Bs As": {"obj": 117832000.0, "cumpl": 0.7638, "ritmo": 1.0184}, "Mercado Libre": {"obj": 177475809.0, "cumpl": 1.0112, "ritmo": 1.3482}, "Mendoza Calle": {"obj": 483885080.33, "cumpl": 0.5593, "ritmo": 0.7457}, "San Juan Calle": {"obj": 215327611.25, "cumpl": 0.7204, "ritmo": 0.9605}, "San Luis Calle": {"obj": 259022986.24, "cumpl": 0.5293, "ritmo": 0.7058}};
 
 let _periodo_sel = 'Septiembre';
 let _modo = 'mtd';
@@ -1472,11 +1472,11 @@ renderAll();
 font-family:Arial,sans-serif;font-size:11px;padding:5px 12px;border-radius:20px;
 background:rgba(15,15,25,.93);color:#ddd;box-shadow:0 2px 10px rgba(0,0,0,.55);
 border-left:4px solid #3fb950;pointer-events:none;line-height:1.5">
-  &#9201; <b>Generado:</b> 20/09/2026 07:48
+  &#9201; <b>Generado:</b> 21/09/2026 08:08
 </div>
 <script>
 (function(){
-  var gen=new Date("2026-09-20T07:48:28"),hrs=(new Date()-gen)/3600000;
+  var gen=new Date("2026-09-21T08:08:56"),hrs=(new Date()-gen)/3600000;
   var el=document.getElementById("_ibaceta_ts");if(!el)return;
   if(hrs>24){el.style.borderColor="#f85149";el.style.color="#ffcccc";
     el.innerHTML+=" &nbsp;<span style=\"color:#f85149;font-weight:bold\">&#9888; +24h</span>";}
