@@ -1,0 +1,513 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>Briefing Diario — 30/09/2026 · IBACETA</title>
+<link href="https://fonts.googleapis.com/css2?family=Montserrat:wght@400;600;700;800&display=swap" rel="stylesheet">
+<style>
+:root {
+  --bg:     #0d1117;
+  --bg2:    #161b22;
+  --bg3:    #1c2128;
+  --border: #30363d;
+  --text:   #e6edf3;
+  --muted:  #8b949e;
+}
+* { margin:0; padding:0; box-sizing:border-box; }
+body {
+  background:var(--bg);
+  color:var(--text);
+  font-family:'Montserrat',Arial,sans-serif;
+  font-size:14px;
+  line-height:1.7;
+  min-height:100vh;
+}
+
+/* HEADER */
+.header {
+  background:var(--bg2);
+  border-bottom:1px solid var(--border);
+  padding:16px 32px;
+  display:flex;
+  align-items:center;
+  gap:16px;
+  position:sticky; top:0; z-index:100;
+}
+.logo { font-size:22px; font-weight:800; letter-spacing:1px; color:#e6edf3; }
+.logo span { color:#F1891B; }
+.header-badge {
+  background:var(--bg3);
+  border:1px solid var(--border);
+  border-radius:6px;
+  padding:4px 12px;
+  font-size:11px;
+  color:var(--muted);
+}
+.header-date { margin-left:auto; font-size:11px; color:var(--muted); }
+
+/* CONTENIDO */
+.container { max-width:860px; margin:0 auto; padding:32px 24px; }
+
+.titulo-briefing {
+  font-size:20px;
+  font-weight:800;
+  color:#e6edf3;
+  margin-bottom:24px;
+  padding-bottom:12px;
+  border-bottom:2px solid #F1891B;
+}
+
+/* SECCIONES */
+.seccion {
+  background:var(--bg2);
+  border:1px solid var(--border);
+  border-left:4px solid var(--sec-color, #00b4d8);
+  border-radius:8px;
+  margin-bottom:20px;
+  overflow:hidden;
+}
+.sec-header {
+  display:flex;
+  align-items:center;
+  gap:10px;
+  padding:12px 20px;
+  background:var(--bg3);
+  border-bottom:1px solid var(--border);
+}
+.sec-icon { font-size:18px; }
+.sec-title {
+  font-size:12px;
+  font-weight:800;
+  text-transform:uppercase;
+  letter-spacing:1px;
+  color:var(--sec-color, #00b4d8);
+}
+.sec-body {
+  padding:16px 20px;
+}
+
+/* TEXTO */
+p { margin-bottom:10px; color:#c9d1d9; }
+strong { color:#e6edf3; font-weight:700; }
+em { color:#8b949e; }
+code {
+  background:#1c2128;
+  border:1px solid #30363d;
+  border-radius:4px;
+  padding:1px 6px;
+  font-size:12px;
+  font-family:monospace;
+  color:#79c0ff;
+}
+
+/* LISTA */
+.lista {
+  list-style:none;
+  padding:0;
+  margin:0;
+}
+.lista li {
+  padding:8px 0 8px 16px;
+  border-bottom:1px solid var(--border);
+  color:#c9d1d9;
+  position:relative;
+}
+.lista li:last-child { border-bottom:none; }
+.lista li::before {
+  content:'›';
+  position:absolute;
+  left:0;
+  color:var(--sec-color, #8b949e);
+  font-weight:700;
+}
+
+.subtitulo {
+  font-size:13px;
+  font-weight:700;
+  color:#8b949e;
+  margin:12px 0 6px;
+  text-transform:uppercase;
+  letter-spacing:.5px;
+}
+
+.sep { height:6px; }
+
+/* TABLA CUMPLIMIENTO SALONES */
+.sc-card {
+  background:var(--bg2);
+  border:1px solid var(--border);
+  border-left:4px solid #00b4d8;
+  border-radius:8px;
+  margin-bottom:24px;
+  overflow:hidden;
+}
+.sc-header {
+  display:flex; align-items:center; gap:10px;
+  padding:12px 20px;
+  background:var(--bg3);
+  border-bottom:1px solid var(--border);
+  flex-wrap:wrap;
+}
+.sc-icon { font-size:18px; }
+.sc-title {
+  font-size:12px; font-weight:800;
+  text-transform:uppercase; letter-spacing:1px;
+  color:#00b4d8;
+}
+.sc-sub { font-size:11px; color:var(--muted); margin-left:auto; }
+.sc-sub strong { color:#e6edf3; }
+.sc-body { padding:0 20px 16px; overflow-x:auto; }
+.sc-table {
+  width:100%; border-collapse:collapse;
+  font-size:12px; margin-top:12px;
+}
+.sc-table th {
+  color:var(--muted); font-size:10px; font-weight:700;
+  text-transform:uppercase; letter-spacing:.5px;
+  padding:6px 8px; border-bottom:1px solid var(--border);
+  white-space:nowrap;
+}
+.sc-table td { padding:8px 8px; border-bottom:1px solid rgba(48,54,61,.4); vertical-align:middle; }
+.sc-table tr:last-child td { border-bottom:none; }
+.sc-table tr:hover td { background:rgba(33,38,45,.6); }
+.sc-salon { font-weight:600; white-space:nowrap; }
+.sc-r { text-align:right; white-space:nowrap; }
+.sc-bar { min-width:120px; padding:0 8px; }
+.sc-track {
+  position:relative; height:10px;
+  background:rgba(48,54,61,.8); border-radius:5px; overflow:visible;
+}
+.sc-fill {
+  height:100%; border-radius:5px;
+  transition:width .3s ease;
+}
+.sc-marker {
+  position:absolute; top:-3px; bottom:-3px;
+  width:2px; background:#e6edf3;
+  border-radius:1px;
+  transform:translateX(-50%);
+}
+
+/* FOOTER */
+.footer {
+  text-align:center;
+  padding:24px;
+  font-size:11px;
+  color:var(--muted);
+  border-top:1px solid var(--border);
+  margin-top:32px;
+}
+.footer b { color:#F1891B; }
+</style>
+    <meta http-equiv="Cache-Control" content="no-cache, no-store, must-revalidate">
+    <meta http-equiv="Pragma" content="no-cache">
+    <meta http-equiv="Expires" content="0">
+</head>
+<body>
+
+<div class="header">
+  <div class="logo">IBA<span>CETA</span></div>
+  <div class="header-badge">📋 Briefing Diario</div>
+  <div class="header-date">Generado: 30/09/2026 17:32</div>
+</div>
+
+<div class="container">
+
+<div class="sc-card">
+  <div class="sc-header">
+    <span class="sc-icon">📊</span>
+    <span class="sc-title">CUMPLIMIENTO POR SALÓN</span>
+    <span class="sc-sub">Datos al 2026-09-30 &nbsp;·&nbsp; Debería llevar: <strong>11.4%</strong> &nbsp;·&nbsp; Línea = objetivo del día</span>
+  </div>
+  <div class="sc-body">
+    <table class="sc-table">
+      <thead>
+        <tr>
+          <th>Salón</th>
+          <th class="sc-r">Objetivo</th>
+          <th class="sc-r">Venta Total c/IVA</th>
+          <th>Progreso</th>
+          <th class="sc-r">Cumplió</th>
+          <th class="sc-r">Debería</th>
+          <th style="text-align:center">Est.</th>
+        </tr>
+      </thead>
+      <tbody>
+        <tr>
+          <td class="sc-salon">Villa Mercedes</td>
+          <td class="sc-r">$116.0M</td>
+          <td class="sc-r">$11.0M</td>
+          <td class="sc-bar">
+            <div class="sc-track">
+              <div class="sc-fill" style="width:9.5%;background:#f8961e"></div>
+              <div class="sc-marker" style="left:11.4%"></div>
+            </div>
+          </td>
+          <td class="sc-r" style="color:#f8961e;font-weight:700">9.5%</td>
+          <td class="sc-r" style="color:#8b949e">11.4%</td>
+          <td style="text-align:center;font-size:16px">🟡</td>
+        </tr>
+        <tr>
+          <td class="sc-salon">Maipú</td>
+          <td class="sc-r">$179.5M</td>
+          <td class="sc-r">$15.5M</td>
+          <td class="sc-bar">
+            <div class="sc-track">
+              <div class="sc-fill" style="width:8.6%;background:#f85149"></div>
+              <div class="sc-marker" style="left:11.4%"></div>
+            </div>
+          </td>
+          <td class="sc-r" style="color:#f85149;font-weight:700">8.6%</td>
+          <td class="sc-r" style="color:#8b949e">11.4%</td>
+          <td style="text-align:center;font-size:16px">🔴</td>
+        </tr>
+        <tr>
+          <td class="sc-salon">Alameda</td>
+          <td class="sc-r">$856.9M</td>
+          <td class="sc-r">$59.2M</td>
+          <td class="sc-bar">
+            <div class="sc-track">
+              <div class="sc-fill" style="width:6.9%;background:#f85149"></div>
+              <div class="sc-marker" style="left:11.4%"></div>
+            </div>
+          </td>
+          <td class="sc-r" style="color:#f85149;font-weight:700">6.9%</td>
+          <td class="sc-r" style="color:#8b949e">11.4%</td>
+          <td style="text-align:center;font-size:16px">🔴</td>
+        </tr>
+        <tr>
+          <td class="sc-salon">San Martín</td>
+          <td class="sc-r">$153.5M</td>
+          <td class="sc-r">$7.5M</td>
+          <td class="sc-bar">
+            <div class="sc-track">
+              <div class="sc-fill" style="width:4.9%;background:#f85149"></div>
+              <div class="sc-marker" style="left:11.4%"></div>
+            </div>
+          </td>
+          <td class="sc-r" style="color:#f85149;font-weight:700">4.9%</td>
+          <td class="sc-r" style="color:#8b949e">11.4%</td>
+          <td style="text-align:center;font-size:16px">🔴</td>
+        </tr>
+        <tr>
+          <td class="sc-salon">Villa Krause</td>
+          <td class="sc-r">$152.3M</td>
+          <td class="sc-r">$7.4M</td>
+          <td class="sc-bar">
+            <div class="sc-track">
+              <div class="sc-fill" style="width:4.9%;background:#f85149"></div>
+              <div class="sc-marker" style="left:11.4%"></div>
+            </div>
+          </td>
+          <td class="sc-r" style="color:#f85149;font-weight:700">4.9%</td>
+          <td class="sc-r" style="color:#8b949e">11.4%</td>
+          <td style="text-align:center;font-size:16px">🔴</td>
+        </tr>
+        <tr>
+          <td class="sc-salon">San Rafael</td>
+          <td class="sc-r">$227.4M</td>
+          <td class="sc-r">$10.9M</td>
+          <td class="sc-bar">
+            <div class="sc-track">
+              <div class="sc-fill" style="width:4.8%;background:#f85149"></div>
+              <div class="sc-marker" style="left:11.4%"></div>
+            </div>
+          </td>
+          <td class="sc-r" style="color:#f85149;font-weight:700">4.8%</td>
+          <td class="sc-r" style="color:#8b949e">11.4%</td>
+          <td style="text-align:center;font-size:16px">🔴</td>
+        </tr>
+        <tr>
+          <td class="sc-salon">San Juan</td>
+          <td class="sc-r">$255.3M</td>
+          <td class="sc-r">$11.7M</td>
+          <td class="sc-bar">
+            <div class="sc-track">
+              <div class="sc-fill" style="width:4.6%;background:#f85149"></div>
+              <div class="sc-marker" style="left:11.4%"></div>
+            </div>
+          </td>
+          <td class="sc-r" style="color:#f85149;font-weight:700">4.6%</td>
+          <td class="sc-r" style="color:#8b949e">11.4%</td>
+          <td style="text-align:center;font-size:16px">🔴</td>
+        </tr>
+        <tr>
+          <td class="sc-salon">Obra Gruesa</td>
+          <td class="sc-r">$279.8M</td>
+          <td class="sc-r">$11.7M</td>
+          <td class="sc-bar">
+            <div class="sc-track">
+              <div class="sc-fill" style="width:4.2%;background:#f85149"></div>
+              <div class="sc-marker" style="left:11.4%"></div>
+            </div>
+          </td>
+          <td class="sc-r" style="color:#f85149;font-weight:700">4.2%</td>
+          <td class="sc-r" style="color:#8b949e">11.4%</td>
+          <td style="text-align:center;font-size:16px">🔴</td>
+        </tr>
+        <tr>
+          <td class="sc-salon">Río Cuarto</td>
+          <td class="sc-r">$155.3M</td>
+          <td class="sc-r">$6.3M</td>
+          <td class="sc-bar">
+            <div class="sc-track">
+              <div class="sc-fill" style="width:4.1%;background:#f85149"></div>
+              <div class="sc-marker" style="left:11.4%"></div>
+            </div>
+          </td>
+          <td class="sc-r" style="color:#f85149;font-weight:700">4.1%</td>
+          <td class="sc-r" style="color:#8b949e">11.4%</td>
+          <td style="text-align:center;font-size:16px">🔴</td>
+        </tr>
+        <tr>
+          <td class="sc-salon">Panetti Bs As</td>
+          <td class="sc-r">$117.8M</td>
+          <td class="sc-r">$4.0M</td>
+          <td class="sc-bar">
+            <div class="sc-track">
+              <div class="sc-fill" style="width:3.4%;background:#f85149"></div>
+              <div class="sc-marker" style="left:11.4%"></div>
+            </div>
+          </td>
+          <td class="sc-r" style="color:#f85149;font-weight:700">3.4%</td>
+          <td class="sc-r" style="color:#8b949e">11.4%</td>
+          <td style="text-align:center;font-size:16px">🔴</td>
+        </tr>
+        <tr>
+          <td class="sc-salon">San Luis Calle</td>
+          <td class="sc-r">$345.4M</td>
+          <td class="sc-r">$9.2M</td>
+          <td class="sc-bar">
+            <div class="sc-track">
+              <div class="sc-fill" style="width:2.7%;background:#f85149"></div>
+              <div class="sc-marker" style="left:11.4%"></div>
+            </div>
+          </td>
+          <td class="sc-r" style="color:#f85149;font-weight:700">2.7%</td>
+          <td class="sc-r" style="color:#8b949e">11.4%</td>
+          <td style="text-align:center;font-size:16px">🔴</td>
+        </tr>
+        <tr>
+          <td class="sc-salon">Mendoza Calle</td>
+          <td class="sc-r">$533.7M</td>
+          <td class="sc-r">$11.8M</td>
+          <td class="sc-bar">
+            <div class="sc-track">
+              <div class="sc-fill" style="width:2.2%;background:#f85149"></div>
+              <div class="sc-marker" style="left:11.4%"></div>
+            </div>
+          </td>
+          <td class="sc-r" style="color:#f85149;font-weight:700">2.2%</td>
+          <td class="sc-r" style="color:#8b949e">11.4%</td>
+          <td style="text-align:center;font-size:16px">🔴</td>
+        </tr>
+        <tr>
+          <td class="sc-salon">San Luis</td>
+          <td class="sc-r">$188.1M</td>
+          <td class="sc-r">$2.0M</td>
+          <td class="sc-bar">
+            <div class="sc-track">
+              <div class="sc-fill" style="width:1.1%;background:#f85149"></div>
+              <div class="sc-marker" style="left:11.4%"></div>
+            </div>
+          </td>
+          <td class="sc-r" style="color:#f85149;font-weight:700">1.1%</td>
+          <td class="sc-r" style="color:#8b949e">11.4%</td>
+          <td style="text-align:center;font-size:16px">🔴</td>
+        </tr>
+        <tr>
+          <td class="sc-salon">San Juan Calle</td>
+          <td class="sc-r">$271.0M</td>
+          <td class="sc-r">$2.8M</td>
+          <td class="sc-bar">
+            <div class="sc-track">
+              <div class="sc-fill" style="width:1.0%;background:#f85149"></div>
+              <div class="sc-marker" style="left:11.4%"></div>
+            </div>
+          </td>
+          <td class="sc-r" style="color:#f85149;font-weight:700">1.0%</td>
+          <td class="sc-r" style="color:#8b949e">11.4%</td>
+          <td style="text-align:center;font-size:16px">🔴</td>
+        </tr>
+        <tr>
+          <td class="sc-salon">Mercado Libre</td>
+          <td class="sc-r">$235.2M</td>
+          <td class="sc-r">$2.3M</td>
+          <td class="sc-bar">
+            <div class="sc-track">
+              <div class="sc-fill" style="width:1.0%;background:#f85149"></div>
+              <div class="sc-marker" style="left:11.4%"></div>
+            </div>
+          </td>
+          <td class="sc-r" style="color:#f85149;font-weight:700">1.0%</td>
+          <td class="sc-r" style="color:#8b949e">11.4%</td>
+          <td style="text-align:center;font-size:16px">🔴</td>
+        </tr>
+        <tr>
+          <td class="sc-salon">Web</td>
+          <td class="sc-r">$177.8M</td>
+          <td class="sc-r">$4K</td>
+          <td class="sc-bar">
+            <div class="sc-track">
+              <div class="sc-fill" style="width:0.0%;background:#f85149"></div>
+              <div class="sc-marker" style="left:11.4%"></div>
+            </div>
+          </td>
+          <td class="sc-r" style="color:#f85149;font-weight:700">0.0%</td>
+          <td class="sc-r" style="color:#8b949e">11.4%</td>
+          <td style="text-align:center;font-size:16px">🔴</td>
+        </tr></tbody>
+    </table>
+  </div>
+</div><h1 class="titulo-briefing">BRIEFING INTERPRETADO — 30/09/2026 17:32</h1>
+<div class="sep"></div>
+<div class="seccion" style="--sec-color:#00b4d8"><div class="sec-header"><span class="sec-icon">📊</span><span class="sec-title">SITUACIÓN GENERAL</span></div><div class="sec-body">
+<p>El período comercial "Octubre" recién arranca: con 10,9% de avance esperado, la venta TOTAL acumula $160M contra un objetivo agregado de ~$4.250M, lo que da un ritmo global de ~0,35. Los YoY de -92,8% (y el -100% de Oct en la evolución mensual) son artefactos de comparar pocos días contra el mes completo de 2025, no una caída real de demanda; el dato de referencia válido es Septiembre cerrado en $2.330M (+19,3% YoY). Ojo con el encabezado: dice "Día 30 de 35" y fecha 30/09, mientras el avance es 10,9%. Hay una inconsistencia de calendario en el informe que hay que corregir antes de que alguien lea el rojo generalizado como colapso.</p>
+<div class="sep"></div>
+<div class="seccion" style="--sec-color:#f85149"><div class="sec-header"><span class="sec-icon">🚨</span><span class="sec-title">ALERTAS CRÍTICAS</span></div><div class="sec-body">
+<ul class="lista">
+<li><strong>Objetivos posiblemente desfasados</strong>: el objetivo agregado (~$4.250M) equivale a +82% sobre el mejor mes del año. Aun con el ritmo real de Alameda (0,63) o Villa Mercedes (0,87), ningún salón llega. Si el objetivo es correcto, el problema es de ejecución en toda la red; si no, todo el semáforo está mal calibrado. Definirlo hoy.</li>
+<li><strong>Canales digitales en cero</strong>: Web $4K y Mercado Libre $2,3M contra objetivos de $178M y $235M. Con lo publicado y operativo que deberían estar, esto huele a problema operativo (publicaciones caídas, stock no sincronizado) más que comercial.</li>
+<li><strong>San Luis salón ($2,0M, ritmo 0,10)</strong> y <strong>Panetti Bs As (0,31)</strong>: los peores salones físicos, muy por detrás incluso de Villa Krause o San Martín, que tienen objetivos comparables.</li>
+<li><strong>Sector HOGAR desaparecido</strong>: ventiladores 1/73, aires 2/48, microondas 1/36, heladeras familiares 6/76, termotanques 12/175. Arrancamos la temporada de verano sin tracción en las líneas que la definen. Equipamiento gastronómico sostiene el 80%+ de la venta.</li>
+<li><strong>San Juan Calle vendiendo 93% contado</strong>: el canal Calle vive del pago semanal (a ~1,94x el neto). Con $201K de semanal en el mes, está operando como salón chico, no como Calle. Además, en Mendoza Calle el 77% del semanal son préstamos en efectivo, no bienes: se está colocando dinero, no mercadería.</li>
+</ul>
+<div class="sep"></div>
+<div class="seccion" style="--sec-color:#3fb950"><div class="sec-header"><span class="sec-icon">✅</span><span class="sec-title">PUNTOS DESTACADOS</span></div><div class="sec-body">
+<ul class="lista">
+<li><strong>Alameda sostiene la red</strong>: $59M (37% del total) con margen 25,3% y ritmo 0,63, el mejor entre los salones grandes. Coria, Herrera y Aragón explican $40M entre tres; Herrera además con 29% de margen.</li>
+<li><strong>Villa Mercedes (0,87) y Maipú (0,79)</strong> son los únicos cerca de zona amarilla. Villa Mercedes con apenas 4 operaciones de MATIASA a $2,4M de ticket: buen arranque pero frágil, y con el margen más bajo de la red (21,3%).</li>
+<li><strong>Margen sano</strong>: 24,8% global y MUP 1,32, con los rubros núcleo (verticales, helvitrinas, freezers, cortadoras) todos por encima de 26%. No se está comprando volumen con precio.</li>
+</ul>
+<div class="sep"></div>
+<div class="seccion" style="--sec-color:#f8961e"><div class="sec-header"><span class="sec-icon">📦</span><span class="sec-title">STOCK Y COMPRAS</span></div><div class="sec-body">
+<p>Las 13 alertas urgentes caen justo sobre lo que más vendemos: freezers FAM e Inelro (rubro #3, $18,7M), vitrinas Nuselij/Diaco (rubro #2), hornos convectores y pizzeros, amasadora Panetti. Cobertura de 0,1 a 0,6 meses en el corazón de Equipamiento significa que si el ritmo mejora, se frena por faltantes. Los 9 en monitoreo (cob. 1,0–1,4) son más de lo mismo: vitrinas y hornos Sol Real. En paralelo, nada de Hogar aparece en alertas porque no se está vendiendo: revisar si hay stock de aires y ventiladores para la temporada o si el problema es que no hay qué ofrecer.</p>
+<div class="sep"></div>
+<div class="seccion" style="--sec-color:#7209b7"><div class="sec-header"><span class="sec-icon">🎯</span><span class="sec-title">FOCO DEL DÍA</span></div><div class="sec-body">
+<p>1. <strong>Validar calendario y objetivos</strong> con quien arma el tablero: confirmar cuántos días reales lleva el período, corregir el "Día 30 de 35" y decidir si los objetivos de $4.250M se sostienen o se recalibran. Sin eso, el informe de mañana volverá a mostrar 16 rojos sin valor de gestión.</p>
+<p>2. <strong>Orden de compra hoy</strong> para los 13 SKU críticos de Equipamiento, y auditoría inmediata de por qué Web y Mercado Libre no facturan (publicaciones, stock, pagos). Como tercer frente, empujar a Calle a cerrar los 88 clientes en "cierre inminente" (Sartori y Jorge con 11 cada uno) priorizando venta de bienes sobre préstamos.</p>
+<div class="sep"></div>
+</div></div>
+<p><em>Generado automáticamente por generar_contexto.py · 30/09/2026 17:32</em></p>
+<div class="sep"></div>
+</div>
+
+<div class="footer">IBACETA &mdash; <b>Gerente Comercial Digital</b> &middot; Briefing Automático</div>
+<div id="_ibaceta_ts" style="position:fixed;bottom:14px;right:14px;z-index:99999;
+font-family:Arial,sans-serif;font-size:11px;padding:5px 12px;border-radius:20px;
+background:rgba(15,15,25,.93);color:#ddd;box-shadow:0 2px 10px rgba(0,0,0,.55);
+border-left:4px solid #3fb950;pointer-events:none;line-height:1.5">
+  &#9201; <b>Generado:</b> 30/09/2026 17:33
+</div>
+<script>
+(function(){
+  var gen=new Date("2026-09-30T17:33:30"),hrs=(new Date()-gen)/3600000;
+  var el=document.getElementById("_ibaceta_ts");if(!el)return;
+  if(hrs>24){el.style.borderColor="#f85149";el.style.color="#ffcccc";
+    el.innerHTML+=" &nbsp;<span style=\"color:#f85149;font-weight:bold\">&#9888; +24h</span>";}
+  else if(hrs>12){el.style.borderColor="#f8961e";}
+})();
+</script>
+</body>
+</html>
