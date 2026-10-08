@@ -1,0 +1,428 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<meta name="theme-color" content="#1B4F8C">
+<title>Funnel Calle — Ibaceta</title>
+<link rel="manifest" href="manifest.json">
+<style>
+:root{
+  --azul:#1B4F8C; --azul-osc:#153c6b; --naranja:#E8762C;
+  --rojo:#C0392B; --verde:#16A085; --gris:#6b7280;
+  --fondo:#f3f5f7; --borde:#e3e6ea;
+}
+*{box-sizing:border-box;-webkit-tap-highlight-color:transparent}
+body{margin:0;font-family:system-ui,"Segoe UI",sans-serif;background:var(--fondo);color:#1f2937;font-size:15px}
+button,select,input,textarea{font-family:inherit;font-size:15px}
+
+/* ---- login ---- */
+#login{position:fixed;inset:0;background:var(--azul);display:flex;align-items:center;justify-content:center;padding:24px;z-index:50}
+#login .caja{background:#fff;border-radius:14px;padding:26px 22px;width:100%;max-width:360px}
+#login h1{margin:0 0 4px;font-size:1.15rem;color:var(--azul)}
+#login p{margin:0 0 18px;font-size:.82rem;color:var(--gris)}
+#login input{width:100%;padding:12px;border:1.5px solid #ccd2d9;border-radius:8px;margin-bottom:10px}
+#login button{width:100%;padding:13px;background:var(--azul);color:#fff;border:0;border-radius:8px;font-weight:700;cursor:pointer}
+#login .error{color:var(--rojo);font-size:.82rem;margin-top:10px;display:none}
+
+/* ---- estructura ---- */
+header{background:var(--azul);color:#fff;padding:12px 16px;display:flex;align-items:center;gap:10px;position:sticky;top:0;z-index:20}
+header .quien{flex:1;min-width:0}
+header .nom{font-weight:700;font-size:.95rem;line-height:1.2}
+header .rol{font-size:.72rem;opacity:.8}
+header button{background:rgba(255,255,255,.15);color:#fff;border:0;border-radius:6px;padding:7px 12px;font-size:.78rem;cursor:pointer}
+nav{display:flex;background:#fff;border-bottom:1px solid var(--borde);position:sticky;top:53px;z-index:19}
+nav button{flex:1;padding:12px 6px;background:none;border:0;border-bottom:3px solid transparent;color:var(--gris);font-weight:600;font-size:.85rem;cursor:pointer}
+nav button.on{color:var(--azul);border-bottom-color:var(--azul)}
+nav .pin{display:inline-block;min-width:18px;padding:0 5px;margin-left:4px;background:var(--naranja);color:#fff;border-radius:9px;font-size:.7rem;line-height:18px}
+main{padding:12px 14px 80px}
+
+/* ---- tarjetas ---- */
+.tar{background:#fff;border:1px solid var(--borde);border-radius:10px;padding:12px;margin-bottom:9px;border-left:4px solid #cbd5e1}
+.tar.inicio{border-left-color:#3498DB}.tar.en_marcha{border-left-color:#2471a3}
+.tar.por_cerrar{border-left-color:var(--naranja)}.tar.cierre_inminente{border-left-color:var(--rojo)}
+.tar.finalizado{border-left-color:#9ca3af}
+.tar .nom{font-weight:700;font-size:.93rem;line-height:1.25}
+.tar .sub{font-size:.78rem;color:var(--gris);margin-top:2px}
+.tar .plata{font-size:.82rem;color:var(--naranja);font-weight:700;margin-top:4px}
+.tar .fila{display:flex;gap:7px;margin-top:9px;flex-wrap:wrap}
+.chip{display:inline-block;font-size:.71rem;font-weight:700;padding:3px 8px;border-radius:10px;background:#eef1f4;color:#555;margin-top:5px}
+.chip.venc{background:#fdecea;color:var(--rojo)}.chip.hoy{background:#fdf0e3;color:#b35309}
+.chip.prox{background:#eaf2fb;color:#1f6fb2}.chip.sin{background:#f4f4f4;color:#9ca3af;font-style:italic}
+.b{padding:8px 13px;border-radius:7px;border:1.5px solid var(--azul);background:#fff;color:var(--azul);font-size:.79rem;font-weight:700;cursor:pointer}
+.b.full{background:var(--azul);color:#fff;border-color:var(--azul)}
+.b.verde{border-color:var(--verde);color:var(--verde)}
+.b.verde.full{background:var(--verde);color:#fff}
+a.tel{color:var(--azul);text-decoration:none;font-weight:600}
+
+/* ---- filtros ---- */
+.filtros{display:flex;gap:7px;overflow-x:auto;padding-bottom:8px;margin-bottom:4px;-webkit-overflow-scrolling:touch}
+.filtros button{white-space:nowrap;padding:7px 13px;border-radius:16px;border:1.5px solid #ccd2d9;background:#fff;color:#555;font-size:.79rem;font-weight:600;cursor:pointer}
+.filtros button.on{background:var(--azul);border-color:var(--azul);color:#fff}
+#buscar{width:100%;padding:10px 14px;border:1.5px solid #ccd2d9;border-radius:20px;margin-bottom:10px}
+
+.titulo{font-weight:700;font-size:.84rem;margin:14px 0 7px;color:#374151}
+.vacio{text-align:center;color:#9ca3af;font-size:.85rem;padding:30px 10px}
+
+/* ---- modal ---- */
+.capa{position:fixed;inset:0;background:rgba(0,0,0,.45);display:none;align-items:flex-end;justify-content:center;z-index:40}
+.capa.on{display:flex}
+.hoja{background:#fff;width:100%;max-width:520px;border-radius:14px 14px 0 0;max-height:88vh;overflow-y:auto;padding:18px}
+@media(min-width:560px){.capa{align-items:center}.hoja{border-radius:14px}}
+.hoja h2{margin:0 0 3px;font-size:1.02rem}
+.hoja .cierra{float:right;background:none;border:0;font-size:1.4rem;color:#9ca3af;cursor:pointer;line-height:1}
+.campo{margin-bottom:11px}
+.campo label{display:block;font-size:.78rem;font-weight:700;margin-bottom:4px;color:#374151}
+.campo input,.campo select,.campo textarea{width:100%;padding:10px;border:1.5px solid #ccd2d9;border-radius:7px}
+.acciones{display:flex;gap:9px;justify-content:flex-end;margin-top:16px}
+.cargando{text-align:center;padding:40px;color:var(--gris);font-size:.88rem}
+</style>
+</head>
+<body>
+
+<div id="login">
+  <div class="caja">
+    <h1>Funnel Calle</h1>
+    <p>Entrá con tu usuario y contraseña de siempre.</p>
+    <input id="lu" placeholder="Usuario" autocapitalize="characters" autocomplete="username">
+    <input id="lp" type="password" placeholder="Contraseña" autocomplete="current-password">
+    <button id="lb">Entrar</button>
+    <div class="error" id="le"></div>
+  </div>
+</div>
+
+<div id="app" style="display:none">
+  <header>
+    <div class="quien"><div class="nom" id="hu"></div><div class="rol" id="hr"></div></div>
+    <button onclick="salir()">Salir</button>
+  </header>
+  <nav>
+    <button id="t-hoy" class="on" onclick="tab('hoy')">Mi día<span class="pin" id="pin" style="display:none">0</span></button>
+    <button id="t-cli" onclick="tab('cli')">Mis clientes</button>
+  </nav>
+  <main>
+    <div id="v-hoy"></div>
+    <div id="v-cli" style="display:none">
+      <input id="buscar" placeholder="Buscar por nombre..." oninput="pintarClientes()">
+      <div class="filtros" id="filtros"></div>
+      <div id="lista"></div>
+    </div>
+  </main>
+</div>
+
+<div class="capa" id="m-ficha"><div class="hoja">
+  <button class="cierra" onclick="cerrar('m-ficha')">&times;</button>
+  <h2 id="f-nom"></h2><div id="f-cuerpo"></div>
+</div></div>
+
+<div class="capa" id="m-act"><div class="hoja">
+  <button class="cierra" onclick="cerrar('m-act')">&times;</button>
+  <h2 id="a-tit">Agendar actividad</h2>
+  <div id="a-cli" style="font-size:.84rem;color:var(--gris);margin-bottom:12px"></div>
+  <div class="campo"><label>Acción</label><select id="a-tipo">
+    <option value="llamada">Llamada</option><option value="visita">Visita</option>
+    <option value="whatsapp">WhatsApp</option><option value="tarea">Tarea</option></select></div>
+  <div class="campo"><label>Fecha</label><input type="date" id="a-fecha"></div>
+  <div class="campo"><label>Hora (opcional)</label><input type="time" id="a-hora"></div>
+  <div class="campo"><label>Nota</label><textarea id="a-obs" rows="3"></textarea></div>
+  <div class="acciones"><button class="b" onclick="cerrar('m-act')">Cancelar</button>
+    <button class="b full" onclick="guardarAct()">Guardar</button></div>
+</div></div>
+
+<div class="capa" id="m-cerr"><div class="hoja">
+  <button class="cierra" onclick="cerrar('m-cerr')">&times;</button>
+  <h2>¿Qué pasó?</h2>
+  <div id="c-cli" style="font-size:.84rem;color:var(--gris);margin-bottom:12px"></div>
+  <div class="campo"><label>Resultado</label><select id="c-res"></select></div>
+  <div class="campo"><label>Nota (opcional)</label><textarea id="c-nota" rows="3"></textarea></div>
+  <div class="acciones"><button class="b" onclick="cerrar('m-cerr')">Cancelar</button>
+    <button class="b full" onclick="guardarCierre()">Guardar</button></div>
+</div></div>
+
+<script src="https://www.gstatic.com/firebasejs/10.12.2/firebase-app-compat.js"></script>
+<script src="https://www.gstatic.com/firebasejs/10.12.2/firebase-auth-compat.js"></script>
+<script src="https://www.gstatic.com/firebasejs/10.12.2/firebase-firestore-compat.js"></script>
+<script>
+firebase.initializeApp({
+  apiKey:"AIzaSyDw5qyz5bR5zOD-JxH2dbSUuafOiHgFovc",
+  authDomain:"ibaceta-funnel.firebaseapp.com",
+  projectId:"ibaceta-funnel",
+  storageBucket:"ibaceta-funnel.firebasestorage.app",
+  messagingSenderId:"887640429368",
+  appId:"1:887640429368:web:4c732bf5eace6a7498e7cd"
+});
+const db = firebase.firestore();
+// Guarda los datos en el teléfono: la app abre y funciona sin señal, que es donde
+// trabajan los vendedores. Lo que se haga sin conexión sincroniza al volver.
+db.enablePersistence({synchronizeTabs:true}).catch(()=>{});
+
+const DOMINIO = "funnel.ibaceta.ar";
+const TIPOS = {llamada:"Llamada", visita:"Visita", whatsapp:"WhatsApp", tarea:"Tarea"};
+const RESULTADOS = [
+  ["contactado_interesado","Contactado - interesado",true],
+  ["contactado_no_ahora","Contactado - no ahora",true],
+  ["no_contactado","No contactó",true],
+  ["no_interesa","No le interesa",false],
+  ["vendido","Vendido",false],
+  ["datos_erroneos","Datos erróneos (tel/dir)",false],
+];
+const ETAPAS = [["todos","Todos"],["cierre_inminente","Cierre inminente"],["por_cerrar","Por cerrar"],
+                ["en_marcha","En marcha"],["inicio","Inicio"],["finalizado","Finalizados"]];
+
+let sesion=null, clientes=[], actividades=[], filtro="todos", desuscribir=[];
+
+const hoyISO = () => { const d=new Date();
+  return d.getFullYear()+"-"+String(d.getMonth()+1).padStart(2,"0")+"-"+String(d.getDate()).padStart(2,"0"); };
+const dmy = i => { if(!i) return ""; const p=String(i).split("-"); return p.length===3?p[2]+"/"+p[1]+"/"+p[0]:i; };
+const plata = n => "$"+Math.round(n||0).toLocaleString("es-AR");
+const esc = s => String(s==null?"":s).replace(/[&<>"]/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;'}[c]));
+const correo = u => u.trim().toLowerCase().replace(/[^a-z0-9]+/g,".").replace(/^\.|\.$/g,"")+"@"+DOMINIO;
+
+// ---------- acceso ----------
+document.getElementById("lb").onclick = entrar;
+document.getElementById("lp").onkeydown = e => { if(e.key==="Enter") entrar(); };
+
+async function entrar(){
+  const u=document.getElementById("lu").value.trim(), p=document.getElementById("lp").value;
+  const err=document.getElementById("le");
+  if(!u||!p){ err.textContent="Completá usuario y contraseña."; err.style.display="block"; return; }
+  document.getElementById("lb").disabled=true;
+  try{
+    await firebase.auth().signInWithEmailAndPassword(correo(u), p);
+  }catch(e){
+    err.textContent = (e.code||"").includes("credential")||(e.code||"").includes("password")||(e.code||"").includes("not-found")
+      ? "Usuario o contraseña incorrectos." : "No se pudo entrar: "+(e.message||e.code);
+    err.style.display="block"; document.getElementById("lb").disabled=false;
+  }
+}
+function salir(){ desuscribir.forEach(f=>f&&f()); desuscribir=[]; firebase.auth().signOut(); location.reload(); }
+
+firebase.auth().onAuthStateChanged(async u=>{
+  if(!u) return;
+  const t = await u.getIdTokenResult();
+  sesion = {usuario:t.claims.usuario, rol:t.claims.rol, zona:t.claims.zona||"", division:t.claims.division||""};
+  document.getElementById("login").style.display="none";
+  document.getElementById("app").style.display="block";
+  document.getElementById("hu").textContent = sesion.usuario;
+  document.getElementById("hr").textContent = (sesion.rol||"").replace("_"," ") + (sesion.division?" · "+sesion.division:"");
+  document.getElementById("v-hoy").innerHTML = '<div class="cargando">Cargando tu cartera...</div>';
+  escuchar();
+});
+
+// ---------- datos ----------
+function escuchar(){
+  let q = db.collection("clientes");
+  if(sesion.rol==="vendedor")      q = q.where("vendedor","==",sesion.usuario);
+  else if(sesion.rol==="cobrador") q = q.where("cobradores","array-contains",sesion.usuario);
+  else if(sesion.rol==="supervisor_zona") q = q.where("provincia","==",sesion.zona);
+  desuscribir.push(q.onSnapshot(s=>{ clientes = s.docs.map(d=>d.data()); pintar(); },
+    e=>{ document.getElementById("v-hoy").innerHTML =
+      '<div class="vacio">No se pudieron traer los clientes.<br><small>'+esc(e.message)+'</small></div>'; }));
+
+  let qa = db.collection("actividades").where("asignado_a","==",sesion.usuario);
+  desuscribir.push(qa.onSnapshot(s=>{ actividades = s.docs.map(d=>({id:d.id,...d.data()})); pintar(); }, ()=>{}));
+}
+
+const pend = () => actividades.filter(a=>a.estado==="pendiente");
+const proxDe = cod => { const l=pend().filter(a=>String(a.cliente_cod)===String(cod))
+    .sort((a,b)=>(a.fecha||"").localeCompare(b.fecha||"")); return l[0]||null; };
+
+function pintar(){ pintarHoy(); pintarClientes(); pintarPin(); }
+function pintarPin(){ const n=pend().length, p=document.getElementById("pin");
+  p.textContent=n; p.style.display = n?"inline-block":"none"; }
+
+// ---------- Mi día ----------
+function pintarHoy(){
+  const h=hoyISO(), P=pend();
+  const venc=P.filter(a=>(a.fecha||"")<h), hoyl=P.filter(a=>(a.fecha||"")===h), fut=P.filter(a=>(a.fecha||"")>h);
+  const conAct=new Set(P.map(a=>String(a.cliente_cod)));
+  const sinAg=clientes.filter(c=>c.estado==="activo"&&!conAct.has(String(c.codigo)));
+
+  const fila=a=>{ const c=clientes.find(x=>String(x.codigo)===String(a.cliente_cod));
+    const cls=(a.fecha||"")<h?"venc":((a.fecha||"")===h?"hoy":"prox");
+    return `<div class="tar">
+      <div class="nom">${esc(a.cliente_nombre)}</div>
+      ${c&&c.telefono?`<div class="sub">${tel(c.telefono)}</div>`:""}
+      <span class="chip ${cls}">${TIPOS[a.tipo]||a.tipo} · ${dmy(a.fecha)}${a.hora?" "+a.hora:""}</span>
+      ${a.observaciones?`<div class="sub" style="margin-top:6px">${esc(a.observaciones)}</div>`:""}
+      <div class="sub" style="font-size:.72rem">de ${esc(a.origen_usuario)}</div>
+      <div class="fila">
+        <button class="b full" onclick="abrirCierre('${a.id}')">Hecha</button>
+        <button class="b" onclick="ficha('${a.cliente_cod}')">Ficha</button>
+      </div></div>`; };
+
+  const bloque=(t,arr)=> arr.length?`<div class="titulo">${t} (${arr.length})</div>`+
+    arr.sort((a,b)=>(a.fecha||"").localeCompare(b.fecha||"")).map(fila).join(""):"";
+
+  let html = bloque("Vencidas",venc)+bloque("Hoy",hoyl)+bloque("Próximas",fut);
+  if(!P.length) html = `<div class="vacio">No tenés actividades pendientes.<br>
+    Agendá desde <b>Mis clientes</b>.</div>`;
+  if(sinAg.length) html += `<div class="titulo">Sin actividad programada (${sinAg.length})</div>
+    <div class="sub" style="margin-bottom:8px;color:var(--gris)">Clientes activos que no tenés agendados.</div>`+
+    sinAg.slice(0,20).map(c=>`<div class="tar ${esc(etapaDe(c))}">
+      <div class="nom">${esc(c.nombre)}</div>
+      <div class="sub">${esc(c.localidad||"")}${c.telefono?" · "+tel(c.telefono):""}</div>
+      <div class="fila"><button class="b verde full" onclick="abrirAct('${c.codigo}')">Agendar</button>
+        <button class="b" onclick="ficha('${c.codigo}')">Ficha</button></div></div>`).join("")+
+    (sinAg.length>20?`<div class="vacio">y ${sinAg.length-20} más en Mis clientes</div>`:"");
+  document.getElementById("v-hoy").innerHTML = html;
+}
+
+const tel = t => String(t||"").trim().split(/\s+/).filter(Boolean)
+  .map(n=>`<a class="tel" href="tel:${n}">${n}</a>`).join(" · ");
+
+function etapaDe(c){
+  const a=(c.operaciones||[]).filter(o=>o.es_activa);
+  if(!a.length) return "finalizado";
+  const orden=["cierre_inminente","por_cerrar","en_marcha","inicio"];
+  for(const e of orden) if(a.some(o=>o.etapa===e)) return e;
+  return "inicio";
+}
+
+// ---------- Mis clientes ----------
+function pintarClientes(){
+  const f=document.getElementById("filtros");
+  if(!f.dataset.listo){
+    f.innerHTML = ETAPAS.map(([k,l])=>`<button data-k="${k}" onclick="setFiltro('${k}')" class="${k==='todos'?'on':''}">${l}</button>`).join("");
+    f.dataset.listo="1";
+  }
+  const q=(document.getElementById("buscar").value||"").trim().toLowerCase();
+  let l=clientes.slice();
+  if(filtro!=="todos") l=l.filter(c=>etapaDe(c)===filtro);
+  if(q) l=l.filter(c=>(c.nombre||"").toLowerCase().includes(q));
+  l.sort((a,b)=>(b.ops_activas||0)-(a.ops_activas||0)||String(a.nombre).localeCompare(String(b.nombre)));
+
+  if(!l.length){ document.getElementById("lista").innerHTML='<div class="vacio">Sin clientes para mostrar.</div>'; return; }
+  document.getElementById("lista").innerHTML = l.slice(0,250).map(c=>{
+    const act=(c.operaciones||[]).filter(o=>o.es_activa);
+    const cuota=act.reduce((s,o)=>s+(o.cuota_semanal||0),0);
+    const p=proxDe(c.codigo), h=hoyISO();
+    const chip = p ? `<span class="chip ${(p.fecha<h?"venc":p.fecha===h?"hoy":"prox")}">${TIPOS[p.tipo]||p.tipo} · ${dmy(p.fecha)}</span>`
+                   : (c.estado==="activo"?`<span class="chip sin">Sin actividad programada</span>`:"");
+    const r=c.resumen_fin||{};
+    return `<div class="tar ${esc(etapaDe(c))}">
+      <div class="nom">${esc(c.nombre)}</div>
+      <div class="sub">${esc(c.localidad||"")}${c.provincia?", "+esc(c.provincia):""}</div>
+      ${c.telefono?`<div class="sub">${tel(c.telefono)}</div>`:""}
+      ${act.length?`<div class="plata">${plata(cuota)}/sem · ${act.length} op. activa${act.length>1?"s":""}</div>`:""}
+      ${!act.length&&r.ultima_fin?`<div class="sub">Finalizó: ${esc(r.ultima_fin)}${r.cancelo_ant?" · canceló anticipado":""}</div>`:""}
+      ${!act.length&&r.saldo_pend?`<div class="plata">Saldo: ${plata(r.saldo_pend)}</div>`:""}
+      ${chip}
+      <div class="fila">
+        <button class="b verde full" onclick="abrirAct('${c.codigo}')">Agendar</button>
+        <button class="b" onclick="ficha('${c.codigo}')">Ficha</button>
+      </div></div>`;
+  }).join("") + (l.length>250?`<div class="vacio">Mostrando 250 de ${l.length}. Usá el buscador.</div>`:"");
+}
+function setFiltro(k){ filtro=k;
+  document.querySelectorAll("#filtros button").forEach(b=>b.classList.toggle("on",b.dataset.k===k));
+  pintarClientes(); }
+function tab(k){
+  document.getElementById("t-hoy").classList.toggle("on",k==="hoy");
+  document.getElementById("t-cli").classList.toggle("on",k==="cli");
+  document.getElementById("v-hoy").style.display = k==="hoy"?"block":"none";
+  document.getElementById("v-cli").style.display = k==="cli"?"block":"none";
+}
+
+// ---------- ficha ----------
+async function ficha(cod){
+  const c=clientes.find(x=>String(x.codigo)===String(cod));
+  if(!c) return;
+  document.getElementById("f-nom").textContent=c.nombre;
+  const act=(c.operaciones||[]).filter(o=>o.es_activa);
+  document.getElementById("f-cuerpo").innerHTML = `
+    <div class="sub">${esc(c.domicilio||"")} · ${esc(c.localidad||"")}</div>
+    ${c.telefono?`<div style="margin:8px 0">${tel(c.telefono)}</div>`:""}
+    ${c.negocio?`<div class="sub">Negocio: ${esc(c.negocio)}</div>`:""}
+    <div class="titulo">Operaciones activas (${act.length})</div>
+    ${act.length?act.map(o=>`<div class="tar ${esc(o.etapa)}">
+        <div class="nom">${esc(o.tipo)} — op. ${esc(o.operacion)}</div>
+        <div class="sub">${plata(o.cuota_semanal)}/sem · ${o.cuotas_restantes} cuota(s) rest.</div>
+        <div class="sub">Vence: ${esc(o.fecha_fin)}</div>
+        ${(o.productos||[]).length?`<div class="sub" style="margin-top:4px">${esc((o.productos||[]).join(", "))}</div>`:""}
+      </div>`).join(""):'<div class="vacio">Sin operaciones activas.</div>'}
+    <div class="fila"><button class="b" id="bh" onclick="verHistorial('${cod}')">Ver historial completo (${c.ops_totales||0})</button></div>
+    <div id="f-hist"></div>`;
+  abrir("m-ficha");
+}
+async function verHistorial(cod){
+  const d=document.getElementById("f-hist");
+  d.innerHTML='<div class="cargando">Buscando historial...</div>';
+  try{
+    const doc=await db.collection("historial").doc(String(cod)).get();
+    if(!doc.exists){ d.innerHTML='<div class="vacio">Sin historial.</div>'; return; }
+    const ops=(doc.data().operaciones||[]).slice().sort((a,b)=>String(b.fecha_fin||"").slice(6).localeCompare(String(a.fecha_fin||"").slice(6)));
+    d.innerHTML=`<div class="titulo">Historial (${ops.length})</div>`+ops.map(o=>`<div class="tar ${esc(o.etapa)}">
+      <div class="nom" style="font-size:.85rem">${esc(o.tipo)} — op. ${esc(o.operacion)}</div>
+      <div class="sub">${esc(o.inicio||"")} a ${esc(o.fecha_fin||"")} · ${plata(o.cuota_semanal)}/sem</div>
+      ${o.cancelada_anticipada?'<span class="chip" style="background:#d5f5e3;color:#0b6e4f">Canceló anticipado</span>':""}
+      ${o.reformulada?'<span class="chip prox">Reformulada</span>':""}
+    </div>`).join("");
+  }catch(e){ d.innerHTML='<div class="vacio">No se pudo traer el historial.</div>'; }
+}
+
+// ---------- actividades ----------
+let actCod=null, actId=null;
+function abrirAct(cod){
+  const c=clientes.find(x=>String(x.codigo)===String(cod)); if(!c) return;
+  actCod=String(cod);
+  document.getElementById("a-cli").textContent=c.nombre+"  (#"+cod+")";
+  document.getElementById("a-tipo").value="llamada";
+  document.getElementById("a-fecha").value=hoyISO();
+  document.getElementById("a-hora").value="";
+  document.getElementById("a-obs").value="";
+  abrir("m-act");
+}
+async function guardarAct(){
+  const c=clientes.find(x=>String(x.codigo)===actCod);
+  const f=document.getElementById("a-fecha").value;
+  if(!f){ alert("Poné una fecha."); return; }
+  const ahora=firebase.firestore.FieldValue.serverTimestamp();
+  try{
+    await db.collection("actividades").add({
+      cliente_cod:actCod, cliente_nombre:c?c.nombre:"", provincia:c?(c.provincia||""):"",
+      asignado_a:sesion.usuario, asignado_tipo:"vendedor", historial_asignacion:[],
+      origen_tipo:sesion.rol, origen_usuario:sesion.usuario, origen_motivo:null,
+      tipo:document.getElementById("a-tipo").value, fecha:f,
+      hora:document.getElementById("a-hora").value||null,
+      observaciones:document.getElementById("a-obs").value||"",
+      estado:"pendiente", resultado:null, resultado_nota:"",
+      cerrada_en:null, cerrada_por:null, creado_en:ahora, visto_en:ahora,
+      actividad_origen_id:null
+    });
+    cerrar("m-act");
+  }catch(e){ alert("No se pudo guardar. Se reintenta al volver la señal."); cerrar("m-act"); }
+}
+function abrirCierre(id){
+  const a=actividades.find(x=>x.id===id); if(!a) return;
+  actId=id;
+  document.getElementById("c-cli").textContent=a.cliente_nombre;
+  document.getElementById("c-res").innerHTML='<option value="">¿Qué pasó?</option>'+
+    RESULTADOS.map(([k,l])=>`<option value="${k}">${l}</option>`).join("");
+  document.getElementById("c-nota").value="";
+  abrir("m-cerr");
+}
+async function guardarCierre(){
+  const r=document.getElementById("c-res").value;
+  if(!r){ alert("Elegí qué pasó."); return; }
+  const a=actividades.find(x=>x.id===actId);
+  try{
+    await db.collection("actividades").doc(actId).update({
+      estado:"hecha", resultado:r, resultado_nota:document.getElementById("c-nota").value||"",
+      cerrada_en:firebase.firestore.FieldValue.serverTimestamp(), cerrada_por:sesion.usuario });
+  }catch(e){}
+  cerrar("m-cerr");
+  // Si el circuito sigue abierto se pide la próxima ahí mismo: si no se fuerza en este
+  // momento, no se agenda nunca.
+  const def=RESULTADOS.find(x=>x[0]===r);
+  if(def&&def[2]&&a&&confirm("¿Agendar la próxima actividad para este cliente?")) abrirAct(a.cliente_cod);
+}
+
+const abrir=id=>document.getElementById(id).classList.add("on");
+const cerrar=id=>document.getElementById(id).classList.remove("on");
+document.querySelectorAll(".capa").forEach(c=>c.onclick=e=>{ if(e.target===c) c.classList.remove("on"); });
+
+if("serviceWorker" in navigator) navigator.serviceWorker.register("sw.js").catch(()=>{});
+</script>
+</body>
+</html>
