@@ -103,6 +103,7 @@ a.tel{color:var(--azul);text-decoration:none;font-weight:600}
   <div class="caja">
     <h1>Funnel Comercial — Calle</h1>
     <p>Entrá con tu usuario y contraseña de siempre.</p>
+    <div id="ver" style="font-size:.68rem;color:#9ca3af;margin:-12px 0 12px"></div>
     <input id="lu" placeholder="Usuario" autocapitalize="characters" autocomplete="username">
     <input id="lp" type="password" placeholder="Contraseña" autocomplete="current-password">
     <button id="lb">Entrar</button>
@@ -169,6 +170,7 @@ const db = firebase.firestore();
 // vendedores. Lo hecho sin conexion sincroniza al volver.
 db.enablePersistence({synchronizeTabs:true}).catch(()=>{});
 
+const VERSION="2026-10-08c";
 const DOMINIO="funnel.ibaceta.ar";
 const TIPOS={llamada:"Llamada",visita:"Visita",whatsapp:"WhatsApp",tarea:"Tarea"};
 const RESULTADOS=[["contactado_interesado","Contactado - interesado",true],
@@ -194,6 +196,7 @@ const esCob=()=>sesion&&sesion.rol==="cobrador";
 const conduce=()=>sesion&&["gerente","supervisor_zona","supervisor_cobranza"].includes(sesion.rol);
 
 // ---------- acceso ----------
+document.getElementById("ver").textContent="versión "+VERSION;
 document.getElementById("lb").onclick=entrar;
 document.getElementById("lp").onkeydown=e=>{if(e.key==="Enter")entrar();};
 async function entrar(){
@@ -202,8 +205,16 @@ async function entrar(){
   document.getElementById("lb").disabled=true;
   try{ await firebase.auth().signInWithEmailAndPassword(correo(u),p); }
   catch(e){ const c=e.code||"";
-    err.textContent=(c.includes("credential")||c.includes("password")||c.includes("not-found"))
-      ?"Usuario o contraseña incorrectos.":"No se pudo entrar: "+(e.message||c);
+    let t;
+    if(c.includes("user-not-found"))            t="Ese usuario no existe. Revisá cómo lo escribís.";
+    else if(c.includes("wrong-password"))       t="La contraseña no coincide.";
+    else if(c.includes("invalid-credential"))   t="Usuario o contraseña incorrectos.";
+    else if(c.includes("too-many-requests"))    t="Demasiados intentos. Esperá unos minutos.";
+    else if(c.includes("network"))              t="Sin conexión con el servidor.";
+    else if(c.includes("invalid-email"))        t="El usuario tiene caracteres que no se admiten.";
+    else                                        t="No se pudo entrar: "+(e.message||c);
+    err.innerHTML = t + `<div style="margin-top:6px;font-size:.72rem;color:#9ca3af">
+      usuario probado: ${esc(correo(u))} · versión ${VERSION} · código ${esc(c||"sin código")}</div>`;
     err.style.display="block"; document.getElementById("lb").disabled=false; }
 }
 function salir(){ desus.forEach(f=>f&&f()); desus=[]; firebase.auth().signOut().then(()=>location.reload()); }
