@@ -4,19 +4,17 @@
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
 <meta name="theme-color" content="#1B4F8C">
-<title>Funnel Calle — Ibaceta</title>
+<title>Funnel Comercial — Calle</title>
 <link rel="manifest" href="manifest.json">
 <style>
 :root{
-  --azul:#1B4F8C; --azul-osc:#153c6b; --naranja:#E8762C;
-  --rojo:#C0392B; --verde:#16A085; --gris:#6b7280;
-  --fondo:#f3f5f7; --borde:#e3e6ea;
+  --azul:#1B4F8C; --naranja:#E8762C; --rojo:#C0392B; --verde:#16A085;
+  --violeta:#9B59B6; --gris:#6b7280; --fondo:#f3f5f7; --borde:#e3e6ea;
 }
 *{box-sizing:border-box;-webkit-tap-highlight-color:transparent}
 body{margin:0;font-family:system-ui,"Segoe UI",sans-serif;background:var(--fondo);color:#1f2937;font-size:15px}
 button,select,input,textarea{font-family:inherit;font-size:15px}
 
-/* ---- login ---- */
 #login{position:fixed;inset:0;background:var(--azul);display:flex;align-items:center;justify-content:center;padding:24px;z-index:50}
 #login .caja{background:#fff;border-radius:14px;padding:26px 22px;width:100%;max-width:360px}
 #login h1{margin:0 0 4px;font-size:1.15rem;color:var(--azul)}
@@ -25,64 +23,85 @@ button,select,input,textarea{font-family:inherit;font-size:15px}
 #login button{width:100%;padding:13px;background:var(--azul);color:#fff;border:0;border-radius:8px;font-weight:700;cursor:pointer}
 #login .error{color:var(--rojo);font-size:.82rem;margin-top:10px;display:none}
 
-/* ---- estructura ---- */
-header{background:var(--azul);color:#fff;padding:12px 16px;display:flex;align-items:center;gap:10px;position:sticky;top:0;z-index:20}
-header .quien{flex:1;min-width:0}
-header .nom{font-weight:700;font-size:.95rem;line-height:1.2}
-header .rol{font-size:.72rem;opacity:.8}
-header button{background:rgba(255,255,255,.15);color:#fff;border:0;border-radius:6px;padding:7px 12px;font-size:.78rem;cursor:pointer}
-nav{display:flex;background:#fff;border-bottom:1px solid var(--borde);position:sticky;top:53px;z-index:19}
-nav button{flex:1;padding:12px 6px;background:none;border:0;border-bottom:3px solid transparent;color:var(--gris);font-weight:600;font-size:.85rem;cursor:pointer}
+header{background:var(--azul);color:#fff;padding:11px 14px;display:flex;align-items:center;gap:10px;position:sticky;top:0;z-index:25}
+header .tit{flex:1;min-width:0}
+header .t1{font-weight:700;font-size:.95rem;line-height:1.15}
+header .t2{font-size:.71rem;opacity:.82}
+header button{background:rgba(255,255,255,.16);color:#fff;border:0;border-radius:6px;padding:7px 11px;font-size:.76rem;cursor:pointer}
+nav{display:flex;background:#fff;border-bottom:1px solid var(--borde);position:sticky;top:50px;z-index:24;overflow-x:auto}
+nav button{flex:1 0 auto;padding:11px 14px;background:none;border:0;border-bottom:3px solid transparent;color:var(--gris);font-weight:600;font-size:.82rem;white-space:nowrap;cursor:pointer}
 nav button.on{color:var(--azul);border-bottom-color:var(--azul)}
-nav .pin{display:inline-block;min-width:18px;padding:0 5px;margin-left:4px;background:var(--naranja);color:#fff;border-radius:9px;font-size:.7rem;line-height:18px}
-main{padding:12px 14px 80px}
+nav .pin{display:inline-block;min-width:17px;padding:0 5px;margin-left:4px;background:var(--naranja);color:#fff;border-radius:9px;font-size:.68rem;line-height:17px}
 
-/* ---- tarjetas ---- */
-.tar{background:#fff;border:1px solid var(--borde);border-radius:10px;padding:12px;margin-bottom:9px;border-left:4px solid #cbd5e1}
-.tar.inicio{border-left-color:#3498DB}.tar.en_marcha{border-left-color:#2471a3}
-.tar.por_cerrar{border-left-color:var(--naranja)}.tar.cierre_inminente{border-left-color:var(--rojo)}
-.tar.finalizado{border-left-color:#9ca3af}
-.tar .nom{font-weight:700;font-size:.93rem;line-height:1.25}
-.tar .sub{font-size:.78rem;color:var(--gris);margin-top:2px}
-.tar .plata{font-size:.82rem;color:var(--naranja);font-weight:700;margin-top:4px}
-.tar .fila{display:flex;gap:7px;margin-top:9px;flex-wrap:wrap}
-.chip{display:inline-block;font-size:.71rem;font-weight:700;padding:3px 8px;border-radius:10px;background:#eef1f4;color:#555;margin-top:5px}
-.chip.venc{background:#fdecea;color:var(--rojo)}.chip.hoy{background:#fdf0e3;color:#b35309}
-.chip.prox{background:#eaf2fb;color:#1f6fb2}.chip.sin{background:#f4f4f4;color:#9ca3af;font-style:italic}
-.b{padding:8px 13px;border-radius:7px;border:1.5px solid var(--azul);background:#fff;color:var(--azul);font-size:.79rem;font-weight:700;cursor:pointer}
-.b.full{background:var(--azul);color:#fff;border-color:var(--azul)}
-.b.verde{border-color:var(--verde);color:var(--verde)}
-.b.verde.full{background:var(--verde);color:#fff}
+.barra{padding:10px 14px;background:#fff;border-bottom:1px solid var(--borde);display:flex;gap:9px;flex-wrap:wrap;align-items:center}
+.barra select,.barra input{padding:8px 12px;border:1.5px solid #ccd2d9;border-radius:18px;font-size:.84rem;min-width:0}
+.barra select{flex:1;max-width:300px}
+.barra input{flex:1;min-width:150px}
+
+/* KPIs, igual que el funnel */
+.kpis{display:flex;gap:9px;overflow-x:auto;padding:12px 14px 4px}
+.kpi{flex:0 0 auto;min-width:118px;background:#fff;border:1px solid var(--borde);border-top:3px solid var(--naranja);border-radius:9px;padding:9px 13px}
+.kpi .l{font-size:.64rem;font-weight:700;color:var(--gris);text-transform:uppercase;letter-spacing:.03em}
+.kpi .v{font-size:1.3rem;font-weight:800;color:#111;line-height:1.15}
+
+/* Columnas del funnel */
+.cols{display:flex;gap:11px;overflow-x:auto;padding:12px 14px 28px;-webkit-overflow-scrolling:touch;align-items:flex-start}
+.col{flex:0 0 268px;max-width:268px;background:#eef1f4;border-radius:10px;overflow:hidden}
+.col-h{padding:9px 10px;text-align:center;color:#fff}
+.col-h .t{font-size:.76rem;font-weight:800;text-transform:uppercase;letter-spacing:.03em}
+.col-h .n{font-size:1.45rem;font-weight:800;line-height:1.1}
+.col-h .r{font-size:.62rem;opacity:.9}
+.col-b{padding:9px;max-height:none}
+.c-inicio .col-h{background:#3498DB}.c-en_marcha .col-h{background:#2471a3}
+.c-por_cerrar .col-h{background:var(--naranja)}.c-cierre_inminente .col-h{background:var(--rojo)}
+.c-refinanciar .col-h{background:var(--violeta)}.c-finalizado .col-h{background:#8d96a3}
+
+.tar{background:#fff;border:1px solid var(--borde);border-radius:8px;padding:10px;margin-bottom:8px}
+.tar .nom{font-weight:700;font-size:.87rem;line-height:1.25;color:var(--azul)}
+.tar .loc{font-size:.74rem;color:var(--gris);margin-top:1px}
+.tar .cu{font-size:.8rem;color:var(--naranja);font-weight:700;margin-top:4px}
+.tar .de{font-size:.74rem;color:#444;margin-top:2px}
+.tar .te{font-size:.74rem;margin-top:3px}
+.b{display:block;width:100%;margin-top:6px;padding:7px;border-radius:6px;border:1.5px solid var(--azul);background:#fff;color:var(--azul);font-size:.76rem;font-weight:700;cursor:pointer}
+.b.full{background:var(--azul);color:#fff}
+.b.verde{border-color:var(--verde);color:var(--verde)}.b.verde.full{background:var(--verde);color:#fff}
+.b.auto{display:inline-block;width:auto;margin:0 6px 0 0;padding:7px 13px}
 a.tel{color:var(--azul);text-decoration:none;font-weight:600}
+.badge{display:inline-block;font-size:.65rem;font-weight:700;padding:2px 7px;border-radius:9px;color:#fff;margin:0 3px 3px 0}
+.chip{display:inline-block;font-size:.69rem;font-weight:700;padding:3px 7px;border-radius:9px;background:#eef1f4;color:#555;margin-top:5px}
+.chip.venc{background:#fdecea;color:var(--rojo)}.chip.hoy{background:#fdf0e3;color:#b35309}
+.chip.prox{background:#eaf2fb;color:#1f6fb2}.chip.sin{background:#f4f4f4;color:#9ca3af;font-style:italic;font-weight:500}
 
-/* ---- filtros ---- */
-.filtros{display:flex;gap:7px;overflow-x:auto;padding-bottom:8px;margin-bottom:4px;-webkit-overflow-scrolling:touch}
-.filtros button{white-space:nowrap;padding:7px 13px;border-radius:16px;border:1.5px solid #ccd2d9;background:#fff;color:#555;font-size:.79rem;font-weight:600;cursor:pointer}
-.filtros button.on{background:var(--azul);border-color:var(--azul);color:#fff}
-#buscar{width:100%;padding:10px 14px;border:1.5px solid #ccd2d9;border-radius:20px;margin-bottom:10px}
+.panel{margin:12px 14px;background:#fff;border:1px solid var(--borde);border-radius:10px;padding:13px}
+.panel h3{margin:0 0 9px;font-size:.92rem}
+.titulo{font-weight:700;font-size:.8rem;margin:11px 0 6px;color:#374151}
+.act{display:flex;gap:8px;align-items:center;flex-wrap:wrap;border:1px solid var(--borde);border-radius:7px;padding:8px 10px;margin-bottom:6px;font-size:.81rem}
+.act.venc{border-left:4px solid var(--rojo)}.act.hoy{border-left:4px solid var(--naranja)}
+.act.prox{border-left:4px solid #3498DB}
+.tabla{width:100%;border-collapse:collapse;font-size:.8rem}
+.tabla th{text-align:left;background:var(--azul);color:#fff;padding:7px 9px;font-size:.72rem;white-space:nowrap}
+.tabla td{padding:7px 9px;border-bottom:1px solid #eee}
+.tabla tr{cursor:pointer}
+.vacio{text-align:center;color:#9ca3af;font-size:.85rem;padding:26px 10px}
+.cargando{text-align:center;padding:40px;color:var(--gris)}
 
-.titulo{font-weight:700;font-size:.84rem;margin:14px 0 7px;color:#374151}
-.vacio{text-align:center;color:#9ca3af;font-size:.85rem;padding:30px 10px}
-
-/* ---- modal ---- */
 .capa{position:fixed;inset:0;background:rgba(0,0,0,.45);display:none;align-items:flex-end;justify-content:center;z-index:40}
 .capa.on{display:flex}
-.hoja{background:#fff;width:100%;max-width:520px;border-radius:14px 14px 0 0;max-height:88vh;overflow-y:auto;padding:18px}
+.hoja{background:#fff;width:100%;max-width:540px;border-radius:14px 14px 0 0;max-height:88vh;overflow-y:auto;padding:18px}
 @media(min-width:560px){.capa{align-items:center}.hoja{border-radius:14px}}
 .hoja h2{margin:0 0 3px;font-size:1.02rem}
 .hoja .cierra{float:right;background:none;border:0;font-size:1.4rem;color:#9ca3af;cursor:pointer;line-height:1}
 .campo{margin-bottom:11px}
-.campo label{display:block;font-size:.78rem;font-weight:700;margin-bottom:4px;color:#374151}
+.campo label{display:block;font-size:.77rem;font-weight:700;margin-bottom:4px;color:#374151}
 .campo input,.campo select,.campo textarea{width:100%;padding:10px;border:1.5px solid #ccd2d9;border-radius:7px}
-.acciones{display:flex;gap:9px;justify-content:flex-end;margin-top:16px}
-.cargando{text-align:center;padding:40px;color:var(--gris);font-size:.88rem}
+.acciones{display:flex;gap:9px;justify-content:flex-end;margin-top:15px}
 </style>
 </head>
 <body>
 
 <div id="login">
   <div class="caja">
-    <h1>Funnel Calle</h1>
+    <h1>Funnel Comercial — Calle</h1>
     <p>Entrá con tu usuario y contraseña de siempre.</p>
     <input id="lu" placeholder="Usuario" autocapitalize="characters" autocomplete="username">
     <input id="lp" type="password" placeholder="Contraseña" autocomplete="current-password">
@@ -93,21 +112,15 @@ a.tel{color:var(--azul);text-decoration:none;font-weight:600}
 
 <div id="app" style="display:none">
   <header>
-    <div class="quien"><div class="nom" id="hu"></div><div class="rol" id="hr"></div></div>
+    <div class="tit"><div class="t1">Funnel Comercial — Calle</div><div class="t2" id="hsub"></div></div>
     <button onclick="salir()">Salir</button>
   </header>
-  <nav>
-    <button id="t-hoy" class="on" onclick="tab('hoy')">Mi día<span class="pin" id="pin" style="display:none">0</span></button>
-    <button id="t-cli" onclick="tab('cli')">Mis clientes</button>
-  </nav>
-  <main>
-    <div id="v-hoy"></div>
-    <div id="v-cli" style="display:none">
-      <input id="buscar" placeholder="Buscar por nombre..." oninput="pintarClientes()">
-      <div class="filtros" id="filtros"></div>
-      <div id="lista"></div>
-    </div>
-  </main>
+  <nav id="nav"></nav>
+  <div id="barra" class="barra" style="display:none"></div>
+  <div class="kpis" id="kpis"></div>
+  <div id="panel"></div>
+  <div class="cols" id="cols"></div>
+  <div id="tabla"></div>
 </div>
 
 <div class="capa" id="m-ficha"><div class="hoja">
@@ -118,25 +131,25 @@ a.tel{color:var(--azul);text-decoration:none;font-weight:600}
 <div class="capa" id="m-act"><div class="hoja">
   <button class="cierra" onclick="cerrar('m-act')">&times;</button>
   <h2 id="a-tit">Agendar actividad</h2>
-  <div id="a-cli" style="font-size:.84rem;color:var(--gris);margin-bottom:12px"></div>
+  <div id="a-cli" style="font-size:.83rem;color:var(--gris);margin-bottom:12px"></div>
   <div class="campo"><label>Acción</label><select id="a-tipo">
     <option value="llamada">Llamada</option><option value="visita">Visita</option>
     <option value="whatsapp">WhatsApp</option><option value="tarea">Tarea</option></select></div>
   <div class="campo"><label>Fecha</label><input type="date" id="a-fecha"></div>
   <div class="campo"><label>Hora (opcional)</label><input type="time" id="a-hora"></div>
-  <div class="campo"><label>Nota</label><textarea id="a-obs" rows="3"></textarea></div>
-  <div class="acciones"><button class="b" onclick="cerrar('m-act')">Cancelar</button>
-    <button class="b full" onclick="guardarAct()">Guardar</button></div>
+  <div class="campo"><label>Observaciones</label><textarea id="a-obs" rows="3"></textarea></div>
+  <div class="acciones"><button class="b auto" onclick="cerrar('m-act')">Cancelar</button>
+    <button class="b auto full" onclick="guardarAct()">Guardar</button></div>
 </div></div>
 
 <div class="capa" id="m-cerr"><div class="hoja">
   <button class="cierra" onclick="cerrar('m-cerr')">&times;</button>
   <h2>¿Qué pasó?</h2>
-  <div id="c-cli" style="font-size:.84rem;color:var(--gris);margin-bottom:12px"></div>
+  <div id="c-cli" style="font-size:.83rem;color:var(--gris);margin-bottom:12px"></div>
   <div class="campo"><label>Resultado</label><select id="c-res"></select></div>
   <div class="campo"><label>Nota (opcional)</label><textarea id="c-nota" rows="3"></textarea></div>
-  <div class="acciones"><button class="b" onclick="cerrar('m-cerr')">Cancelar</button>
-    <button class="b full" onclick="guardarCierre()">Guardar</button></div>
+  <div class="acciones"><button class="b auto" onclick="cerrar('m-cerr')">Cancelar</button>
+    <button class="b auto full" onclick="guardarCierre()">Guardar</button></div>
 </div></div>
 
 <script src="https://www.gstatic.com/firebasejs/10.12.2/firebase-app-compat.js"></script>
@@ -152,286 +165,301 @@ firebase.initializeApp({
   appId:"1:887640429368:web:4c732bf5eace6a7498e7cd"
 });
 const db = firebase.firestore();
-// Guarda los datos en el teléfono: la app abre y funciona sin señal, que es donde
-// trabajan los vendedores. Lo que se haga sin conexión sincroniza al volver.
+// Deja los datos en el telefono: abre y funciona sin señal, que es donde trabajan los
+// vendedores. Lo hecho sin conexion sincroniza al volver.
 db.enablePersistence({synchronizeTabs:true}).catch(()=>{});
 
-const DOMINIO = "funnel.ibaceta.ar";
-const TIPOS = {llamada:"Llamada", visita:"Visita", whatsapp:"WhatsApp", tarea:"Tarea"};
-const RESULTADOS = [
-  ["contactado_interesado","Contactado - interesado",true],
-  ["contactado_no_ahora","Contactado - no ahora",true],
-  ["no_contactado","No contactó",true],
-  ["no_interesa","No le interesa",false],
-  ["vendido","Vendido",false],
-  ["datos_erroneos","Datos erróneos (tel/dir)",false],
-];
-const ETAPAS = [["todos","Todos"],["cierre_inminente","Cierre inminente"],["por_cerrar","Por cerrar"],
-                ["en_marcha","En marcha"],["inicio","Inicio"],["finalizado","Finalizados"]];
+const DOMINIO="funnel.ibaceta.ar";
+const TIPOS={llamada:"Llamada",visita:"Visita",whatsapp:"WhatsApp",tarea:"Tarea"};
+const RESULTADOS=[["contactado_interesado","Contactado - interesado",true],
+  ["contactado_no_ahora","Contactado - no ahora",true],["no_contactado","No contactó",true],
+  ["no_interesa","No le interesa",false],["vendido","Vendido",false],
+  ["datos_erroneos","Datos erróneos (tel/dir)",false]];
+// Mismas etapas, mismos nombres y mismo orden que el funnel de siempre.
+const ETAPAS=[["inicio","Inicio","0% - 50%"],["en_marcha","En marcha","50% - 75%"],
+  ["por_cerrar","Por cerrar","75% - 90%"],["cierre_inminente","Cierre inminente","90% - 100%"],
+  ["refinanciar","Refinanciar","Saldo > 0"],["finalizado","Finalizado","> 100%"]];
 
-let sesion=null, clientes=[], actividades=[], filtro="todos", desuscribir=[];
-// Quien conduce (gerente, supervisores) no tiene cartera propia: mira la de otros.
-// vendedorSel es el vendedor que tiene abierto; vacio = resumen del equipo.
-let vendedorSel="";
-const esVend = () => sesion && sesion.rol === "vendedor";
-const conduce = () => sesion && ["gerente","supervisor_zona","supervisor_cobranza"].includes(sesion.rol);
+let sesion=null, clientes=[], actividades=[], desus=[];
+let vista="sup", selVend="", selCob="", busca="";
 
-const hoyISO = () => { const d=new Date();
-  return d.getFullYear()+"-"+String(d.getMonth()+1).padStart(2,"0")+"-"+String(d.getDate()).padStart(2,"0"); };
-const dmy = i => { if(!i) return ""; const p=String(i).split("-"); return p.length===3?p[2]+"/"+p[1]+"/"+p[0]:i; };
-const plata = n => "$"+Math.round(n||0).toLocaleString("es-AR");
-const esc = s => String(s==null?"":s).replace(/[&<>"]/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;'}[c]));
-const correo = u => u.trim().toLowerCase().replace(/[^a-z0-9]+/g,".").replace(/^\.|\.$/g,"")+"@"+DOMINIO;
+const hoyISO=()=>{const d=new Date();return d.getFullYear()+"-"+String(d.getMonth()+1).padStart(2,"0")+"-"+String(d.getDate()).padStart(2,"0");};
+const dmy=i=>{if(!i)return"";const p=String(i).split("-");return p.length===3?p[2]+"/"+p[1]+"/"+p[0]:i;};
+const plata=n=>"$"+Math.round(n||0).toLocaleString("es-AR");
+const esc=s=>String(s==null?"":s).replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
+const correo=u=>u.trim().toLowerCase().replace(/[^a-z0-9]+/g,".").replace(/^\.|\.$/g,"")+"@"+DOMINIO;
+const tel=t=>String(t||"").trim().split(/\s+/).filter(Boolean).map(n=>`<a class="tel" href="tel:${esc(n)}">${esc(n)}</a>`).join(" · ");
+const esVend=()=>sesion&&sesion.rol==="vendedor";
+const esCob=()=>sesion&&sesion.rol==="cobrador";
+const conduce=()=>sesion&&["gerente","supervisor_zona","supervisor_cobranza"].includes(sesion.rol);
 
 // ---------- acceso ----------
-document.getElementById("lb").onclick = entrar;
-document.getElementById("lp").onkeydown = e => { if(e.key==="Enter") entrar(); };
-
+document.getElementById("lb").onclick=entrar;
+document.getElementById("lp").onkeydown=e=>{if(e.key==="Enter")entrar();};
 async function entrar(){
-  const u=document.getElementById("lu").value.trim(), p=document.getElementById("lp").value;
-  const err=document.getElementById("le");
-  if(!u||!p){ err.textContent="Completá usuario y contraseña."; err.style.display="block"; return; }
+  const u=document.getElementById("lu").value.trim(),p=document.getElementById("lp").value,err=document.getElementById("le");
+  if(!u||!p){err.textContent="Completá usuario y contraseña.";err.style.display="block";return;}
   document.getElementById("lb").disabled=true;
-  try{
-    await firebase.auth().signInWithEmailAndPassword(correo(u), p);
-  }catch(e){
-    err.textContent = (e.code||"").includes("credential")||(e.code||"").includes("password")||(e.code||"").includes("not-found")
-      ? "Usuario o contraseña incorrectos." : "No se pudo entrar: "+(e.message||e.code);
-    err.style.display="block"; document.getElementById("lb").disabled=false;
-  }
+  try{ await firebase.auth().signInWithEmailAndPassword(correo(u),p); }
+  catch(e){ const c=e.code||"";
+    err.textContent=(c.includes("credential")||c.includes("password")||c.includes("not-found"))
+      ?"Usuario o contraseña incorrectos.":"No se pudo entrar: "+(e.message||c);
+    err.style.display="block"; document.getElementById("lb").disabled=false; }
 }
-function salir(){ desuscribir.forEach(f=>f&&f()); desuscribir=[]; firebase.auth().signOut(); location.reload(); }
+function salir(){ desus.forEach(f=>f&&f()); desus=[]; firebase.auth().signOut().then(()=>location.reload()); }
 
 firebase.auth().onAuthStateChanged(async u=>{
   if(!u) return;
-  const t = await u.getIdTokenResult();
-  sesion = {usuario:t.claims.usuario, rol:t.claims.rol, zona:t.claims.zona||"", division:t.claims.division||""};
+  const t=await u.getIdTokenResult();
+  sesion={usuario:t.claims.usuario,rol:t.claims.rol,zona:t.claims.zona||"",division:t.claims.division||""};
   document.getElementById("login").style.display="none";
   document.getElementById("app").style.display="block";
-  document.getElementById("hu").textContent = sesion.usuario;
-  document.getElementById("hr").textContent = (sesion.rol||"").replace("_"," ") + (sesion.division?" · "+sesion.division:"");
-  document.getElementById("v-hoy").innerHTML = '<div class="cargando">Cargando tu cartera...</div>';
+  document.getElementById("hsub").textContent=sesion.usuario+" · "+(sesion.rol||"").replace(/_/g," ")+(sesion.zona?" · "+sesion.zona:"");
+  vista = esVend()?"vend" : (esCob()?"cob":"sup");
+  if(esVend()) selVend=sesion.usuario;
+  if(esCob())  selCob=sesion.usuario;
+  pintarNav();
+  document.getElementById("cols").innerHTML='<div class="cargando">Cargando cartera...</div>';
   escuchar();
 });
 
 // ---------- datos ----------
 function escuchar(){
-  let q = db.collection("clientes");
-  if(sesion.rol==="vendedor")      q = q.where("vendedor","==",sesion.usuario);
-  else if(sesion.rol==="cobrador") q = q.where("cobradores","array-contains",sesion.usuario);
-  else if(sesion.rol==="supervisor_zona") q = q.where("provincia","==",sesion.zona);
-  desuscribir.push(q.onSnapshot(s=>{ clientes = s.docs.map(d=>d.data()); pintar(); },
-    e=>{ document.getElementById("v-hoy").innerHTML =
-      '<div class="vacio">No se pudieron traer los clientes.<br><small>'+esc(e.message)+'</small></div>'; }));
-
-  // El vendedor escucha lo suyo; quien conduce, todo el equipo (son pocas).
-  let qa = db.collection("actividades");
-  if(esVend()) qa = qa.where("asignado_a","==",sesion.usuario);
-  desuscribir.push(qa.onSnapshot(s=>{ actividades = s.docs.map(d=>({id:d.id,...d.data()})); pintar(); }, ()=>{}));
+  let q=db.collection("clientes");
+  if(esVend())      q=q.where("vendedor","==",sesion.usuario);
+  else if(esCob())  q=q.where("cobradores","array-contains",sesion.usuario);
+  else if(sesion.rol==="supervisor_zona") q=q.where("provincia","==",sesion.zona);
+  desus.push(q.onSnapshot(s=>{clientes=s.docs.map(d=>d.data());pintar();},
+    e=>{document.getElementById("cols").innerHTML='<div class="vacio">No se pudo traer la cartera.<br><small>'+esc(e.message)+'</small></div>';}));
+  let qa=db.collection("actividades");
+  if(esVend()) qa=qa.where("asignado_a","==",sesion.usuario);
+  desus.push(qa.onSnapshot(s=>{actividades=s.docs.map(d=>({id:d.id,...d.data()}));pintar();},()=>{}));
 }
 
-const foco = () => esVend() ? sesion.usuario : vendedorSel;
-const pend = () => actividades.filter(a=>a.estado==="pendiente" &&
-                                         (!foco() || a.asignado_a===foco()));
-const proxDe = cod => { const l=pend().filter(a=>String(a.cliente_cod)===String(cod))
-    .sort((a,b)=>(a.fecha||"").localeCompare(b.fecha||"")); return l[0]||null; };
+// ---------- clasificacion, igual que el funnel ----------
+function opsActivas(c){ return (c.operaciones||[]).filter(o=>o.es_activa); }
+function esRefinanciar(c){ const r=c.resumen_fin||{}; return !opsActivas(c).length && !!r.saldo_pend; }
+function etapaDe(c){
+  if(esRefinanciar(c)) return "refinanciar";
+  const a=opsActivas(c); if(!a.length) return "finalizado";
+  for(const e of ["cierre_inminente","por_cerrar","en_marcha","inicio"]) if(a.some(o=>o.etapa===e)) return e;
+  return "inicio";
+}
+const pend=()=>actividades.filter(a=>a.estado==="pendiente");
+function proxDe(cod){ const l=pend().filter(a=>String(a.cliente_cod)===String(cod))
+  .sort((a,b)=>(a.fecha||"").localeCompare(b.fecha||"")); return l[0]||null; }
 
+// A quien le corresponde la actividad que se crea desde una tarjeta.
+function destinoDe(c){
+  if(esVend()) return sesion.usuario;
+  if(vista==="vend"&&selVend) return selVend;
+  return c.vendedor||(c.vendedores||[])[0]||sesion.usuario;
+}
+
+// ---------- navegacion ----------
+function pintarNav(){
+  const n=document.getElementById("nav"); let h="";
+  if(conduce()) h+=`<button data-v="sup" onclick="irA('sup')">Vista Supervisor</button>`;
+  if(conduce()||esVend()) h+=`<button data-v="vend" onclick="irA('vend')">Vista Vendedor<span class="pin" id="pin" style="display:none">0</span></button>`;
+  if(conduce()||esCob())  h+=`<button data-v="cob" onclick="irA('cob')">Vista Cobrador</button>`;
+  n.innerHTML=h; marcarNav();
+}
+function marcarNav(){ document.querySelectorAll("#nav button").forEach(b=>b.classList.toggle("on",b.dataset.v===vista)); }
+function irA(v){ vista=v; marcarNav(); pintar(); window.scrollTo(0,0); }
+
+// ---------- pintado ----------
 function pintar(){
-  document.getElementById("t-hoy").textContent = conduce() && !vendedorSel ? "Equipo" : "Mi día";
-  if(conduce() && !vendedorSel) pintarEquipo(); else pintarHoy();
-  pintarClientes(); pintarPin();
+  const n=pend().length, p=document.getElementById("pin");
+  if(p){ p.textContent=n; p.style.display=n?"inline-block":"none"; }
+  pintarBarra();
+  if(vista==="sup") pintarSupervisor(); else pintarKanban();
 }
 
-// Resumen por vendedor: es lo que mira quien conduce. El numero que importa no es
-// cuantos clientes tiene cada uno, sino cuantos estan sin contacto agendado.
-function pintarEquipo(){
-  const porV = {};
+function pintarBarra(){
+  const b=document.getElementById("barra");
+  if(vista==="sup"){ b.style.display="none"; return; }
+  b.style.display="flex";
+  const fijo = (vista==="vend"&&esVend())||(vista==="cob"&&esCob());
+  let h="";
+  if(!fijo){
+    const campo = vista==="vend" ? "vendedores" : "cobradores";
+    const set=new Set(); clientes.forEach(c=>(c[campo]||[]).forEach(x=>x&&set.add(x)));
+    if(vista==="vend") clientes.forEach(c=>c.vendedor&&set.add(c.vendedor));
+    const sel = vista==="vend"?selVend:selCob;
+    h+=`<select onchange="elegir(this.value)"><option value="">Seleccionar ${vista==="vend"?"vendedor":"cobrador"}...</option>`+
+       [...set].sort().map(v=>`<option value="${esc(v)}" ${v===sel?"selected":""}>${esc(v)}</option>`).join("")+`</select>`;
+  }
+  h+=`<input placeholder="Buscar por nombre..." value="${esc(busca)}" oninput="busca=this.value;pintarKanban()">`;
+  b.innerHTML=h;
+}
+function elegir(v){ if(vista==="vend") selVend=v; else selCob=v; pintar(); }
+
+// ---------- Vista Supervisor ----------
+function pintarSupervisor(){
+  document.getElementById("panel").innerHTML="";
+  const act=clientes.filter(c=>c.estado==="activo");
+  const opsA=act.flatMap(opsActivas);
+  const cie=act.filter(c=>opsActivas(c).some(o=>o.etapa==="cierre_inminente"));
+  const fin=clientes.filter(c=>c.estado!=="activo");
+  kpis([["Clientes activos",act.length],["Operaciones activas",opsA.length],
+        ["Cierre inminente",cie.length],["Finalizados sin renovar",fin.length],
+        ["Cuota total/sem",plata(opsA.reduce((s,o)=>s+(o.cuota_semanal||0),0))]]);
+
+  const por={};
+  ETAPAS.forEach(([k])=>por[k]=0);
+  clientes.forEach(c=>{ const e=etapaDe(c); if(por[e]!==undefined) por[e]++; });
+  document.getElementById("cols").innerHTML = ETAPAS.map(([k,l,r])=>`
+    <div class="col c-${k}" style="flex:0 0 150px"><div class="col-h">
+      <div class="t">${l}</div><div class="n">${por[k]}</div><div class="r">${r}</div></div></div>`).join("");
+
+  // Tabla de vendedores: el numero que importa es cuantos estan sin contacto agendado.
+  const conAct=new Set(pend().map(a=>String(a.cliente_cod)));
+  const porV={};
   clientes.forEach(c=>{
-    (c.vendedores && c.vendedores.length ? c.vendedores : [c.vendedor||"(sin vendedor)"]).forEach(v=>{
-      const r = porV[v] || (porV[v] = {v, total:0, act:0, cierre:0, sinAg:0});
-      r.total++;
+    const vs=(c.vendedores&&c.vendedores.length)?c.vendedores:[c.vendedor||"(sin vendedor)"];
+    vs.forEach(v=>{
+      const r=porV[v]||(porV[v]={v,act:0,ops:0,cie:0,sin:0,cuota:0});
       if(c.estado==="activo"){
-        r.act++;
-        if((c.operaciones||[]).some(o=>o.es_activa && o.etapa==="cierre_inminente")) r.cierre++;
+        r.act++; const oa=opsActivas(c); r.ops+=oa.length;
+        r.cuota+=oa.reduce((s,o)=>s+(o.cuota_semanal||0),0);
+        if(oa.some(o=>o.etapa==="cierre_inminente")) r.cie++;
+        if(!conAct.has(String(c.codigo))) r.sin++;
       }
     });
   });
-  const conAct = new Set(actividades.filter(a=>a.estado==="pendiente").map(a=>String(a.cliente_cod)));
-  clientes.forEach(c=>{
-    if(c.estado!=="activo" || conAct.has(String(c.codigo))) return;
-    (c.vendedores && c.vendedores.length ? c.vendedores : [c.vendedor||"(sin vendedor)"]).forEach(v=>{
-      if(porV[v]) porV[v].sinAg++;
-    });
-  });
-  const pendPorV = {};
-  actividades.filter(a=>a.estado==="pendiente").forEach(a=>{ pendPorV[a.asignado_a]=(pendPorV[a.asignado_a]||0)+1; });
-
-  const lista = Object.values(porV).filter(r=>r.act>0).sort((a,b)=>b.act-a.act);
-  const totAct = lista.reduce((s,r)=>s+r.act,0);
-  const totSin = lista.reduce((s,r)=>s+r.sinAg,0);
-  const totCie = lista.reduce((s,r)=>s+r.cierre,0);
-
-  document.getElementById("v-hoy").innerHTML = `
-    <div class="tar" style="border-left-color:var(--azul)">
-      <div class="nom">${esc(sesion.zona || "Toda la operación")}</div>
-      <div class="sub">${lista.length} vendedores con cartera activa</div>
-      <div class="plata">${totAct} clientes activos · ${totCie} en cierre inminente</div>
-      <div class="sub" style="color:var(--rojo);font-weight:700;margin-top:4px">
-        ${totSin} sin actividad programada (${totAct?Math.round(totSin/totAct*100):0}%)</div>
-    </div>
-    <div class="titulo">Vendedores</div>` +
-    lista.map(r=>`<div class="tar" onclick="verVendedor('${esc(r.v)}')" style="cursor:pointer">
-      <div class="nom">${esc(r.v)}</div>
-      <div class="sub">${r.act} activos · ${r.total} en total${r.cierre?" · "+r.cierre+" por cerrar":""}</div>
-      <span class="chip ${r.sinAg?'venc':'prox'}">${r.sinAg} sin agendar</span>
-      ${pendPorV[r.v]?`<span class="chip prox">${pendPorV[r.v]} agendadas</span>`:""}
-    </div>`).join("");
+  const filas=Object.values(porV).filter(r=>r.act>0).sort((a,b)=>b.act-a.act);
+  document.getElementById("tabla").innerHTML=`<div class="panel">
+    <h3>Vendedores (${filas.length})</h3>
+    <div style="overflow-x:auto"><table class="tabla">
+      <tr><th>Vendedor</th><th>Activos</th><th>Ops</th><th>Cierre</th><th>Sin agendar</th><th>Cuota/sem</th></tr>
+      ${filas.map(r=>`<tr onclick="verVend('${esc(r.v)}')">
+        <td style="color:var(--azul);font-weight:700">${esc(r.v)}</td>
+        <td>${r.act}</td><td>${r.ops}</td><td>${r.cie}</td>
+        <td style="color:${r.sin?'var(--rojo)':'inherit'};font-weight:700">${r.sin}</td>
+        <td>${plata(r.cuota)}</td></tr>`).join("")}
+    </table></div></div>`;
 }
+function verVend(v){ selVend=v; vista="vend"; marcarNav(); pintar(); window.scrollTo(0,0); }
+function kpis(l){ document.getElementById("kpis").innerHTML=l.map(([a,b])=>
+  `<div class="kpi"><div class="l">${a}</div><div class="v">${b}</div></div>`).join(""); }
 
-function verVendedor(v){ vendedorSel=v; filtro="todos";
-  const b=document.getElementById("buscar"); if(b) b.value="";
-  pintar(); tab("hoy"); window.scrollTo(0,0); }
-function volverEquipo(){ vendedorSel=""; pintar(); tab("hoy"); window.scrollTo(0,0); }
-function pintarPin(){ const n=pend().length, p=document.getElementById("pin");
-  p.textContent=n; p.style.display = n?"inline-block":"none"; }
-
-// ---------- Mi día ----------
-function pintarHoy(){
-  const h=hoyISO(), P=pend();
-  const venc=P.filter(a=>(a.fecha||"")<h), hoyl=P.filter(a=>(a.fecha||"")===h), fut=P.filter(a=>(a.fecha||"")>h);
-  const conAct=new Set(P.map(a=>String(a.cliente_cod)));
-  const sinAg=clientes.filter(c=>c.estado==="activo" && !conAct.has(String(c.codigo))
-    && (!foco() || (c.vendedores||[]).includes(foco()) || c.vendedor===foco()));
-
-  const fila=a=>{ const c=clientes.find(x=>String(x.codigo)===String(a.cliente_cod));
-    const cls=(a.fecha||"")<h?"venc":((a.fecha||"")===h?"hoy":"prox");
-    return `<div class="tar">
-      <div class="nom">${esc(a.cliente_nombre)}</div>
-      ${c&&c.telefono?`<div class="sub">${tel(c.telefono)}</div>`:""}
-      <span class="chip ${cls}">${TIPOS[a.tipo]||a.tipo} · ${dmy(a.fecha)}${a.hora?" "+a.hora:""}</span>
-      ${a.observaciones?`<div class="sub" style="margin-top:6px">${esc(a.observaciones)}</div>`:""}
-      <div class="sub" style="font-size:.72rem">de ${esc(a.origen_usuario)}</div>
-      <div class="fila">
-        <button class="b full" onclick="abrirCierre('${a.id}')">Hecha</button>
-        <button class="b" onclick="ficha('${a.cliente_cod}')">Ficha</button>
-      </div></div>`; };
-
-  const bloque=(t,arr)=> arr.length?`<div class="titulo">${t} (${arr.length})</div>`+
-    arr.sort((a,b)=>(a.fecha||"").localeCompare(b.fecha||"")).map(fila).join(""):"";
-
-  let html = "";
-  if(conduce() && vendedorSel){
-    html += `<div class="tar" style="border-left-color:var(--azul)">
-      <div class="nom">${esc(vendedorSel)}</div>
-      <div class="sub">${clientes.filter(c=>(c.vendedores||[]).includes(vendedorSel)||c.vendedor===vendedorSel).length} clientes</div>
-      <div class="fila"><button class="b" onclick="volverEquipo()">&larr; Volver al equipo</button></div></div>`;
+// ---------- Vista Vendedor / Cobrador ----------
+function pintarKanban(){
+  const quien = vista==="vend" ? (esVend()?sesion.usuario:selVend) : (esCob()?sesion.usuario:selCob);
+  if(!quien){
+    document.getElementById("kpis").innerHTML=""; document.getElementById("panel").innerHTML="";
+    document.getElementById("tabla").innerHTML="";
+    document.getElementById("cols").innerHTML=`<div class="vacio">Seleccioná un ${vista==="vend"?"vendedor":"cobrador"} para ver su cartera.</div>`;
+    return;
   }
-  html += bloque("Vencidas",venc)+bloque("Hoy",hoyl)+bloque("Próximas",fut);
-  if(!P.length) html += `<div class="vacio">${esVend()?"No tenés actividades pendientes.<br>Agendá desde <b>Mis clientes</b>.":"Sin actividades agendadas."}</div>`;
-  if(sinAg.length) html += `<div class="titulo">Sin actividad programada (${sinAg.length})</div>
-    <div class="sub" style="margin-bottom:8px;color:var(--gris)">Clientes activos que no tenés agendados.</div>`+
-    sinAg.slice(0,20).map(c=>`<div class="tar ${esc(etapaDe(c))}">
-      <div class="nom">${esc(c.nombre)}</div>
-      <div class="sub">${esc(c.localidad||"")}${c.telefono?" · "+tel(c.telefono):""}</div>
-      <div class="fila"><button class="b verde full" onclick="abrirAct('${c.codigo}')">Agendar</button>
-        <button class="b" onclick="ficha('${c.codigo}')">Ficha</button></div></div>`).join("")+
-    (sinAg.length>20?`<div class="vacio">y ${sinAg.length-20} más en Mis clientes</div>`:"");
-  document.getElementById("v-hoy").innerHTML = html;
+  let src = vista==="vend"
+    ? clientes.filter(c=>(c.vendedores||[]).includes(quien)||c.vendedor===quien)
+    : clientes.filter(c=>(c.cobradores||[]).includes(quien));
+  if(busca) src=src.filter(c=>(c.nombre||"").toLowerCase().includes(busca.trim().toLowerCase()));
+
+  const act=src.filter(c=>c.estado==="activo");
+  const opsA=act.flatMap(opsActivas);
+  kpis([["Clientes activos",act.length],["Operaciones activas",opsA.length],
+        ["Cierre inminente",act.filter(c=>opsActivas(c).some(o=>o.etapa==="cierre_inminente")).length],
+        ["Finalizados sin renovar",src.filter(c=>c.estado!=="activo").length],
+        ["Cuota total/sem",plata(opsA.reduce((s,o)=>s+(o.cuota_semanal||0),0))]]);
+
+  pintarPanelActividades(quien,src);
+  document.getElementById("tabla").innerHTML="";
+
+  const por={}; ETAPAS.forEach(([k])=>por[k]=[]);
+  src.forEach(c=>{ const e=etapaDe(c); (por[e]||por.finalizado).push(c); });
+  document.getElementById("cols").innerHTML = ETAPAS.map(([k,l,r])=>{
+    const lista=por[k].sort((a,b)=>String(a.nombre).localeCompare(String(b.nombre)));
+    return `<div class="col c-${k}">
+      <div class="col-h"><div class="t">${l}</div><div class="n">${lista.length}</div><div class="r">${r}</div></div>
+      <div class="col-b">${lista.slice(0,120).map(c=>tarjeta(c,quien)).join("")||'<div class="vacio" style="padding:12px">—</div>'}
+      ${lista.length>120?`<div class="vacio">y ${lista.length-120} más</div>`:""}</div></div>`;
+  }).join("");
 }
 
-const tel = t => String(t||"").trim().split(/\s+/).filter(Boolean)
-  .map(n=>`<a class="tel" href="tel:${n}">${n}</a>`).join(" · ");
-
-function etapaDe(c){
-  const a=(c.operaciones||[]).filter(o=>o.es_activa);
-  if(!a.length) return "finalizado";
-  const orden=["cierre_inminente","por_cerrar","en_marcha","inicio"];
-  for(const e of orden) if(a.some(o=>o.etapa===e)) return e;
-  return "inicio";
+function tarjeta(c,quien){
+  const oa=opsActivas(c), r=c.resumen_fin||{};
+  const cuota=oa.reduce((s,o)=>s+(o.cuota_semanal||0),0);
+  const cuo=oa.reduce((s,o)=>s+(o.cuotas_restantes||0),0);
+  const prox=oa.slice().sort((a,b)=>String(a.fecha_fin||"").slice(6).localeCompare(String(b.fecha_fin||"").slice(6)))[0];
+  const p=proxDe(c.codigo), h=hoyISO();
+  const chip = p ? `<span class="chip ${p.fecha<h?"venc":p.fecha===h?"hoy":"prox"}">${TIPOS[p.tipo]||p.tipo} · ${dmy(p.fecha)}</span>`
+                 : `<span class="chip sin">Sin actividad programada</span>`;
+  return `<div class="tar">
+    ${esRefinanciar(c)?`<span class="badge" style="background:var(--violeta)">Refinanciar · ${plata(r.saldo_pend)}</span>`:""}
+    ${r.reformulada?`<span class="badge" style="background:#2980B9">Reformulada</span>`:""}
+    ${r.cancelo_ant?`<span class="badge" style="background:var(--verde)">Canceló anticipado</span>`:""}
+    <div class="nom">${esc(c.nombre)}</div>
+    <div class="loc">${esc(c.localidad||"")}${c.provincia?", "+esc(c.provincia):""}</div>
+    ${cuota?`<div class="cu">${plata(cuota)}/sem</div>`:""}
+    ${cuo?`<div class="de">${cuo} cuota${cuo!==1?"s":""} rest.</div>`:""}
+    ${prox?`<div class="de"><b>Vence: ${esc(prox.fecha_fin)}</b></div>`
+          :(r.ultima_fin?`<div class="de">Finalizó: ${esc(r.ultima_fin)}</div>`:"")}
+    ${c.telefono?`<div class="te">${tel(c.telefono)}</div>`:""}
+    ${chip}
+    <button class="b full" onclick="ficha('${esc(c.codigo)}')">Ver Ficha</button>
+    <button class="b verde full" onclick="abrirAct('${esc(c.codigo)}')">${esVend()?"Agendar":"Asignar actividad"}</button>
+  </div>`;
 }
 
-// ---------- Mis clientes ----------
-function pintarClientes(){
-  const q=(document.getElementById("buscar").value||"").trim().toLowerCase();
-  let l=clientes.slice();
-  if(foco()) l=l.filter(c=>(c.vendedores||[]).includes(foco())||c.vendedor===foco());
-
-  const cuenta={todos:l.length};
-  l.forEach(c=>{ const e=etapaDe(c); cuenta[e]=(cuenta[e]||0)+1; });
-  document.getElementById("filtros").innerHTML = ETAPAS
-    .filter(([k])=>k==="todos"||cuenta[k])
-    .map(([k,lab])=>`<button data-k="${k}" onclick="setFiltro('${k}')" class="${k===filtro?'on':''}">${lab} (${cuenta[k]||0})</button>`).join("");
-
-  if(filtro!=="todos") l=l.filter(c=>etapaDe(c)===filtro);
-  if(q) l=l.filter(c=>(c.nombre||"").toLowerCase().includes(q));
-  l.sort((a,b)=>(b.ops_activas||0)-(a.ops_activas||0)||String(a.nombre).localeCompare(String(b.nombre)));
-
-  if(!l.length){ document.getElementById("lista").innerHTML='<div class="vacio">Sin clientes para mostrar.</div>'; return; }
-  document.getElementById("lista").innerHTML = l.slice(0,250).map(c=>{
-    const act=(c.operaciones||[]).filter(o=>o.es_activa);
-    const cuota=act.reduce((s,o)=>s+(o.cuota_semanal||0),0);
-    const p=proxDe(c.codigo), h=hoyISO();
-    const chip = p ? `<span class="chip ${(p.fecha<h?"venc":p.fecha===h?"hoy":"prox")}">${TIPOS[p.tipo]||p.tipo} · ${dmy(p.fecha)}</span>`
-                   : (c.estado==="activo"?`<span class="chip sin">Sin actividad programada</span>`:"");
-    const r=c.resumen_fin||{};
-    return `<div class="tar ${esc(etapaDe(c))}">
-      <div class="nom">${esc(c.nombre)}</div>
-      <div class="sub">${esc(c.localidad||"")}${c.provincia?", "+esc(c.provincia):""}</div>
-      ${c.telefono?`<div class="sub">${tel(c.telefono)}</div>`:""}
-      ${act.length?`<div class="plata">${plata(cuota)}/sem · ${act.length} op. activa${act.length>1?"s":""}</div>`:""}
-      ${!act.length&&r.ultima_fin?`<div class="sub">Finalizó: ${esc(r.ultima_fin)}${r.cancelo_ant?" · canceló anticipado":""}</div>`:""}
-      ${!act.length&&r.saldo_pend?`<div class="plata">Saldo: ${plata(r.saldo_pend)}</div>`:""}
-      ${chip}
-      <div class="fila">
-        <button class="b verde full" onclick="abrirAct('${c.codigo}')">Agendar</button>
-        <button class="b" onclick="ficha('${c.codigo}')">Ficha</button>
-      </div></div>`;
-  }).join("") + (l.length>250?`<div class="vacio">Mostrando 250 de ${l.length}. Usá el buscador.</div>`:"");
-}
-function setFiltro(k){ filtro=k; pintarClientes(); }
-function tab(k){
-  document.getElementById("t-hoy").classList.toggle("on",k==="hoy");
-  document.getElementById("t-cli").classList.toggle("on",k==="cli");
-  document.getElementById("t-cli").firstChild.nodeValue =
-    (conduce() && vendedorSel) ? "Clientes de "+vendedorSel : (conduce() ? "Todos los clientes" : "Mis clientes");
-  document.getElementById("v-hoy").style.display = k==="hoy"?"block":"none";
-  document.getElementById("v-cli").style.display = k==="cli"?"block":"none";
+function pintarPanelActividades(quien,src){
+  const P=actividades.filter(a=>a.estado==="pendiente"&&a.asignado_a===quien);
+  const h=hoyISO();
+  const venc=P.filter(a=>(a.fecha||"")<h),hoyl=P.filter(a=>(a.fecha||"")===h),fut=P.filter(a=>(a.fecha||"")>h);
+  const conAct=new Set(P.map(a=>String(a.cliente_cod)));
+  const sin=src.filter(c=>c.estado==="activo"&&!conAct.has(String(c.codigo)));
+  if(!P.length&&!sin.length){ document.getElementById("panel").innerHTML=""; return; }
+  const fila=a=>`<div class="act ${(a.fecha||"")<h?"venc":(a.fecha||"")===h?"hoy":"prox"}">
+    <b style="flex:1;min-width:130px">${esc(a.cliente_nombre)}</b>
+    <span class="chip">${TIPOS[a.tipo]||esc(a.tipo)} · ${dmy(a.fecha)}${a.hora?" "+esc(a.hora):""}</span>
+    <span style="color:var(--gris);font-size:.72rem">de ${esc(a.origen_usuario)}</span>
+    ${a.observaciones?`<div style="flex-basis:100%;color:#555;font-size:.77rem">${esc(a.observaciones)}</div>`:""}
+    ${quien===sesion.usuario?`<button class="b auto full" onclick="abrirCierre('${a.id}')">Hecha</button>`:""}
+    <button class="b auto" onclick="ficha('${esc(a.cliente_cod)}')">Ficha</button></div>`;
+  const bloque=(t,arr)=>arr.length?`<div class="titulo">${t} (${arr.length})</div>`+
+    arr.sort((a,b)=>(a.fecha||"").localeCompare(b.fecha||"")).map(fila).join(""):"";
+  document.getElementById("panel").innerHTML=`<div class="panel">
+    <h3>${quien===sesion.usuario?"Mis actividades":"Actividades de "+esc(quien)} (${P.length})</h3>
+    ${bloque("Vencidas",venc)}${bloque("Hoy",hoyl)}${bloque("Próximas",fut)}
+    ${sin.length?`<div class="titulo">Sin actividad programada (${sin.length})</div>
+      <div style="font-size:.77rem;color:var(--gris)">Clientes activos sin ningún contacto agendado.</div>`:""}
+  </div>`;
 }
 
 // ---------- ficha ----------
-async function ficha(cod){
-  const c=clientes.find(x=>String(x.codigo)===String(cod));
-  if(!c) return;
+function ficha(cod){
+  const c=clientes.find(x=>String(x.codigo)===String(cod)); if(!c) return;
   document.getElementById("f-nom").textContent=c.nombre;
-  const act=(c.operaciones||[]).filter(o=>o.es_activa);
-  document.getElementById("f-cuerpo").innerHTML = `
-    <div class="sub">${esc(c.domicilio||"")} · ${esc(c.localidad||"")}</div>
+  const oa=opsActivas(c);
+  document.getElementById("f-cuerpo").innerHTML=`
+    <div class="loc">${esc(c.domicilio||"")} · ${esc(c.localidad||"")}${c.provincia?", "+esc(c.provincia):""}</div>
     ${c.telefono?`<div style="margin:8px 0">${tel(c.telefono)}</div>`:""}
-    ${c.negocio?`<div class="sub">Negocio: ${esc(c.negocio)}</div>`:""}
-    <div class="titulo">Operaciones activas (${act.length})</div>
-    ${act.length?act.map(o=>`<div class="tar ${esc(o.etapa)}">
-        <div class="nom">${esc(o.tipo)} — op. ${esc(o.operacion)}</div>
-        <div class="sub">${plata(o.cuota_semanal)}/sem · ${o.cuotas_restantes} cuota(s) rest.</div>
-        <div class="sub">Vence: ${esc(o.fecha_fin)}</div>
-        ${(o.productos||[]).length?`<div class="sub" style="margin-top:4px">${esc((o.productos||[]).join(", "))}</div>`:""}
-      </div>`).join(""):'<div class="vacio">Sin operaciones activas.</div>'}
-    <div class="fila"><button class="b" id="bh" onclick="verHistorial('${cod}')">Ver historial completo (${c.ops_totales||0})</button></div>
+    ${c.negocio?`<div class="loc">Negocio: ${esc(c.negocio)}</div>`:""}
+    <div class="loc">Vendedor: ${esc(c.vendedor||"—")} · Cobrador: ${esc((c.cobradores||[]).join(", ")||"—")}</div>
+    <div class="titulo">Operaciones activas (${oa.length})</div>
+    ${oa.length?oa.map(o=>`<div class="tar">
+      <div class="nom">${esc(o.tipo)} — op. ${esc(o.operacion)}</div>
+      <div class="de">${plata(o.cuota_semanal)}/sem · ${o.cuotas_restantes} cuota(s) rest.</div>
+      <div class="de">Vence: ${esc(o.fecha_fin)}</div>
+      ${(o.productos||[]).length?`<div class="loc" style="margin-top:4px">${esc((o.productos||[]).join(", "))}</div>`:""}
+    </div>`).join(""):'<div class="vacio">Sin operaciones activas.</div>'}
+    <button class="b auto" onclick="verHistorial('${esc(cod)}')">Ver historial completo (${c.ops_totales||0})</button>
     <div id="f-hist"></div>`;
   abrir("m-ficha");
 }
 async function verHistorial(cod){
-  const d=document.getElementById("f-hist");
-  d.innerHTML='<div class="cargando">Buscando historial...</div>';
+  const d=document.getElementById("f-hist"); d.innerHTML='<div class="cargando">Buscando historial...</div>';
   try{
     const doc=await db.collection("historial").doc(String(cod)).get();
     if(!doc.exists){ d.innerHTML='<div class="vacio">Sin historial.</div>'; return; }
-    const ops=(doc.data().operaciones||[]).slice().sort((a,b)=>String(b.fecha_fin||"").slice(6).localeCompare(String(a.fecha_fin||"").slice(6)));
-    d.innerHTML=`<div class="titulo">Historial (${ops.length})</div>`+ops.map(o=>`<div class="tar ${esc(o.etapa)}">
-      <div class="nom" style="font-size:.85rem">${esc(o.tipo)} — op. ${esc(o.operacion)}</div>
-      <div class="sub">${esc(o.inicio||"")} a ${esc(o.fecha_fin||"")} · ${plata(o.cuota_semanal)}/sem</div>
-      ${o.cancelada_anticipada?'<span class="chip" style="background:#d5f5e3;color:#0b6e4f">Canceló anticipado</span>':""}
-      ${o.reformulada?'<span class="chip prox">Reformulada</span>':""}
-    </div>`).join("");
+    const ops=(doc.data().operaciones||[]).slice()
+      .sort((a,b)=>String(b.fecha_fin||"").slice(6).localeCompare(String(a.fecha_fin||"").slice(6)));
+    d.innerHTML=`<div class="titulo">Historial (${ops.length})</div>`+ops.map(o=>`<div class="tar">
+      <div class="nom" style="font-size:.82rem">${esc(o.tipo)} — op. ${esc(o.operacion)}</div>
+      <div class="de">${esc(o.inicio||"")} a ${esc(o.fecha_fin||"")} · ${plata(o.cuota_semanal)}/sem</div>
+      ${o.cancelada_anticipada?'<span class="badge" style="background:var(--verde)">Canceló anticipado</span>':""}
+      ${o.reformulada?'<span class="badge" style="background:#2980B9">Reformulada</span>':""}</div>`).join("");
   }catch(e){ d.innerHTML='<div class="vacio">No se pudo traer el historial.</div>'; }
 }
 
@@ -440,13 +468,12 @@ let actCod=null, actId=null;
 function abrirAct(cod){
   const c=clientes.find(x=>String(x.codigo)===String(cod)); if(!c) return;
   actCod=String(cod);
-  const destino = esVend() ? null : (vendedorSel || c.vendedor || (c.vendedores||[])[0]);
-  document.getElementById("a-tit").textContent = esVend() ? "Agendar actividad" : "Asignar actividad";
-  document.getElementById("a-cli").textContent = c.nombre+"  (#"+cod+")"+(destino?"  →  "+destino:"");
+  const d=destinoDe(c);
+  document.getElementById("a-tit").textContent=esVend()?"Agendar actividad":"Asignar actividad";
+  document.getElementById("a-cli").textContent=c.nombre+"  (#"+cod+")"+(esVend()?"":"  →  "+d);
   document.getElementById("a-tipo").value="llamada";
   document.getElementById("a-fecha").value=hoyISO();
-  document.getElementById("a-hora").value="";
-  document.getElementById("a-obs").value="";
+  document.getElementById("a-hora").value=""; document.getElementById("a-obs").value="";
   abrir("m-act");
 }
 async function guardarAct(){
@@ -457,40 +484,32 @@ async function guardarAct(){
   try{
     await db.collection("actividades").add({
       cliente_cod:actCod, cliente_nombre:c?c.nombre:"", provincia:c?(c.provincia||""):"",
-      asignado_a: esVend() ? sesion.usuario
-                            : (vendedorSel || (c && (c.vendedor || (c.vendedores||[])[0])) || sesion.usuario),
-      asignado_tipo:"vendedor", historial_asignacion:[],
+      asignado_a:destinoDe(c||{}), asignado_tipo:"vendedor", historial_asignacion:[],
       origen_tipo:sesion.rol, origen_usuario:sesion.usuario, origen_motivo:null,
       tipo:document.getElementById("a-tipo").value, fecha:f,
       hora:document.getElementById("a-hora").value||null,
       observaciones:document.getElementById("a-obs").value||"",
       estado:"pendiente", resultado:null, resultado_nota:"",
-      cerrada_en:null, cerrada_por:null, creado_en:ahora, visto_en:ahora,
-      actividad_origen_id:null
-    });
-    cerrar("m-act");
-  }catch(e){ alert("No se pudo guardar. Se reintenta al volver la señal."); cerrar("m-act"); }
+      cerrada_en:null, cerrada_por:null, creado_en:ahora, visto_en:null, actividad_origen_id:null });
+  }catch(e){}
+  cerrar("m-act");
 }
 function abrirCierre(id){
-  const a=actividades.find(x=>x.id===id); if(!a) return;
-  actId=id;
+  const a=actividades.find(x=>x.id===id); if(!a) return; actId=id;
   document.getElementById("c-cli").textContent=a.cliente_nombre;
   document.getElementById("c-res").innerHTML='<option value="">¿Qué pasó?</option>'+
     RESULTADOS.map(([k,l])=>`<option value="${k}">${l}</option>`).join("");
-  document.getElementById("c-nota").value="";
-  abrir("m-cerr");
+  document.getElementById("c-nota").value=""; abrir("m-cerr");
 }
 async function guardarCierre(){
   const r=document.getElementById("c-res").value;
   if(!r){ alert("Elegí qué pasó."); return; }
   const a=actividades.find(x=>x.id===actId);
-  try{
-    await db.collection("actividades").doc(actId).update({
-      estado:"hecha", resultado:r, resultado_nota:document.getElementById("c-nota").value||"",
-      cerrada_en:firebase.firestore.FieldValue.serverTimestamp(), cerrada_por:sesion.usuario });
-  }catch(e){}
+  try{ await db.collection("actividades").doc(actId).update({estado:"hecha",resultado:r,
+    resultado_nota:document.getElementById("c-nota").value||"",
+    cerrada_en:firebase.firestore.FieldValue.serverTimestamp(),cerrada_por:sesion.usuario}); }catch(e){}
   cerrar("m-cerr");
-  // Si el circuito sigue abierto se pide la próxima ahí mismo: si no se fuerza en este
+  // Si el circuito sigue abierto se pide la proxima ahi mismo: si no se fuerza en este
   // momento, no se agenda nunca.
   const def=RESULTADOS.find(x=>x[0]===r);
   if(def&&def[2]&&a&&confirm("¿Agendar la próxima actividad para este cliente?")) abrirAct(a.cliente_cod);
@@ -499,7 +518,6 @@ async function guardarCierre(){
 const abrir=id=>document.getElementById(id).classList.add("on");
 const cerrar=id=>document.getElementById(id).classList.remove("on");
 document.querySelectorAll(".capa").forEach(c=>c.onclick=e=>{ if(e.target===c) c.classList.remove("on"); });
-
 if("serviceWorker" in navigator) navigator.serviceWorker.register("sw.js").catch(()=>{});
 </script>
 </body>
