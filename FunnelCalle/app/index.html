@@ -104,8 +104,13 @@ a.tel{color:var(--azul);text-decoration:none;font-weight:600}
     <h1>Funnel Comercial — Calle</h1>
     <p>Entrá con tu usuario y contraseña de siempre.</p>
     <div id="ver" style="font-size:.68rem;color:#9ca3af;margin:-12px 0 12px"></div>
-    <input id="lu" placeholder="Usuario" autocapitalize="characters" autocomplete="username">
-    <input id="lp" type="password" placeholder="Contraseña" autocomplete="current-password">
+    <input id="lu" placeholder="Usuario" autocapitalize="characters" autocomplete="username"
+           autocorrect="off" spellcheck="false">
+    <div style="position:relative">
+      <input id="lp" type="password" placeholder="Contraseña" autocomplete="current-password"
+             autocapitalize="off" autocorrect="off" spellcheck="false" style="padding-right:62px">
+      <button type="button" id="ojo" onclick="verClave()" style="position:absolute;right:6px;top:6px;background:none;border:0;color:#6b7280;font-size:.76rem;font-weight:700;cursor:pointer;padding:6px 8px">VER</button>
+    </div>
     <button id="lb">Entrar</button>
     <div class="error" id="le"></div>
   </div>
@@ -170,7 +175,7 @@ const db = firebase.firestore();
 // vendedores. Lo hecho sin conexion sincroniza al volver.
 db.enablePersistence({synchronizeTabs:true}).catch(()=>{});
 
-const VERSION="2026-10-08c";
+const VERSION="2026-10-08d";
 const DOMINIO="funnel.ibaceta.ar";
 const TIPOS={llamada:"Llamada",visita:"Visita",whatsapp:"WhatsApp",tarea:"Tarea"};
 const RESULTADOS=[["contactado_interesado","Contactado - interesado",true],
@@ -196,6 +201,12 @@ const esCob=()=>sesion&&sesion.rol==="cobrador";
 const conduce=()=>sesion&&["gerente","supervisor_zona","supervisor_cobranza"].includes(sesion.rol);
 
 // ---------- acceso ----------
+function verClave(){
+  const i=document.getElementById("lp"), b=document.getElementById("ojo");
+  const ver = i.type==="password";
+  i.type = ver ? "text" : "password";
+  b.textContent = ver ? "OCULTAR" : "VER";
+}
 document.getElementById("ver").textContent="versión "+VERSION;
 document.getElementById("lb").onclick=entrar;
 document.getElementById("lp").onkeydown=e=>{if(e.key==="Enter")entrar();};
