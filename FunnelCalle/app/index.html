@@ -170,6 +170,11 @@ const ETAPAS = [["todos","Todos"],["cierre_inminente","Cierre inminente"],["por_
                 ["en_marcha","En marcha"],["inicio","Inicio"],["finalizado","Finalizados"]];
 
 let sesion=null, clientes=[], actividades=[], filtro="todos", desuscribir=[];
+// Quien conduce (gerente, supervisores) no tiene cartera propia: mira la de otros.
+// vendedorSel es el vendedor que tiene abierto; vacio = resumen del equipo.
+let vendedorSel="";
+const esVend = () => sesion && sesion.rol === "vendedor";
+const conduce = () => sesion && ["gerente","supervisor_zona","supervisor_cobranza"].includes(sesion.rol);
 
 const hoyISO = () => { const d=new Date();
   return d.getFullYear()+"-"+String(d.getMonth()+1).padStart(2,"0")+"-"+String(d.getDate()).padStart(2,"0"); };
@@ -219,15 +224,74 @@ function escuchar(){
     e=>{ document.getElementById("v-hoy").innerHTML =
       '<div class="vacio">No se pudieron traer los clientes.<br><small>'+esc(e.message)+'</small></div>'; }));
 
-  let qa = db.collection("actividades").where("asignado_a","==",sesion.usuario);
+  // El vendedor escucha lo suyo; quien conduce, todo el equipo (son pocas).
+  let qa = db.collection("actividades");
+  if(esVend()) qa = qa.where("asignado_a","==",sesion.usuario);
   desuscribir.push(qa.onSnapshot(s=>{ actividades = s.docs.map(d=>({id:d.id,...d.data()})); pintar(); }, ()=>{}));
 }
 
-const pend = () => actividades.filter(a=>a.estado==="pendiente");
+const foco = () => esVend() ? sesion.usuario : vendedorSel;
+const pend = () => actividades.filter(a=>a.estado==="pendiente" &&
+                                         (!foco() || a.asignado_a===foco()));
 const proxDe = cod => { const l=pend().filter(a=>String(a.cliente_cod)===String(cod))
     .sort((a,b)=>(a.fecha||"").localeCompare(b.fecha||"")); return l[0]||null; };
 
-function pintar(){ pintarHoy(); pintarClientes(); pintarPin(); }
+function pintar(){
+  document.getElementById("t-hoy").textContent = conduce() && !vendedorSel ? "Equipo" : "Mi día";
+  if(conduce() && !vendedorSel) pintarEquipo(); else pintarHoy();
+  pintarClientes(); pintarPin();
+}
+
+// Resumen por vendedor: es lo que mira quien conduce. El numero que importa no es
+// cuantos clientes tiene cada uno, sino cuantos estan sin contacto agendado.
+function pintarEquipo(){
+  const porV = {};
+  clientes.forEach(c=>{
+    (c.vendedores && c.vendedores.length ? c.vendedores : [c.vendedor||"(sin vendedor)"]).forEach(v=>{
+      const r = porV[v] || (porV[v] = {v, total:0, act:0, cierre:0, sinAg:0});
+      r.total++;
+      if(c.estado==="activo"){
+        r.act++;
+        if((c.operaciones||[]).some(o=>o.es_activa && o.etapa==="cierre_inminente")) r.cierre++;
+      }
+    });
+  });
+  const conAct = new Set(actividades.filter(a=>a.estado==="pendiente").map(a=>String(a.cliente_cod)));
+  clientes.forEach(c=>{
+    if(c.estado!=="activo" || conAct.has(String(c.codigo))) return;
+    (c.vendedores && c.vendedores.length ? c.vendedores : [c.vendedor||"(sin vendedor)"]).forEach(v=>{
+      if(porV[v]) porV[v].sinAg++;
+    });
+  });
+  const pendPorV = {};
+  actividades.filter(a=>a.estado==="pendiente").forEach(a=>{ pendPorV[a.asignado_a]=(pendPorV[a.asignado_a]||0)+1; });
+
+  const lista = Object.values(porV).filter(r=>r.act>0).sort((a,b)=>b.act-a.act);
+  const totAct = lista.reduce((s,r)=>s+r.act,0);
+  const totSin = lista.reduce((s,r)=>s+r.sinAg,0);
+  const totCie = lista.reduce((s,r)=>s+r.cierre,0);
+
+  document.getElementById("v-hoy").innerHTML = `
+    <div class="tar" style="border-left-color:var(--azul)">
+      <div class="nom">${esc(sesion.zona || "Toda la operación")}</div>
+      <div class="sub">${lista.length} vendedores con cartera activa</div>
+      <div class="plata">${totAct} clientes activos · ${totCie} en cierre inminente</div>
+      <div class="sub" style="color:var(--rojo);font-weight:700;margin-top:4px">
+        ${totSin} sin actividad programada (${totAct?Math.round(totSin/totAct*100):0}%)</div>
+    </div>
+    <div class="titulo">Vendedores</div>` +
+    lista.map(r=>`<div class="tar" onclick="verVendedor('${esc(r.v)}')" style="cursor:pointer">
+      <div class="nom">${esc(r.v)}</div>
+      <div class="sub">${r.act} activos · ${r.total} en total${r.cierre?" · "+r.cierre+" por cerrar":""}</div>
+      <span class="chip ${r.sinAg?'venc':'prox'}">${r.sinAg} sin agendar</span>
+      ${pendPorV[r.v]?`<span class="chip prox">${pendPorV[r.v]} agendadas</span>`:""}
+    </div>`).join("");
+}
+
+function verVendedor(v){ vendedorSel=v; filtro="todos";
+  const b=document.getElementById("buscar"); if(b) b.value="";
+  pintar(); tab("hoy"); window.scrollTo(0,0); }
+function volverEquipo(){ vendedorSel=""; pintar(); tab("hoy"); window.scrollTo(0,0); }
 function pintarPin(){ const n=pend().length, p=document.getElementById("pin");
   p.textContent=n; p.style.display = n?"inline-block":"none"; }
 
@@ -236,7 +300,8 @@ function pintarHoy(){
   const h=hoyISO(), P=pend();
   const venc=P.filter(a=>(a.fecha||"")<h), hoyl=P.filter(a=>(a.fecha||"")===h), fut=P.filter(a=>(a.fecha||"")>h);
   const conAct=new Set(P.map(a=>String(a.cliente_cod)));
-  const sinAg=clientes.filter(c=>c.estado==="activo"&&!conAct.has(String(c.codigo)));
+  const sinAg=clientes.filter(c=>c.estado==="activo" && !conAct.has(String(c.codigo))
+    && (!foco() || (c.vendedores||[]).includes(foco()) || c.vendedor===foco()));
 
   const fila=a=>{ const c=clientes.find(x=>String(x.codigo)===String(a.cliente_cod));
     const cls=(a.fecha||"")<h?"venc":((a.fecha||"")===h?"hoy":"prox");
@@ -254,9 +319,15 @@ function pintarHoy(){
   const bloque=(t,arr)=> arr.length?`<div class="titulo">${t} (${arr.length})</div>`+
     arr.sort((a,b)=>(a.fecha||"").localeCompare(b.fecha||"")).map(fila).join(""):"";
 
-  let html = bloque("Vencidas",venc)+bloque("Hoy",hoyl)+bloque("Próximas",fut);
-  if(!P.length) html = `<div class="vacio">No tenés actividades pendientes.<br>
-    Agendá desde <b>Mis clientes</b>.</div>`;
+  let html = "";
+  if(conduce() && vendedorSel){
+    html += `<div class="tar" style="border-left-color:var(--azul)">
+      <div class="nom">${esc(vendedorSel)}</div>
+      <div class="sub">${clientes.filter(c=>(c.vendedores||[]).includes(vendedorSel)||c.vendedor===vendedorSel).length} clientes</div>
+      <div class="fila"><button class="b" onclick="volverEquipo()">&larr; Volver al equipo</button></div></div>`;
+  }
+  html += bloque("Vencidas",venc)+bloque("Hoy",hoyl)+bloque("Próximas",fut);
+  if(!P.length) html += `<div class="vacio">${esVend()?"No tenés actividades pendientes.<br>Agendá desde <b>Mis clientes</b>.":"Sin actividades agendadas."}</div>`;
   if(sinAg.length) html += `<div class="titulo">Sin actividad programada (${sinAg.length})</div>
     <div class="sub" style="margin-bottom:8px;color:var(--gris)">Clientes activos que no tenés agendados.</div>`+
     sinAg.slice(0,20).map(c=>`<div class="tar ${esc(etapaDe(c))}">
@@ -281,13 +352,16 @@ function etapaDe(c){
 
 // ---------- Mis clientes ----------
 function pintarClientes(){
-  const f=document.getElementById("filtros");
-  if(!f.dataset.listo){
-    f.innerHTML = ETAPAS.map(([k,l])=>`<button data-k="${k}" onclick="setFiltro('${k}')" class="${k==='todos'?'on':''}">${l}</button>`).join("");
-    f.dataset.listo="1";
-  }
   const q=(document.getElementById("buscar").value||"").trim().toLowerCase();
   let l=clientes.slice();
+  if(foco()) l=l.filter(c=>(c.vendedores||[]).includes(foco())||c.vendedor===foco());
+
+  const cuenta={todos:l.length};
+  l.forEach(c=>{ const e=etapaDe(c); cuenta[e]=(cuenta[e]||0)+1; });
+  document.getElementById("filtros").innerHTML = ETAPAS
+    .filter(([k])=>k==="todos"||cuenta[k])
+    .map(([k,lab])=>`<button data-k="${k}" onclick="setFiltro('${k}')" class="${k===filtro?'on':''}">${lab} (${cuenta[k]||0})</button>`).join("");
+
   if(filtro!=="todos") l=l.filter(c=>etapaDe(c)===filtro);
   if(q) l=l.filter(c=>(c.nombre||"").toLowerCase().includes(q));
   l.sort((a,b)=>(b.ops_activas||0)-(a.ops_activas||0)||String(a.nombre).localeCompare(String(b.nombre)));
@@ -314,12 +388,12 @@ function pintarClientes(){
       </div></div>`;
   }).join("") + (l.length>250?`<div class="vacio">Mostrando 250 de ${l.length}. Usá el buscador.</div>`:"");
 }
-function setFiltro(k){ filtro=k;
-  document.querySelectorAll("#filtros button").forEach(b=>b.classList.toggle("on",b.dataset.k===k));
-  pintarClientes(); }
+function setFiltro(k){ filtro=k; pintarClientes(); }
 function tab(k){
   document.getElementById("t-hoy").classList.toggle("on",k==="hoy");
   document.getElementById("t-cli").classList.toggle("on",k==="cli");
+  document.getElementById("t-cli").firstChild.nodeValue =
+    (conduce() && vendedorSel) ? "Clientes de "+vendedorSel : (conduce() ? "Todos los clientes" : "Mis clientes");
   document.getElementById("v-hoy").style.display = k==="hoy"?"block":"none";
   document.getElementById("v-cli").style.display = k==="cli"?"block":"none";
 }
@@ -366,7 +440,9 @@ let actCod=null, actId=null;
 function abrirAct(cod){
   const c=clientes.find(x=>String(x.codigo)===String(cod)); if(!c) return;
   actCod=String(cod);
-  document.getElementById("a-cli").textContent=c.nombre+"  (#"+cod+")";
+  const destino = esVend() ? null : (vendedorSel || c.vendedor || (c.vendedores||[])[0]);
+  document.getElementById("a-tit").textContent = esVend() ? "Agendar actividad" : "Asignar actividad";
+  document.getElementById("a-cli").textContent = c.nombre+"  (#"+cod+")"+(destino?"  →  "+destino:"");
   document.getElementById("a-tipo").value="llamada";
   document.getElementById("a-fecha").value=hoyISO();
   document.getElementById("a-hora").value="";
@@ -381,7 +457,9 @@ async function guardarAct(){
   try{
     await db.collection("actividades").add({
       cliente_cod:actCod, cliente_nombre:c?c.nombre:"", provincia:c?(c.provincia||""):"",
-      asignado_a:sesion.usuario, asignado_tipo:"vendedor", historial_asignacion:[],
+      asignado_a: esVend() ? sesion.usuario
+                            : (vendedorSel || (c && (c.vendedor || (c.vendedores||[])[0])) || sesion.usuario),
+      asignado_tipo:"vendedor", historial_asignacion:[],
       origen_tipo:sesion.rol, origen_usuario:sesion.usuario, origen_motivo:null,
       tipo:document.getElementById("a-tipo").value, fecha:f,
       hora:document.getElementById("a-hora").value||null,
