@@ -57,6 +57,7 @@ nav .pin{display:inline-block;min-width:17px;padding:0 5px;margin-left:4px;backg
 .col-b{padding:9px;max-height:none}
 .c-inicio .col-h{background:#3498DB}.c-en_marcha .col-h{background:#2471a3}
 .c-por_cerrar .col-h{background:var(--naranja)}.c-cierre_inminente .col-h{background:var(--rojo)}
+.c-reasignado .col-h{background:#27ae60}
 .c-refinanciar .col-h{background:var(--violeta)}.c-finalizado .col-h{background:#8d96a3}
 
 .tar{background:#fff;border:1px solid var(--borde);border-radius:8px;padding:10px;margin-bottom:8px}
@@ -192,7 +193,7 @@ const db = firebase.firestore();
 // vendedores. Lo hecho sin conexion sincroniza al volver.
 db.enablePersistence({synchronizeTabs:true}).catch(()=>{});
 
-const VERSION="2026-10-09n";
+const VERSION="2026-10-09o";
 const DOMINIO="funnel.ibaceta.ar";
 const TIPOS={llamada:"Llamada",visita:"Visita",whatsapp:"WhatsApp",tarea:"Tarea"};
 const RESULTADOS=[["contactado_interesado","Contactado - interesado",true],
@@ -368,6 +369,15 @@ const tagDe=cod=>tags[String(cod)]||null;
 // De quien es un cliente. Una reasignacion manual manda sobre el ERP: si al cliente lo
 // pasaron a otro vendedor, deja de contar para el anterior. Una sola definicion para las
 // tres vistas; antes cada pantalla la resolvia por su cuenta y no coincidian.
+// Un cliente "reasignado" es el que le pasaron a este vendedor y NO venia en su cartera:
+// huerfanos e inactivos. En el funnel tienen columna propia, la verde, para que se vea de
+// entrada que son trabajo nuevo y no parte de la cartera de siempre. Un cliente activo
+// propio reasignado sigue en su columna de etapa, igual que alla.
+function esReasignado(c,u){
+  const a = asignaciones[String(c.codigo)] || c.vendedor_asig;
+  return !!a && a===u && (!c.division || c.estado!=="activo");
+}
+
 function esDe(c,u){
   const a = asignaciones[String(c.codigo)] || c.vendedor_asig;
   if(a) return a===u;
@@ -738,19 +748,30 @@ function pintarKanban(){
   pintarPanelActividades(quien,src);
   document.getElementById("tabla").innerHTML=tablaCob;
 
+  const esVista = vista==="vend";
+  const reasig = esVista ? src.filter(c=>esReasignado(c,quien)) : [];
+  const codsR = new Set(reasig.map(c=>String(c.codigo)));
   const por={}; ETAPAS.forEach(([k])=>por[k]=[]);
-  src.forEach(c=>{ const e=etapaDe(c); (por[e]||por.finalizado).push(c); });
+  src.forEach(c=>{ if(codsR.has(String(c.codigo))) return;
+                   const e=etapaDe(c); (por[e]||por.finalizado).push(c); });
+  const colReasig = reasig.length ? `<div class="col c-reasignado">
+      <div class="col-h"><div class="t">Reasignado</div><div class="n">${reasig.length}</div>
+        <div class="r">Te los pasaron</div></div>
+      <div class="col-b">${reasig.sort((a,b)=>String(a.nombre).localeCompare(String(b.nombre)))
+        .slice(0,120).map(c=>tarjeta(c,quien)).join("")}
+      ${reasig.length>120?`<div class="vacio">y ${reasig.length-120} más</div>`:""}</div></div>` : "";
   document.getElementById("cols").innerHTML = ETAPAS.map(([k,l,r])=>{
     const lista=por[k].sort((a,b)=>String(a.nombre).localeCompare(String(b.nombre)));
     return `<div class="col c-${k}">
       <div class="col-h"><div class="t">${l}</div><div class="n">${lista.length}</div><div class="r">${r}</div></div>
       <div class="col-b">${lista.slice(0,120).map(c=>tarjeta(c,quien)).join("")||'<div class="vacio" style="padding:12px">—</div>'}
       ${lista.length>120?`<div class="vacio">y ${lista.length-120} más</div>`:""}</div></div>`;
-  }).join("");
+  }).join("") + colReasig;
 }
 
 function tarjeta(c,quien){
   const oa=opsActivas(c), r=c.resumen_fin||{};
+  const reasignado=esReasignado(c,quien);
   const t=tagDe(c.codigo), td=TAGS.find(x=>x[0]===t);
   const cuota=oa.reduce((s,o)=>s+(o.cuota_semanal||0),0);
   const cuo=oa.reduce((s,o)=>s+(o.cuotas_restantes||0),0);
@@ -758,7 +779,8 @@ function tarjeta(c,quien){
   const p=proxDe(c.codigo), h=hoyISO();
   const chip = p ? `<span class="chip ${p.fecha<h?"venc":p.fecha===h?"hoy":"prox"}">${TIPOS[p.tipo]||p.tipo} · ${dmy(p.fecha)}</span>`
                  : `<span class="chip sin">Sin actividad programada</span>`;
-  return `<div class="tar">
+  return `<div class="tar"${reasignado?' style="border-left:3px solid #27ae60;background:#fafffe"':''}>
+    ${reasignado?`<span class="badge" style="background:#27ae60">Reasignado</span>`:""}
     ${esEmpleado(c)?`<span class="badge" style="background:#4A4A4A">Empleado</span>`:""}
     ${td?`<span class="badge" style="background:${td[2]}">${td[1]}</span>`:""}
     ${esRefinanciar(c)?`<span class="badge" style="background:var(--violeta)">Refinanciar · ${plata(r.saldo_pend)}</span>`:""}
