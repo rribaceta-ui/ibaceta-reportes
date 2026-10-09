@@ -179,7 +179,7 @@ const db = firebase.firestore();
 // vendedores. Lo hecho sin conexion sincroniza al volver.
 db.enablePersistence({synchronizeTabs:true}).catch(()=>{});
 
-const VERSION="2026-10-09d";
+const VERSION="2026-10-09e";
 const DOMINIO="funnel.ibaceta.ar";
 const TIPOS={llamada:"Llamada",visita:"Visita",whatsapp:"WhatsApp",tarea:"Tarea"};
 const RESULTADOS=[["contactado_interesado","Contactado - interesado",true],
@@ -193,7 +193,7 @@ const TAGS=[["sin_local","Ya no tiene local","#E8762C"],
 // Las etiquetas viven en el MISMO documento que usa el funnel HTML (funnel_calle/_shared).
 // Asi lo que se marca en la app se ve en el tablero viejo y al reves, que es lo que hace
 // falta mientras los dos conviven.
-let tags={};
+let tags={}, asignaciones={};
 const ETAPAS=[["inicio","Inicio","0% - 50%"],["en_marcha","En marcha","50% - 75%"],
   ["por_cerrar","Por cerrar","75% - 90%"],["cierre_inminente","Cierre inminente","90% - 100%"],
   ["refinanciar","Refinanciar","Saldo > 0"],["finalizado","Finalizado","> 100%"]];
@@ -299,6 +299,9 @@ function escuchar(){
 
   desus.push(db.collection("funnel_calle").doc("_shared").onSnapshot(d=>{
     tags = (d.exists && d.data().tags) ? d.data().tags : {};
+    // Las reasignaciones se comparten con el funnel HTML: si el supervisor mueve un
+    // cliente en un lado, el otro lo ve. Dos listas separadas se desfasarian.
+    asignaciones = (d.exists && d.data().asignaciones) ? d.data().asignaciones : {};
     pintar();
   },()=>{}));
 }
@@ -313,9 +316,22 @@ function etapaDe(c){
   return "inicio";
 }
 const tagDe=cod=>tags[String(cod)]||null;
+// El vendedor que vale es el reasignado a mano; si no hay, el del ERP.
+function vendedorDe(c){
+  const a = asignaciones[String(c.codigo)];
+  return a || c.vendedor || (c.vendedores||[])[0] || "";
+}
+function asignarA(cod, usuario){
+  if(!usuario) return;
+  const ref=db.collection("funnel_calle").doc("_shared");
+  const fp=new firebase.firestore.FieldPath("asignaciones",String(cod));
+  ref.update(fp,usuario).catch(()=>{ const o={}; o[String(cod)]=usuario;
+    ref.set({asignaciones:o},{merge:true}).catch(()=>{}); });
+}
+
 function esHuerfano(c){
   if(!vendActivos) return false;
-  const v=c.vendedor||(c.vendedores||[])[0];
+  const v=vendedorDe(c);
   return !v || !vendActivos.has(v);
 }
 function ponerTag(cod,val){
@@ -447,7 +463,7 @@ function pintarSupervisor(){
   const conAct=new Set(pend().map(a=>String(a.cliente_cod)));
   const porV={};
   lista.forEach(c=>{
-    const vs=(c.vendedores&&c.vendedores.length)?c.vendedores:[c.vendedor||"(sin vendedor)"];
+    const vs=[vendedorDe(c)||"(sin vendedor)"];
     vs.forEach(v=>{
       const r=porV[v]||(porV[v]={v,act:0,ops:0,cie:0,sin:0,cuota:0});
       if(c.estado==="activo"){
@@ -459,21 +475,55 @@ function pintarSupervisor(){
     });
   });
   const filas=Object.values(porV).filter(r=>r.act>0).sort((a,b)=>b.act-a.act);
-  const huerf=lista.filter(c=>c.estado==="activo"&&esHuerfano(c));
+  // ---- Tabla por departamento, igual que el funnel ----
+  const porD={};
+  lista.forEach(c=>{
+    const k=(c.depto||"(sin departamento)")+"|"+(c.division||"");
+    const r=porD[k]||(porD[k]={depto:c.depto||"(sin departamento)",div:c.division||"",
+                              act:0,ops:0,cie:0,fin:0,cuota:0});
+    if(c.estado==="activo"){
+      r.act++; const oa=opsActivas(c); r.ops+=oa.length;
+      r.cuota+=oa.reduce((x,o)=>x+(o.cuota_semanal||0),0);
+      if(oa.some(o=>o.etapa==="cierre_inminente")) r.cie++;
+    } else r.fin++;
+  });
+  const deptoHtml=`<div class="panel"><h3>Tabla por departamento (${Object.keys(porD).length})</h3>
+    <div style="overflow-x:auto"><table class="tabla">
+      <tr><th>Departamento</th><th>División</th><th>Activos</th><th>Ops activas</th>
+          <th>Cierre inminente</th><th>Final. sin renovar</th><th>Cuota prom.</th></tr>
+      ${Object.values(porD).sort((a,b)=>b.act-a.act||a.depto.localeCompare(b.depto))
+        .map(r=>`<tr><td style="font-weight:700">${esc(r.depto)}</td><td>${esc(r.div)}</td>
+          <td>${r.act}</td><td>${r.ops}</td><td>${r.cie}</td><td>${r.fin}</td>
+          <td>${plata(r.act?r.cuota/r.act:0)}</td></tr>`).join("")}
+    </table></div></div>`;
+
+  // ---- Cartera huerfana: tabla con asignacion, como el funnel ----
+  const huerf=lista.filter(c=>esHuerfano(c));
+  const opts=vendActivos?[...vendActivos].sort():[];
   const huerfHtml = (vendActivos && huerf.length) ? `<div class="panel">
-      <h3>Cartera huérfana (${huerf.length})</h3>
+      <h3>Cartera huérfana (${huerf.length} registros)</h3>
       <div style="font-size:.78rem;color:var(--gris);margin-bottom:8px">
-        Clientes activos cuyo vendedor ya no entra al sistema. Nadie los está trabajando.</div>
-      ${huerf.slice(0,40).map(c=>`<div class="act">
-        <b style="flex:1;min-width:140px">${esc(c.nombre)}</b>
-        <span style="color:var(--gris);font-size:.75rem">${esc(c.localidad||"")}${c.provincia?", "+esc(c.provincia):""}</span>
-        <span class="chip">ex ${esc(c.vendedor||"sin vendedor")}</span>
-        <button class="b auto" onclick="ficha('${esc(c.codigo)}')">Ficha</button>
-        <button class="b auto verde full" onclick="abrirAct('${esc(c.codigo)}')">Asignar</button>
-      </div>`).join("")}
-      ${huerf.length>40?`<div class="vacio">y ${huerf.length-40} más</div>`:""}
+        Clientes cuyo vendedor ya no entra al sistema. Al asignarlos, el cambio se ve
+        también en el funnel.</div>
+      <div style="overflow-x:auto"><table class="tabla">
+        <tr><th>Cliente</th><th>Vendedor original</th><th>División</th><th>Localidad / Zona</th>
+            <th>Última operación</th><th>Fecha fin</th><th>Estado</th><th>Asignar a</th></tr>
+        ${huerf.slice(0,200).map(c=>{ const r=c.resumen_fin||{}; const asig=asignaciones[String(c.codigo)];
+          return `<tr>
+          <td style="color:var(--azul);font-weight:700;cursor:pointer" onclick="ficha('${esc(c.codigo)}')">${esc(c.nombre)}</td>
+          <td style="color:var(--gris)">${esc(c.vendedor||"—")}</td>
+          <td>${esc(c.division||"—")}</td>
+          <td>${esc(c.localidad||"—")}<div style="font-size:.7rem;color:var(--gris)">${esc(c.depto||"")}</div></td>
+          <td>${esc(r.ultima_op||"—")}</td><td>${esc(r.ultima_fin||"—")}</td>
+          <td><span class="chip">${esc(c.estado)}</span></td>
+          <td><select onchange="asignarA('${esc(c.codigo)}',this.value)" style="padding:5px;border-radius:5px;border:1.5px solid #ccd2d9;font-size:.76rem">
+            <option value="">— Asignar a… —</option>
+            ${opts.map(v=>`<option value="${esc(v)}" ${v===asig?"selected":""}>${esc(v)}</option>`).join("")}
+          </select></td></tr>`;}).join("")}
+      </table></div>
+      ${huerf.length>200?`<div class="vacio">Mostrando 200 de ${huerf.length}. Usá los filtros de arriba.</div>`:""}
     </div>` : "";
-  document.getElementById("tabla").innerHTML = huerfHtml + `<div class="panel">
+  document.getElementById("tabla").innerHTML = deptoHtml + huerfHtml + `<div class="panel">
     <h3>Vendedores (${filas.length})</h3>
     <div style="overflow-x:auto"><table class="tabla">
       <tr><th>Vendedor</th><th>Activos</th><th>Ops</th><th>Cierre</th><th>Sin agendar</th><th>Cuota/sem</th></tr>
