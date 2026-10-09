@@ -74,6 +74,15 @@ nav .pin{display:inline-block;min-width:17px;padding:0 5px;margin-left:4px;backg
 .b.verde{border-color:var(--verde);color:var(--verde)}.b.verde.full{background:var(--verde);color:#fff}
 .b.auto{display:inline-block;width:auto;margin:0 6px 0 0;padding:7px 13px}
 a.tel{color:var(--azul);text-decoration:none;font-weight:600}
+/* Ficha: tarjeta de operacion y cuadro de cuotas, como en el funnel */
+.opc{border:1px solid var(--borde);border-radius:9px;padding:10px;margin:8px 0;background:#fff}
+.opc-h{display:flex;align-items:center;gap:6px;flex-wrap:wrap;margin-bottom:4px}
+.opn{font-weight:800;color:var(--azul);font-size:.86rem}
+.barra{height:6px;background:#eef1f4;border-radius:4px;overflow:hidden;margin:6px 0 3px}
+.barra>div{height:100%;background:var(--azul)}
+.tcuotas{width:100%;border-collapse:collapse;font-size:.7rem}
+.tcuotas th{background:#f5f5f5;font-weight:700;color:#555;padding:3px 6px;text-align:center}
+.tcuotas td{padding:3px 6px;border-bottom:1px solid #f0f0f0}
 .badge{display:inline-block;font-size:.65rem;font-weight:700;padding:2px 7px;border-radius:9px;color:#fff;margin:0 3px 3px 0}
 .chip{display:inline-block;font-size:.69rem;font-weight:700;padding:3px 7px;border-radius:9px;background:#eef1f4;color:#555;margin-top:5px}
 .chip.venc{background:#fdecea;color:var(--rojo)}.chip.hoy{background:#fdf0e3;color:#b35309}
@@ -183,7 +192,7 @@ const db = firebase.firestore();
 // vendedores. Lo hecho sin conexion sincroniza al volver.
 db.enablePersistence({synchronizeTabs:true}).catch(()=>{});
 
-const VERSION="2026-10-09m";
+const VERSION="2026-10-09n";
 const DOMINIO="funnel.ibaceta.ar";
 const TIPOS={llamada:"Llamada",visita:"Visita",whatsapp:"WhatsApp",tarea:"Tarea"};
 const RESULTADOS=[["contactado_interesado","Contactado - interesado",true],
@@ -826,48 +835,161 @@ function pintarPanelActividades(quien,src){
 }
 
 // ---------- ficha ----------
-function ficha(cod){
+// Es la ficha del funnel, con el detalle de cuotas incluido: es lo que mira el cobrador
+// para saber que cuota quedo sin pagar y con cuantos dias de atraso. El cliente ya trae
+// sus operaciones activas, asi que la ficha se dibuja al instante; el historial completo
+// y las cuotas se piden aparte -- son 22 MB en total, no pueden viajar con cada cliente.
+let fCod=null, fOps=null, fCuotas={}, fAbiertas=new Set();
+
+async function ficha(cod){
   const c=clientes.find(x=>String(x.codigo)===String(cod)); if(!c) return;
+  fCod=String(cod); fOps=null; fCuotas={}; fAbiertas=new Set();
   document.getElementById("f-nom").textContent=c.nombre;
-  const oa=opsActivas(c);
-  document.getElementById("f-cuerpo").innerHTML=`
-    <div class="loc">${esc(c.domicilio||"")} · ${esc(c.localidad||"")}${c.provincia?", "+esc(c.provincia):""}</div>
+  document.getElementById("f-cuerpo").innerHTML=cabeceraFicha(c);
+  pintarOps(c);
+  abrir("m-ficha");
+  const [h,q]=await Promise.allSettled([
+    db.collection("historial").doc(fCod).get(),
+    db.collection("cuotas").doc(fCod).get()]);
+  if(fCod!==String(cod)) return;           // mientras tanto abrieron otra ficha
+  if(h.status==="fulfilled"&&h.value.exists) fOps=h.value.data().operaciones||[];
+  if(q.status==="fulfilled"&&q.value.exists) fCuotas=q.value.data().ops||{};
+  pintarOps(c);
+}
+
+const ffNum=f=>{const p=String(f||"").split("/");return p.length===3?+(p[2]+p[1].padStart(2,"0")+p[0].padStart(2,"0")):0;};
+
+function cabeceraFicha(c){
+  const oa=opsActivas(c), r=c.resumen_fin||{};
+  const cuotaAct=oa.reduce((s,o)=>s+(o.cuota_semanal||0),0);
+  const prox=oa.slice().sort((a,b)=>ffNum(a.fecha_fin)-ffNum(b.fecha_fin))[0];
+  const refLab=prox?"Prox. vencimiento":"Finalizo";
+  const refVal=prox?prox.fecha_fin:(r.ultima_fin||"-");
+  const asig=asignaciones[String(c.codigo)]||c.vendedor_asig;
+  return `
+    <div class="loc">${esc(c.domicilio||"")} - ${esc(c.localidad||"")}${c.provincia?", "+esc(c.provincia):""}${c.depto?" ("+esc(c.depto)+")":""}</div>
     ${c.telefono?`<div style="margin:8px 0">${tel(c.telefono)}</div>`:""}
-    ${c.negocio?`<div class="loc">Negocio: ${esc(c.negocio)}</div>`:""}
-    <div class="loc">Vendedor: ${esc(vendedorDe(c)||"—")}${
-      vendedorDe(c)!==c.vendedor&&c.vendedor?` <span style="color:var(--gris)">(del ERP: ${esc(c.vendedor)})</span>`:""
-      } · Cobrador: ${esc((c.cobradores||[]).join(", ")||"—")}</div>
+    ${c.email?`<div class="loc"><a href="mailto:${esc(c.email)}" style="color:var(--azul)">${esc(c.email)}</a></div>`:""}
+    <div class="loc">Negocio: ${esc(c.negocio||"-")} &middot; Divisi&oacute;n: ${esc(c.division||(c.div_huerf||[]).filter(Boolean).join(", ")||"Sin asignar")}</div>
+    <div class="loc">Vendedor: <b>${esc(vendedorDe(c)||"-")}</b>${
+      asig&&c.vendedor&&asig!==c.vendedor?` <span style="color:var(--gris)">(del ERP: ${esc(c.vendedor)})</span>`:""
+      } &middot; Cobrador: <b>${esc((c.cobradores||[]).join(", ")||"-")}</b></div>
+    <div style="display:flex;gap:10px;margin:12px 0;flex-wrap:wrap">
+      <div style="flex:1;min-width:140px;background:#f0f6ff;border:1.5px solid var(--azul);border-radius:10px;padding:10px;text-align:center">
+        <div style="font-size:.66rem;font-weight:700;color:#666;text-transform:uppercase">Cuota semanal activa</div>
+        <div style="font-size:1.35rem;font-weight:800;color:var(--azul)">${plata(cuotaAct)}</div>
+        <div style="font-size:.68rem;color:#888">${oa.length} op${oa.length!==1?"s":""} activa${oa.length!==1?"s":""}</div>
+      </div>
+      <div style="flex:1;min-width:140px;background:#fff8f0;border:1.5px solid var(--naranja);border-radius:10px;padding:10px;text-align:center">
+        <div style="font-size:.66rem;font-weight:700;color:#666;text-transform:uppercase">${refLab}</div>
+        <div style="font-size:1.1rem;font-weight:800;color:var(--naranja)">${esc(refVal)}</div>
+      </div>
+    </div>
     <div class="titulo">Observaciones</div>
-    <textarea id="f-coment" rows="3" placeholder="Escribí lo que haya que saber de este cliente..."
-      onchange="guardarComentario('${esc(cod)}',this.value)"
+    <textarea id="f-coment" rows="3" placeholder="Escrib&iacute; lo que haya que saber de este cliente..."
+      onchange="guardarComentario('${esc(c.codigo)}',this.value)"
       style="width:100%;padding:9px;border:1.5px solid #ccd2d9;border-radius:7px;
              font-size:.85rem;font-family:inherit;resize:vertical;box-sizing:border-box"
-      >${esc(comentarioDe(cod))}</textarea>
-    <div style="font-size:.72rem;color:var(--gris);margin-top:3px">Lo ven también en el funnel.</div>
-    <div class="titulo">Operaciones activas (${oa.length})</div>
-    ${oa.length?oa.map(o=>`<div class="tar">
-      <div class="nom">${esc(o.tipo)} — op. ${esc(o.operacion)}</div>
-      <div class="de">${plata(o.cuota_semanal)}/sem · ${o.cuotas_restantes} cuota(s) rest.</div>
-      <div class="de">Vence: ${esc(o.fecha_fin)}</div>
-      ${(o.productos||[]).length?`<div class="loc" style="margin-top:4px">${esc((o.productos||[]).join(", "))}</div>`:""}
-    </div>`).join(""):'<div class="vacio">Sin operaciones activas.</div>'}
-    <button class="b auto" onclick="verHistorial('${esc(cod)}')">Ver historial completo (${c.ops_totales||0})</button>
-    <div id="f-hist"></div>`;
-  abrir("m-ficha");
+      >${esc(comentarioDe(c.codigo))}</textarea>
+    <div style="font-size:.72rem;color:var(--gris);margin-top:3px">Lo ven tambi&eacute;n en el funnel.</div>
+    <div id="f-ops"></div>
+    <div class="titulo">Historial sal&oacute;n</div>
+    <div class="loc">Primera compra: ${esc(c.salon_primera||"-")} &middot; &Uacute;ltima: ${esc(c.salon_ultima||"-")}</div>
+    <div class="loc">Compras este a&ntilde;o: ${c.salon_compras_anio||0} &middot; Monto total: ${plata(c.salon_monto_total||0)}</div>`;
 }
-async function verHistorial(cod){
-  const d=document.getElementById("f-hist"); d.innerHTML='<div class="cargando">Buscando historial...</div>';
-  try{
-    const doc=await db.collection("historial").doc(String(cod)).get();
-    if(!doc.exists){ d.innerHTML='<div class="vacio">Sin historial.</div>'; return; }
-    const ops=(doc.data().operaciones||[]).slice()
-      .sort((a,b)=>String(b.fecha_fin||"").slice(6).localeCompare(String(a.fecha_fin||"").slice(6)));
-    d.innerHTML=`<div class="titulo">Historial (${ops.length})</div>`+ops.map(o=>`<div class="tar">
-      <div class="nom" style="font-size:.82rem">${esc(o.tipo)} — op. ${esc(o.operacion)}</div>
-      <div class="de">${esc(o.inicio||"")} a ${esc(o.fecha_fin||"")} · ${plata(o.cuota_semanal)}/sem</div>
-      ${o.cancelada_anticipada?'<span class="badge" style="background:var(--verde)">Canceló anticipado</span>':""}
-      ${o.reformulada?'<span class="badge" style="background:#2980B9">Reformulada</span>':""}</div>`).join("");
-  }catch(e){ d.innerHTML='<div class="vacio">No se pudo traer el historial.</div>'; }
+
+// Las operaciones se ordenan como en el funnel: las activas primero, de la que vence
+// antes a la que vence despues; despues las terminadas, de la mas reciente a la mas vieja.
+function pintarOps(c){
+  const d=document.getElementById("f-ops"); if(!d) return;
+  const todas = fOps || opsActivas(c);
+  const ops=todas.slice().sort((a,b)=>{
+    if(a.es_activa&&!b.es_activa) return -1;
+    if(!a.es_activa&&b.es_activa) return  1;
+    return a.es_activa ? ffNum(a.fecha_fin)-ffNum(b.fecha_fin) : ffNum(b.fecha_fin)-ffNum(a.fecha_fin);
+  });
+  const cargando = fOps===null && (c.ops_totales||0)>ops.length;
+  d.innerHTML=`<div class="titulo">Operaciones (${ops.length}${cargando?" de "+c.ops_totales:""})</div>`
+    + (cargando?`<div class="cargando">Buscando el resto del historial...</div>`:"")
+    + (ops.length?ops.map(opCard).join(""):`<div class="vacio">Sin operaciones.</div>`);
+}
+
+function opCard(o){
+  const pct=Math.min(100,Math.round((o.pct||0)*100));
+  const et=ETAPAS.find(e=>e[0]===o.etapa);
+  const col={inicio:"#3498DB",en_marcha:"#2471a3",por_cerrar:"var(--naranja)",
+             cierre_inminente:"var(--rojo)",refinanciar:"var(--violeta)",finalizado:"#8d96a3"};
+  const badge = o.cancelada_anticipada
+    ? `<span class="badge" style="background:var(--verde)">Cancel&oacute; anticipado</span>`
+    : (!o.es_activa&&(o.saldo_neto||0)>100
+        ? `<span class="badge" style="background:var(--violeta)">Refinanciar &middot; ${plata(o.saldo_neto)}</span>`
+        : `<span class="badge" style="background:${col[o.etapa]||"#8d96a3"}">${et?et[1]:esc(o.etapa||"")}</span>`);
+  const reform = o.reformulada
+    ? `<span class="badge" style="background:#2980B9">Reformulada${o.reform_fecha?" "+esc(o.reform_fecha):""}</span>`
+    : (o.es_refinanciada?`<span class="badge" style="background:#2980B9">Reformulada</span>`:"");
+  let prods=(o.productos||[]).join(", ");
+  if(!prods) prods = String(o.tipo||"").toUpperCase().includes("PRESUPUESTO")
+    ? "PRESUPUESTO"+((o.capital||o.total)?" - Capital: "+plata(o.capital||o.total):"")
+    : (o.tipo||"(sin detalle)");
+  return `<div class="opc">
+    <div class="opc-h"><span class="opn">Op. #${esc(o.operacion)}</span>${badge}${reform}</div>
+    <div class="loc">${esc(o.tipo||"")} | ${o.cuotas||0} cuotas | Inicio: ${esc(o.inicio||"-")} | Vence: ${esc(o.fecha_fin||"-")}</div>
+    <div style="font-size:.8rem;font-weight:700;color:var(--naranja);margin-top:2px">
+      Cuota: ${plata(o.cuota_semanal)}/sem | Total: ${plata(o.total||0)}</div>
+    <div class="loc">${o.vendedor_op?"Vendedor: <b>"+esc(o.vendedor_op)+"</b>":""}${
+      o.cobrador?" | Cobrador: <b>"+esc(o.cobrador)+"</b>":""}</div>
+    <div class="barra"><div style="width:${pct}%"></div></div>
+    <div class="loc">${pct}% completado - ${o.semanas_restantes||0} semanas restantes</div>
+    <div class="loc" style="margin-top:3px">Productos: ${esc(prods)}</div>
+    ${cuotasHtml(o.operacion)}</div>`;
+}
+
+// Detalle de cuotas de una operacion: el mismo cuadro del funnel.
+function cuotasHtml(op){
+  const k=String(op), q=fCuotas[k]||[];
+  if(!q.length) return `<div class="loc" style="color:#aaa;margin-top:5px">Sin historial de cuotas disponible</div>`;
+  const abierta=fAbiertas.has(k);
+  const boton=`<button class="b auto" style="margin-top:5px;font-size:.72rem"
+      onclick="toggleCuotas('${esc(k)}')">${abierta?"Ocultar cuotas":"Ver cuotas ("+q.length+")"}</button>`;
+  if(!abierta) return boton;
+  const pag=q.filter(x=>x.estado==="pagada"), par=q.filter(x=>x.estado==="parcial");
+  const ven=q.filter(x=>x.estado==="vencida"), pen=q.filter(x=>x.estado==="pendiente");
+  const cobrado=q.reduce((s,x)=>s+((x.importe||0)-(x.sal||0)),0);
+  const saldo=q.reduce((s,x)=>s+(x.sal||0),0);
+  const conAtraso=pag.filter(x=>x.atraso!==null&&x.atraso!==undefined);
+  const atrPro=conAtraso.length?(conAtraso.reduce((s,x)=>s+x.atraso,0)/conAtraso.length).toFixed(1):"-";
+  const pill=(t,c,b)=>`<span style="background:${b};color:${c};padding:2px 8px;border-radius:4px;font-weight:700">${t}</span>`;
+  return boton+`<div style="margin-top:7px">
+    <div style="display:flex;gap:5px;flex-wrap:wrap;font-size:.68rem;margin-bottom:6px">
+      ${pill("Pagadas: "+pag.length,"#22863a","#e8f5e9")}
+      ${par.length?pill("Parciales: "+par.length,"#e67e22","#fef3e2"):""}
+      ${ven.length?pill("Vencidas: "+ven.length,"#c0392b","#fdecea"):""}
+      ${pen.length?pill("Pendientes: "+pen.length,"#888","#f5f5f5"):""}
+      ${pill("Cobrado: "+plata(cobrado),"#e67e22","#fff3e0")}
+      ${saldo>0?pill("Saldo: "+plata(saldo),"#c0392b","#fdecea"):""}
+      ${pill("Atraso prom: "+atrPro+"d","#555","#f0f0f0")}
+    </div>
+    <div style="overflow-x:auto"><table class="tcuotas">
+      <tr><th>#</th><th style="text-align:right">Importe</th><th>Vencimiento</th>
+          <th>Fecha pago</th><th>Atraso</th><th>Estado</th></tr>
+      ${q.map(x=>{
+        const ec={pagada:"#22863a",parcial:"#e67e22",vencida:"#c0392b"}[x.estado]||"#888";
+        const el=x.estado==="pagada"?"Pagada":x.estado==="parcial"?"Parcial ("+plata(x.sal||0)+" pend.)"
+                :x.estado==="vencida"?"VENCIDA":"Pendiente";
+        const a=x.atraso;
+        const at=(a===null||a===undefined)?"-":a<0?"Adelantada "+Math.abs(a)+"d":a===0?"En t&eacute;rmino":a+"d";
+        const ac=(a===null||a===undefined)?"#888":a>0?"#c0392b":a<0?"#2980b9":"#22863a";
+        return `<tr><td style="text-align:center;font-weight:700">${x.ncu}</td>
+          <td style="text-align:right">${plata(x.importe)}</td>
+          <td style="text-align:center;color:#555">${esc(x.venc||"")}</td>
+          <td style="text-align:center;color:#555">${esc(x.pago||"-")}</td>
+          <td style="text-align:center;color:${ac};font-weight:700">${at}</td>
+          <td style="text-align:center;color:${ec};font-weight:700">${el}</td></tr>`;}).join("")}
+    </table></div></div>`;
+}
+function toggleCuotas(k){
+  if(fAbiertas.has(k)) fAbiertas.delete(k); else fAbiertas.add(k);
+  const c=clientes.find(x=>String(x.codigo)===fCod); if(c) pintarOps(c);
 }
 
 // ---------- actividades ----------
