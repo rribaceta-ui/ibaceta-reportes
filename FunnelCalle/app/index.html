@@ -70,6 +70,7 @@ a.tel{color:var(--azul);text-decoration:none;font-weight:600}
 .badge{display:inline-block;font-size:.65rem;font-weight:700;padding:2px 7px;border-radius:9px;color:#fff;margin:0 3px 3px 0}
 .chip{display:inline-block;font-size:.69rem;font-weight:700;padding:3px 7px;border-radius:9px;background:#eef1f4;color:#555;margin-top:5px}
 .chip.venc{background:#fdecea;color:var(--rojo)}.chip.hoy{background:#fdf0e3;color:#b35309}
+.sel-tag{width:100%;margin-top:6px;padding:6px;border:1.5px solid #ccd2d9;border-radius:6px;font-size:.74rem;color:#555;background:#fafbfc}
 .chip.prox{background:#eaf2fb;color:#1f6fb2}.chip.sin{background:#f4f4f4;color:#9ca3af;font-style:italic;font-weight:500}
 
 .panel{margin:12px 14px;background:#fff;border:1px solid var(--borde);border-radius:10px;padding:13px}
@@ -175,7 +176,7 @@ const db = firebase.firestore();
 // vendedores. Lo hecho sin conexion sincroniza al volver.
 db.enablePersistence({synchronizeTabs:true}).catch(()=>{});
 
-const VERSION="2026-10-09a";
+const VERSION="2026-10-09b";
 const DOMINIO="funnel.ibaceta.ar";
 const TIPOS={llamada:"Llamada",visita:"Visita",whatsapp:"WhatsApp",tarea:"Tarea"};
 const RESULTADOS=[["contactado_interesado","Contactado - interesado",true],
@@ -183,12 +184,24 @@ const RESULTADOS=[["contactado_interesado","Contactado - interesado",true],
   ["no_interesa","No le interesa",false],["vendido","Vendido",false],
   ["datos_erroneos","Datos erróneos (tel/dir)",false]];
 // Mismas etapas, mismos nombres y mismo orden que el funnel de siempre.
+const TAGS=[["sin_local","Ya no tiene local","#E8762C"],
+            ["incobrable","Incobrable","#C0392B"],
+            ["fallecido","Fallecido","#7F8C8D"]];
+// Las etiquetas viven en el MISMO documento que usa el funnel HTML (funnel_calle/_shared).
+// Asi lo que se marca en la app se ve en el tablero viejo y al reves, que es lo que hace
+// falta mientras los dos conviven.
+let tags={};
 const ETAPAS=[["inicio","Inicio","0% - 50%"],["en_marcha","En marcha","50% - 75%"],
   ["por_cerrar","Por cerrar","75% - 90%"],["cierre_inminente","Cierre inminente","90% - 100%"],
   ["refinanciar","Refinanciar","Saldo > 0"],["finalizado","Finalizado","> 100%"]];
 
 let sesion=null, clientes=[], actividades=[], desus=[];
 let vista="sup", selVend="", selCob="", busca="";
+let fProv="", fDepto="", soloEtiquetados=false;
+// "Huerfano" = cliente activo cuyo vendedor ya no esta entre los que pueden entrar al
+// sistema. La lista la escribe el sincronizador; si todavia no existe, no se filtra
+// nada en vez de inventar un criterio.
+let vendActivos=null;
 
 const hoyISO=()=>{const d=new Date();return d.getFullYear()+"-"+String(d.getMonth()+1).padStart(2,"0")+"-"+String(d.getDate()).padStart(2,"0");};
 const dmy=i=>{if(!i)return"";const p=String(i).split("-");return p.length===3?p[2]+"/"+p[1]+"/"+p[0]:i;};
@@ -254,6 +267,15 @@ function escuchar(){
   let qa=db.collection("actividades");
   if(esVend()) qa=qa.where("asignado_a","==",sesion.usuario);
   desus.push(qa.onSnapshot(s=>{actividades=s.docs.map(d=>({id:d.id,...d.data()}));pintar();},()=>{}));
+
+  db.collection("config").doc("vendedores_activos").get()
+    .then(d=>{ if(d.exists){ vendActivos=new Set(d.data().usuarios||[]); pintar(); } })
+    .catch(()=>{});
+
+  desus.push(db.collection("funnel_calle").doc("_shared").onSnapshot(d=>{
+    tags = (d.exists && d.data().tags) ? d.data().tags : {};
+    pintar();
+  },()=>{}));
 }
 
 // ---------- clasificacion, igual que el funnel ----------
@@ -264,6 +286,21 @@ function etapaDe(c){
   const a=opsActivas(c); if(!a.length) return "finalizado";
   for(const e of ["cierre_inminente","por_cerrar","en_marcha","inicio"]) if(a.some(o=>o.etapa===e)) return e;
   return "inicio";
+}
+const tagDe=cod=>tags[String(cod)]||null;
+function esHuerfano(c){
+  if(!vendActivos) return false;
+  const v=c.vendedor||(c.vendedores||[])[0];
+  return !v || !vendActivos.has(v);
+}
+function ponerTag(cod,val){
+  const ref=db.collection("funnel_calle").doc("_shared");
+  const fp=new firebase.firestore.FieldPath("tags",String(cod));
+  // Para quitar se borra la clave: escribir el mapa entero con merge nunca borra nada
+  // y hace reaparecer lo que alguien habia sacado.
+  const dato = val ? val : firebase.firestore.FieldValue.delete();
+  ref.update(fp,dato).catch(()=>{ if(val){ const o={}; o[String(cod)]=val;
+    ref.set({tags:o},{merge:true}).catch(()=>{}); } });
 }
 const pend=()=>actividades.filter(a=>a.estado==="pendiente");
 function proxDe(cod){ const l=pend().filter(a=>String(a.cliente_cod)===String(cod))
@@ -310,9 +347,33 @@ function pintarBarra(){
        [...set].sort().map(v=>`<option value="${esc(v)}" ${v===sel?"selected":""}>${esc(v)}</option>`).join("")+`</select>`;
   }
   h+=`<input placeholder="Buscar por nombre..." value="${esc(busca)}" oninput="busca=this.value;pintarKanban()">`;
+
+  // Provincia y departamento: el funnel los tiene y sirven para armar el recorrido.
+  const base=baseDe();
+  const provs=[...new Set(base.map(c=>c.provincia).filter(Boolean))].sort();
+  if(provs.length>1){
+    h+=`<select onchange="fProv=this.value;fDepto='';pintar()"><option value="">Toda provincia</option>`+
+       provs.map(v=>`<option value="${esc(v)}" ${v===fProv?"selected":""}>${esc(v)}</option>`).join("")+`</select>`;
+  }
+  const deptos=[...new Set(base.filter(c=>!fProv||c.provincia===fProv).map(c=>c.depto).filter(Boolean))].sort();
+  if(deptos.length>1){
+    h+=`<select onchange="fDepto=this.value;pintarKanban()"><option value="">Todo departamento</option>`+
+       deptos.map(v=>`<option value="${esc(v)}" ${v===fDepto?"selected":""}>${esc(v)}</option>`).join("")+`</select>`;
+  }
+  h+=`<label style="display:flex;align-items:center;gap:6px;font-size:.8rem;color:#555">
+        <input type="checkbox" ${soloEtiquetados?"checked":""}
+               onchange="soloEtiquetados=this.checked;pintarKanban()" style="width:auto"> Solo etiquetados</label>`;
   b.innerHTML=h;
 }
 function elegir(v){ if(vista==="vend") selVend=v; else selCob=v; pintar(); }
+
+function baseDe(){
+  const q = vista==="vend" ? (esVend()?sesion.usuario:selVend) : (esCob()?sesion.usuario:selCob);
+  if(!q) return clientes;
+  return vista==="vend"
+    ? clientes.filter(c=>(c.vendedores||[]).includes(q)||c.vendedor===q)
+    : clientes.filter(c=>(c.cobradores||[]).includes(q));
+}
 
 // ---------- Vista Supervisor ----------
 function pintarSupervisor(){
@@ -348,7 +409,21 @@ function pintarSupervisor(){
     });
   });
   const filas=Object.values(porV).filter(r=>r.act>0).sort((a,b)=>b.act-a.act);
-  document.getElementById("tabla").innerHTML=`<div class="panel">
+  const huerf=clientes.filter(c=>c.estado==="activo"&&esHuerfano(c));
+  const huerfHtml = (vendActivos && huerf.length) ? `<div class="panel">
+      <h3>Cartera huérfana (${huerf.length})</h3>
+      <div style="font-size:.78rem;color:var(--gris);margin-bottom:8px">
+        Clientes activos cuyo vendedor ya no entra al sistema. Nadie los está trabajando.</div>
+      ${huerf.slice(0,40).map(c=>`<div class="act">
+        <b style="flex:1;min-width:140px">${esc(c.nombre)}</b>
+        <span style="color:var(--gris);font-size:.75rem">${esc(c.localidad||"")}${c.provincia?", "+esc(c.provincia):""}</span>
+        <span class="chip">ex ${esc(c.vendedor||"sin vendedor")}</span>
+        <button class="b auto" onclick="ficha('${esc(c.codigo)}')">Ficha</button>
+        <button class="b auto verde full" onclick="abrirAct('${esc(c.codigo)}')">Asignar</button>
+      </div>`).join("")}
+      ${huerf.length>40?`<div class="vacio">y ${huerf.length-40} más</div>`:""}
+    </div>` : "";
+  document.getElementById("tabla").innerHTML = huerfHtml + `<div class="panel">
     <h3>Vendedores (${filas.length})</h3>
     <div style="overflow-x:auto"><table class="tabla">
       <tr><th>Vendedor</th><th>Activos</th><th>Ops</th><th>Cierre</th><th>Sin agendar</th><th>Cuota/sem</th></tr>
@@ -376,6 +451,9 @@ function pintarKanban(){
     ? clientes.filter(c=>(c.vendedores||[]).includes(quien)||c.vendedor===quien)
     : clientes.filter(c=>(c.cobradores||[]).includes(quien));
   if(busca) src=src.filter(c=>(c.nombre||"").toLowerCase().includes(busca.trim().toLowerCase()));
+  if(fProv)  src=src.filter(c=>c.provincia===fProv);
+  if(fDepto) src=src.filter(c=>c.depto===fDepto);
+  if(soloEtiquetados) src=src.filter(c=>!!tagDe(c.codigo));
 
   const act=src.filter(c=>c.estado==="activo");
   const opsA=act.flatMap(opsActivas);
@@ -400,6 +478,7 @@ function pintarKanban(){
 
 function tarjeta(c,quien){
   const oa=opsActivas(c), r=c.resumen_fin||{};
+  const t=tagDe(c.codigo), td=TAGS.find(x=>x[0]===t);
   const cuota=oa.reduce((s,o)=>s+(o.cuota_semanal||0),0);
   const cuo=oa.reduce((s,o)=>s+(o.cuotas_restantes||0),0);
   const prox=oa.slice().sort((a,b)=>String(a.fecha_fin||"").slice(6).localeCompare(String(b.fecha_fin||"").slice(6)))[0];
@@ -407,6 +486,7 @@ function tarjeta(c,quien){
   const chip = p ? `<span class="chip ${p.fecha<h?"venc":p.fecha===h?"hoy":"prox"}">${TIPOS[p.tipo]||p.tipo} · ${dmy(p.fecha)}</span>`
                  : `<span class="chip sin">Sin actividad programada</span>`;
   return `<div class="tar">
+    ${td?`<span class="badge" style="background:${td[2]}">${td[1]}</span>`:""}
     ${esRefinanciar(c)?`<span class="badge" style="background:var(--violeta)">Refinanciar · ${plata(r.saldo_pend)}</span>`:""}
     ${r.reformulada?`<span class="badge" style="background:#2980B9">Reformulada</span>`:""}
     ${r.cancelo_ant?`<span class="badge" style="background:var(--verde)">Canceló anticipado</span>`:""}
@@ -420,6 +500,11 @@ function tarjeta(c,quien){
     ${chip}
     <button class="b full" onclick="ficha('${esc(c.codigo)}')">Ver Ficha</button>
     <button class="b verde full" onclick="abrirAct('${esc(c.codigo)}')">${esVend()?"Agendar":"Asignar actividad"}</button>
+    <select class="sel-tag" onchange="ponerTag('${esc(c.codigo)}', this.value||null)">
+      <option value="">${t?"Cambiar marca...":"Marcar cliente..."}</option>
+      ${TAGS.map(([k,l])=>`<option value="${k}" ${t===k?"selected":""}>${l}</option>`).join("")}
+      ${t?`<option value="">Quitar marca</option>`:""}
+    </select>
   </div>`;
 }
 
