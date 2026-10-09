@@ -179,7 +179,7 @@ const db = firebase.firestore();
 // vendedores. Lo hecho sin conexion sincroniza al volver.
 db.enablePersistence({synchronizeTabs:true}).catch(()=>{});
 
-const VERSION="2026-10-09h";
+const VERSION="2026-10-09i";
 const DOMINIO="funnel.ibaceta.ar";
 const TIPOS={llamada:"Llamada",visita:"Visita",whatsapp:"WhatsApp",tarea:"Tarea"};
 const RESULTADOS=[["contactado_interesado","Contactado - interesado",true],
@@ -400,10 +400,13 @@ function proxDe(cod){ const l=pend().filter(a=>String(a.cliente_cod)===String(co
   .sort((a,b)=>(a.fecha||"").localeCompare(b.fecha||"")); return l[0]||null; }
 
 // A quien le corresponde la actividad que se crea desde una tarjeta.
+// A quien le queda la actividad. Siempre un vendedor: es el que va a ver al cliente.
+// Usa el vendedor EFECTIVO, asi un cliente reasignado le llega al que lo tomo y no al
+// que ya no esta.
 function destinoDe(c){
   if(esVend()) return sesion.usuario;
   if(vista==="vend"&&selVend) return selVend;
-  return c.vendedor||(c.vendedores||[])[0]||sesion.usuario;
+  return vendedorDe(c)||sesion.usuario;
 }
 
 // ---------- navegacion ----------
@@ -659,7 +662,8 @@ function tarjeta(c,quien){
     ${c.telefono?`<div class="te">${tel(c.telefono)}</div>`:""}
     ${chip}
     <button class="b full" onclick="ficha('${esc(c.codigo)}')">Ver Ficha</button>
-    <button class="b verde full" onclick="abrirAct('${esc(c.codigo)}')">${esVend()?"Agendar":"Asignar actividad"}</button>
+    <button class="b verde full" onclick="abrirAct('${esc(c.codigo)}')">${
+      esVend()?"Agendar":vista==="cob"?"Avisar al vendedor":"Asignar actividad"}</button>
     <select class="sel-tag" onchange="ponerTag('${esc(c.codigo)}', this.value||null)">
       <option value="">${t?"Cambiar marca...":"Marcar cliente..."}</option>
       ${TAGS.map(([k,l])=>`<option value="${k}" ${t===k?"selected":""}>${l}</option>`).join("")}
@@ -669,31 +673,49 @@ function tarjeta(c,quien){
 }
 
 function pintarPanelActividades(quien,src){
-  const P=actividades.filter(a=>a.estado==="pendiente"&&a.asignado_a===quien);
+  // Las actividades SIEMPRE quedan a cargo de un vendedor: es el que visita al cliente.
+  // Por eso el cobrador no "recibe" actividades, las ORIGINA -- avisa que un cliente de
+  // su ruta necesita algo. En su vista lo que sirve es ver lo que mando y si el vendedor
+  // lo resolvio; listar lo que tiene asignado daba siempre cero y no se entendia nada.
+  const esVistaCob = vista==="cob";
+  const P = esVistaCob
+    ? actividades.filter(a=>a.estado==="pendiente"&&a.origen_usuario===quien)
+    : actividades.filter(a=>a.estado==="pendiente"&&a.asignado_a===quien);
   const h=hoyISO();
   const venc=P.filter(a=>(a.fecha||"")<h),hoyl=P.filter(a=>(a.fecha||"")===h),fut=P.filter(a=>(a.fecha||"")>h);
-  const conAct=new Set(P.map(a=>String(a.cliente_cod)));
+  // "Sin actividad" es sin NINGUNA actividad pendiente, la haya pedido quien la haya
+  // pedido. Mirando solo las de esta persona, un cliente que el vendedor ya tenia
+  // agendado volvia a aparecer como si nadie lo estuviera trabajando.
+  const conAct=new Set(actividades.filter(a=>a.estado==="pendiente")
+                                  .map(a=>String(a.cliente_cod)));
   const sin=src.filter(c=>c.estado==="activo"&&!conAct.has(String(c.codigo)));
   if(!P.length&&!sin.length){ document.getElementById("panel").innerHTML=""; return; }
   const fila=a=>`<div class="act ${(a.fecha||"")<h?"venc":(a.fecha||"")===h?"hoy":"prox"}">
     <b style="flex:1;min-width:130px">${esc(a.cliente_nombre)}</b>
     <span class="chip">${TIPOS[a.tipo]||esc(a.tipo)} · ${dmy(a.fecha)}${a.hora?" "+esc(a.hora):""}</span>
-    <span style="color:var(--gris);font-size:.72rem">de ${esc(a.origen_usuario)}</span>
+    <span style="color:var(--gris);font-size:.72rem">${esVistaCob?"para "+esc(a.asignado_a||"—"):"de "+esc(a.origen_usuario)}</span>
     ${a.observaciones?`<div style="flex-basis:100%;color:#555;font-size:.77rem">${esc(a.observaciones)}</div>`:""}
-    ${quien===sesion.usuario?`<button class="b auto full" onclick="abrirCierre('${a.id}')">Hecha</button>`:""}
+    ${a.asignado_a===sesion.usuario?`<button class="b auto full" onclick="abrirCierre('${a.id}')">Hecha</button>`:""}
     <button class="b auto" onclick="ficha('${esc(a.cliente_cod)}')">Ficha</button></div>`;
   const bloque=(t,arr)=>arr.length?`<div class="titulo">${t} (${arr.length})</div>`+
     arr.sort((a,b)=>(a.fecha||"").localeCompare(b.fecha||"")).map(fila).join(""):"";
   document.getElementById("panel").innerHTML=`<div class="panel">
-    <h3>${quien===sesion.usuario?"Mis actividades":"Actividades de "+esc(quien)} (${P.length})</h3>
+    <h3>${esVistaCob
+            ? (quien===sesion.usuario?"Avisos que mandé a los vendedores"
+                                     :"Avisos que mandó "+esc(quien))
+            : (quien===sesion.usuario?"Mis actividades":"Actividades de "+esc(quien))} (${P.length})</h3>
+    ${esVistaCob?`<div style="font-size:.77rem;color:var(--gris);margin:-4px 0 8px">
+        Pedidos abiertos: el cliente necesita algo y el vendedor todavía no lo cerró.</div>`:""}
     ${bloque("Vencidas",venc)}${bloque("Hoy",hoyl)}${bloque("Próximas",fut)}
     ${sin.length?`<div class="titulo">Sin actividad programada (${sin.length})</div>
-      <div style="font-size:.77rem;color:var(--gris);margin-bottom:7px">Clientes activos sin ningún contacto agendado.</div>
+      <div style="font-size:.77rem;color:var(--gris);margin-bottom:7px">Clientes activos que
+        nadie tiene agendados: ni el vendedor ni cobranza pidieron contacto.</div>
       ${sin.slice(0,15).map(c=>`<div class="act">
         <b style="flex:1;min-width:130px">${esc(c.nombre)}</b>
         ${c.telefono?`<span>${tel(c.telefono)}</span>`:`<span style="color:var(--rojo);font-size:.73rem">sin teléfono</span>`}
         <span style="color:var(--gris);font-size:.74rem">${esc(c.localidad||"")}</span>
-        <button class="b auto verde full" onclick="abrirAct('${esc(c.codigo)}')">${esVend()?"Agendar":"Asignar"}</button>
+        <button class="b auto verde full" onclick="abrirAct('${esc(c.codigo)}')">${
+          esVend()?"Agendar":esVistaCob?"Avisar al vendedor":"Asignar"}</button>
         <button class="b auto" onclick="ficha('${esc(c.codigo)}')">Ficha</button>
       </div>`).join("")}
       ${sin.length>15?`<div class="vacio">y ${sin.length-15} más en las columnas</div>`:""}`:""}
@@ -742,8 +764,13 @@ function abrirAct(cod){
   const c=clientes.find(x=>String(x.codigo)===String(cod)); if(!c) return;
   actCod=String(cod);
   const d=destinoDe(c);
-  document.getElementById("a-tit").textContent=esVend()?"Agendar actividad":"Asignar actividad";
-  document.getElementById("a-cli").textContent=c.nombre+"  (#"+cod+")"+(esVend()?"":"  →  "+d);
+  document.getElementById("a-tit").textContent=
+    esVend()?"Agendar actividad":vista==="cob"?"Avisar al vendedor":"Asignar actividad";
+  // Si el destinatario ya no entra al sistema, avisarlo aca: la actividad se guardaria
+  // igual y no la veria nadie.
+  const huerfano = vendActivos && d && !vendActivos.has(d);
+  document.getElementById("a-cli").textContent=c.nombre+"  (#"+cod+")"+(esVend()?"":"  →  "+d)
+    +(huerfano?"  ⚠ ese vendedor ya no entra al sistema: reasigná el cliente primero":"");
   document.getElementById("a-tipo").value="llamada";
   document.getElementById("a-fecha").value=hoyISO();
   document.getElementById("a-hora").value=""; document.getElementById("a-obs").value="";
