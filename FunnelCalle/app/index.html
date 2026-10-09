@@ -179,7 +179,7 @@ const db = firebase.firestore();
 // vendedores. Lo hecho sin conexion sincroniza al volver.
 db.enablePersistence({synchronizeTabs:true}).catch(()=>{});
 
-const VERSION="2026-10-09e";
+const VERSION="2026-10-09f";
 const DOMINIO="funnel.ibaceta.ar";
 const TIPOS={llamada:"Llamada",visita:"Visita",whatsapp:"WhatsApp",tarea:"Tarea"};
 const RESULTADOS=[["contactado_interesado","Contactado - interesado",true],
@@ -204,7 +204,7 @@ let fProv="", fDepto="", fDiv="", fTipo="", soloEtiquetados=false;
 // "Huerfano" = cliente activo cuyo vendedor ya no esta entre los que pueden entrar al
 // sistema. La lista la escribe el sincronizador; si todavia no existe, no se filtra
 // nada en vez de inventar un criterio.
-let vendActivos=null;
+let vendActivos=null, vendPorDiv={};
 
 const hoyISO=()=>{const d=new Date();return d.getFullYear()+"-"+String(d.getMonth()+1).padStart(2,"0")+"-"+String(d.getDate()).padStart(2,"0");};
 const dmy=i=>{if(!i)return"";const p=String(i).split("-");return p.length===3?p[2]+"/"+p[1]+"/"+p[0]:i;};
@@ -294,7 +294,8 @@ function escuchar(){
   desus.push(qa.onSnapshot(s=>{actividades=s.docs.map(d=>({id:d.id,...d.data()}));pintar();},()=>{}));
 
   db.collection("config").doc("vendedores_activos").get()
-    .then(d=>{ if(d.exists){ vendActivos=new Set(d.data().usuarios||[]); pintar(); } })
+    .then(d=>{ if(d.exists){ vendActivos=new Set(d.data().usuarios||[]);
+                             vendPorDiv=d.data().por_division||{}; pintar(); } })
     .catch(()=>{});
 
   desus.push(db.collection("funnel_calle").doc("_shared").onSnapshot(d=>{
@@ -329,10 +330,23 @@ function asignarA(cod, usuario){
     ref.set({asignaciones:o},{merge:true}).catch(()=>{}); });
 }
 
+// Misma regla que el funnel: huerfano es el cliente que quedo SIN DIVISION, que es lo
+// que pasa cuando su vendedor no esta en el mapeo de activos (se fue, o nunca se cargo).
+// Antes se miraba si el vendedor estaba en la lista de logins, y esa lista incluye
+// cobradores y gerencia: la tabla quedaba vacia o con otra gente que la del funnel.
+// Si ya fue reasignado a mano, deja de estar huerfano.
 function esHuerfano(c){
-  if(!vendActivos) return false;
-  const v=vendedorDe(c);
-  return !v || !vendActivos.has(v);
+  if(asignaciones[String(c.codigo)]) return false;
+  return !c.division;
+}
+// Vendedores a ofrecer: los de la division de origen del cliente. Si no se pudo inferir
+// la division, se ofrecen todos los activos antes que dejar el selector vacio.
+function vendsParaHuerfano(c){
+  const divs=c.div_huerf||[];
+  const out=[];
+  divs.forEach(d=>(vendPorDiv[d]||[]).forEach(v=>{ if(!out.includes(v)) out.push(v); }));
+  if(out.length) return out.sort();
+  return Object.values(vendPorDiv).flat().filter((v,i,a)=>a.indexOf(v)===i).sort();
 }
 function ponerTag(cod,val){
   const ref=db.collection("funnel_calle").doc("_shared");
@@ -459,31 +473,37 @@ function pintarSupervisor(){
     <div class="col c-${k}" style="flex:0 0 150px"><div class="col-h">
       <div class="t">${l}</div><div class="n">${por[k]}</div><div class="r">${r}</div></div></div>`).join("");
 
-  // Tabla de vendedores: el numero que importa es cuantos estan sin contacto agendado.
+  // Tabla de vendedores. Igual que el funnel: un huerfano sin reasignar NO suma a
+  // ningun vendedor -- su vendedor nativo ya no esta activo y el cliente pertenece a la
+  // cartera huerfana, no a esta tabla. La columna "Sin agendar" es el agregado de la
+  // app: es el numero que dispara el trabajo del dia.
   const conAct=new Set(pend().map(a=>String(a.cliente_cod)));
   const porV={};
   lista.forEach(c=>{
-    const vs=[vendedorDe(c)||"(sin vendedor)"];
-    vs.forEach(v=>{
-      const r=porV[v]||(porV[v]={v,act:0,ops:0,cie:0,sin:0,cuota:0});
-      if(c.estado==="activo"){
-        r.act++; const oa=opsActivas(c); r.ops+=oa.length;
-        r.cuota+=oa.reduce((s,o)=>s+(o.cuota_semanal||0),0);
-        if(oa.some(o=>o.etapa==="cierre_inminente")) r.cie++;
-        if(!conAct.has(String(c.codigo))) r.sin++;
-      }
-    });
-  });
-  const filas=Object.values(porV).filter(r=>r.act>0).sort((a,b)=>b.act-a.act);
-  // ---- Tabla por departamento, igual que el funnel ----
-  const porD={};
-  lista.forEach(c=>{
-    const k=(c.depto||"(sin departamento)")+"|"+(c.division||"");
-    const r=porD[k]||(porD[k]={depto:c.depto||"(sin departamento)",div:c.division||"",
-                              act:0,ops:0,cie:0,fin:0,cuota:0});
+    const v = asignaciones[String(c.codigo)] || (c.division ? vendedorDe(c) : "");
+    if(!v) return;
+    const r=porV[v]||(porV[v]={v,div:c.division||"",act:0,ops:0,cie:0,fin:0,sin:0,cuotas:[]});
+    if(!r.div && c.division) r.div=c.division;
     if(c.estado==="activo"){
       r.act++; const oa=opsActivas(c); r.ops+=oa.length;
-      r.cuota+=oa.reduce((x,o)=>x+(o.cuota_semanal||0),0);
+      oa.forEach(o=>{ if(o.cuota_semanal>0) r.cuotas.push(o.cuota_semanal); });
+      if(oa.some(o=>o.etapa==="cierre_inminente")) r.cie++;
+      if(!conAct.has(String(c.codigo))) r.sin++;
+    } else r.fin++;
+  });
+  const prom=a=>a.length?Math.round(a.reduce((x,y)=>x+y,0)/a.length):0;
+  const filas=Object.values(porV).filter(r=>r.act>0).sort((a,b)=>b.act-a.act);
+  // ---- Tabla por departamento ----
+  // Mismos criterios que el funnel: agrupa por departamento (no por departamento+
+  // division), deja afuera a los huerfanos, ordena alfabeticamente y la cuota es el
+  // PROMEDIO de las cuotas semanales activas, no el total repartido entre clientes.
+  const porD={};
+  lista.filter(c=>c.division).forEach(c=>{
+    const k=c.depto||"Sin departamento";
+    const r=porD[k]||(porD[k]={depto:k,div:c.division||"",act:0,ops:0,cie:0,fin:0,cuotas:[]});
+    if(c.estado==="activo"){
+      r.act++; const oa=opsActivas(c); r.ops+=oa.length;
+      oa.forEach(o=>{ if(o.cuota_semanal>0) r.cuotas.push(o.cuota_semanal); });
       if(oa.some(o=>o.etapa==="cierre_inminente")) r.cie++;
     } else r.fin++;
   });
@@ -491,48 +511,52 @@ function pintarSupervisor(){
     <div style="overflow-x:auto"><table class="tabla">
       <tr><th>Departamento</th><th>División</th><th>Activos</th><th>Ops activas</th>
           <th>Cierre inminente</th><th>Final. sin renovar</th><th>Cuota prom.</th></tr>
-      ${Object.values(porD).sort((a,b)=>b.act-a.act||a.depto.localeCompare(b.depto))
+      ${Object.values(porD).sort((a,b)=>a.depto.localeCompare(b.depto,"es"))
         .map(r=>`<tr><td style="font-weight:700">${esc(r.depto)}</td><td>${esc(r.div)}</td>
           <td>${r.act}</td><td>${r.ops}</td><td>${r.cie}</td><td>${r.fin}</td>
-          <td>${plata(r.act?r.cuota/r.act:0)}</td></tr>`).join("")}
+          <td>${plata(prom(r.cuotas))}</td></tr>`).join("")}
     </table></div></div>`;
 
   // ---- Cartera huerfana: tabla con asignacion, como el funnel ----
-  const huerf=lista.filter(c=>esHuerfano(c));
-  const opts=vendActivos?[...vendActivos].sort():[];
-  const huerfHtml = (vendActivos && huerf.length) ? `<div class="panel">
+  // Mas reciente primero: con 3.000 registros, los que valen la pena trabajar son los
+  // que compraron ultimo. Antes salian en el orden en que vinieron de la base.
+  const anioDe=c=>{ const f=c.ultima_op_fecha||""; return f.length===10?+f.slice(6):0; };
+  const huerf=lista.filter(c=>esHuerfano(c)).sort((a,b)=>anioDe(b)-anioDe(a));
+  const huerfHtml = huerf.length ? `<div class="panel">
       <h3>Cartera huérfana (${huerf.length} registros)</h3>
       <div style="font-size:.78rem;color:var(--gris);margin-bottom:8px">
-        Clientes cuyo vendedor ya no entra al sistema. Al asignarlos, el cambio se ve
-        también en el funnel.</div>
+        Clientes que quedaron sin vendedor asignado. Al asignarlos, el cambio se ve
+        también en el funnel. Ordenados por operación más reciente.</div>
       <div style="overflow-x:auto"><table class="tabla">
         <tr><th>Cliente</th><th>Vendedor original</th><th>División</th><th>Localidad / Zona</th>
             <th>Última operación</th><th>Fecha fin</th><th>Estado</th><th>Asignar a</th></tr>
-        ${huerf.slice(0,200).map(c=>{ const r=c.resumen_fin||{}; const asig=asignaciones[String(c.codigo)];
+        ${huerf.slice(0,200).map(c=>{ const asig=asignaciones[String(c.codigo)]||"";
           return `<tr>
           <td style="color:var(--azul);font-weight:700;cursor:pointer" onclick="ficha('${esc(c.codigo)}')">${esc(c.nombre)}</td>
-          <td style="color:var(--gris)">${esc(c.vendedor||"—")}</td>
-          <td>${esc(c.division||"—")}</td>
+          <td style="color:var(--gris)">${esc(c.vendedor||"(sin vendedor)")}</td>
+          <td>${esc((c.div_huerf||[]).filter(Boolean).join(", ")||"—")}</td>
           <td>${esc(c.localidad||"—")}<div style="font-size:.7rem;color:var(--gris)">${esc(c.depto||"")}</div></td>
-          <td>${esc(r.ultima_op||"—")}</td><td>${esc(r.ultima_fin||"—")}</td>
+          <td>${esc(c.ultima_op_fecha||"—")}</td><td>${esc(c.ultima_op_fin||"—")}</td>
           <td><span class="chip">${esc(c.estado)}</span></td>
-          <td><select onchange="asignarA('${esc(c.codigo)}',this.value)" style="padding:5px;border-radius:5px;border:1.5px solid #ccd2d9;font-size:.76rem">
+          <td><select onchange="asignarA('${esc(c.codigo)}',this.value)" style="padding:5px;border-radius:5px;font-size:.76rem;border:1.5px solid ${asig?"#27ae60":"#ccd2d9"};background:${asig?"#f0fff4":"#fff"}">
             <option value="">— Asignar a… —</option>
-            ${opts.map(v=>`<option value="${esc(v)}" ${v===asig?"selected":""}>${esc(v)}</option>`).join("")}
+            ${vendsParaHuerfano(c).map(v=>`<option value="${esc(v)}" ${v===asig?"selected":""}>${esc(v)}</option>`).join("")}
           </select></td></tr>`;}).join("")}
       </table></div>
-      ${huerf.length>200?`<div class="vacio">Mostrando 200 de ${huerf.length}. Usá los filtros de arriba.</div>`:""}
+      ${huerf.length>200?`<div class="vacio">Mostrando los 200 más recientes de ${huerf.length}. Usá los filtros de arriba.</div>`:""}
     </div>` : "";
-  document.getElementById("tabla").innerHTML = deptoHtml + huerfHtml + `<div class="panel">
+  document.getElementById("tabla").innerHTML = `<div class="panel">
     <h3>Vendedores (${filas.length})</h3>
     <div style="overflow-x:auto"><table class="tabla">
-      <tr><th>Vendedor</th><th>Activos</th><th>Ops</th><th>Cierre</th><th>Sin agendar</th><th>Cuota/sem</th></tr>
+      <tr><th>Vendedor</th><th>División</th><th>Activos</th><th>Ops activas</th><th>Cierre inminente</th>
+          <th>Final. sin renovar</th><th>Sin agendar</th><th>Cuota prom.</th></tr>
       ${filas.map(r=>`<tr onclick="verVend('${esc(r.v)}')">
         <td style="color:var(--azul);font-weight:700">${esc(r.v)}</td>
-        <td>${r.act}</td><td>${r.ops}</td><td>${r.cie}</td>
+        <td>${esc(r.div||"—")}</td>
+        <td>${r.act}</td><td>${r.ops}</td><td>${r.cie}</td><td>${r.fin}</td>
         <td style="color:${r.sin?'var(--rojo)':'inherit'};font-weight:700">${r.sin}</td>
-        <td>${plata(r.cuota)}</td></tr>`).join("")}
-    </table></div></div>`;
+        <td>${plata(prom(r.cuotas))}</td></tr>`).join("")}
+    </table></div></div>` + deptoHtml + huerfHtml;
 }
 function verVend(v){ selVend=v; vista="vend"; marcarNav(); pintar(); window.scrollTo(0,0); }
 function kpis(l){ document.getElementById("kpis").innerHTML=l.map(([a,b])=>
