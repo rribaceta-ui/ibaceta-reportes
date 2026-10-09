@@ -179,7 +179,7 @@ const db = firebase.firestore();
 // vendedores. Lo hecho sin conexion sincroniza al volver.
 db.enablePersistence({synchronizeTabs:true}).catch(()=>{});
 
-const VERSION="2026-10-09f";
+const VERSION="2026-10-09h";
 const DOMINIO="funnel.ibaceta.ar";
 const TIPOS={llamada:"Llamada",visita:"Visita",whatsapp:"WhatsApp",tarea:"Tarea"};
 const RESULTADOS=[["contactado_interesado","Contactado - interesado",true],
@@ -199,6 +199,17 @@ const ETAPAS=[["inicio","Inicio","0% - 50%"],["en_marcha","En marcha","50% - 75%
   ["refinanciar","Refinanciar","Saldo > 0"],["finalizado","Finalizado","> 100%"]];
 
 let sesion=null, clientes=[], actividades=[], desus=[];
+// Un vendedor recibe clientes por dos vias: los que el ERP le asigna y los que le
+// reasignaron a mano. Firestore no deja preguntar por las dos condiciones en una sola
+// consulta, asi que son dos escuchas y aca se unen sin repetir.
+let _cliErp=[], _cliAsig=[];
+function _fusionarClientes(){
+  const vistos=new Set(); clientes=[];
+  for(const c of _cliErp.concat(_cliAsig)){
+    const k=String(c.codigo);
+    if(!vistos.has(k)){ vistos.add(k); clientes.push(c); }
+  }
+}
 let vista="sup", selVend="", selCob="", busca="";
 let fProv="", fDepto="", fDiv="", fTipo="", soloEtiquetados=false;
 // "Huerfano" = cliente activo cuyo vendedor ya no esta entre los que pueden entrar al
@@ -287,8 +298,16 @@ function escuchar(){
   if(esVend())      q=q.where("vendedor","==",sesion.usuario);
   else if(esCob())  q=q.where("cobradores","array-contains",sesion.usuario);
   else if(sesion.rol==="supervisor_zona") q=q.where("provincia","==",sesion.zona);
-  desus.push(q.onSnapshot(s=>{clientes=s.docs.map(d=>d.data());pintar();},
+  desus.push(q.onSnapshot(s=>{_cliErp=s.docs.map(d=>d.data());_fusionarClientes();pintar();},
     e=>{document.getElementById("cols").innerHTML='<div class="vacio">No se pudo traer la cartera.<br><small>'+esc(e.message)+'</small></div>';}));
+
+  // Los clientes que le reasignaron. El ERP no registra la reasignacion: queda en el
+  // documento compartido y el sincronizador la copia a cada cliente como vendedor_asig.
+  // Sin esta segunda escucha, el vendedor nunca veria lo que le dieron.
+  if(esVend()){
+    desus.push(db.collection("clientes").where("vendedor_asig","==",sesion.usuario)
+      .onSnapshot(s=>{_cliAsig=s.docs.map(d=>d.data());_fusionarClientes();pintar();},()=>{}));
+  }
   let qa=db.collection("actividades");
   if(esVend()) qa=qa.where("asignado_a","==",sesion.usuario);
   desus.push(qa.onSnapshot(s=>{actividades=s.docs.map(d=>({id:d.id,...d.data()}));pintar();},()=>{}));
@@ -317,17 +336,37 @@ function etapaDe(c){
   return "inicio";
 }
 const tagDe=cod=>tags[String(cod)]||null;
+// De quien es un cliente. Una reasignacion manual manda sobre el ERP: si al cliente lo
+// pasaron a otro vendedor, deja de contar para el anterior. Una sola definicion para las
+// tres vistas; antes cada pantalla la resolvia por su cuenta y no coincidian.
+function esDe(c,u){
+  const a = asignaciones[String(c.codigo)] || c.vendedor_asig;
+  if(a) return a===u;
+  return (c.vendedores||[]).includes(u) || c.vendedor===u;
+}
 // El vendedor que vale es el reasignado a mano; si no hay, el del ERP.
 function vendedorDe(c){
-  const a = asignaciones[String(c.codigo)];
+  const a = asignaciones[String(c.codigo)] || c.vendedor_asig;
   return a || c.vendedor || (c.vendedores||[])[0] || "";
 }
 function asignarA(cod, usuario){
-  if(!usuario) return;
   const ref=db.collection("funnel_calle").doc("_shared");
   const fp=new firebase.firestore.FieldPath("asignaciones",String(cod));
-  ref.update(fp,usuario).catch(()=>{ const o={}; o[String(cod)]=usuario;
-    ref.set({asignaciones:o},{merge:true}).catch(()=>{}); });
+  // 1) El documento compartido es la fuente: lo lee el funnel HTML y de ahi lo toma el
+  //    sincronizador en cada corrida.
+  const dato = usuario ? usuario : firebase.firestore.FieldValue.delete();
+  ref.update(fp,dato).catch(()=>{ if(usuario){ const o={}; o[String(cod)]=usuario;
+    ref.set({asignaciones:o},{merge:true}).catch(()=>{}); } });
+  // 2) Y se copia al cliente y a su historial para que el vendedor nuevo lo vea en el
+  //    acto, sin esperar la corrida de la noche. Las reglas solo dejan tocar ese campo.
+  //    Si estas escrituras fallan, el sincronizador las rehace igual desde el documento
+  //    compartido: la asignacion no se pierde, se ve mas tarde.
+  const marca={vendedor_asig: usuario ? usuario : firebase.firestore.FieldValue.delete()};
+  ["clientes","historial"].forEach(col=>{
+    db.collection(col).doc(String(cod)).update(marca)
+      .catch(e=>console.warn("Reasignacion guardada; el vendedor la vera despues de la "
+                             +"sincronizacion ("+col+"):", e.message));
+  });
 }
 
 // Misma regla que el funnel: huerfano es el cliente que quedo SIN DIVISION, que es lo
@@ -335,10 +374,9 @@ function asignarA(cod, usuario){
 // Antes se miraba si el vendedor estaba en la lista de logins, y esa lista incluye
 // cobradores y gerencia: la tabla quedaba vacia o con otra gente que la del funnel.
 // Si ya fue reasignado a mano, deja de estar huerfano.
-function esHuerfano(c){
-  if(asignaciones[String(c.codigo)]) return false;
-  return !c.division;
-}
+// El reasignado NO sale de la tabla: en el funnel queda listado y marcado en verde,
+// para que se vea quien lo tomo y se pueda corregir.
+function esHuerfano(c){ return !c.division; }
 // Vendedores a ofrecer: los de la division de origen del cliente. Si no se pudo inferir
 // la division, se ofrecen todos los activos antes que dejar el selector vacio.
 function vendsParaHuerfano(c){
@@ -449,14 +487,8 @@ function filtrar(l){
 function baseDe(){
   const q = vista==="vend" ? (esVend()?sesion.usuario:selVend) : (esCob()?sesion.usuario:selCob);
   if(!q) return clientes;
-  // Un huerfano reasignado pasa a contar como cliente del vendedor nuevo, igual que en
-  // el funnel. Ojo: al vendedor en su propia sesion todavia no le llega, porque Firestore
-  // le entrega solo los clientes donde el ERP lo tiene como vendedor; lo ve recien cuando
-  // la reasignacion se carga en el ERP.
   return vista==="vend"
-    ? clientes.filter(c=>asignaciones[String(c.codigo)]
-        ? asignaciones[String(c.codigo)]===q
-        : ((c.vendedores||[]).includes(q)||c.vendedor===q))
+    ? clientes.filter(c=>esDe(c,q))
     : clientes.filter(c=>(c.cobradores||[]).includes(q));
 }
 
@@ -486,7 +518,8 @@ function pintarSupervisor(){
   const conAct=new Set(pend().map(a=>String(a.cliente_cod)));
   const porV={};
   lista.forEach(c=>{
-    const v = asignaciones[String(c.codigo)] || (c.division ? vendedorDe(c) : "");
+    const v = asignaciones[String(c.codigo)] || c.vendedor_asig
+              || (c.division ? vendedorDe(c) : "");
     if(!v) return;
     const r=porV[v]||(porV[v]={v,div:c.division||"",act:0,ops:0,cie:0,fin:0,sin:0,cuotas:[]});
     if(!r.div && c.division) r.div=c.division;
@@ -536,7 +569,7 @@ function pintarSupervisor(){
       <div style="overflow-x:auto"><table class="tabla">
         <tr><th>Cliente</th><th>Vendedor original</th><th>División</th><th>Localidad / Zona</th>
             <th>Última operación</th><th>Fecha fin</th><th>Estado</th><th>Asignar a</th></tr>
-        ${huerf.slice(0,200).map(c=>{ const asig=asignaciones[String(c.codigo)]||"";
+        ${huerf.slice(0,200).map(c=>{ const asig=asignaciones[String(c.codigo)]||c.vendedor_asig||"";
           return `<tr>
           <td style="color:var(--azul);font-weight:700;cursor:pointer" onclick="ficha('${esc(c.codigo)}')">${esc(c.nombre)}</td>
           <td style="color:var(--gris)">${esc(c.vendedor||"(sin vendedor)")}</td>
@@ -578,7 +611,7 @@ function pintarKanban(){
     return;
   }
   let src = vista==="vend"
-    ? clientes.filter(c=>(c.vendedores||[]).includes(quien)||c.vendedor===quien)
+    ? clientes.filter(c=>esDe(c,quien))
     : clientes.filter(c=>(c.cobradores||[]).includes(quien));
   src=filtrar(src);
 
