@@ -4,6 +4,9 @@
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
 <meta name="theme-color" content="#1B4F8C">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+<meta name="apple-mobile-web-app-title" content="Funnel Calle">
 <title>Funnel Comercial — Calle</title>
 <link rel="manifest" href="manifest.json">
 <style>
@@ -12,10 +15,11 @@
   --violeta:#9B59B6; --gris:#6b7280; --fondo:#f3f5f7; --borde:#e3e6ea;
 }
 *{box-sizing:border-box;-webkit-tap-highlight-color:transparent}
-body{margin:0;font-family:system-ui,"Segoe UI",sans-serif;background:var(--fondo);color:#1f2937;font-size:15px}
+body{margin:0;padding-bottom:env(safe-area-inset-bottom);font-family:system-ui,"Segoe UI",sans-serif;background:var(--fondo);color:#1f2937;font-size:15px}
 button,select,input,textarea{font-family:inherit;font-size:15px}
 
-#login{position:fixed;inset:0;background:var(--azul);display:flex;align-items:center;justify-content:center;padding:24px;z-index:50}
+#login{position:fixed;inset:0;background:var(--azul);display:flex;align-items:center;justify-content:center;
+       padding:calc(24px + env(safe-area-inset-top)) 24px calc(24px + env(safe-area-inset-bottom));z-index:50}
 #login .caja{background:#fff;border-radius:14px;padding:26px 22px;width:100%;max-width:360px}
 #login h1{margin:0 0 4px;font-size:1.15rem;color:var(--azul)}
 #login p{margin:0 0 18px;font-size:.82rem;color:var(--gris)}
@@ -23,12 +27,18 @@ button,select,input,textarea{font-family:inherit;font-size:15px}
 #login button{width:100%;padding:13px;background:var(--azul);color:#fff;border:0;border-radius:8px;font-weight:700;cursor:pointer}
 #login .error{color:var(--rojo);font-size:.82rem;margin-top:10px;display:none}
 
-header{background:var(--azul);color:#fff;padding:11px 14px;display:flex;align-items:center;gap:10px;position:sticky;top:0;z-index:25}
+/* Cabecera = header + nav, pegados juntos. Ninguno lleva un desplazamiento escrito a
+   mano: asi el nav siempre queda debajo del header, mida lo que mida. */
+.cabecera{position:sticky;top:0;z-index:25}
+header{background:var(--azul);color:#fff;display:flex;align-items:center;gap:10px;
+       /* Instalada no hay barra del navegador: sin esto el titulo queda debajo del
+          reloj y la bateria del telefono. */
+       padding:calc(11px + env(safe-area-inset-top)) 14px 11px}
 header .tit{flex:1;min-width:0}
 header .t1{font-weight:700;font-size:.95rem;line-height:1.15}
 header .t2{font-size:.71rem;opacity:.82}
 header button{background:rgba(255,255,255,.16);color:#fff;border:0;border-radius:6px;padding:7px 11px;font-size:.76rem;cursor:pointer}
-nav{display:flex;background:#fff;border-bottom:1px solid var(--borde);position:sticky;top:50px;z-index:24;overflow-x:auto}
+nav{display:flex;background:#fff;border-bottom:1px solid var(--borde);overflow-x:auto}
 nav button{flex:1 0 auto;padding:11px 14px;background:none;border:0;border-bottom:3px solid transparent;color:var(--gris);font-weight:600;font-size:.82rem;white-space:nowrap;cursor:pointer}
 nav button.on{color:var(--azul);border-bottom-color:var(--azul)}
 nav .pin{display:inline-block;min-width:17px;padding:0 5px;margin-left:4px;background:var(--naranja);color:#fff;border-radius:9px;font-size:.68rem;line-height:17px}
@@ -105,7 +115,10 @@ a.tel{color:var(--azul);text-decoration:none;font-weight:600}
 
 .capa{position:fixed;inset:0;background:rgba(0,0,0,.45);display:none;align-items:flex-end;justify-content:center;z-index:40}
 .capa.on{display:flex}
-.hoja{background:#fff;width:100%;max-width:540px;border-radius:14px 14px 0 0;max-height:88vh;overflow-y:auto;padding:18px}
+.hoja{background:#fff;width:100%;max-width:540px;border-radius:14px 14px 0 0;max-height:88vh;
+      overflow-y:auto;padding:18px;
+      /* El ultimo boton quedaba debajo de la barra de gestos del telefono. */
+      padding-bottom:calc(18px + env(safe-area-inset-bottom))}
 @media(min-width:560px){.capa{align-items:center}.hoja{border-radius:14px}}
 .hoja h2{margin:0 0 3px;font-size:1.02rem}
 .hoja .cierra{float:right;background:none;border:0;font-size:1.4rem;color:#9ca3af;cursor:pointer;line-height:1}
@@ -135,11 +148,13 @@ a.tel{color:var(--azul);text-decoration:none;font-weight:600}
 </div>
 
 <div id="app" style="display:none">
-  <header>
-    <div class="tit"><div class="t1">Funnel Comercial — Calle</div><div class="t2" id="hsub"></div></div>
-    <button onclick="salir()">Salir</button>
-  </header>
-  <nav id="nav"></nav>
+  <div class="cabecera">
+    <header>
+      <div class="tit"><div class="t1">Funnel Comercial — Calle</div><div class="t2" id="hsub"></div></div>
+      <button onclick="salir()">Salir</button>
+    </header>
+    <nav id="nav"></nav>
+  </div>
   <div id="barra" class="barra" style="display:none"></div>
   <div class="kpis" id="kpis"></div>
   <div id="panel"></div>
@@ -193,7 +208,7 @@ const db = firebase.firestore();
 // vendedores. Lo hecho sin conexion sincroniza al volver.
 db.enablePersistence({synchronizeTabs:true}).catch(()=>{});
 
-const VERSION="2026-10-09o";
+const VERSION="2026-10-09p";
 const DOMINIO="funnel.ibaceta.ar";
 const TIPOS={llamada:"Llamada",visita:"Visita",whatsapp:"WhatsApp",tarea:"Tarea"};
 const RESULTADOS=[["contactado_interesado","Contactado - interesado",true],
