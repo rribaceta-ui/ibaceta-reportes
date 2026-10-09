@@ -179,7 +179,7 @@ const db = firebase.firestore();
 // vendedores. Lo hecho sin conexion sincroniza al volver.
 db.enablePersistence({synchronizeTabs:true}).catch(()=>{});
 
-const VERSION="2026-10-09i";
+const VERSION="2026-10-09j";
 const DOMINIO="funnel.ibaceta.ar";
 const TIPOS={llamada:"Llamada",visita:"Visita",whatsapp:"WhatsApp",tarea:"Tarea"};
 const RESULTADOS=[["contactado_interesado","Contactado - interesado",true],
@@ -604,12 +604,68 @@ function verVend(v){ selVend=v; vista="vend"; marcarNav(); pintar(); window.scro
 function kpis(l){ document.getElementById("kpis").innerHTML=l.map(([a,b])=>
   `<div class="kpi"><div class="l">${a}</div><div class="v">${b}</div></div>`).join(""); }
 
+// ---------- Tabla de cobradores ----------
+// No repite las columnas de la tabla de vendedores a proposito: al supervisor de
+// cobranza no le sirve lo mismo que a uno de ventas. Lo que mira es cuanta plata tiene
+// que entrar por semana en cada ruta, que parte de esa ruta se le esta terminando, y
+// cuanto quedo colgado -- refinanciar y clientes marcados, que es plata que no va a
+// entrar sola.
+function tablaCobradores(){
+  const lista=filtrar(clientes);
+  const pend=actividades.filter(a=>a.estado==="pendiente");
+  const porC={};
+  const fila=k=>porC[k]||(porC[k]={c:k,act:0,ops:0,cobrar:0,cie:0,refi:0,saldo:0,marc:0,fin:0});
+  lista.forEach(c=>{
+    const cobs=(c.cobradores||[]);
+    if(!cobs.length) return;
+    const r=c.resumen_fin||{}, marcado=!!tagDe(c.codigo), refi=esRefinanciar(c);
+    cobs.forEach(k=>{
+      const f=fila(k);
+      if(c.estado==="activo"){
+        f.act++;
+        // Solo las operaciones que cobra EL: un cliente puede tener dos operaciones
+        // con cobradores distintos y la plata no es de los dos.
+        const suyas=opsActivas(c).filter(o=>!o.cobrador||o.cobrador===k);
+        f.ops+=suyas.length;
+        f.cobrar+=suyas.reduce((x,o)=>x+(o.cuota_semanal||0),0);
+        if(suyas.some(o=>o.etapa==="cierre_inminente")) f.cie++;
+      } else f.fin++;
+      if(refi){ f.refi++; f.saldo+=r.saldo_pend||0; }
+      if(marcado) f.marc++;
+    });
+  });
+  Object.values(porC).forEach(f=>{
+    f.avisos=pend.filter(a=>a.origen_usuario===f.c).length;
+  });
+  const filas=Object.values(porC).sort((a,b)=>b.cobrar-a.cobrar);
+  if(!filas.length) return "";
+  return `<div class="panel"><h3>Cobradores (${filas.length})</h3>
+    <div style="font-size:.78rem;color:var(--gris);margin-bottom:8px">
+      Ordenados por lo que tienen que cobrar cada semana. Tocá una fila para ver la ruta.</div>
+    <div style="overflow-x:auto"><table class="tabla">
+      <tr><th>Cobrador</th><th>Clientes activos</th><th>Ops activas</th><th>A cobrar/sem</th>
+          <th>Cierre inminente</th><th>Refinanciar</th><th>Saldo pendiente</th>
+          <th>Marcados</th><th>Avisos abiertos</th></tr>
+      ${filas.map(f=>`<tr onclick="verCob('${esc(f.c)}')">
+        <td style="color:var(--azul);font-weight:700">${esc(f.c)}</td>
+        <td>${f.act}</td><td>${f.ops}</td>
+        <td style="font-weight:700">${plata(f.cobrar)}</td>
+        <td>${f.cie}</td>
+        <td>${f.refi}</td>
+        <td style="color:${f.saldo?'var(--violeta)':'inherit'};font-weight:${f.saldo?700:400}">${plata(f.saldo)}</td>
+        <td style="color:${f.marc?'var(--rojo)':'inherit'}">${f.marc}</td>
+        <td>${f.avisos}</td></tr>`).join("")}
+    </table></div></div>`;
+}
+function verCob(c){ selCob=c; vista="cob"; marcarNav(); pintar(); window.scrollTo(0,0); }
+
 // ---------- Vista Vendedor / Cobrador ----------
 function pintarKanban(){
   const quien = vista==="vend" ? (esVend()?sesion.usuario:selVend) : (esCob()?sesion.usuario:selCob);
+  const tablaCob = vista==="cob" ? tablaCobradores() : "";
   if(!quien){
     document.getElementById("kpis").innerHTML=""; document.getElementById("panel").innerHTML="";
-    document.getElementById("tabla").innerHTML="";
+    document.getElementById("tabla").innerHTML=tablaCob;
     document.getElementById("cols").innerHTML=`<div class="vacio">Seleccioná un ${vista==="vend"?"vendedor":"cobrador"} para ver su cartera.</div>`;
     return;
   }
@@ -626,7 +682,7 @@ function pintarKanban(){
         ["Cuota total/sem",plata(opsA.reduce((s,o)=>s+(o.cuota_semanal||0),0))]]);
 
   pintarPanelActividades(quien,src);
-  document.getElementById("tabla").innerHTML="";
+  document.getElementById("tabla").innerHTML=tablaCob;
 
   const por={}; ETAPAS.forEach(([k])=>por[k]=[]);
   src.forEach(c=>{ const e=etapaDe(c); (por[e]||por.finalizado).push(c); });
