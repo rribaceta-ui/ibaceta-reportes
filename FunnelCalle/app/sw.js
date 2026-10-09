@@ -1,6 +1,6 @@
 // Cachea solo el armazon de la app (unos 40 KB). Los datos NO se cachean aca: de eso se
 // encarga la persistencia de Firestore, que ademas sincroniza lo que se hizo sin señal.
-const CACHE = "funnel-calle-v15";
+const CACHE = "funnel-calle-v16";
 const BASE = ["./", "./index.html", "./manifest.json"];
 
 self.addEventListener("install", e => {
@@ -16,8 +16,14 @@ self.addEventListener("fetch", e => {
   if (u.hostname.includes("googleapis.com") || u.hostname.includes("gstatic.com")) return;
   if (e.request.method !== "GET") return;
   // La app primero por red (para tomar versiones nuevas) y si no hay señal, del cache.
+  // GitHub Pages manda max-age=600, asi que un fetch comun podia devolver la version
+  // vieja desde el cache del navegador hasta 10 minutos despues de publicar: se corregia
+  // algo y la gente seguia viendo lo de antes sin forma de forzarlo. El armazon se pide
+  // sin pasar por ese cache; si no hay red, cae igual al cache propio de abajo.
+  const esArmazon = u.pathname.endsWith("/") || /\.(html|js|json)$/.test(u.pathname);
+  const pedido = esArmazon ? new Request(e.request.url, {cache: "no-store"}) : e.request;
   e.respondWith(
-    fetch(e.request).then(r => {
+    fetch(pedido).then(r => {
       const copia = r.clone();
       caches.open(CACHE).then(c => c.put(e.request, copia)).catch(() => {});
       return r;
