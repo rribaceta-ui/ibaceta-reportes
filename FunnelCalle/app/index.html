@@ -226,7 +226,7 @@ const db = firebase.firestore();
 // vendedores. Lo hecho sin conexion sincroniza al volver.
 db.enablePersistence({synchronizeTabs:true}).catch(()=>{});
 
-const VERSION="2026-10-09q";
+const VERSION="2026-10-09r";
 const DOMINIO="funnel.ibaceta.ar";
 const TIPOS={llamada:"Llamada",visita:"Visita",whatsapp:"WhatsApp",tarea:"Tarea",
              dato:"Actualizar datos en el ERP"};
@@ -789,18 +789,27 @@ function tablaCobradores(){
       if(marcado) f.marc++;
     });
   });
+  const hoy=hoyISO();
   Object.values(porC).forEach(f=>{
     f.avisos=pend.filter(a=>a.origen_usuario===f.c).length;
+    const suyas=pend.filter(a=>a.tipo==="dato"&&a.asignado_a===f.c);
+    f.datos=suyas.length;
+    f.datosViejos=suyas.filter(a=>(a.fecha||"")<hoy).length;
   });
+  // Las que caen en SUP COBRANZA son de clientes sin cobrador real: no son de ninguna
+  // ruta, pero alguien las tiene que hacer, asi que se muestran como una fila mas.
+  const sinRuta=pend.filter(a=>a.tipo==="dato"&&a.asignado_a==="SUP COBRANZA");
   const filas=Object.values(porC).sort((a,b)=>b.cobrar-a.cobrar);
   if(!filas.length) return "";
   return `<div class="panel"><h3>Cobradores (${filas.length})</h3>
     <div style="font-size:.78rem;color:var(--gris);margin-bottom:8px">
-      Ordenados por lo que tienen que cobrar cada semana. Tocá una fila para ver la ruta.</div>
+      Ordenados por lo que tienen que cobrar cada semana. Tocá una fila para ver la ruta.
+      <br><b>Datos a cargar</b>: correcciones de teléfono o dirección que el vendedor
+      informó y todavía no se pasaron al ERP.</div>
     <div style="overflow-x:auto"><table class="tabla">
       <tr><th>Cobrador</th><th>Clientes activos</th><th>Ops activas</th><th>A cobrar/sem</th>
           <th>Cierre inminente</th><th>Refinanciar</th><th>Saldo pendiente</th>
-          <th>Marcados</th><th>Avisos abiertos</th></tr>
+          <th>Marcados</th><th>Datos a cargar</th><th>Avisos abiertos</th></tr>
       ${filas.map(f=>`<tr onclick="verCob('${esc(f.c)}')">
         <td style="color:var(--azul);font-weight:700">${esc(f.c)}</td>
         <td>${f.act}</td><td>${f.ops}</td>
@@ -809,7 +818,15 @@ function tablaCobradores(){
         <td>${f.refi}</td>
         <td style="color:${f.saldo?'var(--violeta)':'inherit'};font-weight:${f.saldo?700:400}">${plata(f.saldo)}</td>
         <td style="color:${f.marc?'var(--rojo)':'inherit'}">${f.marc}</td>
+        <td style="font-weight:${f.datos?700:400};color:${f.datosViejos?'var(--rojo)':f.datos?'var(--naranja)':'inherit'}"
+            title="${f.datosViejos?f.datosViejos+' esperando desde antes de hoy':''}">${
+            f.datos||"—"}${f.datosViejos?" ("+f.datosViejos+" viejas)":""}</td>
         <td>${f.avisos}</td></tr>`).join("")}
+      ${sinRuta.length?`<tr style="background:#fafbfc">
+        <td style="color:var(--gris);font-style:italic">Sin cobrador de ruta</td>
+        <td colspan="7" style="color:var(--gris);font-size:.75rem">Clientes cuya ruta no tiene
+          un cobrador que entre al sistema. Quedan a cargo de cobranza.</td>
+        <td style="font-weight:700;color:var(--naranja)">${sinRuta.length}</td><td>—</td></tr>`:""}
     </table></div></div>`;
 }
 function verCob(c){ selCob=c; vista="cob"; marcarNav(); pintar(); window.scrollTo(0,0); }
