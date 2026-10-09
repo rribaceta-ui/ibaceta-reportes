@@ -46,7 +46,10 @@ nav .pin{display:inline-block;min-width:17px;padding:0 5px;margin-left:4px;backg
 
 /* Columnas del funnel */
 .cols{display:flex;gap:11px;overflow-x:auto;padding:12px 14px 28px;-webkit-overflow-scrolling:touch;align-items:flex-start}
-.col{flex:0 0 min(268px,80vw);max-width:268px;background:#eef1f4;border-radius:10px;overflow:hidden}
+/* En pantalla ancha las seis columnas se reparten el espacio y entran todas, como en
+   el funnel. En telefono cada una ocupa casi toda la pantalla y se desliza al costado. */
+.col{flex:1 1 0;min-width:168px;background:#eef1f4;border-radius:10px;overflow:hidden}
+@media(max-width:900px){ .col{flex:0 0 82vw;min-width:0} }
 .col-h{padding:9px 10px;text-align:center;color:#fff}
 .col-h .t{font-size:.76rem;font-weight:800;text-transform:uppercase;letter-spacing:.03em}
 .col-h .n{font-size:1.45rem;font-weight:800;line-height:1.1}
@@ -176,7 +179,7 @@ const db = firebase.firestore();
 // vendedores. Lo hecho sin conexion sincroniza al volver.
 db.enablePersistence({synchronizeTabs:true}).catch(()=>{});
 
-const VERSION="2026-10-09c";
+const VERSION="2026-10-09d";
 const DOMINIO="funnel.ibaceta.ar";
 const TIPOS={llamada:"Llamada",visita:"Visita",whatsapp:"WhatsApp",tarea:"Tarea"};
 const RESULTADOS=[["contactado_interesado","Contactado - interesado",true],
@@ -208,7 +211,29 @@ const dmy=i=>{if(!i)return"";const p=String(i).split("-");return p.length===3?p[
 const plata=n=>"$"+Math.round(n||0).toLocaleString("es-AR");
 const esc=s=>String(s==null?"":s).replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
 const correo=u=>u.trim().toLowerCase().replace(/[^a-z0-9]+/g,".").replace(/^\.|\.$/g,"")+"@"+DOMINIO;
-const tel=t=>String(t||"").trim().split(/\s+/).filter(Boolean).map(n=>`<a class="tel" href="tel:${esc(n)}">${esc(n)}</a>`).join(" · ");
+// Los telefonos del ERP vienen pegados, con punto y coma, con 54/549 adelante o con
+// varios numeros en un mismo campo. Partirlos por espacios -- como hacia antes -- los
+// rompia en pedazos ("+54 · 9 · 261 · 270 · 0889"). Misma logica que el funnel.
+function tel(raw){
+  if(!raw) return "";
+  const partes=String(raw).split(/[;,\n\r]|  +/).map(x=>x.trim()).filter(Boolean);
+  const links=[];
+  partes.forEach(parte=>{
+    let d=parte.replace(/\D/g,"");
+    if(d.startsWith("549")&&d.length===13) d=d.slice(3);
+    else if(d.startsWith("54")&&d.length===12) d=d.slice(2);
+    else if(d.startsWith("0")) d=d.slice(1);
+    if(d.length<7) return;
+    const trozos = d.length>13 ? (d.match(/.{1,10}/g)||[d]) : [d];
+    trozos.forEach(c=>{
+      if(c.length<7) return;
+      links.push(`<a class="tel" href="tel:${c}">${c}</a>` +
+        (c.length===10 ? ` <a class="tel" style="opacity:.65" target="_blank"
+           href="https://wa.me/549${c}">wa</a>` : ""));
+    });
+  });
+  return [...new Set(links)].join(" · ");
+}
 const esVend=()=>sesion&&sesion.rol==="vendedor";
 const esCob=()=>sesion&&sesion.rol==="cobrador";
 const conduce=()=>sesion&&["gerente","supervisor_zona","supervisor_cobranza"].includes(sesion.rol);
@@ -550,7 +575,15 @@ function pintarPanelActividades(quien,src){
     <h3>${quien===sesion.usuario?"Mis actividades":"Actividades de "+esc(quien)} (${P.length})</h3>
     ${bloque("Vencidas",venc)}${bloque("Hoy",hoyl)}${bloque("Próximas",fut)}
     ${sin.length?`<div class="titulo">Sin actividad programada (${sin.length})</div>
-      <div style="font-size:.77rem;color:var(--gris)">Clientes activos sin ningún contacto agendado.</div>`:""}
+      <div style="font-size:.77rem;color:var(--gris);margin-bottom:7px">Clientes activos sin ningún contacto agendado.</div>
+      ${sin.slice(0,15).map(c=>`<div class="act">
+        <b style="flex:1;min-width:130px">${esc(c.nombre)}</b>
+        ${c.telefono?`<span>${tel(c.telefono)}</span>`:`<span style="color:var(--rojo);font-size:.73rem">sin teléfono</span>`}
+        <span style="color:var(--gris);font-size:.74rem">${esc(c.localidad||"")}</span>
+        <button class="b auto verde full" onclick="abrirAct('${esc(c.codigo)}')">${esVend()?"Agendar":"Asignar"}</button>
+        <button class="b auto" onclick="ficha('${esc(c.codigo)}')">Ficha</button>
+      </div>`).join("")}
+      ${sin.length>15?`<div class="vacio">y ${sin.length-15} más en las columnas</div>`:""}`:""}
   </div>`;
 }
 
