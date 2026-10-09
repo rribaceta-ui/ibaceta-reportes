@@ -64,6 +64,10 @@ nav .pin{display:inline-block;min-width:17px;padding:0 5px;margin-left:4px;backg
 .tar .loc{font-size:.74rem;color:var(--gris);margin-top:1px}
 .tar .cu{font-size:.8rem;color:var(--naranja);font-weight:700;margin-top:4px}
 .tar .de{font-size:.74rem;color:#444;margin-top:2px}
+/* La observacion en la tarjeta: una linea, recortada. La completa esta en la ficha. */
+.nota{background:#fffbe9;border-left:3px solid #E8C14C;border-radius:4px;padding:4px 7px;
+      margin:5px 0;font-size:.74rem;color:#6b5b1e;white-space:nowrap;overflow:hidden;
+      text-overflow:ellipsis}
 .tar .te{font-size:.74rem;margin-top:3px}
 .b{display:block;width:100%;margin-top:6px;padding:7px;border-radius:6px;border:1.5px solid var(--azul);background:#fff;color:var(--azul);font-size:.76rem;font-weight:700;cursor:pointer}
 .b.full{background:var(--azul);color:#fff}
@@ -179,7 +183,7 @@ const db = firebase.firestore();
 // vendedores. Lo hecho sin conexion sincroniza al volver.
 db.enablePersistence({synchronizeTabs:true}).catch(()=>{});
 
-const VERSION="2026-10-09k";
+const VERSION="2026-10-09l";
 const DOMINIO="funnel.ibaceta.ar";
 const TIPOS={llamada:"Llamada",visita:"Visita",whatsapp:"WhatsApp",tarea:"Tarea"};
 const RESULTADOS=[["contactado_interesado","Contactado - interesado",true],
@@ -193,7 +197,7 @@ const TAGS=[["sin_local","Ya no tiene local","#E8762C"],
 // Las etiquetas viven en el MISMO documento que usa el funnel HTML (funnel_calle/_shared).
 // Asi lo que se marca en la app se ve en el tablero viejo y al reves, que es lo que hace
 // falta mientras los dos conviven.
-let tags={}, asignaciones={};
+let tags={}, asignaciones={}, comentarios={};
 const ETAPAS=[["inicio","Inicio","0% - 50%"],["en_marcha","En marcha","50% - 75%"],
   ["por_cerrar","Por cerrar","75% - 90%"],["cierre_inminente","Cierre inminente","90% - 100%"],
   ["refinanciar","Refinanciar","Saldo > 0"],["finalizado","Finalizado","> 100%"]];
@@ -337,6 +341,7 @@ function escuchar(){
     // Las reasignaciones se comparten con el funnel HTML: si el supervisor mueve un
     // cliente en un lado, el otro lo ve. Dos listas separadas se desfasarian.
     asignaciones = (d.exists && d.data().asignaciones) ? d.data().asignaciones : {};
+    comentarios  = (d.exists && d.data().comentarios)  ? d.data().comentarios  : {};
     pintar();
   },()=>{}));
 }
@@ -401,6 +406,21 @@ function vendsParaHuerfano(c){
   if(out.length) return out.sort();
   return Object.values(vendPorDiv).flat().filter((v,i,a)=>a.indexOf(v)===i).sort();
 }
+// Observaciones del cliente. Viven en el MISMO mapa que usa el funnel HTML, asi que lo
+// que escribe un vendedor en la calle lo lee el supervisor en el tablero y al reves.
+// Se borra la clave cuando queda vacio, por lo mismo que las etiquetas: escribir el mapa
+// entero con merge nunca borra nada.
+const comentarioDe=cod=>comentarios[String(cod)]||"";
+function guardarComentario(cod,texto){
+  const t=(texto||"").trim();
+  const ref=db.collection("funnel_calle").doc("_shared");
+  const fp=new firebase.firestore.FieldPath("comentarios",String(cod));
+  const dato = t ? t : firebase.firestore.FieldValue.delete();
+  ref.update(fp,dato).catch(()=>{ if(t){ const o={}; o[String(cod)]=t;
+    ref.set({comentarios:o},{merge:true}).catch(()=>{}); } });
+  if(t) comentarios[String(cod)]=t; else delete comentarios[String(cod)];
+}
+
 function ponerTag(cod,val){
   const ref=db.collection("funnel_calle").doc("_shared");
   const fp=new firebase.firestore.FieldPath("tags",String(cod));
@@ -742,6 +762,7 @@ function tarjeta(c,quien){
     ${prox?`<div class="de"><b>Vence: ${esc(prox.fecha_fin)}</b></div>`
           :(r.ultima_fin?`<div class="de">Finalizó: ${esc(r.ultima_fin)}</div>`:"")}
     ${c.telefono?`<div class="te">${tel(c.telefono)}</div>`:""}
+    ${comentarioDe(c.codigo)?`<div class="nota" title="${esc(comentarioDe(c.codigo))}">${esc(comentarioDe(c.codigo))}</div>`:""}
     ${chip}
     <button class="b full" onclick="ficha('${esc(c.codigo)}')">Ver Ficha</button>
     <button class="b verde full" onclick="abrirAct('${esc(c.codigo)}')">${
@@ -813,7 +834,16 @@ function ficha(cod){
     <div class="loc">${esc(c.domicilio||"")} · ${esc(c.localidad||"")}${c.provincia?", "+esc(c.provincia):""}</div>
     ${c.telefono?`<div style="margin:8px 0">${tel(c.telefono)}</div>`:""}
     ${c.negocio?`<div class="loc">Negocio: ${esc(c.negocio)}</div>`:""}
-    <div class="loc">Vendedor: ${esc(c.vendedor||"—")} · Cobrador: ${esc((c.cobradores||[]).join(", ")||"—")}</div>
+    <div class="loc">Vendedor: ${esc(vendedorDe(c)||"—")}${
+      vendedorDe(c)!==c.vendedor&&c.vendedor?` <span style="color:var(--gris)">(del ERP: ${esc(c.vendedor)})</span>`:""
+      } · Cobrador: ${esc((c.cobradores||[]).join(", ")||"—")}</div>
+    <div class="titulo">Observaciones</div>
+    <textarea id="f-coment" rows="3" placeholder="Escribí lo que haya que saber de este cliente..."
+      onchange="guardarComentario('${esc(cod)}',this.value)"
+      style="width:100%;padding:9px;border:1.5px solid #ccd2d9;border-radius:7px;
+             font-size:.85rem;font-family:inherit;resize:vertical;box-sizing:border-box"
+      >${esc(comentarioDe(cod))}</textarea>
+    <div style="font-size:.72rem;color:var(--gris);margin-top:3px">Lo ven también en el funnel.</div>
     <div class="titulo">Operaciones activas (${oa.length})</div>
     ${oa.length?oa.map(o=>`<div class="tar">
       <div class="nom">${esc(o.tipo)} — op. ${esc(o.operacion)}</div>
