@@ -179,7 +179,7 @@ const db = firebase.firestore();
 // vendedores. Lo hecho sin conexion sincroniza al volver.
 db.enablePersistence({synchronizeTabs:true}).catch(()=>{});
 
-const VERSION="2026-10-09j";
+const VERSION="2026-10-09k";
 const DOMINIO="funnel.ibaceta.ar";
 const TIPOS={llamada:"Llamada",visita:"Visita",whatsapp:"WhatsApp",tarea:"Tarea"};
 const RESULTADOS=[["contactado_interesado","Contactado - interesado",true],
@@ -216,6 +216,21 @@ let fProv="", fDepto="", fDiv="", fTipo="", soloEtiquetados=false;
 // sistema. La lista la escribe el sincronizador; si todavia no existe, no se filtra
 // nada en vez de inventar un criterio.
 let vendActivos=null, vendPorDiv={};
+
+// ---------- Clientes del beneficio interno ----------
+// No son clientes comerciales: son empleados (y cuentas de la familia y empresas
+// relacionadas) que sacan productos a credito por el beneficio que da la empresa. Nadie
+// sale a venderles ni a cobrarles la ruta, asi que ensucian todo lo que se mida como
+// cartera: entraban al funnel, a los KPIs y -- lo peor -- a la tabla de huerfanos,
+// ofreciendo repartirlos entre vendedores.
+// El ERP ya los marca: vendedor EMPLEADOS y cobrador EMPLEADOS 454. Verificado contra
+// cuatro casos conocidos (Ojeda, Cuello, Calabretto, Suarez): los cuatro caen ahi.
+// Se excluyen por defecto y se pueden volver a mostrar con el interruptor de arriba.
+function esEmpleado(c){
+  if(String(c.vendedor||"").trim().toUpperCase()==="EMPLEADOS") return true;
+  return (c.cobradores||[]).some(x=>String(x).trim().toUpperCase()==="EMPLEADOS 454");
+}
+let verEmpleados=false;
 
 const hoyISO=()=>{const d=new Date();return d.getFullYear()+"-"+String(d.getMonth()+1).padStart(2,"0")+"-"+String(d.getDate()).padStart(2,"0");};
 const dmy=i=>{if(!i)return"";const p=String(i).split("-");return p.length===3?p[2]+"/"+p[1]+"/"+p[0]:i;};
@@ -469,6 +484,12 @@ function pintarBarra(){
   h+=`<label style="display:flex;align-items:center;gap:6px;font-size:.8rem;color:#555">
         <input type="checkbox" ${soloEtiquetados?"checked":""}
                onchange="soloEtiquetados=this.checked;pintar()" style="width:auto"> Solo etiquetados</label>`;
+  const nEmp=clientes.filter(esEmpleado).length;
+  if(nEmp) h+=`<label style="display:flex;align-items:center;gap:6px;font-size:.8rem;color:#555"
+        title="Empleados y cuentas internas que compran por el beneficio de la empresa. No son cartera comercial.">
+        <input type="checkbox" ${verEmpleados?"checked":""}
+               onchange="verEmpleados=this.checked;pintar()" style="width:auto">
+        Incluir empleados (${nEmp})</label>`;
   b.innerHTML=h;
 }
 function elegir(v){ if(vista==="vend") selVend=v; else selCob=v; pintar(); }
@@ -477,6 +498,7 @@ function elegir(v){ if(vista==="vend") selVend=v; else selCob=v; pintar(); }
 // operacion, etiquetados y buscador. En el funnel estaban en la vista supervisor y
 // faltaban aca.
 function filtrar(l){
+  if(!verEmpleados) l=l.filter(c=>!esEmpleado(c));
   if(fDiv)   l=l.filter(c=>c.division===fDiv);
   if(fProv)  l=l.filter(c=>c.provincia===fProv);
   if(fDepto) l=l.filter(c=>c.depto===fDepto);
@@ -568,7 +590,10 @@ function pintarSupervisor(){
       <h3>Cartera huérfana (${huerf.length} registros)</h3>
       <div style="font-size:.78rem;color:var(--gris);margin-bottom:8px">
         Clientes que quedaron sin vendedor asignado. Al asignarlos, el cambio se ve
-        también en el funnel. Ordenados por operación más reciente.</div>
+        también en el funnel. Ordenados por operación más reciente.
+        ${!verEmpleados&&clientes.filter(esEmpleado).length?`<br>No se listan los
+          ${clientes.filter(c=>esEmpleado(c)&&!c.division).length} del beneficio de
+          empleados: no son cartera para repartir.`:""}</div>
       <div style="overflow-x:auto"><table class="tabla">
         <tr><th>Cliente</th><th>Vendedor original</th><th>División</th><th>Localidad / Zona</th>
             <th>Última operación</th><th>Fecha fin</th><th>Estado</th><th>Asignar a</th></tr>
@@ -705,6 +730,7 @@ function tarjeta(c,quien){
   const chip = p ? `<span class="chip ${p.fecha<h?"venc":p.fecha===h?"hoy":"prox"}">${TIPOS[p.tipo]||p.tipo} · ${dmy(p.fecha)}</span>`
                  : `<span class="chip sin">Sin actividad programada</span>`;
   return `<div class="tar">
+    ${esEmpleado(c)?`<span class="badge" style="background:#4A4A4A">Empleado</span>`:""}
     ${td?`<span class="badge" style="background:${td[2]}">${td[1]}</span>`:""}
     ${esRefinanciar(c)?`<span class="badge" style="background:var(--violeta)">Refinanciar · ${plata(r.saldo_pend)}</span>`:""}
     ${r.reformulada?`<span class="badge" style="background:#2980B9">Reformulada</span>`:""}
