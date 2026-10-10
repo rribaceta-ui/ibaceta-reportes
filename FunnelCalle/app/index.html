@@ -246,7 +246,7 @@ const db = firebase.firestore();
 // vendedores. Lo hecho sin conexion sincroniza al volver.
 db.enablePersistence({synchronizeTabs:true}).catch(()=>{});
 
-const VERSION="2026-10-10b";
+const VERSION="2026-10-10c";
 const DOMINIO="funnel.ibaceta.ar";
 const NEGOCIOS=["ALMACEN","TODO SUELTO","KIOSCO VENTANA","PANIFICADORA","ROTISERÍA",
   "VERDULERIA","CARNICERIA","AVÍCOLA","MINIMARKET","PELUQUERIA","ART DE LIMPIEZA",
@@ -1334,8 +1334,9 @@ async function guardarDatos(){
 
 // ---------- actividades ----------
 let actCod=null, actId=null;
-function abrirAct(cod){
-  const c=clientes.find(x=>String(x.codigo)===String(cod)); if(!c) return;
+function abrirAct(cod){ if(prepararAct(cod)) abrir("m-act"); }
+function prepararAct(cod){
+  const c=clientes.find(x=>String(x.codigo)===String(cod)); if(!c) return false;
   actCod=String(cod);
   const d=destinoDe(c);
   document.getElementById("a-tit").textContent=
@@ -1348,7 +1349,7 @@ function abrirAct(cod){
   document.getElementById("a-tipo").value="llamada";
   document.getElementById("a-fecha").value=hoyISO();
   document.getElementById("a-hora").value=""; document.getElementById("a-obs").value="";
-  abrir("m-act");
+  return true;
 }
 async function guardarAct(){
   const c=clientes.find(x=>String(x.codigo)===actCod);
@@ -1383,16 +1384,57 @@ async function guardarCierre(){
   try{ await db.collection("actividades").doc(actId).update({estado:"hecha",resultado:r,
     resultado_nota:document.getElementById("c-nota").value||"",
     cerrada_en:firebase.firestore.FieldValue.serverTimestamp(),cerrada_por:sesion.usuario}); }catch(e){}
-  cerrar("m-cerr");
   // Si el circuito sigue abierto se pide la proxima ahi mismo: si no se fuerza en este
-  // momento, no se agenda nunca.
+  // momento, no se agenda nunca. Se reemplaza la ventana en vez de cerrar y abrir, para
+  // que el historial no quede con una entrada de mas.
   const def=(a&&a.tipo==="dato"?RES_DATO:RESULTADOS).find(x=>x[0]===r);
-  if(def&&def[2]&&a&&confirm("¿Agendar la próxima actividad para este cliente?")) abrirAct(a.cliente_cod);
+  if(def&&def[2]&&a&&confirm("¿Agendar la próxima actividad para este cliente?")
+     && prepararAct(a.cliente_cod)){
+    reemplazar("m-cerr","m-act");
+  } else {
+    cerrar("m-cerr");
+  }
 }
 
-const abrir=id=>document.getElementById(id).classList.add("on");
-const cerrar=id=>document.getElementById(id).classList.remove("on");
-document.querySelectorAll(".capa").forEach(c=>c.onclick=e=>{ if(e.target===c) c.classList.remove("on"); });
+// ---------- abrir y cerrar ventanas ----------
+// En el celular la flecha de atras tiene que cerrar lo que este abierto, no salir de la
+// app. Para eso cada ventana agrega una entrada al historial: cuando el telefono va para
+// atras, consume esa entrada y nosotros cerramos la ventana en vez de dejar que se vaya.
+// Si no hay nada abierto, la flecha hace lo de siempre.
+let _ventanas=[];     // las abiertas, de abajo hacia arriba
+let _ignorarAtras=0;  // los "atras" que disparamos nosotros al cerrar con la cruz
+
+function abrir(id){
+  const el=document.getElementById(id); if(!el) return;
+  el.classList.add("on");
+  _ventanas.push(id);
+  history.pushState({ventana:id}, "");
+}
+function cerrar(id){
+  const el=document.getElementById(id); if(!el) return;
+  el.classList.remove("on");
+  const i=_ventanas.lastIndexOf(id);
+  if(i>=0){
+    _ventanas.splice(i,1);
+    _ignorarAtras++;
+    history.back();     // saca del historial la entrada que habiamos puesto
+  }
+}
+// Cambiar una ventana por otra sin tocar el historial: la entrada que ya estaba pasa a
+// representar la nueva. Evita la carrera de cerrar y abrir en el mismo instante.
+function reemplazar(viejo, nuevo){
+  const a=document.getElementById(viejo), b=document.getElementById(nuevo);
+  if(a) a.classList.remove("on");
+  const i=_ventanas.lastIndexOf(viejo);
+  if(i>=0) _ventanas[i]=nuevo; else _ventanas.push(nuevo);
+  if(b) b.classList.add("on");
+}
+window.addEventListener("popstate", ()=>{
+  if(_ignorarAtras>0){ _ignorarAtras--; return; }
+  const id=_ventanas.pop();
+  if(id){ const el=document.getElementById(id); if(el) el.classList.remove("on"); }
+});
+document.querySelectorAll(".capa").forEach(c=>c.onclick=e=>{ if(e.target===c) cerrar(c.id); });
 if("serviceWorker" in navigator) navigator.serviceWorker.register("sw.js").catch(()=>{});
 </script>
 </body>
