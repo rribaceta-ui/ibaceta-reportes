@@ -52,6 +52,8 @@ nav .pin{display:inline-block;min-width:17px;padding:0 5px;margin-left:4px;backg
 .barra input{flex:1 1 100%;min-width:150px}
 /* Un filtro puesto se tiene que notar sin leerlo */
 .barra select.act{border-color:var(--azul);color:var(--azul);font-weight:700;background:#f0f6ff}
+/* Las casillas no se parten en dos renglones ni se desalinean del cuadradito */
+.barra label{flex:0 0 auto;white-space:nowrap}
 .limpiar{flex:0 0 auto;background:none;border:0;color:var(--rojo);font-size:.8rem;
          font-weight:700;cursor:pointer;padding:6px 4px;text-decoration:underline}
 
@@ -253,7 +255,7 @@ const db = firebase.firestore();
 // vendedores. Lo hecho sin conexion sincroniza al volver.
 db.enablePersistence({synchronizeTabs:true}).catch(()=>{});
 
-const VERSION="2026-10-10d";
+const VERSION="2026-10-10e";
 const DOMINIO="funnel.ibaceta.ar";
 const NEGOCIOS=["ALMACEN","TODO SUELTO","KIOSCO VENTANA","PANIFICADORA","ROTISERÍA",
   "VERDULERIA","CARNICERIA","AVÍCOLA","MINIMARKET","PELUQUERIA","ART DE LIMPIEZA",
