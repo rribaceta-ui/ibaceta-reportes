@@ -255,7 +255,7 @@ const db = firebase.firestore();
 // vendedores. Lo hecho sin conexion sincroniza al volver.
 db.enablePersistence({synchronizeTabs:true}).catch(()=>{});
 
-const VERSION="2026-10-10e";
+const VERSION="2026-10-10f";
 const DOMINIO="funnel.ibaceta.ar";
 const NEGOCIOS=["ALMACEN","TODO SUELTO","KIOSCO VENTANA","PANIFICADORA","ROTISERÍA",
   "VERDULERIA","CARNICERIA","AVÍCOLA","MINIMARKET","PELUQUERIA","ART DE LIMPIEZA",
@@ -672,7 +672,7 @@ function pintarBarra(){
     h+=`<select onchange="elegir(this.value)"><option value="">Seleccionar ${vista==="vend"?"vendedor":"cobrador"}...</option>`+
        [...set].sort().map(v=>`<option value="${esc(v)}" ${v===sel?"selected":""}>${esc(v)}</option>`).join("")+`</select>`;
   }
-  h+=`<input placeholder="Buscar por nombre..." value="${esc(busca)}" oninput="busca=this.value;pintar()">`;
+  h+=`<input placeholder="Buscar por nombre..." value="${esc(busca)}" oninput="buscar(this.value)">`;
 
   const divs=[...new Set(clientes.map(c=>c.division).filter(Boolean))].sort();
   if(divs.length>1){
@@ -718,9 +718,35 @@ function pintarBarra(){
         <input type="checkbox" ${verEmpleados?"checked":""}
                onchange="verEmpleados=this.checked;pintar()" style="width:auto">
         Incluir empleados (${nEmp})</label>`;
+  // Al reescribir la barra, el campo de busqueda se destruye y se vuelve a crear: el
+  // foco se perdia y habia que tocarlo de nuevo despues de CADA letra. Se guarda donde
+  // estaba el cursor y se devuelve.
+  const _act=document.activeElement;
+  const _enBuscador = _act && _act.tagName==="INPUT" && b.contains(_act)
+                      && String(_act.placeholder||"").startsWith("Buscar");
+  const _pos = _enBuscador ? _act.selectionStart : null;
+
   b.innerHTML=h;
+
+  if(_enBuscador){
+    const _nuevo=b.querySelector('input[placeholder^="Buscar"]');
+    if(_nuevo){
+      _nuevo.focus();
+      try{ _nuevo.setSelectionRange(_pos,_pos); }catch(e){}
+    }
+  }
 }
 function elegir(v){ if(vista==="vend") selVend=v; else selCob=v; pintar(); }
+
+// Buscar sin redibujar en cada tecla. Con 1.170 clientes, volver a armar el tablero
+// entero letra por letra hace que el campo responda tarde. Se espera a que la persona
+// deje de escribir.
+let _tBusca=null;
+function buscar(v){
+  busca=v;
+  clearTimeout(_tBusca);
+  _tBusca=setTimeout(()=>pintar(), 200);
+}
 function limpiarFiltros(){
   fDiv=fProv=fDepto=fTipo=fNeg=busca=""; soloEtiquetados=false; pintar();
 }
