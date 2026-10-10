@@ -44,9 +44,16 @@ nav button.on{color:var(--azul);border-bottom-color:var(--azul)}
 nav .pin{display:inline-block;min-width:17px;padding:0 5px;margin-left:4px;background:var(--naranja);color:#fff;border-radius:9px;font-size:.68rem;line-height:17px}
 
 .barra{padding:10px 14px;background:#fff;border-bottom:1px solid var(--borde);display:flex;gap:9px;flex-wrap:wrap;align-items:center}
-.barra select,.barra input{padding:8px 12px;border:1.5px solid #ccd2d9;border-radius:18px;font-size:.84rem;min-width:0}
-.barra select{flex:1;max-width:300px}
-.barra input{flex:1;min-width:150px}
+.barra select,.barra input{padding:8px 12px;border:1.5px solid #ccd2d9;border-radius:18px;font-size:.84rem}
+/* En el telefono los cinco filtros se apretaban en un renglon y quedaban como pastillas
+   con una flechita, sin texto: no se entendia que filtraba cada uno. Con este ancho
+   minimo bajan de renglon de a dos y se lee el nombre. */
+.barra select{flex:1 1 148px;min-width:148px;max-width:300px}
+.barra input{flex:1 1 100%;min-width:150px}
+/* Un filtro puesto se tiene que notar sin leerlo */
+.barra select.act{border-color:var(--azul);color:var(--azul);font-weight:700;background:#f0f6ff}
+.limpiar{flex:0 0 auto;background:none;border:0;color:var(--rojo);font-size:.8rem;
+         font-weight:700;cursor:pointer;padding:6px 4px;text-decoration:underline}
 
 /* KPIs, igual que el funnel */
 .kpis{display:flex;gap:9px;overflow-x:auto;padding:12px 14px 4px}
@@ -246,7 +253,7 @@ const db = firebase.firestore();
 // vendedores. Lo hecho sin conexion sincroniza al volver.
 db.enablePersistence({synchronizeTabs:true}).catch(()=>{});
 
-const VERSION="2026-10-10c";
+const VERSION="2026-10-10d";
 const DOMINIO="funnel.ibaceta.ar";
 const NEGOCIOS=["ALMACEN","TODO SUELTO","KIOSCO VENTANA","PANIFICADORA","ROTISERÍA",
   "VERDULERIA","CARNICERIA","AVÍCOLA","MINIMARKET","PELUQUERIA","ART DE LIMPIEZA",
@@ -667,7 +674,7 @@ function pintarBarra(){
 
   const divs=[...new Set(clientes.map(c=>c.division).filter(Boolean))].sort();
   if(divs.length>1){
-    h+=`<select onchange="fDiv=this.value;fProv='';fDepto='';pintar()"><option value="">Todas las divisiones</option>`+
+    h+=`<select class="${fDiv?"act":""}" onchange="fDiv=this.value;fProv='';fDepto='';pintar()"><option value="">Todas las divisiones</option>`+
        divs.map(v=>`<option value="${esc(v)}" ${v===fDiv?"selected":""}>${esc(v)}</option>`).join("")+`</select>`;
   }
 
@@ -675,30 +682,34 @@ function pintarBarra(){
   const base=baseDe().filter(c=>!fDiv||c.division===fDiv);
   const provs=[...new Set(base.map(c=>c.provincia).filter(Boolean))].sort();
   if(provs.length>1){
-    h+=`<select onchange="fProv=this.value;fDepto='';pintar()"><option value="">Toda provincia</option>`+
+    h+=`<select class="${fProv?"act":""}" onchange="fProv=this.value;fDepto='';pintar()"><option value="">Toda provincia</option>`+
        provs.map(v=>`<option value="${esc(v)}" ${v===fProv?"selected":""}>${esc(v)}</option>`).join("")+`</select>`;
   }
   const deptos=[...new Set(base.filter(c=>!fProv||c.provincia===fProv).map(c=>c.depto).filter(Boolean))].sort();
   if(deptos.length>1){
-    h+=`<select onchange="fDepto=this.value;pintarKanban()"><option value="">Todo departamento</option>`+
+    h+=`<select class="${fDepto?"act":""}" onchange="fDepto=this.value;pintarKanban()"><option value="">Todo departamento</option>`+
        deptos.map(v=>`<option value="${esc(v)}" ${v===fDepto?"selected":""}>${esc(v)}</option>`).join("")+`</select>`;
   }
   // Tipo de negocio: la razon por la que se carga desde la calle es poder segmentar.
   const negs=[...new Set(base.map(c=>negDe(c).valor).filter(Boolean))].sort();
   const sinNeg=base.filter(c=>c.estado==="activo"&&!negDe(c).valor).length;
   if(negs.length>1){
-    h+=`<select onchange="fNeg=this.value;pintar()"><option value="">Todo tipo de negocio</option>`+
+    h+=`<select class="${fNeg?"act":""}" onchange="fNeg=this.value;pintar()"><option value="">Todo tipo de negocio</option>`+
        negs.map(v=>`<option value="${esc(v)}" ${v===fNeg?"selected":""}>${esc(v)}</option>`).join("")+
        `<option value="__sin" ${fNeg==="__sin"?"selected":""}>Sin definir (${sinNeg})</option></select>`;
   }
   const tipos=[...new Set(base.flatMap(c=>(c.operaciones||[]).map(o=>o.tipo)).filter(Boolean))].sort();
   if(tipos.length>1){
-    h+=`<select onchange="fTipo=this.value;pintar()"><option value="">Todas las operaciones</option>`+
+    h+=`<select class="${fTipo?"act":""}" onchange="fTipo=this.value;pintar()"><option value="">Todas las operaciones</option>`+
        tipos.map(v=>`<option value="${esc(v)}" ${v===fTipo?"selected":""}>${esc(v)}</option>`).join("")+`</select>`;
   }
   h+=`<label style="display:flex;align-items:center;gap:6px;font-size:.8rem;color:#555">
         <input type="checkbox" ${soloEtiquetados?"checked":""}
                onchange="soloEtiquetados=this.checked;pintar()" style="width:auto"> Solo etiquetados</label>`;
+  // Con cinco filtros es facil dejar uno puesto y no entender por que faltan clientes.
+  if(fDiv||fProv||fDepto||fTipo||fNeg||soloEtiquetados||busca){
+    h+=`<button class="limpiar" onclick="limpiarFiltros()">Quitar filtros</button>`;
+  }
   const nEmp=clientes.filter(esEmpleado).length;
   if(nEmp) h+=`<label style="display:flex;align-items:center;gap:6px;font-size:.8rem;color:#555"
         title="Empleados y cuentas internas que compran por el beneficio de la empresa. No son cartera comercial.">
@@ -708,6 +719,9 @@ function pintarBarra(){
   b.innerHTML=h;
 }
 function elegir(v){ if(vista==="vend") selVend=v; else selCob=v; pintar(); }
+function limpiarFiltros(){
+  fDiv=fProv=fDepto=fTipo=fNeg=busca=""; soloEtiquetados=false; pintar();
+}
 
 // Mismos filtros para las tres vistas: division, provincia, departamento, tipo de
 // operacion, etiquetados y buscador. En el funnel estaban en la vista supervisor y
