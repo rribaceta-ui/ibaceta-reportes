@@ -114,6 +114,25 @@ a.tel{color:var(--azul);text-decoration:none;font-weight:600}
 .badge{display:inline-block;font-size:.65rem;font-weight:700;padding:2px 7px;border-radius:9px;color:#fff;margin:0 3px 3px 0}
 .chip{display:inline-block;font-size:.69rem;font-weight:700;padding:3px 7px;border-radius:9px;background:#eef1f4;color:#555;margin-top:5px}
 .chip.venc{background:#fdecea;color:var(--rojo)}.chip.hoy{background:#fdf0e3;color:#b35309}
+.av-wrap{padding:12px 14px 28px;max-width:860px}
+.av-h{font-size:.72rem;font-weight:800;letter-spacing:.5px;text-transform:uppercase;
+      color:#6b7684;margin:16px 0 8px}
+.av-card{background:#fff;border:1px solid #e3e8ee;border-radius:10px;padding:12px 14px;
+         margin-bottom:9px;box-shadow:0 1px 3px rgba(0,0,0,.05)}
+.av-fila{display:flex;align-items:center;gap:10px;flex-wrap:wrap}
+.av-u{font-weight:800;font-size:.92rem}
+.av-meta{font-size:.72rem;color:#6b7684}
+.av-sel{flex:1 1 190px;min-width:160px;padding:7px 9px;border:1px solid #cfd6de;
+        border-radius:7px;font-family:inherit;font-size:.82rem;background:#fff}
+.av-btn{padding:7px 14px;border:0;border-radius:7px;background:var(--azul,#00548A);
+        color:#fff;font-weight:700;font-size:.78rem;cursor:pointer;font-family:inherit}
+.av-btn:disabled{background:#c3cad2;cursor:default}
+.av-btn.sec{background:#fff;color:var(--azul,#00548A);border:1.5px solid var(--azul,#00548A)}
+.av-in{padding:7px 9px;border:1px solid #cfd6de;border-radius:7px;font-family:inherit;
+       font-size:.82rem;flex:1 1 150px;min-width:130px}
+.av-nota{font-size:.72rem;color:#6b7684;line-height:1.5;margin:6px 0 0}
+.av-ok{background:#e7f3ec;border-color:#bcdcc8}
+.av-vacio{color:#6b7684;font-size:.84rem;padding:14px 2px}
 .sel-tag{width:100%;margin-top:6px;padding:6px;border:1.5px solid #ccd2d9;border-radius:6px;font-size:.74rem;color:#555;background:#fafbfc}
 .chip.prox{background:#eaf2fb;color:#1f6fb2}.chip.sin{background:#f4f4f4;color:#9ca3af;font-style:italic;font-weight:500}
 
@@ -356,6 +375,11 @@ function tel(raw){
 const esVend=()=>sesion&&sesion.rol==="vendedor";
 const esCob=()=>sesion&&sesion.rol==="cobrador";
 const conduce=()=>sesion&&["gerente","supervisor_zona","supervisor_cobranza"].includes(sesion.rol);
+// Asignar vendedores es de gerencia y supervision de zona: cobranza no define
+// a que punto de venta pertenece un vendedor. Restriccion explicita, no efecto
+// lateral de una condicion (ver REGLA DE PARIDAD DE ROLES en CLAUDE.md).
+const puedeAsignar=()=>sesion&&["gerente","supervisor_zona"].includes(sesion.rol);
+const esGerente=()=>sesion&&sesion.rol==="gerente";
 
 // ---------- acceso ----------
 function verClave(){
@@ -635,12 +659,135 @@ function destinoDe(c){
   return vendedorDe(c)||sesion.usuario;
 }
 
+// ---------- asignacion de vendedores ----------
+// Un vendedor que no esta en Vendedor.xlsx no tiene punto de venta, y en la
+// venta semanal no hay deposito del que deducirlo: su venta no se cuenta en
+// NINGUN reporte. Antes solo se arreglaba editando un Excel en la PC de la
+// oficina. El pipeline publica aca a los que detecta, y lo que se asigne entra
+// en los reportes de esa misma noche.
+let avPend=[], avLugares={puntos_venta:[],otros:[]}, avSusc=null;
+
+function avEscuchar(){
+  if(avSusc) return;
+  avSusc = db.collection("vendedores_asignacion").onSnapshot(sn=>{
+    avPend=[];
+    sn.forEach(d=>{
+      if(d.id==="_lugares"){ avLugares=d.data()||avLugares; return; }
+      const x=d.data()||{}; x._id=d.id;
+      if(!x.aplicado) avPend.push(x);
+    });
+    avMarcarPin();
+    if(vista==="asig") pintarAsignacion();
+  }, e=>console.warn("asignacion:",e.message));
+  desus.push(avSusc);
+}
+
+// El supervisor de zona solo ve los de su provincia. Los que el pipeline no
+// pudo ubicar quedan visibles para todos: alguien tiene que resolverlos.
+function avVisibles(){
+  if(esGerente()) return avPend;
+  return avPend.filter(x=>!x.provincia || x.provincia===sesion.zona);
+}
+
+function avMarcarPin(){
+  const n=avVisibles().filter(x=>!x.lugar).length, p=document.getElementById("pin-asig");
+  if(p){ p.textContent=n; p.style.display=n?"inline-block":"none"; }
+}
+
+function avOpciones(sel){
+  const g=(t,arr)=>arr.length?`<optgroup label="${t}">`+arr.map(l=>
+      `<option value="${esc(l)}"${l===sel?" selected":""}>${esc(l)}</option>`).join("")+"</optgroup>":"";
+  return `<option value="">Elegir punto de venta...</option>`
+       + g("Puntos de venta", avLugares.puntos_venta||[])
+       + g("No es punto de venta", avLugares.otros||[]);
+}
+
+function pintarAsignacion(){
+  document.getElementById("panel").innerHTML="";
+  avEscuchar();
+  const vis=avVisibles(), sinAsig=vis.filter(x=>!x.lugar), listos=vis.filter(x=>x.lugar);
+  let h='<div class="av-wrap">';
+
+  h+='<div class="av-h">Detectados vendiendo y sin cargar ('+sinAsig.length+')</div>';
+  if(!sinAsig.length){
+    h+='<div class="av-vacio">Ninguno. Todos los vendedores con venta estan asignados.</div>';
+  }
+  sinAsig.forEach(x=>{
+    h+='<div class="av-card"><div class="av-fila">'
+      +'<div style="flex:1 1 160px"><div class="av-u">'+esc(x.usuario)+'</div>'
+      +'<div class="av-meta">'+plata(x.importe||0)+' &middot; venta '+esc(x.fuente||"")
+      +(x.provincia?' &middot; '+esc(x.provincia):'')+'</div></div>'
+      +'<select class="av-sel" id="sel-'+esc(x._id)+'">'+avOpciones("")+'</select>'
+      +'<button class="av-btn" onclick="avAsignar(\''+esc(x._id)+'\')">Asignar</button>'
+      +'</div></div>';
+  });
+
+  if(listos.length){
+    h+='<div class="av-h">Asignados, se aplican en la proxima actualizacion ('+listos.length+')</div>';
+    listos.forEach(x=>{
+      h+='<div class="av-card av-ok"><div class="av-fila">'
+        +'<div style="flex:1 1 160px"><div class="av-u">'+esc(x.usuario)+'</div>'
+        +'<div class="av-meta">'+esc(x.lugar)+(x.asignado_por?' &middot; por '+esc(x.asignado_por):'')+'</div></div>'
+        +'<button class="av-btn sec" onclick="avDeshacer(\''+esc(x._id)+'\')">Deshacer</button>'
+        +'</div></div>';
+    });
+  }
+
+  if(esGerente()){
+    h+='<div class="av-h">Dar de alta un vendedor nuevo</div>'
+      +'<div class="av-card"><div class="av-fila">'
+      +'<input class="av-in" id="av-usr" placeholder="Usuario del ERP (ej: GHUGO)" autocapitalize="characters">'
+      +'<input class="av-in" id="av-nom" placeholder="Nombre (opcional)">'
+      +'<select class="av-sel" id="av-lug">'+avOpciones("")+'</select>'
+      +'<button class="av-btn" onclick="avAlta()">Agregar</button></div>'
+      +'<p class="av-nota"><b>El usuario tiene que ser el del ERP</b>, no el nombre: es lo unico '
+      +'que el sistema consulta. Si se escribe mal, la fila nunca coincide con nadie y la venta '
+      +'del vendedor real sigue sin contarse. Sirve para cargarlo <b>antes</b> de su primera venta; '
+      +'vale para el contado y para la venta semanal.</p></div>';
+  }
+
+  h+='</div>';
+  document.getElementById("cols").innerHTML=h;
+}
+
+function avAsignar(id){
+  const sel=document.getElementById("sel-"+id); if(!sel||!sel.value) return;
+  db.collection("vendedores_asignacion").doc(id).update({
+    lugar:sel.value, asignado_por:sesion.usuario,
+    asignado_en:new Date().toISOString().slice(0,16).replace("T"," ")
+  }).catch(e=>alert("No se pudo asignar: "+e.message));
+}
+
+function avDeshacer(id){
+  db.collection("vendedores_asignacion").doc(id).update({lugar:null})
+    .catch(e=>alert("No se pudo deshacer: "+e.message));
+}
+
+function avAlta(){
+  const u=(document.getElementById("av-usr").value||"").trim().toUpperCase();
+  const n=(document.getElementById("av-nom").value||"").trim().toUpperCase();
+  const l=document.getElementById("av-lug").value;
+  if(!u||!l){ alert("Falta el usuario del ERP o el punto de venta."); return; }
+  if(!confirm("Dar de alta a "+u+" en "+l+"?\n\nEl usuario tiene que coincidir exactamente con el del ERP.")) return;
+  const id=u.replace(/\//g,"_");
+  db.collection("vendedores_asignacion").doc(id).set({
+    usuario:u, nombre:n||null, lugar:l, origen:"manual",
+    asignado_por:sesion.usuario, provincia:sesion.zona||"",
+    detectado:new Date().toISOString().slice(0,16).replace("T"," "),
+    importe:0, fuente:"alta manual", aplicado:false
+  }).then(()=>{
+    document.getElementById("av-usr").value="";
+    document.getElementById("av-nom").value="";
+  }).catch(e=>alert("No se pudo dar de alta: "+e.message));
+}
+
 // ---------- navegacion ----------
 function pintarNav(){
   const n=document.getElementById("nav"); let h="";
   if(conduce()) h+=`<button data-v="sup" onclick="irA('sup')">Vista Supervisor</button>`;
   if(conduce()||esVend()) h+=`<button data-v="vend" onclick="irA('vend')">Vista Vendedor<span class="pin" id="pin" style="display:none">0</span></button>`;
   if(conduce()||esCob())  h+=`<button data-v="cob" onclick="irA('cob')">Vista Cobrador</button>`;
+  if(puedeAsignar()) h+=`<button data-v="asig" onclick="irA('asig')">Vendedores<span class="pin" id="pin-asig" style="display:none">0</span></button>`;
   n.innerHTML=h; marcarNav();
 }
 function marcarNav(){ document.querySelectorAll("#nav button").forEach(b=>b.classList.toggle("on",b.dataset.v===vista)); }
@@ -651,7 +798,9 @@ function pintar(){
   const n=pend().length, p=document.getElementById("pin");
   if(p){ p.textContent=n; p.style.display=n?"inline-block":"none"; }
   pintarBarra();
-  if(vista==="sup") pintarSupervisor(); else pintarKanban();
+  if(vista==="asig"){ pintarAsignacion(); document.getElementById("barra").style.display="none"; }
+  else if(vista==="sup") pintarSupervisor();
+  else pintarKanban();
 }
 
 function pintarBarra(){
