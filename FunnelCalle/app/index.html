@@ -140,6 +140,10 @@ a.tel{color:var(--azul);text-decoration:none;font-weight:600}
     <h1>Funnel Comercial — Calle</h1>
     <p>Entrá con tu usuario y contraseña de siempre.</p>
     <div id="ver" style="font-size:.68rem;color:#9ca3af;margin:-12px 0 12px"></div>
+    <button class="btn-instalar" style="display:none;background:var(--naranja);margin-bottom:12px"
+            onclick="instalar()">Instalar en el celular</button>
+    <button id="comoInstalar" style="display:none;background:none;color:#cfe0f5;border:1px solid #4a7cb8;
+            margin-bottom:12px;font-size:.8rem" onclick="abrir('m-inst')">¿Cómo la instalo?</button>
     <input id="lu" placeholder="Usuario" autocapitalize="characters" autocomplete="username"
            autocorrect="off" spellcheck="false">
     <input id="lp" type="password" placeholder="Contraseña" autocomplete="current-password"
@@ -156,6 +160,8 @@ a.tel{color:var(--azul);text-decoration:none;font-weight:600}
   <div class="cabecera">
     <header>
       <div class="tit"><div class="t1">Funnel Comercial — Calle</div><div class="t2" id="hsub"></div></div>
+      <button class="btn-instalar" style="display:none;background:var(--naranja)"
+              onclick="instalar()">Instalar</button>
       <button onclick="salir()">Salir</button>
     </header>
     <nav id="nav"></nav>
@@ -184,6 +190,13 @@ a.tel{color:var(--azul);text-decoration:none;font-weight:600}
   <div class="campo"><label>Observaciones</label><textarea id="a-obs" rows="3"></textarea></div>
   <div class="acciones"><button class="b auto" onclick="cerrar('m-act')">Cancelar</button>
     <button class="b auto full" onclick="guardarAct()">Guardar</button></div>
+</div></div>
+
+<div class="capa" id="m-inst"><div class="hoja">
+  <button class="cierra" onclick="cerrar('m-inst')">&times;</button>
+  <h2>Cómo instalarla en el celular</h2>
+  <div id="i-cuerpo" style="font-size:.88rem;line-height:1.5"></div>
+  <div class="acciones"><button class="b auto full" onclick="cerrar('m-inst')">Entendido</button></div>
 </div></div>
 
 <div class="capa" id="m-datos"><div class="hoja">
@@ -230,7 +243,7 @@ const db = firebase.firestore();
 // vendedores. Lo hecho sin conexion sincroniza al volver.
 db.enablePersistence({synchronizeTabs:true}).catch(()=>{});
 
-const VERSION="2026-10-09s";
+const VERSION="2026-10-10a";
 const DOMINIO="funnel.ibaceta.ar";
 const NEGOCIOS=["ALMACEN","TODO SUELTO","KIOSCO VENTANA","PANIFICADORA","ROTISERÍA",
   "VERDULERIA","CARNICERIA","AVÍCOLA","MINIMARKET","PELUQUERIA","ART DE LIMPIEZA",
@@ -338,6 +351,47 @@ function verClave(){
     document.getElementById("ojo").checked ? "text" : "password";
 }
 document.getElementById("ver").textContent="versión "+VERSION;
+
+// ---------- instalar la app ----------
+// Chrome avisa que la app se puede instalar con este evento, y hay que guardarlo: es la
+// UNICA forma de abrir el cartel de instalacion desde un boton propio. Sin esto depende
+// de que el usuario encuentre "Agregar a pantalla principal" en el menu del navegador,
+// que ademas Chrome esconde un tiempo despues de que alguien la desinstala.
+let _promptInstalar=null;
+const _instalada = window.matchMedia("(display-mode: standalone)").matches
+                   || window.navigator.standalone===true;
+const _esIOS = /iphone|ipad|ipod/i.test(navigator.userAgent);
+
+window.addEventListener("beforeinstallprompt", e=>{
+  e.preventDefault(); _promptInstalar=e; _verBotones();
+});
+window.addEventListener("appinstalled", ()=>{ _promptInstalar=null; _verBotones(); });
+
+function _verBotones(){
+  const puede = !!_promptInstalar && !_instalada;
+  document.querySelectorAll(".btn-instalar").forEach(b=>b.style.display=puede?"":"none");
+  // iPhone no tiene ese evento: nunca va a haber boton, solo se puede explicar.
+  const ayuda=document.getElementById("comoInstalar");
+  if(ayuda) ayuda.style.display=(!_instalada&&!puede)?"":"none";
+}
+async function instalar(){
+  if(!_promptInstalar){ abrir("m-inst"); return; }
+  _promptInstalar.prompt();
+  try{ await _promptInstalar.userChoice; }catch(e){}
+  _promptInstalar=null; _verBotones();
+}
+document.getElementById("i-cuerpo").innerHTML = _esIOS
+  ? `<p>En iPhone se instala desde <b>Safari</b> (no desde Chrome):</p>
+     <ol><li>Abrí este mismo link en Safari.</li>
+     <li>Tocá el botón <b>Compartir</b>, el cuadrado con la flecha para arriba.</li>
+     <li>Bajá y elegí <b>Agregar a inicio</b>.</li></ol>`
+  : `<p>En Android, desde Chrome:</p>
+     <ol><li>Tocá los <b>tres puntitos</b> de arriba a la derecha.</li>
+     <li>Elegí <b>Instalar aplicación</b> o <b>Agregar a pantalla principal</b>.</li></ol>
+     <p style="color:var(--gris);font-size:.82rem">Si no aparece ninguna de las dos, cerrá
+     el navegador del todo y volvé a entrar al link. Chrome esconde la opción un rato
+     después de que uno desinstala la app.</p>`;
+_verBotones();
 document.getElementById("lb").onclick=entrar;
 document.getElementById("lp").onkeydown=e=>{if(e.key==="Enter")entrar();};
 async function entrar(){
@@ -366,7 +420,8 @@ firebase.auth().onAuthStateChanged(async u=>{
   sesion={usuario:t.claims.usuario,rol:t.claims.rol,zona:t.claims.zona||"",division:t.claims.division||""};
   document.getElementById("login").style.display="none";
   document.getElementById("app").style.display="block";
-  document.getElementById("hsub").textContent=sesion.usuario+" · "+(sesion.rol||"").replace(/_/g," ")+(sesion.zona?" · "+sesion.zona:"");
+  document.getElementById("hsub").textContent=sesion.usuario+" · "+(sesion.rol||"").replace(/_/g," ")
+    +(sesion.zona?" · "+sesion.zona:"")+" · v"+VERSION;
   vista = esVend()?"vend" : (esCob()?"cob":"sup");
   if(esVend()) selVend=sesion.usuario;
   if(esCob())  selCob=sesion.usuario;
