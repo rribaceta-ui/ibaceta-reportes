@@ -223,7 +223,7 @@ body{ background:var(--bg); color:var(--text); font-family:-apple-system,BlinkMa
 .hbar-scroll-wrap::-webkit-scrollbar{ height:8px; width:8px; }
 .hbar-scroll-wrap::-webkit-scrollbar-track{ background:#1a1f25; border-radius:4px; }
 .hbar-scroll-wrap::-webkit-scrollbar-thumb{ background:#F1891B; border-radius:4px; }
-.hbar-list{ display:inline-flex; flex-direction:column; gap:0; min-width:700px; width:max-content; }
+.hbar-list{ display:inline-flex; flex-direction:column; gap:0; min-width:830px; width:100%; }
 .hbar-row{ display:flex; align-items:center; gap:10px; padding:7px 4px; border-bottom:1px solid rgba(43,49,56,.12); width:100%; }
 .hbar-row:last-child{ border-bottom:none; }
 .hbar-rank{ width:18px; text-align:right; font-size:10px; color:var(--muted); flex-shrink:0; }
@@ -232,6 +232,15 @@ body{ background:var(--bg); color:var(--text); font-family:-apple-system,BlinkMa
 .hbar-fill{ height:100%; border-radius:4px; transition:width .4s; }
 .hbar-val{ width:62px; text-align:right; font-size:11px; font-weight:700; flex-shrink:0; }
 .hbar-sub{ width:52px; text-align:right; font-size:10px; color:var(--muted); flex-shrink:0; }
+.hbar-mny{ width:86px; text-align:right; font-size:11px; font-weight:700; flex-shrink:0; }
+.hbar-pct{ width:62px; text-align:right; font-size:11px; font-weight:700; flex-shrink:0; }
+.hbar-mup{ width:50px; text-align:right; font-size:11px; flex-shrink:0; }
+.hbar-head{ border-bottom:1px solid var(--border); padding-bottom:6px; margin-bottom:2px; }
+.hbar-head > div{ font-size:9px; font-weight:700; text-transform:uppercase;
+  letter-spacing:.5px; color:var(--muted); white-space:nowrap; }
+.hbar-th{ cursor:pointer; user-select:none; }
+.hbar-th:hover{ color:var(--p-gold); }
+.hbar-th.on{ color:var(--p-main); }
 
 /* ── Table ── */
 .tbl-wrap{ overflow-x:auto; overflow-y:auto; max-height:520px; }
@@ -344,7 +353,7 @@ body{ background:var(--bg); color:var(--text); font-family:-apple-system,BlinkMa
   </div>
 
   <div class="header-center">
-    <div class="gen-badge">Generado: 10/10/2026 16:19</div>
+    <div class="gen-badge">Generado: 10/10/2026 16:30</div>
   </div>
 
   <div class="header-right">
@@ -414,19 +423,11 @@ body{ background:var(--bg); color:var(--text); font-family:-apple-system,BlinkMa
     </div>
   </div>
 
-  <!-- Evolución + Rubros por margen -->
-  <div class="grid-2">
-    <div class="card">
-      <div class="card-title" style="display:flex;align-items:center;gap:10px"><span>TOP RUBROS — VENTA NETA</span><span style="margin-left:auto;display:flex;gap:4px"><button class="topn-btn active" id="tn-10"  onclick="setTopN(10)">10</button><button class="topn-btn"        id="tn-20"  onclick="setTopN(20)">20</button><button class="topn-btn"        id="tn-999" onclick="setTopN(999)">Todos</button></span></div>
-      <div class="hbar-scroll-wrap">
-        <div class="hbar-list" id="hbar-rubros-v"></div>
-      </div>
-    </div>
-    <div class="card">
-      <div class="card-title">TOP RUBROS — MARGEN % <span style="font-weight:400;text-transform:none;color:var(--muted)">(s/ Venta Neta)</span></div>
-      <div class="hbar-scroll-wrap">
-        <div class="hbar-list" id="hbar-rubros-m"></div>
-      </div>
+  <!-- Rubros: venta, margen y MUP en una sola grilla ordenable -->
+  <div class="card">
+    <div class="card-title" style="display:flex;align-items:center;gap:10px"><span>RUBROS</span><span style="font-weight:400;text-transform:none;color:var(--muted);font-size:10px">clic en el encabezado para ordenar</span><span style="margin-left:auto;display:flex;gap:4px"><button class="topn-btn active" id="tn-10"  onclick="setTopN(10)">10</button><button class="topn-btn"        id="tn-20"  onclick="setTopN(20)">20</button><button class="topn-btn"        id="tn-999" onclick="setTopN(999)">Todos</button></span></div>
+    <div class="hbar-scroll-wrap">
+      <div class="hbar-list" id="hbar-rubros-v"></div>
     </div>
   </div>
 
@@ -1247,73 +1248,115 @@ function setTopN(n) {
   renderAll();
 }
 
+// Orden de la grilla de rubros. 'r' es el nombre; el resto son numeros.
+var RUB_SORT = 'v', RUB_ASC = false, _rubBound = false;
+
+function setRubSort(col) {
+  if (RUB_SORT === col) { RUB_ASC = !RUB_ASC; } else { RUB_SORT = col; RUB_ASC = false; }
+  renderRubrosHbars(getData());
+}
+
+// Suma de un conjunto de rubros. El margen se recalcula sobre base y costo
+// sumados, nunca promediando porcentajes.
+function _aggRub(arr) {
+  var t = {u:0, v:0, vb:0, c:0};
+  arr.forEach(function(r) {
+    t.u += r.u||0; t.v += r.v||0; t.vb += r.vb||0; t.c += r.c||0;
+  });
+  var m = _margenSel(t.vb, t.c);
+  t.mg = m.mg; t.mp = m.mp; t.mup = m.mup;
+  return t;
+}
+
 function renderRubrosHbars(d) {
-  // Orden por MONTO (venta neta), no por unidades.
-  var todosR = getRubros();
+  var cont = document.getElementById('hbar-rubros-v');
+  if (!cont) return;
+  // El orden va por data-rc y un listener delegado en el contenedor: un
+  // onclick con comillas escapadas dentro del f-string rompe todo el script.
+  if (!_rubBound) {
+    cont.addEventListener('click', function(e) {
+      var h = e.target && e.target.closest ? e.target.closest('[data-rc]') : null;
+      if (h) setRubSort(h.getAttribute('data-rc'));
+    });
+    _rubBound = true;
+  }
+
+  var todosR = getRubros();   // ya trae u, v, vb, c, mg, mp, mup segun la seleccion
+  var dir = RUB_ASC ? 1 : -1;
+  todosR.sort(function(a, b) {
+    if (RUB_SORT === 'r') return a.r.localeCompare(b.r) * dir;
+    return ((a[RUB_SORT] || 0) - (b[RUB_SORT] || 0)) * dir;
+  });
+
   var rubros = todosR.slice(0, TOP_N);
   var resto  = todosR.slice(TOP_N);
-  var totalV = todosR.reduce(function(a, r) { return a + (r.v || 0); }, 0);
-  var totalU = todosR.reduce(function(a, r) { return a + (r.u || 0); }, 0);
-  var maxV = rubros.length ? Math.max.apply(null, rubros.map(function(r){ return r.v; })) : 1;
+  var tot    = _aggRub(todosR);
 
-  // Por venta
-  var htmlV = '';
-  rubros.forEach(function(r, i) {
-    var w = Math.max(2, r.v / maxV * 100);
-    htmlV += '<div class="hbar-row">' +
-      '<div class="hbar-rank">' + (i+1) + '</div>' +
+  // La barra mide la columna por la que estas ordenando. Si midiera siempre
+  // venta, al ordenar por margen quedaria desordenada y pareceria rota.
+  var barCol = (RUB_SORT === 'r') ? 'v' : RUB_SORT;
+  var maxB = rubros.length
+    ? Math.max.apply(null, rubros.map(function(r) { return Math.abs(r[barCol] || 0); })) : 1;
+  if (!maxB) maxB = 1;
+
+  function th(col, txt, cls) {
+    var on = RUB_SORT === col;
+    var fl = on ? (RUB_ASC ? ' ↑' : ' ↓') : ' ↕';
+    return '<div class="' + cls + ' hbar-th' + (on ? ' on' : '') +
+           '" data-rc="' + col + '">' + txt + fl + '</div>';
+  }
+
+  var h = '<div class="hbar-row hbar-head">' +
+    '<div class="hbar-rank"></div>' +
+    th('r', 'Rubro', 'hbar-label') +
+    '<div class="hbar-track" style="background:none"></div>' +
+    th('v',   'Venta neta', 'hbar-val') +
+    th('u',   'U',          'hbar-sub') +
+    th('mg',  'Margen $',   'hbar-mny') +
+    th('mp',  'Margen %',   'hbar-pct') +
+    th('mup', 'MUP',        'hbar-mup') +
+    '</div>';
+
+  function fila(r, rank, cls) {
+    var w = Math.max(2, Math.min(100, Math.abs(r[barCol] || 0) / maxB * 100));
+    return '<div class="hbar-row' + (cls ? ' ' + cls : '') + '">' +
+      '<div class="hbar-rank">' + (rank || '') + '</div>' +
       '<div class="hbar-label" title="' + r.r + '">' + r.r + '</div>' +
-      '<div class="hbar-track"><div class="hbar-fill" style="width:' + w + '%;background:var(--p-main)"></div></div>' +
+      '<div class="hbar-track"><div class="hbar-fill" style="width:' + w +
+        '%;background:' + mgCol(r.mp) + '"></div></div>' +
       '<div class="hbar-val">' + fmtM(r.v) + '</div>' +
-      '<div class="hbar-sub">' + fmtN(r.u) + ' u</div>' +
+      '<div class="hbar-sub">' + fmtN(r.u) + '</div>' +
+      '<div class="hbar-mny">' + fmtM(r.mg) + '</div>' +
+      '<div class="hbar-pct ' + mgCls(r.mp) + '">' + fmtP(r.mp) + '</div>' +
+      '<div class="hbar-mup" style="color:#b5e48c">' +
+        (r.mup > 0 ? r.mup.toFixed(2) : '—') + '</div>' +
       '</div>';
-  });
-  // Lo que quedo fuera del corte, para que el total cierre a la vista.
+  }
+
+  rubros.forEach(function(r, i) { h += fila(r, i + 1); });
+
   if (resto.length) {
-    var rv = resto.reduce(function(a, r) { return a + (r.v || 0); }, 0);
-    var ru = resto.reduce(function(a, r) { return a + (r.u || 0); }, 0);
-    htmlV += '<div class="hbar-row hbar-otros">' +
-      '<div class="hbar-rank"></div>' +
-      '<div class="hbar-label">Otros (' + resto.length + ' rubros)</div>' +
-      '<div class="hbar-track"><div class="hbar-fill" style="width:' +
-        Math.max(2, rv / maxV * 100) + '%;background:var(--muted)"></div></div>' +
-      '<div class="hbar-val">' + fmtM(rv) + '</div>' +
-      '<div class="hbar-sub">' + fmtN(ru) + ' u</div>' +
-      '</div>';
+    var o = _aggRub(resto);
+    o.r = 'Otros (' + resto.length + ' rubros)';
+    h += fila(o, '', 'hbar-otros');
   }
+
   if (todosR.length) {
-    htmlV += '<div class="hbar-total">' +
+    tot.r = 'TOTAL · ' + todosR.length + ' rubros';
+    h += '<div class="hbar-row hbar-total">' +
       '<div class="hbar-rank"></div>' +
-      '<div class="hbar-label">TOTAL · ' + todosR.length + ' rubros</div>' +
+      '<div class="hbar-label">' + tot.r + '</div>' +
       '<div class="hbar-track"></div>' +
-      '<div class="hbar-val">' + fmtM(totalV) + '</div>' +
-      '<div class="hbar-sub">' + fmtN(totalU) + ' u</div>' +
+      '<div class="hbar-val">' + fmtM(tot.v) + '</div>' +
+      '<div class="hbar-sub">' + fmtN(tot.u) + '</div>' +
+      '<div class="hbar-mny">' + fmtM(tot.mg) + '</div>' +
+      '<div class="hbar-pct ' + mgCls(tot.mp) + '">' + fmtP(tot.mp) + '</div>' +
+      '<div class="hbar-mup" style="color:#b5e48c">' +
+        (tot.mup > 0 ? tot.mup.toFixed(2) : '—') + '</div>' +
       '</div>';
   }
-  document.getElementById('hbar-rubros-v').innerHTML = htmlV || '<div style="color:var(--muted);padding:12px">Sin datos</div>';
 
-  // Por margen % (filtramos los que tengan datos)
-  // Mismo origen que las barras de venta: si no, el ranking de margen muestra
-  // rubros que la seleccion activa ni siquiera vende.
-  var arrM = todosR.map(function(r) {
-    return { r:r.r, mp:r.mp || 0, mg:r.mg || 0 };
-  }).filter(function(r) { return r.mp !== 0; })
-    .sort(function(a,b) { return b.mp - a.mp; }).slice(0,12);
-
-  var maxM = arrM.length ? Math.max.apply(null, arrM.map(function(r){ return Math.abs(r.mp); })) : 1;
-  var htmlM = '';
-  arrM.forEach(function(r, i) {
-    var w = Math.max(2, Math.abs(r.mp) / maxM * 100);
-    var col = mgCol(r.mp);
-    htmlM += '<div class="hbar-row">' +
-      '<div class="hbar-rank">' + (i+1) + '</div>' +
-      '<div class="hbar-label" title="' + r.r + '">' + r.r + '</div>' +
-      '<div class="hbar-track"><div class="hbar-fill" style="width:' + w + '%;background:' + col + '"></div></div>' +
-      '<div class="hbar-val ' + mgCls(r.mp) + '">' + fmtP(r.mp) + '</div>' +
-      '<div class="hbar-sub">' + fmtM(r.mg) + '</div>' +
-      '</div>';
-  });
-  document.getElementById('hbar-rubros-m').innerHTML = htmlM || '<div style="color:var(--muted);padding:12px">Sin datos</div>';
+  cont.innerHTML = h || '<div style="color:var(--muted);padding:12px">Sin datos</div>';
 }
 
 // ══════════════════════════════════════════════════════════════════════════
@@ -1633,11 +1676,11 @@ function renderStockTable() {
 font-family:Arial,sans-serif;font-size:11px;padding:5px 12px;border-radius:20px;
 background:rgba(15,15,25,.93);color:#ddd;box-shadow:0 2px 10px rgba(0,0,0,.55);
 border-left:4px solid #3fb950;pointer-events:none;line-height:1.5">
-  &#9201; <b>Generado:</b> 10/10/2026 16:20
+  &#9201; <b>Generado:</b> 10/10/2026 16:30
 </div>
 <script>
 (function(){
-  var gen=new Date("2026-10-10T16:20:01"),hrs=(new Date()-gen)/3600000;
+  var gen=new Date("2026-10-10T16:30:23"),hrs=(new Date()-gen)/3600000;
   var el=document.getElementById("_ibaceta_ts");if(!el)return;
   if(hrs>24){el.style.borderColor="#f85149";el.style.color="#ffcccc";
     el.innerHTML+=" &nbsp;<span style=\"color:#f85149;font-weight:bold\">&#9888; +24h</span>";}
