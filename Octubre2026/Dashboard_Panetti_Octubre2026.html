@@ -6,12 +6,12 @@
 <title>PANETTI — Dashboard Marca Propia · IBACETA 2026</title>
 <style>
 :root {
-  --bg:      #0d1117;
-  --bg2:     #161b22;
-  --bg3:     #21262d;
-  --border:  #30363d;
-  --text:    #e6edf3;
-  --muted:   #8b949e;
+  --bg:      #f1f3f6;
+  --bg2:     #ffffff;
+  --bg3:     #e8ecf1;
+  --border:  #d4dbe3;
+  --text:    #2b3138;
+  --muted:   #68727e;
   /* Panetti brand */
   --p-dark:  #7d3c10;
   --p-main:  #c65911;
@@ -139,7 +139,7 @@ body{ background:var(--bg); color:var(--text); font-family:-apple-system,BlinkMa
   cursor:pointer; font-size:12px; color:var(--text); transition:background .1s;
 }
 .cd-item:hover{ background:var(--bg3); }
-.cd-item:not(:last-child){ border-bottom:1px solid rgba(48,54,61,.5); }
+.cd-item:not(:last-child){ border-bottom:1px solid rgba(43,49,56,.14); }
 .cd-item input[type=radio]{ accent-color:var(--p-main); width:14px; height:14px; cursor:pointer; }
 .cd-dot{ width:10px; height:10px; border-radius:50%; flex-shrink:0; }
 .canal-info-lbl{ font-size:11px; color:var(--muted); }
@@ -213,7 +213,7 @@ body{ background:var(--bg); color:var(--text); font-family:-apple-system,BlinkMa
 .hbar-scroll-wrap::-webkit-scrollbar-track{ background:#1a1f25; border-radius:4px; }
 .hbar-scroll-wrap::-webkit-scrollbar-thumb{ background:#F1891B; border-radius:4px; }
 .hbar-list{ display:inline-flex; flex-direction:column; gap:0; min-width:700px; width:max-content; }
-.hbar-row{ display:flex; align-items:center; gap:10px; padding:7px 4px; border-bottom:1px solid rgba(48,54,61,.4); width:100%; }
+.hbar-row{ display:flex; align-items:center; gap:10px; padding:7px 4px; border-bottom:1px solid rgba(43,49,56,.12); width:100%; }
 .hbar-row:last-child{ border-bottom:none; }
 .hbar-rank{ width:18px; text-align:right; font-size:10px; color:var(--muted); flex-shrink:0; }
 .hbar-label{ font-size:11px; white-space:nowrap; min-width:200px; flex-shrink:0; }
@@ -233,8 +233,8 @@ body{ background:var(--bg); color:var(--text); font-family:-apple-system,BlinkMa
   white-space:nowrap; cursor:pointer; user-select:none;
 }
 .data-table th:hover{ color:var(--p-gold); }
-.data-table td{ padding:7px 10px; border-bottom:1px solid rgba(48,54,61,.35); vertical-align:middle; }
-.data-table tr:hover td{ background:rgba(33,38,45,.7); }
+.data-table td{ padding:7px 10px; border-bottom:1px solid rgba(43,49,56,.10); vertical-align:middle; }
+.data-table tr:hover td{ background:rgba(198,89,17,.06); }
 .data-table .r{ text-align:right; }
 .rub-chip{
   display:inline-block; padding:2px 7px; border-radius:6px; font-size:9px; font-weight:700;
@@ -295,15 +295,15 @@ body{ background:var(--bg); color:var(--text); font-family:-apple-system,BlinkMa
 }
 .stock-table th:hover{ color:var(--p-gold); }
 .stock-table th.sorted{ color:var(--p-gold); }
-.stock-table td{ padding:7px 10px; border-bottom:1px solid rgba(48,54,61,.35); vertical-align:middle; white-space:nowrap; }
-.stock-table tr:hover td{ background:rgba(33,38,45,.7); }
+.stock-table td{ padding:7px 10px; border-bottom:1px solid rgba(43,49,56,.10); vertical-align:middle; white-space:nowrap; }
+.stock-table tr:hover td{ background:rgba(198,89,17,.06); }
 .stock-table .r{ text-align:right; }
 .stock-total-chip{
   display:inline-block; padding:2px 8px; border-radius:8px;
   background:rgba(198,89,17,.12); color:var(--p-gold);
   border:1px solid rgba(198,89,17,.25); font-weight:700; font-size:10px;
 }
-.stock-zero{ color:rgba(139,148,158,.35); }
+.stock-zero{ color:rgba(104,114,126,.45); }
 
 /* ── Sub-bar tab buttons ── */
 .sub-bar-tabs{ display:flex; align-items:center; gap:6px; margin-left:auto; }
@@ -333,7 +333,7 @@ body{ background:var(--bg); color:var(--text); font-family:-apple-system,BlinkMa
   </div>
 
   <div class="header-center">
-    <div class="gen-badge">Generado: 10/10/2026 11:23</div>
+    <div class="gen-badge">Generado: 10/10/2026 11:31</div>
   </div>
 
   <div class="header-right">
@@ -842,22 +842,34 @@ function setMedio(m) {
   syncCanalUI(); renderAll();
 }
 
+// Con TODO seleccionado, el primer clic deja SOLO lo que tocaste: destildar uno
+// por uno para aislar un punto de venta era impracticable con 17.
 function toggleCanal(k) {
-  if (CANAL_FILTER.size === 0) CANAL_FILTER = new Set(_todasHojas());
-  if (CANAL_FILTER.has(k)) CANAL_FILTER.delete(k); else CANAL_FILTER.add(k);
-  if (CANAL_FILTER.size === 0) CANAL_FILTER = new Set(_todasHojas());
+  if (CANAL_FILTER.size === 0) { CANAL_FILTER = new Set([k]); }
+  else if (CANAL_FILTER.has(k)) {
+    if (CANAL_FILTER.size > 1) CANAL_FILTER.delete(k);   // nunca dejar vacio
+  } else {
+    CANAL_FILTER.add(k);
+    if (CANAL_FILTER.size === _todasHojas().length) CANAL_FILTER = new Set();
+  }
   syncCanalUI(); renderAll();
 }
 
 function toggleGrupo(gkey) {
   var pvs = _pvDeGrupo(gkey);
   if (!pvs.length) return;
-  if (CANAL_FILTER.size === 0) CANAL_FILTER = new Set(_todasHojas());
-  var todasPuestas = pvs.every(function(k) { return CANAL_FILTER.has(k); });
-  pvs.forEach(function(k) {
-    if (todasPuestas) CANAL_FILTER.delete(k); else CANAL_FILTER.add(k);
-  });
-  if (CANAL_FILTER.size === 0) CANAL_FILTER = new Set(_todasHojas());
+  if (CANAL_FILTER.size === 0) {          // estaban todos: aislar este grupo
+    CANAL_FILTER = new Set(pvs);
+  } else {
+    var todasPuestas = pvs.every(function(k) { return CANAL_FILTER.has(k); });
+    if (todasPuestas) {
+      pvs.forEach(function(k) { CANAL_FILTER.delete(k); });
+      if (CANAL_FILTER.size === 0) CANAL_FILTER = new Set(pvs);  // no dejar vacio
+    } else {
+      pvs.forEach(function(k) { CANAL_FILTER.add(k); });
+      if (CANAL_FILTER.size === _todasHojas().length) CANAL_FILTER = new Set();
+    }
+  }
   syncCanalUI(); renderAll();
 }
 
@@ -1085,7 +1097,12 @@ function renderCanalBars(d) {
   var allOn = _allOn();
   var lblMap = { t:'Tiendas', cal:'Venta Calle', bs:'Panetti Bs As',
                 m:'MELI', may:'Mayorista' };
-  var lbl = '— ' + (allOn ? 'Todos' : Array.from(CANAL_FILTER).map(function(c){return lblMap[c];}).join(' + '));
+  var _n = CANAL_FILTER.size;
+  var lbl = '— ' + (allOn ? 'Todos'
+            : _n === 1 ? Array.from(CANAL_FILTER)[0]
+            : _n + ' puntos de venta')
+          + (MEDIO_FILTER === 'c' ? ' · contado'
+           : MEDIO_FILTER === 's' ? ' · semanal' : '');
   document.getElementById('canal-card-lbl').textContent = lbl;
 
   var canales = [
@@ -1094,12 +1111,14 @@ function renderCanalBars(d) {
     { key:'bs',  nom:'Panetti Bs As', col:'var(--p-gold)',icon:'🏢' },
     { key:'m',   nom:'MELI',          col:'var(--c-m)',   icon:'🛒' },
     { key:'may', nom:'Mayorista',     col:'var(--c-may)', icon:'🏭' },
-    { key:'vs',  nom:'V. Semanal', col:'var(--c-vs)',  icon:'📋' },
   ];
   var totalBruto = d.canal_data.all.total || 1;
   var html = '';
   canales.forEach(function(c) {
+    // Si un grupo no tiene datos este periodo, no romper el tablero entero:
+    // el 10/10/2026 una clave vieja ('vs') dejo todas las tarjetas en blanco.
     var cd = d.canal_data[c.key];
+    if (!cd) return;
     var pct = cd.total / totalBruto;
     var barW = Math.max(0, Math.min(100, pct * 100));
     html += '<div class="canal-row">' +
@@ -1125,7 +1144,6 @@ function renderDonut(d) {
     { k:'bs',  nom:'Panetti Bs As', col:'#e4ba70' },
     { k:'m',   nom:'MELI',          col:'#f59e0b' },
     { k:'may', nom:'Mayorista',     col:'#10b981' },
-    { k:'vs',  nom:'V. Semanal', col:'#a78bfa' },
   ];
   var total = d.canal_data.all.venta || 1;
   var r = 45, cx = 60, cy = 60, sw = 22;
@@ -1338,7 +1356,10 @@ document.addEventListener('click', function(e) {
     document.getElementById('per-filter-dropdown').classList.remove('open');
   }
   var cw = document.getElementById('canal-filter-wrap');
-  if (cw && !cw.contains(e.target)) {
+  // El desplegable se redibuja al tildar, asi que para cuando llega el evento
+  // el elemento clickeado ya no esta en el DOM y contains() da false: el menu
+  // se cerraba solo en cada clic. isConnected distingue ese caso.
+  if (cw && !cw.contains(e.target) && e.target.isConnected) {
     document.getElementById('canal-filter-btn').classList.remove('open');
     document.getElementById('canal-dropdown').classList.remove('open');
   }
@@ -1538,11 +1559,11 @@ function renderStockTable() {
 font-family:Arial,sans-serif;font-size:11px;padding:5px 12px;border-radius:20px;
 background:rgba(15,15,25,.93);color:#ddd;box-shadow:0 2px 10px rgba(0,0,0,.55);
 border-left:4px solid #3fb950;pointer-events:none;line-height:1.5">
-  &#9201; <b>Generado:</b> 10/10/2026 11:23
+  &#9201; <b>Generado:</b> 10/10/2026 11:31
 </div>
 <script>
 (function(){
-  var gen=new Date("2026-10-10T11:23:25"),hrs=(new Date()-gen)/3600000;
+  var gen=new Date("2026-10-10T11:31:36"),hrs=(new Date()-gen)/3600000;
   var el=document.getElementById("_ibaceta_ts");if(!el)return;
   if(hrs>24){el.style.borderColor="#f85149";el.style.color="#ffcccc";
     el.innerHTML+=" &nbsp;<span style=\"color:#f85149;font-weight:bold\">&#9888; +24h</span>";}
