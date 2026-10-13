@@ -101,6 +101,13 @@ nav .pin{display:inline-block;min-width:17px;padding:0 5px;margin-left:4px;backg
 .corr{background:#eef9f1;border-left:3px solid #27ae60;border-radius:4px;padding:4px 7px;
       margin:5px 0;font-size:.74rem;color:#1d6b43}
 .corr .de{display:block;font-size:.66rem;opacity:.75}
+/* Confirmacion de datos: discreta cuando esta hecha, visible cuando falta */
+.verif{background:#eef4fb;border:1px dashed #b9cbe0;border-radius:6px;padding:5px 7px;
+       margin:5px 0;font-size:.72rem;color:#395a80;display:flex;flex-wrap:wrap;gap:4px;
+       align-items:center}
+.verif span{flex:1 1 100%}
+.verif .b{padding:3px 8px;font-size:.7rem}
+.verif.ok{background:#f3f6f4;border:0;color:#6b7280;display:block;font-size:.69rem}
 .nota{background:#fffbe9;border-left:3px solid #E8C14C;border-radius:4px;padding:4px 7px;
       margin:5px 0;font-size:.74rem;color:#6b5b1e;white-space:nowrap;overflow:hidden;
       text-overflow:ellipsis}
@@ -285,7 +292,7 @@ const db = firebase.firestore();
 // vendedores. Lo hecho sin conexion sincroniza al volver.
 db.enablePersistence({synchronizeTabs:true}).catch(()=>{});
 
-const VERSION="2026-10-13c";
+const VERSION="2026-10-13d";
 const DOMINIO="funnel.ibaceta.ar";
 const NEGOCIOS=["ALMACEN","TODO SUELTO","KIOSCO VENTANA","PANIFICADORA","ROTISERÍA",
   "VERDULERIA","CARNICERIA","AVÍCOLA","MINIMARKET","PELUQUERIA","ART DE LIMPIEZA",
@@ -315,7 +322,11 @@ let tagsVisibles=new Set(["refinanciada"]);
 // Las etiquetas viven en el MISMO documento que usa el funnel HTML (funnel_calle/_shared).
 // Asi lo que se marca en la app se ve en el tablero viejo y al reves, que es lo que hace
 // falta mientras los dos conviven.
-let tags={}, asignaciones={}, comentarios={}, datos={};
+let tags={}, asignaciones={}, comentarios={}, datos={}, verif={};
+// Cada cuantos meses hay que volver a confirmar que el telefono y la direccion siguen
+// siendo los de siempre. Con rutas de ~150 clientes, 6 meses son unas 25 confirmaciones
+// por mes por cobrador: entra en la semana. A 3 meses se duplica y deja de hacerse.
+const MESES_VERIF=6;
 const ETAPAS=[["inicio","Inicio","0% - 50%"],["en_marcha","En marcha","50% - 75%"],
   ["por_cerrar","Por cerrar","75% - 90%"],["cierre_inminente","Cierre inminente","90% - 100%"],
   ["refinanciar","Refinanciar","Saldo > 0"],["finalizado","Finalizado","> 100%"]];
@@ -512,6 +523,14 @@ function escuchar(){
                              vendPorDiv=d.data().por_division||{}; pintar(); } })
     .catch(()=>{});
 
+  // Las confirmaciones van en documento aparte: son una por cliente y el documento
+  // compartido ya va por 192 KB de los 1.024 que Firestore permite.
+  desus.push(db.collection("funnel_calle").doc("_verificaciones").onSnapshot(d=>{
+    verif = (d.exists && d.data().datos) ? d.data().datos : {};
+    limpiarVerificacionesVencidas();
+    pintar();
+  },()=>{}));
+
   desus.push(db.collection("funnel_calle").doc("_shared").onSnapshot(d=>{
     tags = (d.exists && d.data().tags) ? d.data().tags : {};
     // Las reasignaciones se comparten con el funnel HTML: si el supervisor mueve un
@@ -655,6 +674,47 @@ function guardarComentario(cod,texto){
   ref.update(fp,dato).catch(()=>{ if(t){ const o={}; o[String(cod)]=t;
     ref.set({comentarios:o},{merge:true}).catch(()=>{}); } });
   if(t) comentarios[String(cod)]=t; else delete comentarios[String(cod)];
+}
+
+// ---------- confirmar que los datos siguen siendo correctos ----------
+// El telefono y la direccion existen en casi todos los clientes, pero nadie garantiza
+// que sigan vigentes. El cobrador pasa por la puerta todas las semanas: es quien puede
+// confirmarlo. La confirmacion VENCE, asi que no es una tarea infinita sino un ciclo.
+const _hoyD=()=>new Date();
+function _mesesDesde(iso){
+  if(!iso) return 999;
+  const p=String(iso).split("-"); if(p.length!==3) return 999;
+  const d=new Date(+p[0],+p[1]-1,+p[2]);
+  return (_hoyD()-d)/(1000*60*60*24*30.44);
+}
+function verifDe(cod){
+  const v=verif[String(cod)];
+  if(!v||!v.fecha) return {estado:"nunca"};
+  const m=_mesesDesde(v.fecha);
+  return {estado: m>=MESES_VERIF ? "vencida" : "vigente", por:v.por, fecha:v.fecha, meses:m};
+}
+function confirmarDatos(cod){
+  const reg={por:sesion.usuario, fecha:hoyISO()};
+  verif[String(cod)]=reg;
+  const ref=db.collection("funnel_calle").doc("_verificaciones");
+  const fp=new firebase.firestore.FieldPath("datos",String(cod));
+  ref.update(fp,reg).catch(()=>{ const o={}; o[String(cod)]=reg;
+    ref.set({datos:o},{merge:true}).catch(()=>{}); });
+  pintar();
+}
+// Las vencidas se borran solas: una confirmacion de hace mas de un ciclo ya no dice
+// nada y solo hace crecer el documento.
+let _limpioVerif=false;
+function limpiarVerificacionesVencidas(){
+  if(_limpioVerif) return; _limpioVerif=true;
+  const ref=db.collection("funnel_calle").doc("_verificaciones");
+  Object.keys(verif).forEach(cod=>{
+    if(_mesesDesde((verif[cod]||{}).fecha) >= MESES_VERIF*2){
+      delete verif[cod];
+      ref.update(new firebase.firestore.FieldPath("datos",String(cod)),
+                 firebase.firestore.FieldValue.delete()).catch(()=>{});
+    }
+  });
 }
 
 function ponerTag(cod,val){
@@ -1142,6 +1202,8 @@ function tablaCobradores(){
   Object.values(porC).forEach(f=>{
     f.avisos=pend.filter(a=>a.origen_usuario===f.c).length;
     const suyas=pend.filter(a=>a.tipo==="dato"&&a.asignado_a===f.c);
+    f.verif=lista.filter(c=>c.estado==="activo"&&(c.cobradores||[]).includes(f.c)
+                            &&verifDe(c.codigo).estado==="vigente").length;
     f.datos=suyas.length;
     f.datosViejos=suyas.filter(a=>(a.fecha||"")<hoy).length;
   });
@@ -1158,7 +1220,7 @@ function tablaCobradores(){
     <div style="overflow-x:auto"><table class="tabla">
       <tr><th>Cobrador</th><th>Clientes activos</th><th>Ops activas</th><th>A cobrar/sem</th>
           <th>Cierre inminente</th><th>Refinanciar</th><th>Saldo pendiente</th>
-          <th>Marcados</th><th>Datos a cargar</th><th>Avisos abiertos</th></tr>
+          <th>Marcados</th><th>Datos confirmados</th><th>Datos a cargar</th><th>Avisos abiertos</th></tr>
       ${filas.map(f=>`<tr onclick="verCob('${esc(f.c)}')">
         <td style="color:var(--azul);font-weight:700">${esc(f.c)}</td>
         <td>${f.act}</td><td>${f.ops}</td>
@@ -1167,6 +1229,8 @@ function tablaCobradores(){
         <td>${f.refi}</td>
         <td style="color:${f.saldo?'var(--violeta)':'inherit'};font-weight:${f.saldo?700:400}">${plata(f.saldo)}</td>
         <td style="color:${f.marc?'var(--rojo)':'inherit'}">${f.marc}</td>
+        <td title="Clientes activos con el teléfono y la dirección confirmados en los últimos ${MESES_VERIF} meses">${
+            f.act?f.verif+" de "+f.act+" ("+Math.round(f.verif/f.act*100)+"%)":"—"}</td>
         <td style="font-weight:${f.datos?700:400};color:${f.datosViejos?'var(--rojo)':f.datos?'var(--naranja)':'inherit'}"
             title="${f.datosViejos?f.datosViejos+' esperando desde antes de hoy':''}">${
             f.datos||"—"}${f.datosViejos?" ("+f.datosViejos+" viejas)":""}</td>
@@ -1253,6 +1317,13 @@ function tarjeta(c,quien){
        return t.corregido
          ? `<div class="corr">${tel(t.valor)}<span class="de">corregido por ${esc(t.por)} · falta cargarlo en el ERP</span></div>`
          : `<div class="te">${tel(t.valor)}</div>`; })()}
+    ${(()=>{ const v=verifDe(c.codigo);
+       if(v.estado==="vigente")
+         return `<div class="verif ok">Datos confirmados por ${esc(v.por)} · ${dmy(v.fecha)}</div>`;
+       return `<div class="verif"><span>¿El teléfono y la dirección son correctos?</span>
+         <button class="b auto" onclick="event.stopPropagation();confirmarDatos('${esc(c.codigo)}')">Están bien</button>
+         <button class="b auto" onclick="event.stopPropagation();abrirDatos('${esc(c.codigo)}')">Corregir</button></div>`;
+     })()}
     ${comentarioDe(c.codigo)?`<div class="nota" title="${esc(comentarioDe(c.codigo))}">${esc(comentarioDe(c.codigo))}</div>`:""}
     ${chip}
     <button class="b full" onclick="ficha('${esc(c.codigo)}')">Ver Ficha</button>
@@ -1363,6 +1434,14 @@ function cabeceraFicha(c){
        return t.corregido
          ? `<div class="corr">${tel(t.valor)}<span class="de">corregido por ${esc(t.por)} el ${dmy(t.fecha)} · falta cargarlo en el ERP</span></div>`
          : `<div style="margin:8px 0">${tel(t.valor)}</div>`; })()}
+    ${(()=>{ const v=verifDe(c.codigo);
+       return v.estado==="vigente"
+         ? `<div class="verif ok">Datos confirmados por ${esc(v.por)} el ${dmy(v.fecha)}. Se vuelven a pedir a los ${MESES_VERIF} meses.</div>`
+         : `<div class="verif"><span>${v.estado==="vencida"
+              ? "La última confirmación fue hace más de "+MESES_VERIF+" meses ("+esc(v.por)+", "+dmy(v.fecha)+")."
+              : "Nadie confirmó todavía que estos datos sigan vigentes."}</span>
+            <button class="b auto" onclick="confirmarDatos('${esc(c.codigo)}')">Están bien</button></div>`;
+     })()}
     <button class="b auto" onclick="abrirDatos('${esc(c.codigo)}')">Corregir teléfono o dirección</button>
     ${c.email?`<div class="loc"><a href="mailto:${esc(c.email)}" style="color:var(--azul)">${esc(c.email)}</a></div>`:""}
     ${(()=>{ const n=negDe(c); return n.corregido
