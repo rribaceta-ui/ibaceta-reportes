@@ -59,6 +59,10 @@ nav .pin{display:inline-block;min-width:17px;padding:0 5px;margin-left:4px;backg
 .etqs-t{font-size:.76rem;font-weight:700;color:#555}
 .etq{display:flex;align-items:center;gap:4px;font-size:.78rem;color:#555;cursor:pointer;
      white-space:nowrap}
+/* La regla de arriba estira TODO input de la barra a 150px, pensando en el buscador.
+   A una casilla eso la separa de su texto media pantalla. */
+.barra label input[type=checkbox]{flex:0 0 auto;width:auto;min-width:0;padding:0;
+                                  border-radius:3px;margin:0}
 .etq input{width:auto;margin:0}
 .etq i{width:9px;height:9px;border-radius:50%;display:inline-block}
 .limpiar{flex:0 0 auto;background:none;border:0;color:var(--rojo);font-size:.8rem;
@@ -281,7 +285,7 @@ const db = firebase.firestore();
 // vendedores. Lo hecho sin conexion sincroniza al volver.
 db.enablePersistence({synchronizeTabs:true}).catch(()=>{});
 
-const VERSION="2026-10-13a";
+const VERSION="2026-10-13b";
 const DOMINIO="funnel.ibaceta.ar";
 const NEGOCIOS=["ALMACEN","TODO SUELTO","KIOSCO VENTANA","PANIFICADORA","ROTISERÍA",
   "VERDULERIA","CARNICERIA","AVÍCOLA","MINIMARKET","PELUQUERIA","ART DE LIMPIEZA",
