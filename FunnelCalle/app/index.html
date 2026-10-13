@@ -294,7 +294,7 @@ const db = firebase.firestore();
 // vendedores. Lo hecho sin conexion sincroniza al volver.
 db.enablePersistence({synchronizeTabs:true}).catch(()=>{});
 
-const VERSION="2026-10-13g";
+const VERSION="2026-10-13h";
 const DOMINIO="funnel.ibaceta.ar";
 // Las 10 mas comunes cubren el 88,9% de los clientes que hoy tienen rubro cargado. Van
 // a la vista. El resto de las conocidas queda detras de "Otro", para no perderlas pero
@@ -334,7 +334,22 @@ let tags={}, asignaciones={}, comentarios={}, datos={}, verif={};
 // el codigo: asi se cambian desde la app, quedan respaldados y no hay que publicar una
 // version nueva por corregir una coma. Si el documento no existe, se usan estos.
 // Los textos acompanan los cuatro pilares comerciales.
+// Cada local tiene su propia ficha de Google. El mensaje de pedido de calificacion es el
+// mismo para los tres: lo unico que cambia es el link, que sale de la provincia del
+// cliente. Por eso es UN solo boton y no tres. Tambien se editan desde la app.
+const RESENAS_BASE={
+  "Mendoza":  "https://g.page/r/CZhPfZJxIPLdEBM/review",
+  "San Juan": "https://g.page/r/CT8u4f8V9uvHEBM/review",
+  "San Luis": "https://g.page/r/CbM3Rjp5YHqAEBM/review",
+};
+let resenas=RESENAS_BASE;
+
 const PLANTILLAS_BASE=[
+  {titulo:"Pedido de calificación",
+   texto:"¡Hola! Tu opinión es muy importante para nosotros. Nos ayudarías muchísimo si "
+        +"nos dejas una reseña en Google, contándonos qué producto compraste y tu "
+        +"experiencia:\n\n⭐⭐ {resena} ⭐⭐\n\nTe toma solo unos segundos y a nosotros "
+        +"nos sirve un montón para seguir creciendo.\n¡Gracias por el apoyo!"},
   {titulo:"Está por terminar",
    texto:"Hola {nombre}, ¿cómo estás? Te escribo de Ibaceta. Te quedan {restantes} cuotas "
         +"para terminar tu plan (vence el {vence}). ¿Querés que pasemos a mostrarte lo "
@@ -555,6 +570,8 @@ function escuchar(){
   desus.push(db.collection("funnel_calle").doc("_plantillas").onSnapshot(d=>{
     const l = d.exists ? d.data().lista : null;
     plantillas = (Array.isArray(l) && l.length) ? l : PLANTILLAS_BASE;
+    const r = d.exists ? d.data().resenas : null;
+    resenas = (r && Object.keys(r).length) ? r : RESENAS_BASE;
     pintar();
   },()=>{}));
 
@@ -1196,12 +1213,18 @@ function plantillasHtml(){
     <div style="font-size:.78rem;color:var(--gris);margin-bottom:8px">
       Son los que ve el vendedor en la ficha de cada cliente. Se pueden escribir con
       <b>{nombre}</b>, <b>{vendedor}</b>, <b>{cuota}</b>, <b>{restantes}</b>,
-      <b>{vence}</b> y <b>{localidad}</b>: se reemplazan por los datos de ese cliente.</div>
+      <b>{vence}</b>, <b>{localidad}</b> y <b>{resena}</b>: se reemplazan por los datos de
+      ese cliente. <b>{resena}</b> pone el link de Google de la provincia del cliente, así
+      un solo mensaje sirve para las tres.</div>
     ${plantillas.slice(0,4).map((p,i)=>`<div class="campo">
       <label>Mensaje ${i+1}</label>
       <input id="pl-t${i}" value="${esc(p.titulo||"")}" placeholder="Título del botón"
              style="margin-bottom:5px">
       <textarea id="pl-x${i}" rows="3">${esc(p.texto||"")}</textarea></div>`).join("")}
+    <div class="titulo">Links de reseña de Google, uno por provincia</div>
+    ${["Mendoza","San Juan","San Luis"].map(pr=>`<div class="campo">
+      <label>${pr}</label><input id="pl-r${esc(pr).replace(/ /g,"")}"
+        value="${esc(resenas[pr]||"")}" placeholder="https://g.page/r/.../review"></div>`).join("")}
     <div class="acciones"><button class="b auto full" onclick="guardarPlantillas()">Guardar mensajes</button></div>
   </div>`;
 }
@@ -1210,9 +1233,14 @@ function guardarPlantillas(){
     titulo:(document.getElementById("pl-t"+i)||{}).value||"",
     texto:(document.getElementById("pl-x"+i)||{}).value||""})).filter(p=>p.titulo&&p.texto);
   if(!lista.length){ alert("Dejá al menos un mensaje."); return; }
-  plantillas=lista;
+  const res={};
+  ["Mendoza","San Juan","San Luis"].forEach(pr=>{
+    const el=document.getElementById("pl-r"+pr.replace(/ /g,""));
+    if(el&&el.value.trim()) res[pr]=el.value.trim();
+  });
+  plantillas=lista; resenas=Object.keys(res).length?res:resenas;
   db.collection("funnel_calle").doc("_plantillas")
-    .set({lista, por:sesion.usuario, fecha:hoyISO()},{merge:true})
+    .set({lista, resenas:res, por:sesion.usuario, fecha:hoyISO()},{merge:true})
     .then(()=>alert("Mensajes guardados. Los van a ver todos."))
     .catch(e=>alert("No se pudieron guardar: "+e.message));
 }
@@ -1567,21 +1595,27 @@ function _armarTexto(txt,c){
     .replace(/{cuota}/g, plata(oa.reduce((s,o)=>s+(o.cuota_semanal||0),0)))
     .replace(/{restantes}/g, rest)
     .replace(/{vence}/g, prox?prox.fecha_fin:"—")
-    .replace(/{localidad}/g, c.localidad||"");
+    .replace(/{localidad}/g, c.localidad||"")
+    .replace(/{resena}/g, resenas[c.provincia]||"");
 }
 function bloqueWhatsapp(c){
   const t=telDe(c);
   const cel=_primerCelu(t.valor);
   if(!cel) return `<div class="loc" style="color:var(--rojo);margin:8px 0">
      Sin celular cargado: no se le puede escribir por WhatsApp.</div>`;
+  const usables=plantillas.slice(0,4).filter(p=>
+    !String(p.texto||"").includes("{resena}") || resenas[c.provincia]);
+  const faltaResena = usables.length<plantillas.slice(0,4).length;
   return `<div class="titulo">Mandarle un WhatsApp</div>
-    <div class="wa-botones">${plantillas.slice(0,4).map((p,i)=>
+    <div class="wa-botones">${usables.map((p,i)=>
       `<a class="b auto wa" target="_blank" rel="noopener"
           title="${esc(_armarTexto(p.texto,c))}"
           href="https://wa.me/549${cel}?text=${encodeURIComponent(_armarTexto(p.texto,c))}"
        >${esc(p.titulo)}</a>`).join("")}</div>
     <div style="font-size:.72rem;color:var(--gris);margin-top:3px">
-      Abre WhatsApp con el mensaje escrito. Lo revisás y lo mandás vos.</div>`;
+      Abre WhatsApp con el mensaje escrito. Lo revisás y lo mandás vos.${
+      faltaResena?`<br><span style="color:var(--naranja)">El pedido de calificación no
+      aparece: no hay ficha de Google cargada para ${esc(c.provincia||"esta provincia")}.</span>`:""}</div>`;
 }
 
 const ffNum=f=>{const p=String(f||"").split("/");return p.length===3?+(p[2]+p[1].padStart(2,"0")+p[0].padStart(2,"0")):0;};
