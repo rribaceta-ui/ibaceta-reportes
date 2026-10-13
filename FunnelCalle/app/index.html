@@ -292,7 +292,7 @@ const db = firebase.firestore();
 // vendedores. Lo hecho sin conexion sincroniza al volver.
 db.enablePersistence({synchronizeTabs:true}).catch(()=>{});
 
-const VERSION="2026-10-13d";
+const VERSION="2026-10-13e";
 const DOMINIO="funnel.ibaceta.ar";
 const NEGOCIOS=["ALMACEN","TODO SUELTO","KIOSCO VENTANA","PANIFICADORA","ROTISERÍA",
   "VERDULERIA","CARNICERIA","AVÍCOLA","MINIMARKET","PELUQUERIA","ART DE LIMPIEZA",
@@ -691,10 +691,17 @@ function verifDe(cod){
   const v=verif[String(cod)];
   if(!v||!v.fecha) return {estado:"nunca"};
   const m=_mesesDesde(v.fecha);
-  return {estado: m>=MESES_VERIF ? "vencida" : "vigente", por:v.por, fecha:v.fecha, meses:m};
+  return {estado: m>=MESES_VERIF ? "vencida" : "vigente",
+          por:v.por, rol:_rolDe(v.rol), fecha:v.fecha, meses:m};
 }
+// Como se nombra cada rol cuando se muestra quien confirmo. Importa: un supervisor o
+// gerencia NO visitan al cliente, asi que su confirmacion vale distinto que la del
+// cobrador que estuvo en la puerta. Mostrarlo deja eso a la vista sin bloquear a nadie.
+const ROL_CORTO={vendedor:"vendedor",cobrador:"cobrador",supervisor_zona:"supervisor",
+                 supervisor_cobranza:"cobranza",gerente:"gerencia"};
+const _rolDe=r=>ROL_CORTO[r]||r||"";
 function confirmarDatos(cod){
-  const reg={por:sesion.usuario, fecha:hoyISO()};
+  const reg={por:sesion.usuario, rol:sesion.rol, fecha:hoyISO()};
   verif[String(cod)]=reg;
   const ref=db.collection("funnel_calle").doc("_verificaciones");
   const fp=new firebase.firestore.FieldPath("datos",String(cod));
@@ -1319,7 +1326,8 @@ function tarjeta(c,quien){
          : `<div class="te">${tel(t.valor)}</div>`; })()}
     ${(()=>{ const v=verifDe(c.codigo);
        if(v.estado==="vigente")
-         return `<div class="verif ok">Datos confirmados por ${esc(v.por)} · ${dmy(v.fecha)}</div>`;
+         return `<div class="verif ok">Datos confirmados por ${esc(v.por)}${
+           v.rol?" ("+esc(v.rol)+")":""} · ${dmy(v.fecha)}</div>`;
        return `<div class="verif"><span>¿El teléfono y la dirección son correctos?</span>
          <button class="b auto" onclick="event.stopPropagation();confirmarDatos('${esc(c.codigo)}')">Están bien</button>
          <button class="b auto" onclick="event.stopPropagation();abrirDatos('${esc(c.codigo)}')">Corregir</button></div>`;
@@ -1436,9 +1444,11 @@ function cabeceraFicha(c){
          : `<div style="margin:8px 0">${tel(t.valor)}</div>`; })()}
     ${(()=>{ const v=verifDe(c.codigo);
        return v.estado==="vigente"
-         ? `<div class="verif ok">Datos confirmados por ${esc(v.por)} el ${dmy(v.fecha)}. Se vuelven a pedir a los ${MESES_VERIF} meses.</div>`
+         ? `<div class="verif ok">Datos confirmados por <b>${esc(v.por)}</b>${
+              v.rol?" ("+esc(v.rol)+")":""} el <b>${dmy(v.fecha)}</b>. Se vuelven a pedir a los ${MESES_VERIF} meses.</div>`
          : `<div class="verif"><span>${v.estado==="vencida"
-              ? "La última confirmación fue hace más de "+MESES_VERIF+" meses ("+esc(v.por)+", "+dmy(v.fecha)+")."
+              ? "La última confirmación fue hace más de "+MESES_VERIF+" meses: "+esc(v.por)
+                +(v.rol?" ("+esc(v.rol)+")":"")+", "+dmy(v.fecha)+"."
               : "Nadie confirmó todavía que estos datos sigan vigentes."}</span>
             <button class="b auto" onclick="confirmarDatos('${esc(c.codigo)}')">Están bien</button></div>`;
      })()}
