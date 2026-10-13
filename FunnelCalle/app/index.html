@@ -107,6 +107,8 @@ nav .pin{display:inline-block;min-width:17px;padding:0 5px;margin-left:4px;backg
        align-items:center}
 .verif span{flex:1 1 100%}
 .verif .b{padding:3px 8px;font-size:.7rem}
+.negs{flex:1 1 100%;display:flex;flex-wrap:wrap;gap:3px 10px}
+.negs .etq{font-size:.75rem}
 .verif.ok{background:#f3f6f4;border:0;color:#6b7280;display:block;font-size:.69rem}
 .nota{background:#fffbe9;border-left:3px solid #E8C14C;border-radius:4px;padding:4px 7px;
       margin:5px 0;font-size:.74rem;color:#6b5b1e;white-space:nowrap;overflow:hidden;
@@ -255,10 +257,7 @@ a.tel{color:var(--azul);text-decoration:none;font-weight:600}
   <div id="d-dest" style="font-size:.78rem;color:var(--gris);margin-bottom:12px"></div>
   <div class="campo"><label>Teléfono</label><input type="tel" id="d-tel" placeholder="Ej.: 2615155532"></div>
   <div class="campo"><label>Dirección</label><input type="text" id="d-dir" placeholder="Calle, número, barrio"></div>
-  <div class="campo"><label>Tipo de negocio</label><select id="d-neg"
-      onchange="document.getElementById('d-negotro').style.display=this.value==='__otro'?'block':'none'"></select></div>
-  <div class="campo" id="d-negotro" style="display:none"><label>¿Cuál?</label>
-    <input type="text" id="d-negtxt" placeholder="Escribilo en singular, ej.: VIVERO"></div>
+
   <div class="campo"><label>Nota (opcional)</label><textarea id="d-obs" rows="2"
     placeholder="Ej.: me lo dio el hijo, el anterior no existe más"></textarea></div>
   <div class="acciones"><button class="b auto" onclick="cerrar('m-datos')">Cancelar</button>
@@ -292,13 +291,18 @@ const db = firebase.firestore();
 // vendedores. Lo hecho sin conexion sincroniza al volver.
 db.enablePersistence({synchronizeTabs:true}).catch(()=>{});
 
-const VERSION="2026-10-13e";
+const VERSION="2026-10-13f";
 const DOMINIO="funnel.ibaceta.ar";
-const NEGOCIOS=["ALMACEN","TODO SUELTO","KIOSCO VENTANA","PANIFICADORA","ROTISERÍA",
-  "VERDULERIA","CARNICERIA","AVÍCOLA","MINIMARKET","PELUQUERIA","ART DE LIMPIEZA",
-  "LIBRERIA","BAR-CAFE","PET SHOP","RESTAURANT","INDUMENTARIA","FIAMBRERIA",
-  "TALLER MECANICO","CENTRO DE ESTETICA","PROVEEDORES","LUBRICENTRO","FERRETERIA",
-  "HELADERIA","VTA DE BEBIDAS","LAVADERO","FABRICA DE EMBUTIDOS"];
+// Las 10 mas comunes cubren el 88,9% de los clientes que hoy tienen rubro cargado. Van
+// a la vista. El resto de las conocidas queda detras de "Otro", para no perderlas pero
+// sin llenar la pantalla con 26 casillas.
+const NEGOCIOS_TOP=["ALMACEN","TODO SUELTO","KIOSCO VENTANA","PANIFICADORA","ROTISERÍA",
+  "VERDULERIA","CARNICERIA","AVÍCOLA","MINIMARKET","PELUQUERIA"];
+const NEGOCIOS_MAS=["ART DE LIMPIEZA","LIBRERIA","BAR-CAFE","PET SHOP","RESTAURANT",
+  "INDUMENTARIA","FIAMBRERIA","TALLER MECANICO","CENTRO DE ESTETICA","PROVEEDORES",
+  "LUBRICENTRO","FERRETERIA","HELADERIA","VTA DE BEBIDAS","LAVADERO",
+  "FABRICA DE EMBUTIDOS"];
+const NEGOCIOS=NEGOCIOS_TOP.concat(NEGOCIOS_MAS);
 const TIPOS={llamada:"Llamada",visita:"Visita",whatsapp:"WhatsApp",tarea:"Tarea",
              dato:"Actualizar datos en el ERP"};
 // Una correccion de datos no se cierra con "contactado": se cierra diciendo si se
@@ -632,12 +636,18 @@ function telDe(c){
 }
 // El ERP trae "NO DEFINIDO" en 7 de cada 10 clientes activos. Eso cuenta como vacio:
 // si no, filtrar por tipo de negocio devolveria "NO DEFINIDO" como si fuera un rubro.
+// Un comercio puede ser mas de una cosa a la vez -- almacen que ademas vende verdura --
+// asi que el rubro es una LISTA. Se acepta el formato viejo (un solo texto) para no
+// perder lo que ya estaba cargado.
 function negDe(c){
   const d=correccionDe(c.codigo);
-  if(d&&d.neg) return {valor:d.neg, corregido:true, por:d.por, fecha:d.fecha};
+  const aLista=v=>Array.isArray(v)?v.filter(Boolean):(v?[v]:[]);
+  if(d&&d.neg&&aLista(d.neg).length)
+    return {valor:aLista(d.neg), corregido:true, por:d.por, fecha:d.fecha};
   const e=String(c.negocio||"").trim();
-  return {valor:(!e||e.toUpperCase()==="NO DEFINIDO")?"":e, corregido:false};
+  return {valor:(!e||e.toUpperCase()==="NO DEFINIDO")?[]:[e], corregido:false};
 }
+const negTexto=c=>negDe(c).valor.join(", ");
 function dirDe(c){
   const d=correccionDe(c.codigo);
   return (d&&d.dir) ? {valor:d.dir, corregido:true, por:d.por, fecha:d.fecha}
@@ -930,8 +940,8 @@ function pintarBarra(){
        deptos.map(v=>`<option value="${esc(v)}" ${v===fDepto?"selected":""}>${esc(v)}</option>`).join("")+`</select>`;
   }
   // Tipo de negocio: la razon por la que se carga desde la calle es poder segmentar.
-  const negs=[...new Set(base.map(c=>negDe(c).valor).filter(Boolean))].sort();
-  const sinNeg=base.filter(c=>c.estado==="activo"&&!negDe(c).valor).length;
+  const negs=[...new Set(base.flatMap(c=>negDe(c).valor))].sort();
+  const sinNeg=base.filter(c=>c.estado==="activo"&&!negDe(c).valor.length).length;
   if(negs.length>1){
     h+=`<select class="${fNeg?"act":""}" onchange="fNeg=this.value;pintar()"><option value="">Todo tipo de negocio</option>`+
        negs.map(v=>`<option value="${esc(v)}" ${v===fNeg?"selected":""}>${esc(v)}</option>`).join("")+
@@ -1016,7 +1026,8 @@ function filtrar(l){
   if(fProv)  l=l.filter(c=>c.provincia===fProv);
   if(fDepto) l=l.filter(c=>c.depto===fDepto);
   if(fTipo)  l=l.filter(c=>(c.operaciones||[]).some(o=>o.tipo===fTipo));
-  if(fNeg)   l=l.filter(c=>fNeg==="__sin" ? !negDe(c).valor : negDe(c).valor===fNeg);
+  if(fNeg)   l=l.filter(c=>{ const v=negDe(c).valor;
+                             return fNeg==="__sin" ? !v.length : v.includes(fNeg); });
   if(soloEtiquetados) l=l.filter(c=>!!tagDe(c.codigo));
   // Un cliente etiquetado se ve si su etiqueta esta tildada. Si no lo esta, igual se ve
   // cuando TIENE OPERACIONES ACTIVAS: alguien le esta cobrando, esconderlo seria peor
@@ -1167,7 +1178,7 @@ function negHtml(){
       ${filas.sort((a,b)=>String(a.d.fecha||"").localeCompare(String(b.d.fecha||"")))
         .map(({c,d})=>`<tr>
         <td style="color:var(--azul);font-weight:700;cursor:pointer" onclick="ficha('${esc(c.codigo)}')">${esc(c.nombre)}</td>
-        <td>${esc(c.codigo)}</td><td style="font-weight:700">${esc(d.neg)}</td>
+        <td>${esc(c.codigo)}</td><td style="font-weight:700">${esc([].concat(d.neg).join(", "))}</td>
         <td>${esc(d.por||"")}</td><td>${dmy(d.fecha)}</td></tr>`).join("")}
     </table></div></div>`;
 }
@@ -1423,6 +1434,55 @@ async function ficha(cod){
   pintarOps(c);
 }
 
+// El rubro es lo unico que falta de verdad para segmentar: 68% de los activos sin
+// cargar. Por eso se pide en la ficha misma y no escondido en un formulario.
+let _negAbierto=null;
+function bloqueNegocio(c){
+  const n=negDe(c), cod=String(c.codigo), puestos=n.valor;
+  const abierto = _negAbierto===cod || !puestos.length;
+  if(!abierto){
+    return `<div class="verif ok" style="display:flex;gap:8px;align-items:center;flex-wrap:wrap">
+      <span style="flex:1">Negocio: <b>${esc(puestos.join(", "))}</b>${
+        n.corregido?` — cargado por ${esc(n.por)}, todavía no está en el ERP`:""}</span>
+      <button class="b auto" onclick="_negAbierto='${esc(cod)}';ficha('${esc(cod)}')">Cambiar</button>
+    </div>`;
+  }
+  const otras = puestos.filter(v=>!NEGOCIOS_TOP.includes(v));
+  const caja=(v)=>`<label class="etq"><input type="checkbox" value="${esc(v)}"
+      ${puestos.includes(v)?"checked":""}>${esc(v)}</label>`;
+  return `<div class="verif" id="n-caja" data-cod="${esc(cod)}">
+    <span>¿Qué tipo de negocio es? Se puede marcar más de uno.</span>
+    <div class="negs">${NEGOCIOS_TOP.map(caja).join("")}</div>
+    <div class="negs" id="n-mas" style="display:${otras.length?"flex":"none"}">
+      ${NEGOCIOS_MAS.map(caja).join("")}</div>
+    <input id="n-otro" placeholder="Otro: escribilo en singular" value="${
+      esc(otras.filter(v=>!NEGOCIOS_MAS.includes(v)).join(", "))}"
+      style="flex:1 1 100%;padding:7px;border:1.5px solid #ccd2d9;border-radius:6px;font-size:.8rem">
+    <button class="b auto" onclick="document.getElementById('n-mas').style.display='flex'">Ver más rubros</button>
+    <button class="b auto full" onclick="guardarNegocio('${esc(cod)}')">Guardar</button>
+  </div>`;
+}
+function guardarNegocio(cod){
+  const caja=document.getElementById("n-caja"); if(!caja) return;
+  const sel=[...caja.querySelectorAll("input[type=checkbox]:checked")].map(x=>x.value);
+  const libre=(document.getElementById("n-otro").value||"").split(",")
+              .map(x=>x.trim().toUpperCase()).filter(Boolean);
+  const todos=[...new Set(sel.concat(libre))];
+  const c=clientes.find(x=>String(x.codigo)===String(cod));
+  const previo=correccionDe(cod)||{};
+  const reg={por:sesion.usuario, rol:sesion.rol, fecha:hoyISO()};
+  if(previo.tel) reg.tel=previo.tel;
+  if(previo.dir) reg.dir=previo.dir;
+  if(todos.length) reg.neg=todos;
+  datos[String(cod)]=reg;
+  const ref=db.collection("funnel_calle").doc("_shared");
+  ref.update(new firebase.firestore.FieldPath("datos",String(cod)),reg)
+     .catch(()=>{ const o={}; o[String(cod)]=reg; ref.set({datos:o},{merge:true}).catch(()=>{}); });
+  _negAbierto=null;
+  if(c) ficha(cod);
+  pintar();
+}
+
 const ffNum=f=>{const p=String(f||"").split("/");return p.length===3?+(p[2]+p[1].padStart(2,"0")+p[0].padStart(2,"0")):0;};
 
 function cabeceraFicha(c){
@@ -1454,10 +1514,8 @@ function cabeceraFicha(c){
      })()}
     <button class="b auto" onclick="abrirDatos('${esc(c.codigo)}')">Corregir teléfono o dirección</button>
     ${c.email?`<div class="loc"><a href="mailto:${esc(c.email)}" style="color:var(--azul)">${esc(c.email)}</a></div>`:""}
-    ${(()=>{ const n=negDe(c); return n.corregido
-       ? `<div class="corr">Negocio: ${esc(n.valor)}<span class="de">cargado por ${esc(n.por)} &middot; todavía no está en el ERP</span></div>`
-       : ""; })()}
-    <div class="loc">Negocio: ${esc(negDe(c).valor||"sin definir")} &middot; Divisi&oacute;n: ${esc(c.division||(c.div_huerf||[]).filter(Boolean).join(", ")||"Sin asignar")}</div>
+    ${bloqueNegocio(c)}
+    <div class="loc">Divisi&oacute;n: ${esc(c.division||(c.div_huerf||[]).filter(Boolean).join(", ")||"Sin asignar")}</div>
     <div class="loc">Vendedor: <b>${esc(vendedorDe(c)||"-")}</b>${
       asig&&c.vendedor&&asig!==c.vendedor?` <span style="color:var(--gris)">(del ERP: ${esc(c.vendedor)})</span>`:""
       } &middot; Cobrador: <b>${esc((c.cobradores||[]).join(", ")||"-")}</b></div>
@@ -1599,13 +1657,7 @@ function abrirDatos(cod){
     +" para cargarlo en el ERP.";
   document.getElementById("d-tel").value=t.valor||"";
   document.getElementById("d-dir").value=d.valor||"";
-  const n=negDe(c), lista=NEGOCIOS.slice();
-  if(n.valor&&!lista.includes(n.valor)) lista.unshift(n.valor);
-  document.getElementById("d-neg").innerHTML='<option value="">Sin definir</option>'+
-    lista.map(v=>`<option value="${esc(v)}" ${v===n.valor?"selected":""}>${esc(v)}</option>`).join("")+
-    '<option value="__otro">Otro...</option>';
-  document.getElementById("d-negotro").style.display="none";
-  document.getElementById("d-negtxt").value="";
+
   document.getElementById("d-obs").value="";
   abrir("m-datos");
 }
@@ -1614,23 +1666,18 @@ async function guardarDatos(){
   const telNuevo=document.getElementById("d-tel").value.trim();
   const dirNueva=document.getElementById("d-dir").value.trim();
   const nota=document.getElementById("d-obs").value.trim();
-  const selNeg=document.getElementById("d-neg").value;
-  const negNuevo = selNeg==="__otro"
-    ? document.getElementById("d-negtxt").value.trim().toUpperCase() : selNeg;
   const cambioTel = telNuevo && soloDig(telNuevo)!==soloDig(c.telefono);
   const cambioDir = dirNueva && dirNueva.toUpperCase()!==String(c.domicilio||"").trim().toUpperCase();
-  const cambioNeg = negNuevo && negNuevo!==negDe(c).valor;
-  if(!cambioTel&&!cambioDir&&!cambioNeg){ alert("No cambiaste ningún dato."); return; }
+  if(!cambioTel&&!cambioDir){ alert("No cambiaste ningún dato."); return; }
 
   const reg={por:sesion.usuario, fecha:hoyISO()};
   if(cambioTel) reg.tel=telNuevo;
   if(cambioDir) reg.dir=dirNueva;
-  if(cambioNeg) reg.neg=negNuevo;
   // Lo que ya estaba corregido no se pierde por tocar otro campo.
   const previo=correccionDe(datCod)||{};
   if(!cambioTel&&previo.tel) reg.tel=previo.tel;
   if(!cambioDir&&previo.dir) reg.dir=previo.dir;
-  if(!cambioNeg&&previo.neg) reg.neg=previo.neg;
+  if(previo.neg) reg.neg=previo.neg;
   datos[datCod]=reg;
 
   const ref=db.collection("funnel_calle").doc("_shared");
@@ -1641,9 +1688,6 @@ async function guardarDatos(){
   const detalle=[cambioTel?`Teléfono: ${c.telefono||"(vacío)"} → ${telNuevo}`:"",
                  cambioDir?`Dirección: ${c.domicilio||"(vacío)"} → ${dirNueva}`:"",
                  nota].filter(Boolean).join("\n");
-  // El tipo de negocio no genera tarea: hay 727 clientes sin clasificar y una tarea por
-  // cada uno ahogaria al cobrador. Se junta en una lista para cargar de una sola vez.
-  if(!cambioTel&&!cambioDir){ cerrar("m-datos"); pintar(); return; }
   try{
     await db.collection("actividades").add({
       cliente_cod:datCod, cliente_nombre:c.nombre, provincia:c.provincia||"",
