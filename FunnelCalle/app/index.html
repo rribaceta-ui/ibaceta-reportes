@@ -107,6 +107,9 @@ nav .pin{display:inline-block;min-width:17px;padding:0 5px;margin-left:4px;backg
        align-items:center}
 .verif span{flex:1 1 100%}
 .verif .b{padding:3px 8px;font-size:.7rem}
+.wa-botones{display:flex;flex-wrap:wrap;gap:7px;margin-top:6px}
+.wa-botones .wa{flex:1 1 46%;text-align:center;text-decoration:none;background:#25D366;
+                color:#fff;border:0;font-weight:700;padding:9px 10px}
 .negs{flex:1 1 100%;display:flex;flex-wrap:wrap;gap:3px 10px}
 .negs .etq{font-size:.75rem}
 .verif.ok{background:#f3f6f4;border:0;color:#6b7280;display:block;font-size:.69rem}
@@ -291,7 +294,7 @@ const db = firebase.firestore();
 // vendedores. Lo hecho sin conexion sincroniza al volver.
 db.enablePersistence({synchronizeTabs:true}).catch(()=>{});
 
-const VERSION="2026-10-13f";
+const VERSION="2026-10-13g";
 const DOMINIO="funnel.ibaceta.ar";
 // Las 10 mas comunes cubren el 88,9% de los clientes que hoy tienen rubro cargado. Van
 // a la vista. El resto de las conocidas queda detras de "Otro", para no perderlas pero
@@ -327,6 +330,26 @@ let tagsVisibles=new Set(["refinanciada"]);
 // Asi lo que se marca en la app se ve en el tablero viejo y al reves, que es lo que hace
 // falta mientras los dos conviven.
 let tags={}, asignaciones={}, comentarios={}, datos={}, verif={};
+// Los cuatro mensajes de WhatsApp viven en Firestore (funnel_calle/_plantillas), no en
+// el codigo: asi se cambian desde la app, quedan respaldados y no hay que publicar una
+// version nueva por corregir una coma. Si el documento no existe, se usan estos.
+// Los textos acompanan los cuatro pilares comerciales.
+const PLANTILLAS_BASE=[
+  {titulo:"Está por terminar",
+   texto:"Hola {nombre}, ¿cómo estás? Te escribo de Ibaceta. Te quedan {restantes} cuotas "
+        +"para terminar tu plan (vence el {vence}). ¿Querés que pasemos a mostrarte lo "
+        +"nuevo así ya dejás elegido lo que sigue?"},
+  {titulo:"Hace mucho que no nos vemos",
+   texto:"Hola {nombre}, ¿cómo va? Soy {vendedor}, de Ibaceta. Hace un tiempo que no "
+        +"pasamos por tu negocio. ¿Te interesa que te acerque las promos de este mes?"},
+  {titulo:"Tenemos algo para tu rubro",
+   texto:"Hola {nombre}, soy {vendedor} de Ibaceta. Entró equipamiento nuevo que te puede "
+        +"servir para tu negocio. ¿Te paso fotos y precios por acá?"},
+  {titulo:"Coordinar una visita",
+   texto:"Hola {nombre}, soy {vendedor} de Ibaceta. ¿Qué día y horario te queda cómodo "
+        +"para que pase por el negocio?"},
+];
+let plantillas=PLANTILLAS_BASE;
 // Cada cuantos meses hay que volver a confirmar que el telefono y la direccion siguen
 // siendo los de siempre. Con rutas de ~150 clientes, 6 meses son unas 25 confirmaciones
 // por mes por cobrador: entra en la semana. A 3 meses se duplica y deja de hacerse.
@@ -529,6 +552,12 @@ function escuchar(){
 
   // Las confirmaciones van en documento aparte: son una por cliente y el documento
   // compartido ya va por 192 KB de los 1.024 que Firestore permite.
+  desus.push(db.collection("funnel_calle").doc("_plantillas").onSnapshot(d=>{
+    const l = d.exists ? d.data().lista : null;
+    plantillas = (Array.isArray(l) && l.length) ? l : PLANTILLAS_BASE;
+    pintar();
+  },()=>{}));
+
   desus.push(db.collection("funnel_calle").doc("_verificaciones").onSnapshot(d=>{
     verif = (d.exists && d.data().datos) ? d.data().datos : {};
     limpiarVerificacionesVencidas();
@@ -1155,7 +1184,37 @@ function pintarSupervisor(){
         <td>${r.act}</td><td>${r.ops}</td><td>${r.cie}</td><td>${r.fin}</td>
         <td style="color:${r.sin?'var(--rojo)':'inherit'};font-weight:700">${r.sin}</td>
         <td>${plata(prom(r.cuotas))}</td></tr>`).join("")}
-    </table></div></div>` + deptoHtml + negHtml() + huerfHtml;
+    </table></div></div>` + deptoHtml + negHtml() + huerfHtml + plantillasHtml();
+}
+
+// Los textos de WhatsApp los edita quien conduce. Es una restriccion decidida a
+// proposito, no un efecto lateral: un vendedor no reescribe los mensajes de la empresa,
+// pero los usa igual que todos.
+function plantillasHtml(){
+  if(!conduce()) return "";
+  return `<div class="panel"><h3>Mensajes de WhatsApp (${plantillas.length})</h3>
+    <div style="font-size:.78rem;color:var(--gris);margin-bottom:8px">
+      Son los que ve el vendedor en la ficha de cada cliente. Se pueden escribir con
+      <b>{nombre}</b>, <b>{vendedor}</b>, <b>{cuota}</b>, <b>{restantes}</b>,
+      <b>{vence}</b> y <b>{localidad}</b>: se reemplazan por los datos de ese cliente.</div>
+    ${plantillas.slice(0,4).map((p,i)=>`<div class="campo">
+      <label>Mensaje ${i+1}</label>
+      <input id="pl-t${i}" value="${esc(p.titulo||"")}" placeholder="Título del botón"
+             style="margin-bottom:5px">
+      <textarea id="pl-x${i}" rows="3">${esc(p.texto||"")}</textarea></div>`).join("")}
+    <div class="acciones"><button class="b auto full" onclick="guardarPlantillas()">Guardar mensajes</button></div>
+  </div>`;
+}
+function guardarPlantillas(){
+  const lista=[0,1,2,3].map(i=>({
+    titulo:(document.getElementById("pl-t"+i)||{}).value||"",
+    texto:(document.getElementById("pl-x"+i)||{}).value||""})).filter(p=>p.titulo&&p.texto);
+  if(!lista.length){ alert("Dejá al menos un mensaje."); return; }
+  plantillas=lista;
+  db.collection("funnel_calle").doc("_plantillas")
+    .set({lista, por:sesion.usuario, fecha:hoyISO()},{merge:true})
+    .then(()=>alert("Mensajes guardados. Los van a ver todos."))
+    .catch(e=>alert("No se pudieron guardar: "+e.message));
 }
 
 // Los tipos de negocio cargados desde la calle NO generan una tarea por cliente: serian
@@ -1483,6 +1542,48 @@ function guardarNegocio(cod){
   pintar();
 }
 
+// ---------- WhatsApp con mensaje listo ----------
+// No manda nada solo: abre WhatsApp con el texto escrito y la persona decide si lo envia.
+const _primerCelu=raw=>{
+  for(const parte of String(raw||"").split(/[;,\n\r]|  +/)){
+    let d=parte.replace(/\D/g,"");
+    if(d.startsWith("549")&&d.length===13) d=d.slice(3);
+    else if(d.startsWith("54")&&d.length===12) d=d.slice(2);
+    else if(d.startsWith("0")) d=d.slice(1);
+    for(const ch of (d.length>13?(d.match(/.{1,10}/g)||[d]):[d]))
+      if(ch.length===10) return ch;
+  }
+  return null;
+};
+function _armarTexto(txt,c){
+  const oa=opsActivas(c);
+  const prox=oa.slice().sort((a,b)=>ffNum(a.fecha_fin)-ffNum(b.fecha_fin))[0];
+  const rest=oa.reduce((s,o)=>s+(o.cuotas_restantes||0),0);
+  const nombre=String(c.nombre||"").split(/[ ,]+/).filter(Boolean).slice(-1)[0]||c.nombre||"";
+  return String(txt||"")
+    .replace(/{nombre}/g, (String(c.nombre||"").split(/\s+/)[1]||nombre))
+    .replace(/{nombre_completo}/g, c.nombre||"")
+    .replace(/{vendedor}/g, vendedorDe(c)||"")
+    .replace(/{cuota}/g, plata(oa.reduce((s,o)=>s+(o.cuota_semanal||0),0)))
+    .replace(/{restantes}/g, rest)
+    .replace(/{vence}/g, prox?prox.fecha_fin:"—")
+    .replace(/{localidad}/g, c.localidad||"");
+}
+function bloqueWhatsapp(c){
+  const t=telDe(c);
+  const cel=_primerCelu(t.valor);
+  if(!cel) return `<div class="loc" style="color:var(--rojo);margin:8px 0">
+     Sin celular cargado: no se le puede escribir por WhatsApp.</div>`;
+  return `<div class="titulo">Mandarle un WhatsApp</div>
+    <div class="wa-botones">${plantillas.slice(0,4).map((p,i)=>
+      `<a class="b auto wa" target="_blank" rel="noopener"
+          title="${esc(_armarTexto(p.texto,c))}"
+          href="https://wa.me/549${cel}?text=${encodeURIComponent(_armarTexto(p.texto,c))}"
+       >${esc(p.titulo)}</a>`).join("")}</div>
+    <div style="font-size:.72rem;color:var(--gris);margin-top:3px">
+      Abre WhatsApp con el mensaje escrito. Lo revisás y lo mandás vos.</div>`;
+}
+
 const ffNum=f=>{const p=String(f||"").split("/");return p.length===3?+(p[2]+p[1].padStart(2,"0")+p[0].padStart(2,"0")):0;};
 
 function cabeceraFicha(c){
@@ -1537,6 +1638,7 @@ function cabeceraFicha(c){
              font-size:.85rem;font-family:inherit;resize:vertical;box-sizing:border-box"
       >${esc(comentarioDe(c.codigo))}</textarea>
     <div style="font-size:.72rem;color:var(--gris);margin-top:3px">Lo ven tambi&eacute;n en el funnel.</div>
+    ${bloqueWhatsapp(c)}
     <div id="f-ops"></div>
     <div class="titulo">Historial sal&oacute;n</div>
     <div class="loc">Primera compra: ${esc(c.salon_primera||"-")} &middot; &Uacute;ltima: ${esc(c.salon_ultima||"-")}</div>
