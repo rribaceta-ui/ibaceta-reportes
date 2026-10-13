@@ -54,6 +54,13 @@ nav .pin{display:inline-block;min-width:17px;padding:0 5px;margin-left:4px;backg
 .barra select.act{border-color:var(--azul);color:var(--azul);font-weight:700;background:#f0f6ff}
 /* Las casillas no se parten en dos renglones ni se desalinean del cuadradito */
 .barra label{flex:0 0 auto;white-space:nowrap}
+/* Casillas de etiquetas: compactas, con el color de cada una */
+.etqs{flex:1 1 100%;display:flex;flex-wrap:wrap;gap:4px 12px;align-items:center}
+.etqs-t{font-size:.76rem;font-weight:700;color:#555}
+.etq{display:flex;align-items:center;gap:4px;font-size:.78rem;color:#555;cursor:pointer;
+     white-space:nowrap}
+.etq input{width:auto;margin:0}
+.etq i{width:9px;height:9px;border-radius:50%;display:inline-block}
 .limpiar{flex:0 0 auto;background:none;border:0;color:var(--rojo);font-size:.8rem;
          font-weight:700;cursor:pointer;padding:6px 4px;text-decoration:underline}
 
@@ -274,7 +281,7 @@ const db = firebase.firestore();
 // vendedores. Lo hecho sin conexion sincroniza al volver.
 db.enablePersistence({synchronizeTabs:true}).catch(()=>{});
 
-const VERSION="2026-10-10f";
+const VERSION="2026-10-13a";
 const DOMINIO="funnel.ibaceta.ar";
 const NEGOCIOS=["ALMACEN","TODO SUELTO","KIOSCO VENTANA","PANIFICADORA","ROTISERÍA",
   "VERDULERIA","CARNICERIA","AVÍCOLA","MINIMARKET","PELUQUERIA","ART DE LIMPIEZA",
@@ -292,9 +299,15 @@ const RESULTADOS=[["contactado_interesado","Contactado - interesado",true],
   ["no_interesa","No le interesa",false],["vendido","Vendido",false],
   ["datos_erroneos","Datos erróneos (tel/dir)",false]];
 // Mismas etapas, mismos nombres y mismo orden que el funnel de siempre.
-const TAGS=[["sin_local","Ya no tiene local","#E8762C"],
-            ["incobrable","Incobrable","#C0392B"],
-            ["fallecido","Fallecido","#7F8C8D"]];
+// Las cuatro del funnel. "Refinanciar" faltaba en la app: los 20 clientes marcados asi
+// no mostraban etiqueta y desde aca no se podia poner.
+const TAGS=[["sin_local","Ya no tiene local","#E8762C","Sin local"],
+            ["incobrable","Incobrable","#C0392B","Incobrable"],
+            ["fallecido","Fallecido","#7F8C8D","Fallecido"],
+            ["refinanciada","Refinanciar","#9B59B6","Refinanciar"]];
+// Cuales de los etiquetados se ven. Arranca como el funnel: las tres primeras ocultan,
+// "Refinanciar" no. Se destildan y tildan desde la barra de filtros.
+let tagsVisibles=new Set(["refinanciada"]);
 // Las etiquetas viven en el MISMO documento que usa el funnel HTML (funnel_calle/_shared).
 // Asi lo que se marca en la app se ve en el tablero viejo y al reves, que es lo que hace
 // falta mientras los dos conviven.
@@ -854,11 +867,25 @@ function pintarBarra(){
     h+=`<select class="${fTipo?"act":""}" onchange="fTipo=this.value;pintar()"><option value="">Todas las operaciones</option>`+
        tipos.map(v=>`<option value="${esc(v)}" ${v===fTipo?"selected":""}>${esc(v)}</option>`).join("")+`</select>`;
   }
+  // Dos controles distintos a proposito:
+  //   - las casillas de abajo dicen QUE ETIQUETADOS se ven (los sin etiqueta se ven siempre)
+  //   - "Solo etiquetados" hace lo contrario: esconde a los que NO tienen etiqueta
+  const cuenta={}; baseDe().forEach(c=>{ const t=tagDe(c.codigo); if(t) cuenta[t]=(cuenta[t]||0)+1; });
+  if(Object.keys(cuenta).length){
+    h+=`<div class="etqs"><span class="etqs-t">Ver etiquetados:</span>`+
+      TAGS.filter(([k])=>cuenta[k]).map(([k,l,col,corto])=>
+        `<label class="etq" title="${esc(l)} — ${cuenta[k]} cliente${cuenta[k]!==1?"s":""}">
+           <input type="checkbox" ${tagsVisibles.has(k)?"checked":""}
+                  onchange="verEtiqueta('${k}',this.checked)">
+           <i style="background:${col}"></i>${esc(corto)} (${cuenta[k]})</label>`).join("")+
+      `</div>`;
+  }
   h+=`<label style="display:flex;align-items:center;gap:6px;font-size:.8rem;color:#555">
         <input type="checkbox" ${soloEtiquetados?"checked":""}
                onchange="soloEtiquetados=this.checked;pintar()" style="width:auto"> Solo etiquetados</label>`;
   // Con cinco filtros es facil dejar uno puesto y no entender por que faltan clientes.
-  if(fDiv||fProv||fDepto||fTipo||fNeg||soloEtiquetados||busca){
+  const etqCambiadas = TAGS.some(([k])=>tagsVisibles.has(k)!==(k==="refinanciada"));
+  if(fDiv||fProv||fDepto||fTipo||fNeg||soloEtiquetados||busca||etqCambiadas){
     h+=`<button class="limpiar" onclick="limpiarFiltros()">Quitar filtros</button>`;
   }
   const nEmp=clientes.filter(esEmpleado).length;
@@ -897,7 +924,12 @@ function buscar(v){
   _tBusca=setTimeout(()=>pintar(), 200);
 }
 function limpiarFiltros(){
-  fDiv=fProv=fDepto=fTipo=fNeg=busca=""; soloEtiquetados=false; pintar();
+  fDiv=fProv=fDepto=fTipo=fNeg=busca=""; soloEtiquetados=false;
+  tagsVisibles=new Set(["refinanciada"]); pintar();
+}
+function verEtiqueta(k, si){
+  if(si) tagsVisibles.add(k); else tagsVisibles.delete(k);
+  pintar();
 }
 
 // Mismos filtros para las tres vistas: division, provincia, departamento, tipo de
@@ -911,6 +943,13 @@ function filtrar(l){
   if(fTipo)  l=l.filter(c=>(c.operaciones||[]).some(o=>o.tipo===fTipo));
   if(fNeg)   l=l.filter(c=>fNeg==="__sin" ? !negDe(c).valor : negDe(c).valor===fNeg);
   if(soloEtiquetados) l=l.filter(c=>!!tagDe(c.codigo));
+  // Un cliente etiquetado se ve si su etiqueta esta tildada. Si no lo esta, igual se ve
+  // cuando TIENE OPERACIONES ACTIVAS: alguien le esta cobrando, esconderlo seria peor
+  // que el ruido. Es la misma regla del funnel.
+  l=l.filter(c=>{
+    const t=tagDe(c.codigo);
+    return !t || tagsVisibles.has(t) || c.estado==="activo";
+  });
   if(busca){ const q=busca.trim().toLowerCase();
              l=l.filter(c=>(c.nombre||"").toLowerCase().includes(q)); }
   return l;
