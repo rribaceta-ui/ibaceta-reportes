@@ -285,7 +285,7 @@ const db = firebase.firestore();
 // vendedores. Lo hecho sin conexion sincroniza al volver.
 db.enablePersistence({synchronizeTabs:true}).catch(()=>{});
 
-const VERSION="2026-10-13b";
+const VERSION="2026-10-13c";
 const DOMINIO="funnel.ibaceta.ar";
 const NEGOCIOS=["ALMACEN","TODO SUELTO","KIOSCO VENTANA","PANIFICADORA","ROTISERÍA",
   "VERDULERIA","CARNICERIA","AVÍCOLA","MINIMARKET","PELUQUERIA","ART DE LIMPIEZA",
@@ -448,7 +448,11 @@ _verBotones();
 document.getElementById("lb").onclick=entrar;
 document.getElementById("lp").onkeydown=e=>{if(e.key==="Enter")entrar();};
 async function entrar(){
-  const u=document.getElementById("lu").value.trim(),p=document.getElementById("lp").value,err=document.getElementById("le");
+  // La contrasena tambien se limpia de espacios. El teclado predictivo del telefono
+  // agrega uno al final todo el tiempo y el resultado es "contrasena incorrecta" sin que
+  // se pueda ver que sobra un espacio. Ninguna clave del sistema empieza ni termina con
+  // espacio, asi que limpiarla no rompe nada.
+  const u=document.getElementById("lu").value.trim(),p=document.getElementById("lp").value.trim(),err=document.getElementById("le");
   if(!u||!p){err.textContent="Completá usuario y contraseña.";err.style.display="block";return;}
   document.getElementById("lb").disabled=true;
   try{ await firebase.auth().signInWithEmailAndPassword(correo(u),p); }
