@@ -260,6 +260,10 @@ a.tel{color:var(--azul);text-decoration:none;font-weight:600}
   <div id="d-dest" style="font-size:.78rem;color:var(--gris);margin-bottom:12px"></div>
   <div class="campo"><label>Teléfono</label><input type="tel" id="d-tel" placeholder="Ej.: 2615155532"></div>
   <div class="campo"><label>Dirección</label><input type="text" id="d-dir" placeholder="Calle, número, barrio"></div>
+  <div class="campo"><label>Número de WhatsApp</label>
+    <input type="tel" id="d-wa" placeholder="10 dígitos, ej.: 2615155532">
+    <div style="font-size:.72rem;color:var(--gris);margin-top:3px">Característica + número,
+      <b>sin el 0 y sin el 15</b>. Es el que se usa para mandar los mensajes.</div></div>
 
   <div class="campo"><label>Nota (opcional)</label><textarea id="d-obs" rows="2"
     placeholder="Ej.: me lo dio el hijo, el anterior no existe más"></textarea></div>
@@ -294,7 +298,7 @@ const db = firebase.firestore();
 // vendedores. Lo hecho sin conexion sincroniza al volver.
 db.enablePersistence({synchronizeTabs:true}).catch(()=>{});
 
-const VERSION="2026-10-13h";
+const VERSION="2026-10-14a";
 const DOMINIO="funnel.ibaceta.ar";
 // Las 10 mas comunes cubren el 88,9% de los clientes que hoy tienen rubro cargado. Van
 // a la vista. El resto de las conocidas queda detras de "Otro", para no perderlas pero
@@ -1309,6 +1313,8 @@ function tablaCobradores(){
     const suyas=pend.filter(a=>a.tipo==="dato"&&a.asignado_a===f.c);
     f.verif=lista.filter(c=>c.estado==="activo"&&(c.cobradores||[]).includes(f.c)
                             &&verifDe(c.codigo).estado==="vigente").length;
+    f.sinWa=lista.filter(c=>c.estado==="activo"&&(c.cobradores||[]).includes(f.c)
+                            &&!waDe(c)).length;
     f.datos=suyas.length;
     f.datosViejos=suyas.filter(a=>(a.fecha||"")<hoy).length;
   });
@@ -1325,7 +1331,7 @@ function tablaCobradores(){
     <div style="overflow-x:auto"><table class="tabla">
       <tr><th>Cobrador</th><th>Clientes activos</th><th>Ops activas</th><th>A cobrar/sem</th>
           <th>Cierre inminente</th><th>Refinanciar</th><th>Saldo pendiente</th>
-          <th>Marcados</th><th>Datos confirmados</th><th>Datos a cargar</th><th>Avisos abiertos</th></tr>
+          <th>Marcados</th><th>Sin WhatsApp</th><th>Datos confirmados</th><th>Datos a cargar</th><th>Avisos abiertos</th></tr>
       ${filas.map(f=>`<tr onclick="verCob('${esc(f.c)}')">
         <td style="color:var(--azul);font-weight:700">${esc(f.c)}</td>
         <td>${f.act}</td><td>${f.ops}</td>
@@ -1334,6 +1340,8 @@ function tablaCobradores(){
         <td>${f.refi}</td>
         <td style="color:${f.saldo?'var(--violeta)':'inherit'};font-weight:${f.saldo?700:400}">${plata(f.saldo)}</td>
         <td style="color:${f.marc?'var(--rojo)':'inherit'}">${f.marc}</td>
+        <td title="Clientes activos sin un celular con formato válido para WhatsApp"
+            style="color:${f.sinWa?'var(--rojo)':'inherit'};font-weight:${f.sinWa?700:400}">${f.sinWa||"—"}</td>
         <td title="Clientes activos con el teléfono y la dirección confirmados en los últimos ${MESES_VERIF} meses">${
             f.act?f.verif+" de "+f.act+" ("+Math.round(f.verif/f.act*100)+"%)":"—"}</td>
         <td style="font-weight:${f.datos?700:400};color:${f.datosViejos?'var(--rojo)':f.datos?'var(--naranja)':'inherit'}"
@@ -1572,17 +1580,47 @@ function guardarNegocio(cod){
 
 // ---------- WhatsApp con mensaje listo ----------
 // No manda nada solo: abre WhatsApp con el texto escrito y la persona decide si lo envia.
+// Un celular argentino, listo para WhatsApp, son 10 digitos: caracteristica + numero,
+// sin 0 adelante y SIN el 15. Despues se le antepone 549.
+//
+// El 15 NO se puede borrar a ciegas: un numero valido como 2615526987 lo tiene en el
+// medio y sacarlo lo romperia. Solo se saca cuando el numero YA es invalido (12 digitos)
+// y quitarlo deja exactamente 10. Asi nunca se rompe uno que funcionaba.
+function normalizarCel(texto){
+  let d=String(texto||"").replace(/\D/g,"");
+  if(d.startsWith("00")) d=d.slice(2);
+  if(d.startsWith("549")&&d.length===13) return d.slice(3);
+  if(d.startsWith("54") &&d.length===12) return d.slice(2);
+  if(d.startsWith("0"))  d=d.slice(1);
+  if(d.length===10) return d;
+  if(d.length===12){                       // formato viejo: 261 15 5799911
+    for(const i of [2,3,4]){
+      if(d.slice(i,i+2)==="15"){
+        const sin=d.slice(0,i)+d.slice(i+2);
+        if(sin.length===10) return sin;
+      }
+    }
+  }
+  if(d.length>13){                          // dos numeros pegados
+    for(const ch of (d.match(/.{1,10}/g)||[])) if(ch.length===10) return ch;
+  }
+  return null;
+}
 const _primerCelu=raw=>{
   for(const parte of String(raw||"").split(/[;,\n\r]|  +/)){
-    let d=parte.replace(/\D/g,"");
-    if(d.startsWith("549")&&d.length===13) d=d.slice(3);
-    else if(d.startsWith("54")&&d.length===12) d=d.slice(2);
-    else if(d.startsWith("0")) d=d.slice(1);
-    for(const ch of (d.length>13?(d.match(/.{1,10}/g)||[d]):[d]))
-      if(ch.length===10) return ch;
+    const c=normalizarCel(parte);
+    if(c) return c;
   }
   return null;
 };
+// El numero que se usa para WhatsApp: el corregido a mano si lo hay, si no el que sale
+// del telefono del ERP.
+function waDe(c){
+  const d=correccionDe(c.codigo);
+  if(d&&d.wa) return {num:d.wa, manual:true, por:d.por};
+  const n=_primerCelu(telDe(c).valor);
+  return n ? {num:n, manual:false} : null;
+}
 function _armarTexto(txt,c){
   const oa=opsActivas(c);
   const prox=oa.slice().sort((a,b)=>ffNum(a.fecha_fin)-ffNum(b.fecha_fin))[0];
@@ -1599,10 +1637,12 @@ function _armarTexto(txt,c){
     .replace(/{resena}/g, resenas[c.provincia]||"");
 }
 function bloqueWhatsapp(c){
-  const t=telDe(c);
-  const cel=_primerCelu(t.valor);
-  if(!cel) return `<div class="loc" style="color:var(--rojo);margin:8px 0">
-     Sin celular cargado: no se le puede escribir por WhatsApp.</div>`;
+  const w=waDe(c);
+  if(!w) return `<div class="verif" style="border-color:#e3b7b7;background:#fdf1f1">
+     <span style="color:var(--rojo)">No hay un celular con formato válido para WhatsApp.
+     Tienen que ser 10 dígitos: característica + número, sin 0 y sin 15.</span>
+     <button class="b auto" onclick="abrirDatos('${esc(c.codigo)}')">Cargar el número</button></div>`;
+  const cel=w.num;
   const usables=plantillas.slice(0,4).filter(p=>
     !String(p.texto||"").includes("{resena}") || resenas[c.provincia]);
   const faltaResena = usables.length<plantillas.slice(0,4).length;
@@ -1613,7 +1653,8 @@ function bloqueWhatsapp(c){
           href="https://wa.me/549${cel}?text=${encodeURIComponent(_armarTexto(p.texto,c))}"
        >${esc(p.titulo)}</a>`).join("")}</div>
     <div style="font-size:.72rem;color:var(--gris);margin-top:3px">
-      Abre WhatsApp con el mensaje escrito. Lo revisás y lo mandás vos.${
+      Va al +549 ${esc(cel)}${w.manual?` (corregido por ${esc(w.por)})`:""}.
+      Abre WhatsApp con el mensaje escrito: lo revisás y lo mandás vos.${
       faltaResena?`<br><span style="color:var(--naranja)">El pedido de calificación no
       aparece: no hay ficha de Google cargada para ${esc(c.provincia||"esta provincia")}.</span>`:""}</div>`;
 }
@@ -1793,6 +1834,8 @@ function abrirDatos(cod){
     +" para cargarlo en el ERP.";
   document.getElementById("d-tel").value=t.valor||"";
   document.getElementById("d-dir").value=d.valor||"";
+  const w=waDe(c);
+  document.getElementById("d-wa").value=w?w.num:"";
 
   document.getElementById("d-obs").value="";
   abrir("m-datos");
@@ -1802,13 +1845,25 @@ async function guardarDatos(){
   const telNuevo=document.getElementById("d-tel").value.trim();
   const dirNueva=document.getElementById("d-dir").value.trim();
   const nota=document.getElementById("d-obs").value.trim();
+  // El numero de WhatsApp se guarda normalizado o no se guarda: de nada sirve avisar
+  // que esta mal despues, cuando el mensaje no salio.
+  const waCrudo=document.getElementById("d-wa").value.trim();
+  const waNuevo=waCrudo?normalizarCel(waCrudo):null;
+  if(waCrudo&&!waNuevo){
+    alert("El número de WhatsApp tiene que quedar en 10 dígitos: característica + número, "
+         +"sin el 0 y sin el 15.\n\nEscribiste: "+waCrudo);
+    return;
+  }
+  const waViejo=(waDe(c)||{}).num||null;
+  const cambioWa = waNuevo && waNuevo!==waViejo;
   const cambioTel = telNuevo && soloDig(telNuevo)!==soloDig(c.telefono);
   const cambioDir = dirNueva && dirNueva.toUpperCase()!==String(c.domicilio||"").trim().toUpperCase();
-  if(!cambioTel&&!cambioDir){ alert("No cambiaste ningún dato."); return; }
+  if(!cambioTel&&!cambioDir&&!cambioWa){ alert("No cambiaste ningún dato."); return; }
 
   const reg={por:sesion.usuario, fecha:hoyISO()};
   if(cambioTel) reg.tel=telNuevo;
   if(cambioDir) reg.dir=dirNueva;
+  if(waNuevo) reg.wa=waNuevo;
   // Lo que ya estaba corregido no se pierde por tocar otro campo.
   const previo=correccionDe(datCod)||{};
   if(!cambioTel&&previo.tel) reg.tel=previo.tel;
@@ -1823,6 +1878,7 @@ async function guardarDatos(){
 
   const detalle=[cambioTel?`Teléfono: ${c.telefono||"(vacío)"} → ${telNuevo}`:"",
                  cambioDir?`Dirección: ${c.domicilio||"(vacío)"} → ${dirNueva}`:"",
+                 cambioWa?`WhatsApp: +549${waNuevo}`:"",
                  nota].filter(Boolean).join("\n");
   try{
     await db.collection("actividades").add({
