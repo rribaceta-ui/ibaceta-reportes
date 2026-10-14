@@ -253,6 +253,37 @@ a.tel{color:var(--azul);text-decoration:none;font-weight:600}
   <div class="acciones"><button class="b auto full" onclick="cerrar('m-inst')">Entendido</button></div>
 </div></div>
 
+<div class="capa" id="m-rep"><div class="hoja">
+  <button class="cierra" onclick="cerrar('m-rep')">&times;</button>
+  <h2>Distribución automática</h2>
+  <div style="font-size:.8rem;color:var(--gris);margin-bottom:12px">
+    Reparte los clientes sin vendedor entre los de su división, priorizando a quien ya
+    vende en esa localidad y repartiendo parejo.</div>
+  <div class="campo"><label>Repartir los que compraron desde</label>
+    <select id="r-anio"></select></div>
+  <div class="campo"><label>Máximo por vendedor</label>
+    <input type="number" id="r-tope" value="15" min="1" max="200"></div>
+  <label class="etq" style="margin-bottom:10px"><input type="checkbox" id="r-solo" checked>
+    Solo los que todavía no tienen vendedor asignado</label>
+  <div id="r-previa"></div>
+  <div class="acciones">
+    <button class="b auto" onclick="cerrar('m-rep')">Cancelar</button>
+    <button class="b auto" onclick="verPrevia()">Ver previa</button>
+    <button class="b auto full" id="r-ok" onclick="aplicarReparto()" disabled
+            style="opacity:.5">Aplicar</button></div>
+</div></div>
+
+<div class="capa" id="m-zona"><div class="hoja">
+  <button class="cierra" onclick="cerrar('m-zona')">&times;</button>
+  <h2 id="z-tit">Zona del vendedor</h2>
+  <div style="font-size:.8rem;color:var(--gris);margin-bottom:10px">
+    Marcá los departamentos que cubre. Sirve para repartirle clientes nuevos cuando
+    todavía no tiene cartera propia.</div>
+  <div id="z-deptos" class="negs"></div>
+  <div class="acciones"><button class="b auto" onclick="cerrar('m-zona')">Cancelar</button>
+    <button class="b auto full" onclick="guardarZona()">Guardar</button></div>
+</div></div>
+
 <div class="capa" id="m-datos"><div class="hoja">
   <button class="cierra" onclick="cerrar('m-datos')">&times;</button>
   <h2>Corregir datos del cliente</h2>
@@ -298,7 +329,7 @@ const db = firebase.firestore();
 // vendedores. Lo hecho sin conexion sincroniza al volver.
 db.enablePersistence({synchronizeTabs:true}).catch(()=>{});
 
-const VERSION="2026-10-14a";
+const VERSION="2026-10-14b";
 const DOMINIO="funnel.ibaceta.ar";
 // Las 10 mas comunes cubren el 88,9% de los clientes que hoy tienen rubro cargado. Van
 // a la vista. El resto de las conocidas queda detras de "Otro", para no perderlas pero
@@ -333,7 +364,10 @@ let tagsVisibles=new Set(["refinanciada"]);
 // Las etiquetas viven en el MISMO documento que usa el funnel HTML (funnel_calle/_shared).
 // Asi lo que se marca en la app se ve en el tablero viejo y al reves, que es lo que hace
 // falta mientras los dos conviven.
-let tags={}, asignaciones={}, comentarios={}, datos={}, verif={};
+let tags={}, asignaciones={}, comentarios={}, datos={}, verif={}, cobertura={};
+// Desde que ano se reparte. Antes de 2025 son clientes que hace 4 o 5 anos que no
+// compran: repartirlos es darle a cada vendedor 100 fantasmas y que no llame a ninguno.
+const DISTRIB_DESDE=2025;
 // Los cuatro mensajes de WhatsApp viven en Firestore (funnel_calle/_plantillas), no en
 // el codigo: asi se cambian desde la app, quedan respaldados y no hay que publicar una
 // version nueva por corregir una coma. Si el documento no existe, se usan estos.
@@ -571,6 +605,15 @@ function escuchar(){
 
   // Las confirmaciones van en documento aparte: son una por cliente y el documento
   // compartido ya va por 192 KB de los 1.024 que Firestore permite.
+  // Que departamentos cubre cada vendedor. Lo carga su supervisor. En el funnel esto
+  // vivia en el navegador (localStorage): se perdia al cambiar de dispositivo y no lo
+  // veia nadie mas, justo el dato que hace que un vendedor nuevo reciba clientes de SU
+  // zona y no de la otra punta.
+  desus.push(db.collection("funnel_calle").doc("_cobertura").onSnapshot(d=>{
+    cobertura = (d.exists && d.data().zonas) ? d.data().zonas : {};
+    pintar();
+  },()=>{}));
+
   desus.push(db.collection("funnel_calle").doc("_plantillas").onSnapshot(d=>{
     const l = d.exists ? d.data().lista : null;
     plantillas = (Array.isArray(l) && l.length) ? l : PLANTILLAS_BASE;
@@ -1170,6 +1213,10 @@ function pintarSupervisor(){
   const huerf=lista.filter(c=>esHuerfano(c)).sort((a,b)=>anioDe(b)-anioDe(a));
   const huerfHtml = huerf.length ? `<div class="panel">
       <h3>Cartera huérfana (${huerf.length} registros)</h3>
+      ${conduce()?`<div class="acciones" style="justify-content:flex-start;margin:0 0 10px">
+        <button class="b auto full" onclick="abrirReparto()">Distribución automática</button>
+        <button class="b auto" onclick="limpiarAsignaciones()">Limpiar asignaciones</button>
+      </div>`:""}
       <div style="font-size:.78rem;color:var(--gris);margin-bottom:8px">
         Clientes que quedaron sin vendedor asignado. Al asignarlos, el cambio se ve
         también en el funnel. Ordenados por operación más reciente.
@@ -1198,13 +1245,18 @@ function pintarSupervisor(){
     <h3>Vendedores (${filas.length})</h3>
     <div style="overflow-x:auto"><table class="tabla">
       <tr><th>Vendedor</th><th>División</th><th>Activos</th><th>Ops activas</th><th>Cierre inminente</th>
-          <th>Final. sin renovar</th><th>Sin agendar</th><th>Cuota prom.</th></tr>
+          <th>Final. sin renovar</th><th>Sin agendar</th><th>Cuota prom.</th><th>Zona que cubre</th></tr>
       ${filas.map(r=>`<tr onclick="verVend('${esc(r.v)}')">
         <td style="color:var(--azul);font-weight:700">${esc(r.v)}</td>
         <td>${esc(r.div||"—")}</td>
         <td>${r.act}</td><td>${r.ops}</td><td>${r.cie}</td><td>${r.fin}</td>
         <td style="color:${r.sin?'var(--rojo)':'inherit'};font-weight:700">${r.sin}</td>
-        <td>${plata(prom(r.cuotas))}</td></tr>`).join("")}
+        <td>${plata(prom(r.cuotas))}</td>
+        <td onclick="event.stopPropagation()">${(cobertura[r.v]||[]).length
+            ? `<span title="${esc((cobertura[r.v]||[]).join(", "))}">${(cobertura[r.v]||[]).length} deptos</span>`
+            : `<span style="color:var(--gris)">—</span>`}${
+          conduce()?` <button class="b auto" style="padding:2px 7px;font-size:.68rem"
+            onclick="abrirZona('${esc(r.v)}')">Editar</button>`:""}</td></tr>`).join("")}
     </table></div></div>` + deptoHtml + negHtml() + huerfHtml + plantillasHtml();
 }
 
@@ -1276,6 +1328,65 @@ function negHtml(){
 function verVend(v){ selVend=v; vista="vend"; marcarNav(); pintar(); window.scrollTo(0,0); }
 function kpis(l){ document.getElementById("kpis").innerHTML=l.map(([a,b])=>
   `<div class="kpi"><div class="l">${a}</div><div class="v">${b}</div></div>`).join(""); }
+
+// ---------- Reparto de la cartera huerfana ----------
+// La afinidad NO viene precalculada: se saca de los clientes que la app ya tiene. Un
+// vendedor "conoce" una localidad si ya le vende ahi. Asi esta siempre al dia y no
+// depende de ningun archivo aparte.
+function afinidades(){
+  const m={};
+  clientes.forEach(c=>{
+    const v=vendedorDe(c); if(!v||!c.division) return;   // solo su cartera real
+    const a=m[v]||(m[v]={loc:{},dep:{},total:0});
+    if(c.localidad) a.loc[c.localidad]=(a.loc[c.localidad]||0)+1;
+    if(c.depto)     a.dep[c.depto]=(a.dep[c.depto]||0)+1;
+    a.total++;
+  });
+  return m;
+}
+// Mismo criterio que el funnel: conocer la localidad pesa mas que conocer el
+// departamento, el vendedor sin historia recibe un empujon para armar cartera, y cada
+// cliente que ya le toco en esta ronda le resta, para que el reparto quede parejo.
+function _puntaje(vend, c, afin, conteo){
+  const a=afin[vend]||{loc:{},dep:{},total:0};
+  let p=0;
+  if(a.total){
+    p += Math.min((a.loc[c.localidad]||0)*3, 50);
+    p += Math.min((a.dep[c.depto]||0), 20);
+  } else {
+    const zona=cobertura[vend]||[];
+    if(zona.length) p += zona.includes(c.depto) ? 40 : 0;
+    else            p += 10;          // sin zona cargada: elegible, pero ultimo
+    p += 20;                          // vendedor nuevo: necesita cartera
+  }
+  p -= (conteo[vend]||0)*8;
+  return p;
+}
+const anioUltima=c=>{ const f=c.ultima_op_fecha||""; return f.length===10 ? +f.slice(6) : 0; };
+
+function proponerReparto(desde, tope, soloSinAsignar){
+  const afin=afinidades();
+  const candidatos=filtrar(clientes)
+    .filter(c=>esHuerfano(c))
+    .filter(c=>anioUltima(c)>=desde)
+    .filter(c=>!soloSinAsignar || !(asignaciones[String(c.codigo)]||c.vendedor_asig))
+    // el mas reciente primero: es el que mas chance tiene de volver a comprar
+    .sort((a,b)=>anioUltima(b)-anioUltima(a));
+  const conteo={}, prop={};
+  const sinVendedor=[];
+  for(const c of candidatos){
+    let elegibles=[];
+    (c.div_huerf||[]).forEach(d=>(vendPorDiv[d]||[]).forEach(v=>{
+      if(!elegibles.includes(v)) elegibles.push(v); }));
+    if(tope) elegibles=elegibles.filter(v=>(conteo[v]||0)<tope);
+    if(!elegibles.length){ sinVendedor.push(c); continue; }
+    elegibles.sort((x,y)=>_puntaje(y,c,afin,conteo)-_puntaje(x,c,afin,conteo));
+    const gana=elegibles[0];
+    prop[String(c.codigo)]=gana;
+    conteo[gana]=(conteo[gana]||0)+1;
+  }
+  return {prop, conteo, sinVendedor, mirados:candidatos.length};
+}
 
 // ---------- Tabla de cobradores ----------
 // No repite las columnas de la tabla de vendedores a proposito: al supervisor de
@@ -1812,6 +1923,114 @@ function cuotasHtml(op){
 function toggleCuotas(k){
   if(fAbiertas.has(k)) fAbiertas.delete(k); else fAbiertas.add(k);
   const c=clientes.find(x=>String(x.codigo)===fCod); if(c) pintarOps(c);
+}
+
+// ---------- distribucion automatica ----------
+let _propuesta=null;
+function abrirReparto(){
+  const anios=[];
+  for(let a=new Date().getFullYear(); a>=2020; a--) anios.push(a);
+  document.getElementById("r-anio").innerHTML=anios.map(a=>
+    `<option value="${a}" ${a===DISTRIB_DESDE?"selected":""}>${a}${
+      a===DISTRIB_DESDE?" (recomendado)":""}</option>`).join("");
+  document.getElementById("r-previa").innerHTML="";
+  _propuesta=null; _okReparto(false);
+  abrir("m-rep");
+}
+function _okReparto(si){
+  const b=document.getElementById("r-ok");
+  b.disabled=!si; b.style.opacity=si?1:.5;
+}
+function verPrevia(){
+  const desde=+document.getElementById("r-anio").value;
+  const tope=+document.getElementById("r-tope").value||0;
+  const solo=document.getElementById("r-solo").checked;
+  const r=proponerReparto(desde,tope,solo);
+  _propuesta=r;
+  const n=Object.keys(r.prop).length;
+  const filas=Object.entries(r.conteo).sort((a,b)=>b[1]-a[1]);
+  const afin=afinidades();
+  document.getElementById("r-previa").innerHTML = n
+    ? `<div class="titulo">Se asignarían ${n} clientes a ${filas.length} vendedores</div>
+       <div style="overflow-x:auto;max-height:230px;overflow-y:auto"><table class="tabla">
+         <tr><th>Vendedor</th><th>Recibe</th><th>Cartera que ya tiene</th></tr>
+         ${filas.map(([v,c])=>`<tr><td style="font-weight:700">${esc(v)}</td><td>${c}</td>
+           <td>${(afin[v]||{}).total||0}${(afin[v]||{}).total?"":" — sin cartera, usa su zona cargada"}</td></tr>`).join("")}
+       </table></div>
+       ${r.sinVendedor.length?`<div class="vacio" style="color:var(--naranja)">
+         ${r.sinVendedor.length} quedan sin repartir: no hay vendedor activo en su división.</div>`:""}
+       <div style="font-size:.74rem;color:var(--gris);margin-top:6px">
+         Se miraron ${r.mirados} clientes. Esto todavía no se aplicó.</div>`
+    : `<div class="vacio">No hay clientes para repartir con esos parámetros.</div>`;
+  _okReparto(n>0);
+}
+async function aplicarReparto(){
+  if(!_propuesta) return;
+  const pares=Object.entries(_propuesta.prop);
+  if(!pares.length) return;
+  if(!confirm(`Se van a asignar ${pares.length} clientes. ¿Confirmás?`)) return;
+  _okReparto(false);
+  // Una sola escritura para el documento compartido, y un lote para los clientes: 219
+  // asignaciones son 657 escrituras sueltas si se hacen de a una.
+  const mapa={};
+  pares.forEach(([cod,v])=>{ mapa[cod]=v; asignaciones[cod]=v; });
+  try{
+    await db.collection("funnel_calle").doc("_shared")
+      .set({asignaciones:mapa},{merge:true});
+    for(let i=0;i<pares.length;i+=400){
+      const lote=db.batch();
+      pares.slice(i,i+400).forEach(([cod,v])=>{
+        lote.update(db.collection("clientes").doc(cod),{vendedor_asig:v});
+        lote.update(db.collection("historial").doc(cod),{vendedor_asig:v});
+      });
+      await lote.commit().catch(()=>{});
+    }
+    alert(`Listo: ${pares.length} clientes asignados.`);
+  }catch(e){ alert("No se pudo guardar el reparto: "+e.message); }
+  cerrar("m-rep"); pintar();
+}
+function limpiarAsignaciones(){
+  const enPantalla=filtrar(clientes).filter(c=>esHuerfano(c)
+      &&(asignaciones[String(c.codigo)]||c.vendedor_asig));
+  if(!enPantalla.length){ alert("No hay asignaciones para limpiar en lo que estás viendo."); return; }
+  if(!confirm(`Se van a quitar ${enPantalla.length} asignaciones de la cartera huérfana `
+             +`que estás viendo. Los clientes vuelven a quedar sin vendedor. ¿Seguís?`)) return;
+  const borrar=firebase.firestore.FieldValue.delete();
+  const ref=db.collection("funnel_calle").doc("_shared");
+  const act={};
+  enPantalla.forEach(c=>{ const cod=String(c.codigo);
+    act["asignaciones."+cod]=borrar; delete asignaciones[cod]; });
+  ref.update(act).catch(e=>alert("No se pudo limpiar: "+e.message));
+  for(let i=0;i<enPantalla.length;i+=400){
+    const lote=db.batch();
+    enPantalla.slice(i,i+400).forEach(c=>{
+      lote.update(db.collection("clientes").doc(String(c.codigo)),{vendedor_asig:borrar});
+      lote.update(db.collection("historial").doc(String(c.codigo)),{vendedor_asig:borrar}); });
+    lote.commit().catch(()=>{});
+  }
+  pintar();
+}
+
+// ---------- que departamentos cubre cada vendedor ----------
+let _zonaVend=null;
+function abrirZona(vend){
+  _zonaVend=vend;
+  const deptos=[...new Set(clientes.map(c=>c.depto).filter(Boolean))].sort();
+  const puestos=cobertura[vend]||[];
+  document.getElementById("z-tit").textContent="Zona de "+vend;
+  document.getElementById("z-deptos").innerHTML=deptos.map(d=>
+    `<label class="etq"><input type="checkbox" value="${esc(d)}"
+       ${puestos.includes(d)?"checked":""}>${esc(d)}</label>`).join("")
+    || '<div class="vacio">No hay departamentos cargados.</div>';
+  abrir("m-zona");
+}
+function guardarZona(){
+  const sel=[...document.querySelectorAll("#z-deptos input:checked")].map(x=>x.value);
+  cobertura[_zonaVend]=sel;
+  const ref=db.collection("funnel_calle").doc("_cobertura");
+  ref.update(new firebase.firestore.FieldPath("zonas",_zonaVend),sel)
+     .catch(()=>{ const o={}; o[_zonaVend]=sel; ref.set({zonas:o},{merge:true}).catch(()=>{}); });
+  cerrar("m-zona"); pintar();
 }
 
 // ---------- corregir datos del cliente ----------
