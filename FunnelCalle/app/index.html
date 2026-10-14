@@ -332,7 +332,7 @@ const db = firebase.firestore();
 // vendedores. Lo hecho sin conexion sincroniza al volver.
 db.enablePersistence({synchronizeTabs:true}).catch(()=>{});
 
-const VERSION="2026-10-14d";
+const VERSION="2026-10-14e";
 const DOMINIO="funnel.ibaceta.ar";
 // Las 10 mas comunes cubren el 88,9% de los clientes que hoy tienen rubro cargado. Van
 // a la vista. El resto de las conocidas queda detras de "Otro", para no perderlas pero
@@ -752,24 +752,58 @@ function dirDe(c){
 // Cuando el ERP ya trae el dato corregido, la correccion se retira sola. Sin esto un
 // numero viejo quedaria tapando al del ERP para siempre, y nadie se acordaria de
 // limpiarlo.
+//
+// OJO, aca se perdio trabajo de la gente (14/10/2026). La version anterior preguntaba
+// "el telefono del ERP CONTIENE al corregido?" y si era asi borraba la correccion. El
+// problema es que el ERP guarda DOS O TRES numeros en el mismo campo -- 9 de cada 10
+// clientes activos -- asi que la correccion mas comun de todas, elegir cual de esos
+// numeros es el que atiende, se borraba sola en la siguiente carga. El vendedor la
+// guardaba, la veia en verde, y al otro dia no estaba.
+//
+// Ahora una correccion se retira solo cuando el ERP la ABSORBIO de verdad: el dato del
+// ERP cambio desde que se corrigio y ahora trae el valor corregido. Para eso, al
+// corregir se guarda como venia el ERP en ese momento (erp_tel / erp_dir / erp_neg).
+// Las correcciones viejas no tienen esa foto: ahi solo se retira si el ERP dice
+// exactamente lo mismo. Ante la duda queda la correccion. Que sobre un dato corregido
+// molesta; perder el que alguien salio a buscar a la calle no se recupera.
+//
+// Y se retira CAMPO POR CAMPO. Antes se borraba la ficha entera, asi que un cliente al
+// que solo se le habia cargado el numero de WhatsApp lo perdia sin que nadie lo
+// hubiera cargado en ningun lado.
 let _limpiezaHecha=false;
+const _mismoTel=(a,b)=>!!soloDig(a)&&soloDig(a)===soloDig(b);
+const _mismoTxt=(a,b)=>String(a||"").trim().toUpperCase()===String(b||"").trim().toUpperCase();
+const _mismaLista=(a,b)=>{
+  const n=v=>(Array.isArray(v)?v:(v?[v]:[])).map(x=>String(x).trim().toUpperCase()).sort().join("|");
+  return n(a)===n(b);
+};
+// true si el ERP ya se hizo cargo de este dato y la correccion puede retirarse.
+function _erpAbsorbio(valor, fotoErp, erpAhora, iguales, contiene){
+  if(!valor) return false;                                // no hay correccion de este campo
+  if(fotoErp===undefined) return iguales(valor,erpAhora);  // correccion vieja: solo si es identico
+  if(iguales(fotoErp,erpAhora)) return false;             // el ERP no se movio: nadie lo cargo
+  return contiene(erpAhora,valor);                        // cambio y ya lo trae
+}
 function limpiarCorregidosYaCargados(){
   if(_limpiezaHecha||!clientes.length||!Object.keys(datos).length) return;
   _limpiezaHecha=true;
   const ref=db.collection("funnel_calle").doc("_shared");
+  const traeTel=(erp,v)=>!!soloDig(v)&&soloDig(erp).includes(soloDig(v));
   Object.keys(datos).forEach(cod=>{
     const c=clientes.find(x=>String(x.codigo)===String(cod)); if(!c) return;
     const d=datos[cod];
-    const telOk = !d.tel || soloDig(c.telefono).includes(soloDig(d.tel));
-    const dirOk = !d.dir || String(c.domicilio||"").trim().toUpperCase()
-                             ===String(d.dir).trim().toUpperCase();
-    const negOk = !d.neg || String(c.negocio||"").trim().toUpperCase()
-                             ===String(d.neg).trim().toUpperCase();
-    if(telOk&&dirOk&&negOk){
-      delete datos[cod];
-      ref.update(new firebase.firestore.FieldPath("datos",String(cod)),
-                 firebase.firestore.FieldValue.delete()).catch(()=>{});
-    }
+    const fuera=[];
+    if(_erpAbsorbio(d.tel, d.erp_tel, c.telefono,  _mismoTel,   traeTel))     fuera.push("tel");
+    if(_erpAbsorbio(d.dir, d.erp_dir, c.domicilio, _mismoTxt,   _mismoTxt))   fuera.push("dir");
+    if(_erpAbsorbio(d.neg, d.erp_neg, c.negocio,   _mismaLista, _mismaLista)) fuera.push("neg");
+    if(!fuera.length) return;
+    const reg={};
+    Object.keys(d).forEach(k=>{ if(!fuera.includes(k.replace("erp_",""))) reg[k]=d[k]; });
+    const quedaAlgo=["tel","dir","neg","wa"].some(k=>reg[k]);
+    const fp=new firebase.firestore.FieldPath("datos",String(cod));
+    if(quedaAlgo){ datos[cod]=reg; ref.update(fp,reg).catch(()=>{}); }
+    else { delete datos[cod];
+           ref.update(fp,firebase.firestore.FieldValue.delete()).catch(()=>{}); }
   });
 }
 function guardarComentario(cod,texto){
@@ -1679,10 +1713,12 @@ function guardarNegocio(cod){
   const todos=[...new Set(sel.concat(libre))];
   const c=clientes.find(x=>String(x.codigo)===String(cod));
   const previo=correccionDe(cod)||{};
+  // Se copia TODO lo que ya estaba corregido. Guardar el rubro no puede borrar el
+  // telefono ni el numero de WhatsApp que cargo otra persona.
   const reg={por:sesion.usuario, rol:sesion.rol, fecha:hoyISO()};
-  if(previo.tel) reg.tel=previo.tel;
-  if(previo.dir) reg.dir=previo.dir;
-  if(todos.length) reg.neg=todos;
+  ["tel","dir","wa","erp_tel","erp_dir"].forEach(k=>{ if(previo[k]!==undefined) reg[k]=previo[k]; });
+  if(todos.length){ reg.neg=todos;
+    reg.erp_neg = previo.erp_neg!==undefined ? previo.erp_neg : (c?(c.negocio||""):""); }
   datos[String(cod)]=reg;
   const ref=db.collection("funnel_calle").doc("_shared");
   ref.update(new firebase.firestore.FieldPath("datos",String(cod)),reg)
@@ -2082,15 +2118,19 @@ async function guardarDatos(){
   const cambioDir = dirNueva && dirNueva.toUpperCase()!==String(c.domicilio||"").trim().toUpperCase();
   if(!cambioTel&&!cambioDir&&!cambioWa){ alert("No cambiaste ningún dato."); return; }
 
-  const reg={por:sesion.usuario, fecha:hoyISO()};
-  if(cambioTel) reg.tel=telNuevo;
-  if(cambioDir) reg.dir=dirNueva;
+  // Se anota como venia el ERP en este momento. Es lo que despues permite distinguir
+  // "el cobrador lo cargo en DEBO" de "el dato ya estaba entre los tres numeros que el
+  // ERP amontona en el mismo campo", que no es lo mismo y antes se confundia.
+  const reg={por:sesion.usuario, rol:sesion.rol, fecha:hoyISO()};
+  if(cambioTel){ reg.tel=telNuevo; reg.erp_tel=c.telefono||""; }
+  if(cambioDir){ reg.dir=dirNueva; reg.erp_dir=c.domicilio||""; }
   if(waNuevo) reg.wa=waNuevo;
   // Lo que ya estaba corregido no se pierde por tocar otro campo.
   const previo=correccionDe(datCod)||{};
-  if(!cambioTel&&previo.tel) reg.tel=previo.tel;
-  if(!cambioDir&&previo.dir) reg.dir=previo.dir;
-  if(previo.neg) reg.neg=previo.neg;
+  if(!cambioTel&&previo.tel){ reg.tel=previo.tel; if(previo.erp_tel!==undefined) reg.erp_tel=previo.erp_tel; }
+  if(!cambioDir&&previo.dir){ reg.dir=previo.dir; if(previo.erp_dir!==undefined) reg.erp_dir=previo.erp_dir; }
+  if(previo.neg){ reg.neg=previo.neg; if(previo.erp_neg!==undefined) reg.erp_neg=previo.erp_neg; }
+  if(!waNuevo&&previo.wa) reg.wa=previo.wa;
   datos[datCod]=reg;
 
   const ref=db.collection("funnel_calle").doc("_shared");
