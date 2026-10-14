@@ -2,7 +2,7 @@
 <html lang="es">
 <head>
 <meta charset="utf-8">
-<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=5, user-scalable=yes, viewport-fit=cover">
 <meta name="theme-color" content="#1B4F8C">
 <meta name="apple-mobile-web-app-capable" content="yes">
 <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
@@ -79,7 +79,10 @@ nav .pin{display:inline-block;min-width:17px;padding:0 5px;margin-left:4px;backg
 /* En pantalla ancha las seis columnas se reparten el espacio y entran todas, como en
    el funnel. En telefono cada una ocupa casi toda la pantalla y se desliza al costado. */
 .col{flex:1 1 0;min-width:168px;background:#eef1f4;border-radius:10px;overflow:hidden}
-@media(max-width:900px){ .col{flex:0 0 82vw;min-width:0} }
+/* En telefono la columna ocupa casi toda la pantalla y se desliza al costado.
+   El tope de 330px es por la tablet: 82vw de 800px daban columnas de 656px y la
+   pantalla entera se veia agrandada. Con el tope entran dos columnas y media. */
+@media(max-width:900px){ .col{flex:0 0 min(82vw,330px);min-width:0} }
 .col-h{padding:9px 10px;text-align:center;color:#fff}
 .col-h .t{font-size:.76rem;font-weight:800;text-transform:uppercase;letter-spacing:.03em}
 .col-h .n{font-size:1.45rem;font-weight:800;line-height:1.1}
@@ -329,7 +332,7 @@ const db = firebase.firestore();
 // vendedores. Lo hecho sin conexion sincroniza al volver.
 db.enablePersistence({synchronizeTabs:true}).catch(()=>{});
 
-const VERSION="2026-10-14b";
+const VERSION="2026-10-14c";
 const DOMINIO="funnel.ibaceta.ar";
 // Las 10 mas comunes cubren el 88,9% de los clientes que hoy tienen rubro cargado. Van
 // a la vista. El resto de las conocidas queda detras de "Otro", para no perderlas pero
