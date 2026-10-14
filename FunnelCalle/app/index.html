@@ -342,7 +342,7 @@ const db = firebase.firestore();
 // vendedores. Lo hecho sin conexion sincroniza al volver.
 db.enablePersistence({synchronizeTabs:true}).catch(()=>{});
 
-const VERSION="2026-10-14f";
+const VERSION="2026-10-14g";
 const DOMINIO="funnel.ibaceta.ar";
 // Las 10 mas comunes cubren el 88,9% de los clientes que hoy tienen rubro cargado. Van
 // a la vista. El resto de las conocidas queda detras de "Otro", para no perderlas pero
@@ -355,7 +355,12 @@ const NEGOCIOS_MAS=["ART DE LIMPIEZA","LIBRERIA","BAR-CAFE","PET SHOP","RESTAURA
   "FABRICA DE EMBUTIDOS"];
 const NEGOCIOS=NEGOCIOS_TOP.concat(NEGOCIOS_MAS);
 const TIPOS={llamada:"Llamada",visita:"Visita",whatsapp:"WhatsApp",tarea:"Tarea",
-             dato:"Actualizar datos en el ERP"};
+             dato:"Actualizar datos en el ERP", rubro:"Marcar rubro"};
+// "Marcar rubro" la genera el sistema todos los lunes (actividades_rubro.py) para el
+// cliente que esta por terminar el plan y no sabemos a que se dedica. NO se cierra a
+// mano: se cierra cuando alguien carga el rubro. Si se pudiera cerrar con un boton, se
+// cerraria sin cargar nada y la tarea no serviria para lo que fue hecha.
+const TIPOS_AUTO=["rubro"];
 // Una correccion de datos no se cierra con "contactado": se cierra diciendo si se
 // cargo en el ERP o si el dato no servia.
 const RES_DATO=[["cargado_erp","Lo cargué en el ERP",false],
@@ -1651,7 +1656,9 @@ function pintarPanelActividades(quien,src){
     <span class="chip">${TIPOS[a.tipo]||esc(a.tipo)} · ${dmy(a.fecha)}${a.hora?" "+esc(a.hora):""}</span>
     <span style="color:var(--gris);font-size:.72rem">${esVistaCob?"para "+esc(a.asignado_a||"—"):"de "+esc(a.origen_usuario)}</span>
     ${a.observaciones?`<div style="flex-basis:100%;color:#555;font-size:.77rem">${esc(a.observaciones)}</div>`:""}
-    ${a.asignado_a===sesion.usuario?`<button class="b auto full" onclick="abrirCierre('${a.id}')">Hecha</button>`:""}
+    ${TIPOS_AUTO.includes(a.tipo)
+        ? `<button class="b auto full" onclick="ficha('${esc(a.cliente_cod)}')">Marcar el rubro</button>`
+        : (a.asignado_a===sesion.usuario?`<button class="b auto full" onclick="abrirCierre('${a.id}')">Hecha</button>`:"")}
     <button class="b auto" onclick="ficha('${esc(a.cliente_cod)}')">Ficha</button></div>`;
   const bloque=(t,arr)=>arr.length?`<div class="titulo">${t} (${arr.length})</div>`+
     arr.sort((a,b)=>(a.fecha||"").localeCompare(b.fecha||"")).map(fila).join(""):"";
@@ -1748,9 +1755,25 @@ function guardarNegocio(cod){
   const ref=db.collection("funnel_calle").doc("_shared");
   ref.update(new firebase.firestore.FieldPath("datos",String(cod)),reg)
      .catch(()=>{ const o={}; o[String(cod)]=reg; ref.set({datos:o},{merge:true}).catch(()=>{}); });
+  // La tarea semanal "Marcar rubro" se cierra en el momento, no a la noche cuando corra
+  // el pipeline. El vendedor tiene que ver que lo que hizo sirvio para algo.
+  if(todos.length) cerrarTareaRubro(cod);
   _negAbierto=null;
   if(c) ficha(cod);
   pintar();
+}
+
+function cerrarTareaRubro(cod){
+  actividades.filter(a=>a.tipo==="rubro" && a.estado==="pendiente"
+                     && String(a.cliente_cod)===String(cod))
+    .forEach(a=>{
+      db.collection("actividades").doc(a.id).update({
+        estado:"hecha", resultado:"cargado_rubro",
+        resultado_nota:"Rubro cargado desde la ficha",
+        cerrada_en:firebase.firestore.FieldValue.serverTimestamp(),
+        cerrada_por:sesion.usuario}).catch(()=>{});
+      a.estado="hecha";
+    });
 }
 
 // ---------- Que le falta a este cliente ----------
