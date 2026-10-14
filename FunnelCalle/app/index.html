@@ -111,6 +111,16 @@ nav .pin{display:inline-block;min-width:17px;padding:0 5px;margin-left:4px;backg
 .verif span{flex:1 1 100%}
 .verif .b{padding:3px 8px;font-size:.7rem}
 .wa-botones{display:flex;flex-wrap:wrap;gap:7px;margin-top:6px}
+/* Que le falta */
+.sug-ayuda{font-size:.76rem;color:var(--gris);margin:-2px 0 8px}
+.sug-no{font-size:.8rem;color:var(--gris);background:#f6f7f9;border-radius:8px;padding:9px 11px}
+.sug-g{border-left:3px solid #ccc;padding:2px 0 2px 10px;margin-bottom:10px}
+.sug-rot{font-size:.68rem;font-weight:800;text-transform:uppercase;letter-spacing:.04em;margin-bottom:4px}
+.sug-it{background:#fff;border:1px solid var(--borde);border-radius:8px;padding:8px 10px;margin-bottom:6px}
+.sug-nom{font-size:.86rem;font-weight:700;color:#111}
+.sug-pct{font-size:.68rem;font-weight:600;color:var(--gris);margin-left:5px;white-space:nowrap}
+.sug-ej{font-size:.72rem;color:#555;margin:2px 0 6px}
+.sug-ok{font-size:.72rem;color:var(--verde);font-weight:700}
 .wa-botones .wa{flex:1 1 46%;text-align:center;text-decoration:none;background:#25D366;
                 color:#fff;border:0;font-weight:700;padding:9px 10px}
 .negs{flex:1 1 100%;display:flex;flex-wrap:wrap;gap:3px 10px}
@@ -332,7 +342,7 @@ const db = firebase.firestore();
 // vendedores. Lo hecho sin conexion sincroniza al volver.
 db.enablePersistence({synchronizeTabs:true}).catch(()=>{});
 
-const VERSION="2026-10-14e";
+const VERSION="2026-10-14f";
 const DOMINIO="funnel.ibaceta.ar";
 // Las 10 mas comunes cubren el 88,9% de los clientes que hoy tienen rubro cargado. Van
 // a la vista. El resto de las conocidas queda detras de "Otro", para no perderlas pero
@@ -368,6 +378,11 @@ let tagsVisibles=new Set(["refinanciada"]);
 // Asi lo que se marca en la app se ve en el tablero viejo y al reves, que es lo que hace
 // falta mientras los dos conviven.
 let tags={}, asignaciones={}, comentarios={}, datos={}, verif={}, cobertura={};
+// Que compra cada tipo de negocio (lo arma sugerencias_calle.py contra el catalogo del
+// ERP) y que sugerencias ya salio a ofrecer alguien. Van en documentos propios: la tabla
+// de canastas pesa 25 KB y los ofrecimientos crecen sin techo, dos cosas que no entran
+// en _shared.
+let canastas={}, ofrecidos={};
 // Desde que ano se reparte. Antes de 2025 son clientes que hace 4 o 5 anos que no
 // compran: repartirlos es darle a cada vendedor 100 fantasmas y que no llame a ninguno.
 const DISTRIB_DESDE=2025;
@@ -622,6 +637,16 @@ function escuchar(){
     plantillas = (Array.isArray(l) && l.length) ? l : PLANTILLAS_BASE;
     const r = d.exists ? d.data().resenas : null;
     resenas = (r && Object.keys(r).length) ? r : RESENAS_BASE;
+    pintar();
+  },()=>{}));
+
+  desus.push(db.collection("funnel_calle").doc("_canastas").onSnapshot(d=>{
+    canastas = (d.exists && d.data().canastas) ? d.data().canastas : {};
+    pintar();
+  },()=>{}));
+
+  desus.push(db.collection("funnel_calle").doc("_ofrecidos").onSnapshot(d=>{
+    ofrecidos = (d.exists && d.data().items) ? d.data().items : {};
     pintar();
   },()=>{}));
 
@@ -1728,6 +1753,99 @@ function guardarNegocio(cod){
   pintar();
 }
 
+// ---------- Que le falta a este cliente ----------
+// La idea: el vendedor abre la ficha y ve lo que ya le vendimos, pero nada le dice que
+// OFRECERLE. Aca se cruza el tipo de negocio del cliente con lo que tienen los negocios
+// iguales al suyo, y se muestra lo que a el le falta.
+//
+// Tres cajones, porque no se venden igual (decision de Direccion, 14/10/2026):
+//   local       - sector EQUIPAMIENTO del ERP. Va si o si al negocio.
+//   transversal - de hogar, pero sirve igual en el salon. El vendedor tiene dos
+//                 argumentos para el mismo producto: "para que no se le derrita la
+//                 mercaderia" o "para la pieza del nene".
+//   casa        - sector HOGAR puro.
+//
+// La cuenta se hace aca, en el telefono, y no en el servidor, por una razon: asi usa el
+// rubro CORREGIDO A MANO desde la app, que el servidor no conoce hasta la noche.
+const GRUPOS=[["local","Para el local","#1B4F8C"],
+              ["transversal","Sirve en los dos","#8E44AD"],
+              ["casa","Para la casa","#E8762C"]];
+const _sinAc=t=>String(t||"").toUpperCase().normalize("NFD").replace(/[\u0300-\u036f]/g,"").trim();
+
+function sugerenciasDe(c){
+  const negs=negDe(c).valor.map(_sinAc).filter(Boolean);
+  if(!negs.length) return [];
+  const tiene=new Set(c.rubros_comprados||[]);
+  const vistos=new Set(), fuera=[];
+  // Un cliente puede ser mas de una cosa a la vez -- almacen que ademas vende verdura --
+  // asi que se juntan las canastas de todos sus rubros y se queda la penetracion mas alta.
+  negs.forEach(n=>{
+    const can=canastas[n]; if(!can||!can.items) return;
+    can.items.forEach(it=>{
+      if(tiene.has(it.clave)) return;
+      const ya=vistos.has(it.clave);
+      if(ya){ const v=fuera.find(x=>x.clave===it.clave);
+              if(v && it.pct>v.pct){ v.pct=it.pct; v.n=it.n; } return; }
+      vistos.add(it.clave); fuera.push({...it});
+    });
+  });
+  return fuera.sort((a,b)=>b.pct-a.pct);
+}
+const _claveOfr=(cod,cl)=>String(cod)+"|"+cl;
+function ofrecimientoDe(cod,cl){ return ofrecidos[_claveOfr(cod,cl)]||null; }
+
+// Se anota SOLO cuando el vendedor dice que lo va a ofrecer. No se registra cada vez que
+// se abre una ficha: serian miles de escrituras por dia para medir algo que no es una
+// decision. Lo que interesa medir es cuanto de lo OFRECIDO termina vendido.
+function marcarOfrecido(cod,cl){
+  const k=_claveOfr(cod,cl);
+  const reg={por:sesion.usuario, rol:sesion.rol, fecha:hoyISO()};
+  ofrecidos[k]=reg;
+  const ref=db.collection("funnel_calle").doc("_ofrecidos");
+  const fp=new firebase.firestore.FieldPath("items",k);
+  ref.update(fp,reg).catch(()=>{ const o={}; o[k]=reg;
+    ref.set({items:o},{merge:true}).catch(()=>{}); });
+  ficha(cod); pintar();
+}
+
+function bloqueSugerencias(c){
+  // Sin la tabla de canastas no hay nada que decir todavia (recien abierta la app, o
+  // sin señal la primera vez). Mejor no mostrar el bloque que mostrarlo vacio.
+  if(!Object.keys(canastas).length) return "";
+  const negs=negDe(c).valor;
+  if(!negs.length){
+    return `<div class="titulo">Qu&eacute; le falta</div>
+      <div class="sug-no">Para poder sugerirle algo hace falta saber qu&eacute; tipo de
+      negocio tiene. Carg&aacute;selo m&aacute;s arriba, en <b>Negocio</b>.</div>`;
+  }
+  const items=sugerenciasDe(c);
+  if(!items.length){
+    return `<div class="titulo">Qu&eacute; le falta</div>
+      <div class="sug-no">Ya tiene todo lo que suelen tener los negocios como el suyo.</div>`;
+  }
+  let h=`<div class="titulo">Qu&eacute; le falta</div>
+    <div class="sug-ayuda">Lo que tienen los <b>${esc(negs.join(", ").toLowerCase())}</b>
+      de la cartera y &eacute;l todav&iacute;a no.</div>`;
+  GRUPOS.forEach(([g,rot,col])=>{
+    const ls=items.filter(x=>x.grupo===g).slice(0,3);
+    if(!ls.length) return;
+    h+=`<div class="sug-g" style="border-left-color:${col}">
+          <div class="sug-rot" style="color:${col}">${rot}</div>`;
+    ls.forEach(it=>{
+      const o=ofrecimientoDe(c.codigo,it.clave);
+      h+=`<div class="sug-it">
+        <div class="sug-nom">${esc(it.rubro)}
+          <span class="sug-pct">${Math.round(it.pct*100)}% lo tiene</span></div>
+        <div class="sug-ej">${esc(it.ejemplo)}</div>
+        ${o?`<div class="sug-ok">Ofrecido por ${esc(o.por)} el ${dmy(o.fecha)}</div>`
+           :`<button class="b auto" onclick="marcarOfrecido('${esc(c.codigo)}','${esc(it.clave)}')">Se lo voy a ofrecer</button>`}
+      </div>`;
+    });
+    h+=`</div>`;
+  });
+  return h;
+}
+
 // ---------- WhatsApp con mensaje listo ----------
 // No manda nada solo: abre WhatsApp con el texto escrito y la persona decide si lo envia.
 // Un celular argentino, listo para WhatsApp, son 10 digitos: caracteristica + numero,
@@ -1863,6 +1981,7 @@ function cabeceraFicha(c){
              font-size:.85rem;font-family:inherit;resize:vertical;box-sizing:border-box"
       >${esc(comentarioDe(c.codigo))}</textarea>
     <div style="font-size:.72rem;color:var(--gris);margin-top:3px">Lo ven tambi&eacute;n en el funnel.</div>
+    ${bloqueSugerencias(c)}
     ${bloqueWhatsapp(c)}
     <div id="f-ops"></div>
     <div class="titulo">Historial sal&oacute;n</div>
