@@ -88,6 +88,8 @@ nav .pin{display:inline-block;min-width:17px;padding:0 5px;margin-left:4px;backg
 .p1 .l{font-size:.64rem;font-weight:700;color:var(--gris);text-transform:uppercase;letter-spacing:.03em}
 .p1 .v{font-size:1.45rem;font-weight:800;color:#111;line-height:1.1}
 .p1 .r{font-size:.66rem;color:var(--gris);line-height:1.25;margin-top:1px}
+.pnota{margin-top:8px;font-size:.76rem;color:#444;background:#f7f9fb;border-radius:6px;
+       padding:6px 9px;line-height:1.4}
 .paviso{margin-top:8px;font-size:.73rem;color:#7a5c1e;background:#fff8e6;
         border-radius:6px;padding:6px 9px;line-height:1.4}
 .uso-tope{border-radius:7px;padding:8px 11px;margin:-2px 0 9px;font-size:.84rem}
@@ -389,7 +391,7 @@ const db = firebase.firestore();
 // vendedores. Lo hecho sin conexion sincroniza al volver.
 db.enablePersistence({synchronizeTabs:true}).catch(()=>{});
 
-const VERSION="2026-10-15h";
+const VERSION="2026-10-15i";
 const DOMINIO="funnel.ibaceta.ar";
 // Las 10 mas comunes cubren el 88,9% de los clientes que hoy tienen rubro cargado. Van
 // a la vista. El resto de las conocidas queda detras de "Otro", para no perderlas pero
@@ -402,12 +404,16 @@ const NEGOCIOS_MAS=["ART DE LIMPIEZA","LIBRERIA","BAR-CAFE","PET SHOP","RESTAURA
   "FABRICA DE EMBUTIDOS"];
 const NEGOCIOS=NEGOCIOS_TOP.concat(NEGOCIOS_MAS);
 const TIPOS={llamada:"Llamada",visita:"Visita",whatsapp:"WhatsApp",tarea:"Tarea",
-             dato:"Actualizar datos en el ERP", rubro:"Marcar rubro"};
+             dato:"Actualizar datos en el ERP", rubro:"Marcar rubro",
+             refin:"Resolver saldo"};
 // "Marcar rubro" la genera el sistema todos los lunes (actividades_rubro.py) para el
 // cliente que esta por terminar el plan y no sabemos a que se dedica. NO se cierra a
 // mano: se cierra cuando alguien carga el rubro. Si se pudiera cerrar con un boton, se
 // cerraria sin cargar nada y la tarea no serviria para lo que fue hecha.
-const TIPOS_AUTO=["rubro"];
+const TIPOS_AUTO=["rubro","refin"];
+// Que dice el boton de cada tarea automatica. Ninguna se cierra a mano: se cierran
+// cuando el hecho ocurre, asi que el boton lleva a donde hay que hacerlo.
+const BOTON_AUTO={rubro:"Marcar el rubro", refin:"Ver el saldo"};
 // El titulo es lo primero que lee el vendedor: dice QUE HAY QUE HACER. Las actividades
 // viejas no lo tienen cargado, asi que caen al nombre de la accion, que es exactamente
 // lo que se mostraba antes de que esto existiera.
@@ -1311,12 +1317,13 @@ function pintarSupervisor(){
               || (c.division ? vendedorDe(c) : "");
     if(!v) return;
     const r=porV[v]||(porV[v]={v,div:c.division||"",act:0,ops:0,cie:0,fin:0,sin:0,cuotas:[],
-                               pTerm:0,pSin:0,pVol:0,pNue:0});
+                               pIni:0,pFin:0,pBaja:0,pRefin:0,pReact:0,pNue:0,pNoRep:0});
     if(!r.div && c.division) r.div=c.division;
     // El periodo elegido arriba, pero de ESTE vendedor. Es lo que le deja al supervisor
     // ver como viene cada uno sin tener que entrar a la cartera de cada uno.
     const kp=kpisPeriodo([c],rPer);
-    r.pTerm+=kp.term; r.pSin+=kp.sinVolver; r.pVol+=kp.volvieron; r.pNue+=kp.nuevos;
+    r.pIni+=kp.conIni; r.pFin+=kp.conFin; r.pBaja+=kp.bajas; r.pRefin+=kp.refin;
+    r.pReact+=kp.react; r.pNue+=kp.nuevos; r.pNoRep+=kp.noRepuso;
     if(c.estado==="activo"){
       r.act++; const oa=opsActivas(c); r.ops+=oa.length;
       oa.forEach(o=>{ if(o.cuota_semanal>0) r.cuotas.push(o.cuota_semanal); });
@@ -1387,25 +1394,32 @@ function pintarSupervisor(){
     </div>` : "";
   document.getElementById("tabla").innerHTML = `<div class="panel">
     <h3>Vendedores (${filas.length})</h3>
-    <div style="font-size:.76rem;color:var(--gris);margin:-4px 0 8px">Las cuatro columnas
-      del medio son del período elegido arriba: <b>${esc(rPer.etiqueta)}</b>.</div>
+    <div style="font-size:.76rem;color:var(--gris);margin:-4px 0 8px">Las seis columnas
+      del medio son del período elegido arriba: <b>${esc(rPer.etiqueta)}</b>. Cuentan
+      <b>clientes</b>, no planes: el que cierra uno y sigue con otro no se fue.</div>
     <div style="overflow-x:auto"><table class="tabla">
       <tr><th>Vendedor</th><th>División</th><th>Activos</th><th>Ops activas</th><th>Cierre inminente</th>
           <th>Final. sin renovar</th><th>Sin agendar</th>
-          <th title="Cerraron al menos un plan dentro del período elegido">Terminaron</th>
-          <th title="De los que terminaron, los que todavía no arrancaron nada">Todavía no</th>
-          <th title="No tenían ningún plan abierto y sacaron uno nuevo en el período">Volvieron</th>
-          <th title="Primera compra en el período">Nuevos</th>
+          <th title="Clientes con plan al empezar y al terminar el período">Con plan</th>
+          <th title="Terminaron y no deben nada: pasaron a Finalizado">Se fueron</th>
+          <th title="Terminaron con saldo: están en Refinanciar, sin resolver">Con saldo</th>
+          <th title="Estaban sin ningún plan y volvieron a sacar uno">Reactivados</th>
+          <th title="Primera compra en la historia">Nuevos</th>
+          <th title="Siguen con plan pero cerraron uno y no sacaron otro">Sin reponer</th>
           <th>Cuota prom.</th><th>Zona que cubre</th></tr>
       ${filas.map(r=>`<tr onclick="verVend('${esc(r.v)}')">
         <td style="color:var(--azul);font-weight:700">${esc(r.v)}</td>
         <td>${esc(r.div||"—")}</td>
         <td>${r.act}</td><td>${r.ops}</td><td>${r.cie}</td><td>${r.fin}</td>
         <td style="color:${r.sin?'var(--rojo)':'inherit'};font-weight:700">${r.sin}</td>
-        <td>${r.pTerm}</td>
-        <td style="color:${r.pSin?'var(--rojo)':'inherit'};font-weight:700">${r.pSin}</td>
-        <td style="color:${r.pVol?'var(--verde)':'inherit'};font-weight:700">${r.pVol}</td>
+        <td>${r.pIni} &rarr; ${r.pFin} <b style="color:${
+          r.pFin-r.pIni>0?'var(--verde)':r.pFin-r.pIni<0?'var(--rojo)':'var(--gris)'}">${
+          r.pFin-r.pIni>0?"+":""}${r.pFin-r.pIni}</b></td>
+        <td style="color:${r.pBaja?'var(--rojo)':'inherit'};font-weight:700">${r.pBaja}</td>
+        <td style="color:${r.pRefin?'var(--violeta)':'inherit'};font-weight:700">${r.pRefin}</td>
+        <td style="color:${r.pReact?'var(--verde)':'inherit'};font-weight:700">${r.pReact}</td>
         <td style="color:${r.pNue?'var(--naranja)':'inherit'};font-weight:700">${r.pNue}</td>
+        <td style="color:${r.pNoRep?'var(--violeta)':'inherit'}">${r.pNoRep}</td>
         <td>${plata(prom(r.cuotas))}</td>
         <td onclick="event.stopPropagation()">${(cobertura[r.v]||[]).length
             ? `<span title="${esc((cobertura[r.v]||[]).join(", "))}">${(cobertura[r.v]||[]).length} deptos</span>`
@@ -1748,7 +1762,8 @@ function pintarPanelActividades(quien,src){
     <span style="color:var(--gris);font-size:.72rem">${esVistaCob?"para "+esc(a.asignado_a||"—"):"de "+esc(a.origen_usuario)}</span>
     ${a.observaciones?`<div style="flex-basis:100%;color:#555;font-size:.77rem">${esc(a.observaciones)}</div>`:""}
     ${TIPOS_AUTO.includes(a.tipo)
-        ? `<button class="b auto full" onclick="ficha('${esc(a.cliente_cod)}')">Marcar el rubro</button>`
+        ? `<button class="b auto full" onclick="ficha('${esc(a.cliente_cod)}')">${
+             BOTON_AUTO[a.tipo]||"Ver la ficha"}</button>`
         : (a.asignado_a===sesion.usuario?`<button class="b auto full" onclick="abrirCierre('${a.id}')">Hecha</button>`:"")}
     <button class="b auto" onclick="ficha('${esc(a.cliente_cod)}')">Ficha</button></div>`;
   const bloque=(t,arr)=>arr.length?`<div class="titulo">${t} (${arr.length})</div>`+
@@ -1942,54 +1957,66 @@ function rangoKpi(){
   return {desde, hasta, etiqueta:et, dias:n, enCurso:(desplKpi===0)};
 }
 
-// Los cuatro numeros del periodo, sobre la linea de tiempo COMPLETA del cliente.
+// Que le paso a cada CLIENTE en la ventana. La unidad es el cliente, no el plan:
+// el objetivo del sistema es tener la mayor cantidad posible de clientes con plan
+// activo, asi que lo que interesa es si el cliente entro, salio o se mantuvo.
 //
-// `hitos` trae [inicio, fin] de todas sus operaciones en AAAAMMDD, que se comparan como
-// texto. Usar solo las operaciones activas daba numeros falsos para cualquier periodo
-// pasado: el que volvio en 2025 y ya termino ese plan no tiene nada activo hoy, asi que
-// no se lo veia. Daba 0 recuperados en todo 2025.
+// Un cliente con dos planes que cierra uno NO se fue: sigue adentro. Antes se contaban
+// cierres de operacion y ese caso figuraba como baja, que para decidir algo no servia.
 const _ymd=d=>d.getFullYear()+String(d.getMonth()+1).padStart(2,"0")+String(d.getDate()).padStart(2,"0");
+const _hitos=c=>(c.hitos||[]).map(h=>String(h).split("F")).filter(h=>h.length===2&&h[0]&&h[1]);
+// Cuantos planes tenia abiertos en una fecha. Hacia atras se reconstruye con la
+// ventana [inicio, fecha_fin] de cada operacion; el ERP solo dice que pasa hoy.
+const _abiertos=(hs,dia)=>hs.reduce((n,h)=>n+((h[0]<=dia&&dia<=h[1])?1:0),0);
+// Un cliente sin plan no esta en un solo lugar. Puede haberse ido limpio (FINALIZADO),
+// haber quedado debiendo (REFINANCIAR, sin resolver) o estar descartado. Son tres cosas
+// distintas y juntarlas daba mas bajas de las que hay.
+const DESCARTE=["incobrable","fallecido"];
+function _destinoSinPlan(c){
+  if(DESCARTE.includes(tagDe(c.codigo))) return "descarte";
+  return ((c.resumen_fin||{}).saldo_pend||0) > 0 ? "refinanciar" : "fue";
+}
 
 function kpisPeriodo(lista, r){
   r=r||rangoKpi();
   const D=_ymd(r.desde), H=_ymd(r.hasta);
-  const en=x=>!!x&&x>=D&&x<=H;
-  let term=0, sinVolver=0, volvieron=0, nuevos=0;
+  const previo=new Date(r.desde); previo.setDate(previo.getDate()-1);
+  const P=_ymd(previo);
+  const hoy=_ymd(new Date());
+  const k={conIni:0, conFin:0, bajas:0, refin:0, desc:0, react:0, nuevos:0,
+           siguio:0, noRepuso:0};
   (lista||[]).forEach(c=>{
-    // Cada hito viaja como "AAAAMMDDFAAAAMMDD" en una sola cadena: Firestore no admite
-    // arreglos anidados. Se parte aca y se sigue comparando como texto.
-    const hs=(c.hitos||[]).map(h=>String(h).split("F")).filter(h=>h.length===2&&h[0]&&h[1]);
-    if(!hs.length) return;
-    const inicios=hs.map(h=>h[0]).sort();
-    const fines  =hs.map(h=>h[1]).sort();
-    const hoy=_ymd(new Date());
-
-    // TERMINARON: cerro AL MENOS UN plan dentro del periodo. Se cuenta al cliente una
-    // sola vez, tomando el ultimo cierre que cayo adentro.
-    //
-    // Ojo, aca hubo un error: la primera version miraba el ULTIMO cierre del cliente en
-    // toda su historia. Con eso, el que cerro en 2024, volvio y cerro otra vez en 2025
-    // dejaba de figurar en 2024 -- su ultimo cierre ya era 2025. Resultado: todo periodo
-    // viejo daba casi 100% de "sin volver", porque los unicos que quedaban eran
-    // justamente los que nunca volvieron. Medido: 59 de 60 en 2024. No era un hallazgo,
-    // era la definicion mordiendose la cola.
-    const enP=fines.filter(f=>f<=hoy&&en(f));
-    if(enP.length){
-      const ref=enP[enP.length-1];
-      term++;
-      if(!inicios.some(i=>i>ref)) sinVolver++;
+    const hs=_hitos(c); if(!hs.length) return;
+    const a0=_abiertos(hs,P), a1=_abiertos(hs,H);
+    if(a0>0) k.conIni++;
+    if(a1>0) k.conFin++;
+    if(a0>0&&a1===0){
+      // Terminado es el que llego a FINALIZADO. El que quedo con saldo no se fue:
+      // esta sin resolver, y por eso tiene tarea.
+      const dest=_destinoSinPlan(c);
+      if(dest==="fue") k.bajas++; else if(dest==="refinanciar") k.refin++; else k.desc++;
     }
-
-    // VOLVIERON: arranco algo en el periodo y TODO lo anterior ya estaba cerrado. Si
-    // tenia algo abierto, no es una recuperacion: es una compra mas.
-    inicios.forEach((ini,k)=>{
-      if(!en(ini)) return;
-      if(k===0){ nuevos++; return; }                  // primera vez que compra
-      const previos=hs.filter(h=>h[0]<ini);
-      if(previos.length && previos.every(h=>h[1]<ini)) volvieron++;
-    });
+    else if(a0===0&&a1>0){
+      // Nuevo es el que nunca habia tenido nada antes de la ventana. Si ya habia
+      // comprado y volvio, es una reactivacion: no son lo mismo y no se mezclan.
+      if(hs.some(h=>h[0]<D)) k.react++; else k.nuevos++;
+    }
+    else if(a0===0&&a1===0&&DESCARTE.includes(tagDe(c.codigo))){
+      // No cuenta para recuperar: ya se decidio que no se va a cobrar.
+    }
+    else if(a0>0&&a1>0){
+      k.siguio++;
+      // Aviso temprano: sigue con plan, pero cerro uno adentro de la ventana y no
+      // arranco ninguno despues. El cliente se esta achicando.
+      const cerro=hs.map(h=>h[1]).filter(f=>f>=D&&f<=H&&f<=hoy).sort();
+      if(cerro.length){
+        const ult=cerro[cerro.length-1];
+        if(!hs.some(h=>h[0]>ult)) k.noRepuso++;
+      }
+    }
   });
-  return {term, sinVolver, volvieron, nuevos};
+  k.neto=k.conFin-k.conIni;
+  return k;
 }
 
 function cambiarGrano(v){ granoKpi=+v; desplKpi=0; pintar(); }
@@ -2011,25 +2038,34 @@ function barraPeriodo(){
 // pregunta: aquellos dicen como esta la cartera hoy, estos que paso en un periodo.
 function tarjetasPeriodo(lista){
   const r=rangoKpi(), k=kpisPeriodo(lista,r);
-  const volvio = k.term - k.sinVolver;
-  const pct = k.term ? Math.round(100*k.sinVolver/k.term) : 0;
+  const signo = k.neto>0?"+":"";
+  const col = k.neto>0?"var(--verde)":k.neto<0?"var(--rojo)":"var(--gris)";
   return `<div class="pbloque">
     ${barraPeriodo()}
     <div class="pk">
-      <div class="p1"><div class="l">Terminaron el plan</div><div class="v">${k.term}</div>
-        <div class="r">${k.term
-          ? `<b style="color:var(--verde)">${volvio}</b> ya volvió ·
-             <b style="color:var(--rojo)">${k.sinVolver}</b> todavía no (${pct}%)`
-          : "nadie cerró plan en este período"}</div></div>
-      <div class="p1 bien"><div class="l">Volvieron</div><div class="v">${k.volvieron}</div>
-        <div class="r">no tenían <b>ningún plan abierto</b> y sacaron uno nuevo</div></div>
+      <div class="p1"><div class="l">Clientes con plan</div>
+        <div class="v">${k.conIni} &rarr; ${k.conFin}
+          <span style="font-size:.95rem;color:${col}">${signo}${k.neto}</span></div>
+        <div class="r">al empezar el período &rarr; al terminarlo</div></div>
+      <div class="p1 mal"><div class="l">Se fueron</div><div class="v">${k.bajas}</div>
+        <div class="r">terminaron y <b>no deben nada</b>: pasaron a Finalizado</div></div>
+      <div class="p1 bien"><div class="l">Reactivados</div><div class="v">${k.react}</div>
+        <div class="r">estaban <b>sin ningún plan</b> y volvieron a sacar uno</div></div>
       <div class="p1 nuevo"><div class="l">Clientes nuevos</div><div class="v">${k.nuevos}</div>
         <div class="r">primera compra en la historia</div></div>
     </div>
-    ${r.enCurso?`<div class="paviso">Son los <b>últimos ${r.dias} días</b>, contados
-      desde hoy. Ojo con <b>"todavía no"</b>: el que terminó el plan hace tres días casi
-      no tuvo tiempo de volver. Con la flecha de la izquierda ves los ${r.dias} días
-      anteriores, que ya tuvieron tiempo, y ahí sí se comparan.</div>`:""}
+    <div class="pnota">
+      Otros <b style="color:var(--violeta)">${k.refin}</b> terminaron <b>con saldo</b>:
+      están en Refinanciar, sin resolver, y cada uno tiene su tarea.
+      ${k.desc?` <b>${k.desc}</b> más están marcados incobrables o fallecidos y no cuentan
+        para recuperar.`:""}<br>
+      De los ${k.siguio} que siguieron con plan,
+      <b${k.noRepuso?' style="color:var(--rojo)"':''}>${k.noRepuso}</b> cerraron uno y no
+      sacaron otro: siguen adentro, pero con menos. Es el aviso más temprano que hay.</div>
+    ${r.enCurso?`<div class="paviso">Son los <b>últimos ${r.dias} días</b>, contados desde
+      hoy. El que cerró su plan hace tres días casi no tuvo tiempo de volver, así que
+      <b>"se quedaron sin plan" va a estar alto</b>. Con la flecha de la izquierda ves los
+      ${r.dias} días anteriores, que ya tuvieron tiempo, y ahí sí se comparan.</div>`:""}
   </div>`;
 }
 
