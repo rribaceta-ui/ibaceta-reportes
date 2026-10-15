@@ -68,6 +68,28 @@ nav .pin{display:inline-block;min-width:17px;padding:0 5px;margin-left:4px;backg
 .limpiar{flex:0 0 auto;background:none;border:0;color:var(--rojo);font-size:.8rem;
          font-weight:700;cursor:pointer;padding:6px 4px;text-decoration:underline}
 
+/* Periodo y pilar 2 */
+.pbloque{margin:10px 14px 2px;background:#fff;border:1px solid var(--borde);
+         border-radius:10px;padding:10px 12px}
+.per{display:flex;align-items:center;gap:7px;flex-wrap:wrap;margin-bottom:9px}
+.per select{flex:0 0 auto;min-width:0;width:auto;padding:5px 8px;font-size:.8rem;
+            border:1.5px solid #ccd2d9;border-radius:6px;background:#fff}
+.per button{background:#eef1f4;border:0;border-radius:6px;padding:5px 10px;cursor:pointer;
+            font-size:.82rem;color:var(--azul)}
+.per button[disabled]{opacity:.35;cursor:default}
+.per button.hoy{background:var(--azul);color:#fff;font-size:.74rem;font-weight:700}
+.per b{font-size:.86rem;color:var(--azul);flex:1;min-width:110px}
+.pk{display:flex;gap:9px;overflow-x:auto;padding-bottom:3px}
+.p1{flex:1 1 0;min-width:122px;background:#f7f9fb;border-radius:8px;padding:8px 10px;
+    border-left:3px solid #9aa5b1}
+.p1.mal{border-left-color:var(--rojo);background:#fef6f6}
+.p1.bien{border-left-color:var(--verde);background:#f2fbf6}
+.p1.nuevo{border-left-color:var(--naranja);background:#fff8f0}
+.p1 .l{font-size:.64rem;font-weight:700;color:var(--gris);text-transform:uppercase;letter-spacing:.03em}
+.p1 .v{font-size:1.45rem;font-weight:800;color:#111;line-height:1.1}
+.p1 .r{font-size:.66rem;color:var(--gris);line-height:1.25;margin-top:1px}
+.paviso{margin-top:8px;font-size:.73rem;color:#7a5c1e;background:#fff8e6;
+        border-radius:6px;padding:6px 9px;line-height:1.4}
 /* KPIs, igual que el funnel */
 .kpis{display:flex;gap:9px;overflow-x:auto;padding:12px 14px 4px}
 .kpi{flex:0 0 auto;min-width:118px;background:#fff;border:1px solid var(--borde);border-top:3px solid var(--naranja);border-radius:9px;padding:9px 13px}
@@ -246,6 +268,7 @@ a.tel{color:var(--azul);text-decoration:none;font-weight:600}
     <nav id="nav"></nav>
   </div>
   <div id="barra" class="barra" style="display:none"></div>
+  <div id="periodo"></div>
   <div class="kpis" id="kpis"></div>
   <div id="panel"></div>
   <div class="cols" id="cols"></div>
@@ -362,7 +385,7 @@ const db = firebase.firestore();
 // vendedores. Lo hecho sin conexion sincroniza al volver.
 db.enablePersistence({synchronizeTabs:true}).catch(()=>{});
 
-const VERSION="2026-10-15d";
+const VERSION="2026-10-15e";
 const DOMINIO="funnel.ibaceta.ar";
 // Las 10 mas comunes cubren el 88,9% de los clientes que hoy tienen rubro cargado. Van
 // a la vista. El resto de las conocidas queda detras de "Otro", para no perderlas pero
@@ -1256,6 +1279,7 @@ function baseDe(){
 function pintarSupervisor(){
   document.getElementById("panel").innerHTML="";
   const lista=filtrar(clientes);   // respeta division/provincia/tipo/busqueda
+  document.getElementById("periodo").innerHTML = tarjetasPeriodo(lista);
   const act=lista.filter(c=>c.estado==="activo");
   const opsA=act.flatMap(opsActivas);
   const cie=act.filter(c=>opsActivas(c).some(o=>o.etapa==="cierre_inminente"));
@@ -1276,13 +1300,19 @@ function pintarSupervisor(){
   // cartera huerfana, no a esta tabla. La columna "Sin agendar" es el agregado de la
   // app: es el numero que dispara el trabajo del dia.
   const conAct=new Set(pend().map(a=>String(a.cliente_cod)));
+  const rPer=rangoKpi();
   const porV={};
   lista.forEach(c=>{
     const v = asignaciones[String(c.codigo)] || c.vendedor_asig
               || (c.division ? vendedorDe(c) : "");
     if(!v) return;
-    const r=porV[v]||(porV[v]={v,div:c.division||"",act:0,ops:0,cie:0,fin:0,sin:0,cuotas:[]});
+    const r=porV[v]||(porV[v]={v,div:c.division||"",act:0,ops:0,cie:0,fin:0,sin:0,cuotas:[],
+                               pTerm:0,pSin:0,pVol:0,pNue:0});
     if(!r.div && c.division) r.div=c.division;
+    // El periodo elegido arriba, pero de ESTE vendedor. Es lo que le deja al supervisor
+    // ver como viene cada uno sin tener que entrar a la cartera de cada uno.
+    const kp=kpisPeriodo([c],rPer);
+    r.pTerm+=kp.term; r.pSin+=kp.sinVolver; r.pVol+=kp.volvieron; r.pNue+=kp.nuevos;
     if(c.estado==="activo"){
       r.act++; const oa=opsActivas(c); r.ops+=oa.length;
       oa.forEach(o=>{ if(o.cuota_semanal>0) r.cuotas.push(o.cuota_semanal); });
@@ -1353,14 +1383,25 @@ function pintarSupervisor(){
     </div>` : "";
   document.getElementById("tabla").innerHTML = `<div class="panel">
     <h3>Vendedores (${filas.length})</h3>
+    <div style="font-size:.76rem;color:var(--gris);margin:-4px 0 8px">Las cuatro columnas
+      del medio son del período elegido arriba: <b>${esc(rPer.etiqueta)}</b>.</div>
     <div style="overflow-x:auto"><table class="tabla">
       <tr><th>Vendedor</th><th>División</th><th>Activos</th><th>Ops activas</th><th>Cierre inminente</th>
-          <th>Final. sin renovar</th><th>Sin agendar</th><th>Cuota prom.</th><th>Zona que cubre</th></tr>
+          <th>Final. sin renovar</th><th>Sin agendar</th>
+          <th title="Su último plan cerró en el período elegido">Terminaron</th>
+          <th title="De los que terminaron, los que hoy no tienen nada activo">Sin volver</th>
+          <th title="Estaban parados y arrancaron de nuevo en el período">Volvieron</th>
+          <th title="Primera compra en el período">Nuevos</th>
+          <th>Cuota prom.</th><th>Zona que cubre</th></tr>
       ${filas.map(r=>`<tr onclick="verVend('${esc(r.v)}')">
         <td style="color:var(--azul);font-weight:700">${esc(r.v)}</td>
         <td>${esc(r.div||"—")}</td>
         <td>${r.act}</td><td>${r.ops}</td><td>${r.cie}</td><td>${r.fin}</td>
         <td style="color:${r.sin?'var(--rojo)':'inherit'};font-weight:700">${r.sin}</td>
+        <td>${r.pTerm}</td>
+        <td style="color:${r.pSin?'var(--rojo)':'inherit'};font-weight:700">${r.pSin}</td>
+        <td style="color:${r.pVol?'var(--verde)':'inherit'};font-weight:700">${r.pVol}</td>
+        <td style="color:${r.pNue?'var(--naranja)':'inherit'};font-weight:700">${r.pNue}</td>
         <td>${plata(prom(r.cuotas))}</td>
         <td onclick="event.stopPropagation()">${(cobertura[r.v]||[]).length
             ? `<span title="${esc((cobertura[r.v]||[]).join(", "))}">${(cobertura[r.v]||[]).length} deptos</span>`
@@ -1584,6 +1625,7 @@ function pintarKanban(){
   const tablaCob = vista==="cob" ? tablaCobradores() : "";
   if(!quien){
     document.getElementById("kpis").innerHTML=""; document.getElementById("panel").innerHTML="";
+    document.getElementById("periodo").innerHTML="";
     document.getElementById("tabla").innerHTML=tablaCob;
     document.getElementById("cols").innerHTML=`<div class="vacio">Seleccioná un ${vista==="vend"?"vendedor":"cobrador"} para ver su cartera.</div>`;
     return;
@@ -1600,6 +1642,7 @@ function pintarKanban(){
         ["Finalizados sin renovar",src.filter(c=>c.estado!=="activo").length],
         ["Cuota total/sem",plata(opsA.reduce((s,o)=>s+(o.cuota_semanal||0),0))]]);
 
+  document.getElementById("periodo").innerHTML = tarjetasPeriodo(src);
   pintarPanelActividades(quien,src);
   document.getElementById("tabla").innerHTML=tablaCob;
 
@@ -1862,6 +1905,138 @@ function sugerenciasDe(c){
   });
   return fuera.sort((a,b)=>b.pct-a.pct);
 }
+// ---------- periodos y el pilar 2 ----------
+// La semana arranca el LUNES, igual que los planes de la unidad Calle y que la tarea
+// semanal de rubro. Si arrancara el domingo, dos partes del sistema estarian contando
+// semanas distintas.
+const GRANOS=[["semana","Semana"],["mes","Mes"],["trimestre","Trimestre"],
+              ["semestre","Semestre"],["anio","Año"]];
+let granoKpi="mes", desplKpi=0;
+const MESES=["enero","febrero","marzo","abril","mayo","junio","julio","agosto",
+             "septiembre","octubre","noviembre","diciembre"];
+
+function _fe(txt){            // "dd/mm/aaaa" -> Date, o null
+  const p=String(txt||"").split("/");
+  if(p.length!==3) return null;
+  const d=new Date(+p[2], +p[1]-1, +p[0]);
+  return isNaN(d) ? null : d;
+}
+const _dm=d=>String(d.getDate()).padStart(2,"0")+"/"+String(d.getMonth()+1).padStart(2,"0");
+
+function rangoKpi(){
+  const h=new Date(); h.setHours(0,0,0,0);
+  let d,f,et;
+  if(granoKpi==="semana"){
+    d=new Date(h); d.setDate(d.getDate()-((d.getDay()+6)%7)+desplKpi*7);
+    f=new Date(d); f.setDate(f.getDate()+6);
+    et=_dm(d)+" al "+_dm(f);
+  }else if(granoKpi==="mes"){
+    d=new Date(h.getFullYear(), h.getMonth()+desplKpi, 1);
+    f=new Date(d.getFullYear(), d.getMonth()+1, 0);
+    et=MESES[d.getMonth()]+" "+d.getFullYear();
+  }else if(granoKpi==="trimestre"){
+    d=new Date(h.getFullYear(), Math.floor(h.getMonth()/3)*3+desplKpi*3, 1);
+    f=new Date(d.getFullYear(), d.getMonth()+3, 0);
+    et="trimestre "+(Math.floor(d.getMonth()/3)+1)+" de "+d.getFullYear();
+  }else if(granoKpi==="semestre"){
+    d=new Date(h.getFullYear(), Math.floor(h.getMonth()/6)*6+desplKpi*6, 1);
+    f=new Date(d.getFullYear(), d.getMonth()+6, 0);
+    et=(Math.floor(d.getMonth()/6)+1)+"º semestre de "+d.getFullYear();
+  }else{
+    d=new Date(h.getFullYear()+desplKpi, 0, 1);
+    f=new Date(d.getFullYear(), 11, 31);
+    et="año "+d.getFullYear();
+  }
+  f.setHours(23,59,59,999);
+  return {desde:d, hasta:f, etiqueta:et, enCurso:(h>=d&&h<=f)};
+}
+
+// Los cuatro numeros del periodo, sobre la linea de tiempo COMPLETA del cliente.
+//
+// `hitos` trae [inicio, fin] de todas sus operaciones en AAAAMMDD, que se comparan como
+// texto. Usar solo las operaciones activas daba numeros falsos para cualquier periodo
+// pasado: el que volvio en 2025 y ya termino ese plan no tiene nada activo hoy, asi que
+// no se lo veia. Daba 0 recuperados en todo 2025.
+const _ymd=d=>d.getFullYear()+String(d.getMonth()+1).padStart(2,"0")+String(d.getDate()).padStart(2,"0");
+
+function kpisPeriodo(lista, r){
+  r=r||rangoKpi();
+  const D=_ymd(r.desde), H=_ymd(r.hasta);
+  const en=x=>!!x&&x>=D&&x<=H;
+  let term=0, sinVolver=0, volvieron=0, nuevos=0;
+  (lista||[]).forEach(c=>{
+    const hs=(c.hitos||[]).filter(h=>h&&h[0]&&h[1]);
+    if(!hs.length) return;
+    const inicios=hs.map(h=>h[0]).sort();
+    const fines  =hs.map(h=>h[1]).sort();
+    const hoy=_ymd(new Date());
+
+    // TERMINARON: cerro AL MENOS UN plan dentro del periodo. Se cuenta al cliente una
+    // sola vez, tomando el ultimo cierre que cayo adentro.
+    //
+    // Ojo, aca hubo un error: la primera version miraba el ULTIMO cierre del cliente en
+    // toda su historia. Con eso, el que cerro en 2024, volvio y cerro otra vez en 2025
+    // dejaba de figurar en 2024 -- su ultimo cierre ya era 2025. Resultado: todo periodo
+    // viejo daba casi 100% de "sin volver", porque los unicos que quedaban eran
+    // justamente los que nunca volvieron. Medido: 59 de 60 en 2024. No era un hallazgo,
+    // era la definicion mordiendose la cola.
+    const enP=fines.filter(f=>f<=hoy&&en(f));
+    if(enP.length){
+      const ref=enP[enP.length-1];
+      term++;
+      if(!inicios.some(i=>i>ref)) sinVolver++;
+    }
+
+    // VOLVIERON: arranco algo en el periodo y TODO lo anterior ya estaba cerrado. Si
+    // tenia algo abierto, no es una recuperacion: es una compra mas.
+    inicios.forEach((ini,k)=>{
+      if(!en(ini)) return;
+      if(k===0){ nuevos++; return; }                  // primera vez que compra
+      const previos=hs.filter(h=>h[0]<ini);
+      if(previos.length && previos.every(h=>h[1]<ini)) volvieron++;
+    });
+  });
+  return {term, sinVolver, volvieron, nuevos};
+}
+
+function cambiarGrano(v){ granoKpi=v; desplKpi=0; pintar(); }
+function moverPeriodo(n){ desplKpi+=n; pintar(); }
+
+function barraPeriodo(){
+  const r=rangoKpi();
+  return `<div class="per">
+    <select onchange="cambiarGrano(this.value)">${GRANOS.map(([k,l])=>
+      `<option value="${k}" ${k===granoKpi?"selected":""}>${l}</option>`).join("")}</select>
+    <button onclick="moverPeriodo(-1)" title="Período anterior">&#9664;</button>
+    <b>${esc(r.etiqueta)}</b>
+    <button onclick="moverPeriodo(1)" ${desplKpi>=0?"disabled":""} title="Período siguiente">&#9654;</button>
+    ${desplKpi!==0?`<button class="hoy" onclick="desplKpi=0;pintar()">Hoy</button>`:""}
+  </div>`;
+}
+
+// Las tarjetas del periodo. Van aparte de los KPI de cartera porque responden otra
+// pregunta: aquellos dicen como esta la cartera hoy, estos que paso en un periodo.
+function tarjetasPeriodo(lista){
+  const r=rangoKpi(), k=kpisPeriodo(lista,r);
+  const pct = k.term ? Math.round(100*k.sinVolver/k.term) : 0;
+  return `<div class="pbloque">
+    ${barraPeriodo()}
+    <div class="pk">
+      <div class="p1"><div class="l">Terminaron el plan</div><div class="v">${k.term}</div>
+        <div class="r">su último plan cerró en este período</div></div>
+      <div class="p1 mal"><div class="l">Siguen sin volver</div><div class="v">${k.sinVolver}</div>
+        <div class="r">${k.term?pct+"% de los que terminaron":"—"}</div></div>
+      <div class="p1 bien"><div class="l">Volvieron</div><div class="v">${k.volvieron}</div>
+        <div class="r">estaban parados y arrancaron de nuevo</div></div>
+      <div class="p1 nuevo"><div class="l">Clientes nuevos</div><div class="v">${k.nuevos}</div>
+        <div class="r">primera compra</div></div>
+    </div>
+    ${r.enCurso?`<div class="paviso">Este período todavía no terminó: casi nadie vuelve
+      en pocos días, así que <b>"siguen sin volver" va a estar alto</b>. Para comparar,
+      mirá un período cerrado con la flecha de la izquierda.</div>`:""}
+  </div>`;
+}
+
 // ---------- contadores de uso ----------
 // Cada accion que hace una persona suma uno. Es lo que despues contesta "la estan
 // usando?" con un numero y no con una impresion.
