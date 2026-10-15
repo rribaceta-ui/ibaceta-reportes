@@ -396,7 +396,7 @@ const db = firebase.firestore();
 // vendedores. Lo hecho sin conexion sincroniza al volver.
 db.enablePersistence({synchronizeTabs:true}).catch(()=>{});
 
-const VERSION="2026-10-15l";
+const VERSION="2026-10-15m";
 const DOMINIO="funnel.ibaceta.ar";
 // Las 10 mas comunes cubren el 88,9% de los clientes que hoy tienen rubro cargado. Van
 // a la vista. El resto de las conocidas queda detras de "Otro", para no perderlas pero
@@ -1409,11 +1409,13 @@ function pintarSupervisor(){
     </div>` : "";
   document.getElementById("tabla").innerHTML = `<div class="panel">
     <h3>Vendedores (${filas.length})</h3>
-    <div style="font-size:.76rem;color:var(--gris);margin:-4px 0 8px">Las seis columnas
+    <div style="font-size:.76rem;color:var(--gris);margin:-4px 0 8px">Solo los vendedores
+      con cartera activa. <b>Última conexión</b> es cuándo abrió la app por última vez:
+      verde hasta 3 días, naranja hasta 13, rojo de 14 en más.<br>Las seis columnas
       del medio son del período elegido arriba: <b>${esc(rPer.etiqueta)}</b>. Cuentan
       <b>clientes</b>, no planes: el que cierra uno y sigue con otro no se fue.</div>
     <div style="overflow-x:auto"><table class="tabla">
-      <tr><th>Vendedor</th><th>División</th><th>Activos</th><th>Ops activas</th><th>Cierre inminente</th>
+      <tr><th>Vendedor</th><th title="Fecha y hora en que abrió la app por última vez">Última conexión</th><th>División</th><th>Activos</th><th>Ops activas</th><th>Cierre inminente</th>
           <th>Final. sin renovar</th><th>Sin agendar</th>
           <th title="Clientes con plan al empezar y al terminar el período">Con plan</th>
           <th title="Terminaron y no deben nada: pasaron a Finalizado">Se fueron</th>
@@ -1424,6 +1426,11 @@ function pintarSupervisor(){
           <th>Cuota prom.</th><th>Zona que cubre</th></tr>
       ${filas.map(r=>`<tr onclick="verVend('${esc(r.v)}')">
         <td style="color:var(--azul);font-weight:700">${esc(r.v)}</td>
+        ${(()=>{ const e=haceCuanto(ingresos[r.v]);
+           const col = e.dias>=14?"var(--rojo)" : e.dias>=4?"var(--naranja)" : "var(--verde)";
+           return `<td style="color:${col};font-weight:700;white-space:nowrap">${
+             e.detalle ? esc(e.detalle)+' <span style="font-weight:400;opacity:.75">('+e.txt+')</span>'
+                       : 'nunca entró'}</td>`; })()}
         <td>${esc(r.div||"—")}</td>
         <td>${r.act}</td><td>${r.ops}</td><td>${r.cie}</td><td>${r.fin}</td>
         <td style="color:${r.sin?'var(--rojo)':'inherit'};font-weight:700">${r.sin}</td>
