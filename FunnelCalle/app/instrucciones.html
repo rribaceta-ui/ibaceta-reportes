@@ -1,0 +1,334 @@
+<!DOCTYPE html>
+<html lang="es-AR">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Funnel Calle — Guía de uso</title>
+<link href="https://fonts.googleapis.com/css2?family=Montserrat:wght@400;600;700;800&family=Open+Sans:wght@400;600&display=swap" rel="stylesheet">
+<style>
+  :root{
+    --azul:#00548A; --naranja:#F1891B; --bg:#F5F5F5; --surface:#FFFFFF;
+    --texto:#333333; --inv:#FFFFFF; --gris:#6b7280; --borde:#dfe3e8;
+    --head:'Montserrat',sans-serif; --body:'Open Sans',sans-serif;
+  }
+  @page{ size:A4; margin:13mm 12mm 14mm 12mm; }
+  *{box-sizing:border-box}
+  body{margin:0;font-family:var(--body);color:var(--texto);font-size:9.6pt;line-height:1.45}
+  h1,h2,h3{font-family:var(--head);margin:0}
+
+  /* ---------- portada de la primera pagina ---------- */
+  .cab{background:var(--azul);color:var(--inv);padding:17px 20px;border-radius:7px;
+       margin-bottom:14px;position:relative;overflow:hidden}
+  .cab::after{content:"";position:absolute;right:-30px;top:-30px;width:150px;height:150px;
+              background:var(--naranja);opacity:.15;border-radius:50%}
+  .marca{font-family:var(--head);font-weight:800;font-size:14pt;letter-spacing:.14em}
+  .marca span{color:var(--naranja)}
+  .cab h1{font-size:19pt;font-weight:800;margin:6px 0 3px;line-height:1.12}
+  .cab .baj{font-size:9.4pt;opacity:.93;max-width:80%}
+  .cab .link{margin-top:10px;font-size:8.6pt;background:rgba(255,255,255,.14);
+             display:inline-block;padding:5px 10px;border-radius:4px;font-family:var(--head);
+             font-weight:600;word-break:break-all}
+
+  /* ---------- secciones ---------- */
+  h2{font-size:12pt;font-weight:800;color:var(--azul);margin:16px 0 3px;
+     padding-bottom:4px;border-bottom:2.5px solid var(--naranja)}
+  h2 .n{display:inline-block;background:var(--azul);color:#fff;width:19px;height:19px;
+        border-radius:50%;text-align:center;line-height:19px;font-size:9.5pt;margin-right:7px;
+        vertical-align:1px}
+  .sub{font-size:8.8pt;color:var(--gris);margin:0 0 8px}
+
+  /* ---------- la secuencia ---------- */
+  /* 2px de aire a la derecha: el borde de 1px de la ultima caja caia justo sobre el
+     corte de la pagina y desaparecia al imprimir. */
+  .flujo{display:flex;gap:7px;margin:10px 2px 4px 0;align-items:stretch}
+  .paso{flex:1 1 0;min-width:0;background:var(--surface);border:1px solid var(--borde);
+        border-top:3px solid var(--naranja);border-radius:6px;padding:9px 10px;
+        box-shadow:0 2px 8px rgba(0,0,0,.06)}
+  .paso .k{font-family:var(--head);font-weight:800;font-size:7.4pt;color:var(--naranja);
+           letter-spacing:.07em;text-transform:uppercase}
+  .paso .t{font-family:var(--head);font-weight:700;font-size:9.6pt;color:var(--azul);
+           margin:2px 0 3px;line-height:1.2}
+  .paso .d{font-size:8.4pt;color:#4a4a4a;line-height:1.35}
+  .flecha{align-self:center;color:var(--naranja);font-size:15pt;font-weight:700;line-height:1;
+          flex:0 0 auto}
+  /* Que una fila no se corte entre dos paginas: en papel es ilegible. */
+  tr{page-break-inside:avoid}
+  h2{page-break-after:avoid}
+  .dos{page-break-inside:avoid}
+
+  /* ---------- tablas ---------- */
+  table{width:100%;border-collapse:collapse;margin:5px 0 2px;font-size:9.1pt}
+  th{background:var(--azul);color:#fff;font-family:var(--head);font-weight:600;
+     text-align:left;padding:5px 9px;font-size:8.6pt;letter-spacing:.02em}
+  td{padding:5px 9px;border-bottom:1px solid var(--borde);vertical-align:top}
+  tr:nth-child(even) td{background:var(--bg)}
+  td.q{font-family:var(--head);font-weight:700;color:var(--azul);width:33%;line-height:1.25}
+  .nuevo{display:inline-block;background:var(--naranja);color:#fff;font-family:var(--head);
+         font-weight:700;font-size:6.6pt;padding:1px 5px;border-radius:3px;
+         vertical-align:2px;margin-left:5px;letter-spacing:.04em}
+
+  /* ---------- avisos ---------- */
+  .ojo{background:#FFF6EC;border-left:4px solid var(--naranja);border-radius:5px;
+       padding:9px 12px;margin:9px 0;font-size:9pt}
+  .ojo b{font-family:var(--head);color:var(--azul)}
+  .pie{margin-top:16px;background:#333;color:#e9e9e9;border-radius:6px;padding:11px 15px;
+       font-size:8.6pt;line-height:1.5}
+  .pie b{color:var(--naranja);font-family:var(--head)}
+  .dos{display:flex;gap:11px;margin:4px 0 2px}
+  .caja{flex:1;border:1px solid var(--borde);border-radius:6px;padding:10px 12px;
+        box-shadow:0 2px 8px rgba(0,0,0,.05)}
+  .caja.a{background:var(--surface);border-top:3px solid var(--azul)}
+  .caja.b{background:#fafbfc;border-top:3px solid #c3c9d1}
+  .caja .rot{font-family:var(--head);font-weight:800;font-size:10.4pt;color:var(--azul);
+             line-height:1.15}
+  .caja.b .rot{color:#5a6673}
+  .caja .qes{font-family:var(--head);font-weight:600;font-size:8.6pt;color:var(--naranja);
+             margin:3px 0 6px}
+  .caja.b .qes{color:#8a95a1}
+  .caja ul{margin:0;padding-left:15px}
+  .caja li{font-size:8.6pt;margin-bottom:3px;line-height:1.35}
+  .caja .ej{margin-top:7px;padding-top:6px;border-top:1px dashed var(--borde);
+            font-size:8.1pt;color:var(--gris);font-style:italic}
+  .salto{page-break-before:always}
+  @media screen{ .salto{display:none} }
+  .nota{font-size:8.3pt;color:var(--gris);margin:3px 0 0}
+
+  /* ------- En pantalla ------- */
+  @media screen{
+    body{background:#eceff2;padding:14px 10px 40px;font-size:11pt}
+    .hoja{max-width:820px;margin:0 auto;background:#fff;border-radius:9px;
+          padding:20px 22px 26px;box-shadow:0 4px 18px rgba(0,0,0,.1)}
+    .solo-papel{display:none}
+    .bajar{display:block;margin:0 0 14px;text-align:center}
+    .bajar a{display:inline-block;background:var(--naranja);color:#fff;text-decoration:none;
+             font-family:var(--head);font-weight:700;font-size:10pt;padding:9px 16px;
+             border-radius:6px}
+  }
+  @media print{ .solo-pantalla{display:none} }
+
+  /* ------- Telefono: todo en una columna ------- */
+  @media screen and (max-width:620px){
+    body{padding:8px 6px 30px;font-size:10.6pt}
+    .hoja{padding:14px 13px 20px;border-radius:7px}
+    .cab{padding:14px 15px}
+    .cab h1{font-size:16pt}
+    .cab .baj{max-width:100%}
+    .cab .link{font-size:8pt}
+    /* Los cuatro pasos y las dos cajas, uno abajo del otro. Al lado no entran. */
+    .flujo,.dos{flex-direction:column;gap:9px;margin-right:0}
+    .flecha{align-self:flex-start;margin-left:14px;transform:rotate(90deg);font-size:13pt}
+    /* Las tablas dejan de ser tablas: cada fila es una tarjeta. */
+    table,tbody,tr,td{display:block;width:100%}
+    /* La fila de encabezado no se usa cuando cada fila es una tarjeta: el titulo ya
+       esta en negrita adentro. Se marca con clase y no con :has() para que ande tambien
+       en los Android viejos. */
+    thead,tr.cab-t{display:none}
+    tr{border:1px solid var(--borde);border-left:3px solid var(--azul);border-radius:6px;
+       margin-bottom:8px;overflow:hidden}
+    tr:nth-child(even) td{background:transparent}
+    td{border:0;padding:8px 11px}
+    td.q{width:auto;background:var(--bg);font-size:10.4pt;padding-bottom:7px}
+    td.q+td{padding-top:4px}
+  }
+</style>
+</head>
+<body>
+<div class="hoja">
+<div class="bajar solo-pantalla">
+  <a href="Instructivo_App_Funnel_Calle.pdf" download>Bajar en PDF para imprimir</a>
+</div>
+
+<div class="cab">
+  <div class="marca">IBACETA<span> ·</span> VENTA CALLE</div>
+  <h1>El funnel ahora es una app</h1>
+  <div class="baj">Tiene todo lo de antes y además te dice <b>a quién visitar</b>,
+    <b>qué ofrecerle</b> y <b>qué datos hay que corregir</b>. Entrás con tu usuario y
+    contraseña de siempre.</div>
+  <div class="link">rribaceta-ui.github.io/ibaceta-reportes/FunnelCalle/app/</div>
+</div>
+
+<h2><span class="n">1</span>Lo que hacés todos los días</h2>
+<p class="sub">Estas cuatro cosas se explican entre sí. Si entendés esta vuelta, el resto sale solo.</p>
+
+<div class="flujo">
+  <div class="paso">
+    <div class="k">Te llega</div>
+    <div class="t">Marcar el rubro</div>
+    <div class="d">Todos los lunes, por cada cliente que está por terminar el plan y no
+      sabemos a qué se dedica.</div>
+  </div>
+  <div class="flecha">›</div>
+  <div class="paso">
+    <div class="k">Lo cargás</div>
+    <div class="t">Almacén, carnicería…</div>
+    <div class="d">Entrás a la ficha, tocás el rubro y guardás. La tarea desaparece sola.</div>
+  </div>
+  <div class="flecha">›</div>
+  <div class="paso">
+    <div class="k">Aparece</div>
+    <div class="t">Qué le falta</div>
+    <div class="d">Lo que tienen los negocios iguales al suyo y él todavía no.</div>
+  </div>
+  <div class="flecha">›</div>
+  <div class="paso">
+    <div class="k">Decidís</div>
+    <div class="t">Se lo voy a ofrecer</div>
+    <div class="d">Queda anotado. Después se mide qué se vendió de lo que ofrecimos.</div>
+  </div>
+</div>
+
+<div class="ojo"><b>Por qué importa el rubro.</b> Sin saber si es un almacén o una
+  carnicería, la app no te puede sugerir nada. Con el rubro cargado te dice, por ejemplo,
+  que de cada 10 carnicerías de la cartera 3 tienen balanza — y que éste no la tiene.</div>
+
+<h2><span class="n">2</span>En la ficha del cliente</h2>
+<p class="sub">Se abre con <b>Ver Ficha</b> desde cualquier tarjeta.</p>
+
+<table>
+  <tr class="cab-t"><th>Qué es</th><th>Para qué sirve</th></tr>
+  <tr><td class="q">Están bien <span class="nuevo">NUEVO</span></td>
+      <td>Confirma que el teléfono y la dirección siguen siendo correctos. Queda registrado
+          quién lo confirmó y cuándo. Vuelve a preguntar a los 6 meses.</td></tr>
+  <tr><td class="q">Corregir teléfono o dirección <span class="nuevo">NUEVO</span></td>
+      <td>Si el dato está mal, lo corregís ahí. <b>No se carga solo en el sistema</b>: le
+          queda al cobrador como tarea para pasarlo a DEBO.</td></tr>
+  <tr><td class="q">Número de WhatsApp <span class="nuevo">NUEVO</span></td>
+      <td>Una casilla aparte, solo para WhatsApp. Te avisa si el número no queda bien
+          (van 10 números, sin el 0 y sin el 15).</td></tr>
+  <tr><td class="q">Negocio <span class="nuevo">NUEVO</span></td>
+      <td>A qué se dedica. Elegís de una lista; si no está, "Ver más rubros" o "Otro".
+          <b>Podés marcar más de uno</b> — un almacén que además vende verdura.</td></tr>
+  <tr><td class="q">Qué le falta <span class="nuevo">NUEVO</span></td>
+      <td>Lo que compran los negocios iguales al suyo y él no, en tres grupos:
+          <b>para el local</b>, <b>sirve en los dos</b> y <b>para la casa</b>. Te muestra un
+          producto concreto que <b>hoy hay en stock</b>.</td></tr>
+  <tr><td class="q">Mandarle un WhatsApp <span class="nuevo">NUEVO</span></td>
+      <td>Cuatro mensajes ya escritos: calificación en Google (según la provincia), redes y
+          novedades. Abre WhatsApp con el texto puesto — <b>lo mandás vos</b>, no sale solo.</td></tr>
+  <tr><td class="q">Observaciones</td>
+      <td>Lo que haya que saber de ese cliente. Lo ven todos.</td></tr>
+  <tr><td class="q">Detalle de cuotas <span class="nuevo">NUEVO</span></td>
+      <td>Cuota por cuota: cuáles pagó, cuáles debe y cuántos días de atraso lleva.</td></tr>
+  <tr><td class="q">Historial de salón</td>
+      <td>Si además compró en los locales: primera compra, última y monto.</td></tr>
+</table>
+
+<div class="salto"></div>
+
+<h2><span class="n">3</span>El tablero</h2>
+<table>
+  <tr class="cab-t"><th>Qué es</th><th>Para qué sirve</th></tr>
+  <tr><td class="q">Columna "Reasignado" <span class="nuevo">NUEVO</span></td>
+      <td>En verde, aparte de las seis etapas. Son los clientes que te pasaron y no venían
+          en tu cartera. Antes no los veías.</td></tr>
+  <tr><td class="q">Etiquetas <span class="nuevo">NUEVO</span></td>
+      <td>Con casillas para elegir cuáles querés ver. Un cliente con operaciones activas
+          <b>no se esconde nunca</b>, tenga la etiqueta que tenga.</td></tr>
+  <tr><td class="q">Filtros <span class="nuevo">NUEVO</span></td>
+      <td>División, provincia, departamento, tipo de operación, <b>rubro</b> y etiquetas.
+          El que está activo se pinta de azul; "Quitar filtros" los borra todos.</td></tr>
+  <tr><td class="q">Buscador</td>
+      <td>Escribís parte del nombre y filtra la cartera.</td></tr>
+</table>
+
+<h2><span class="n">4</span>Las dos listas de arriba de todo</h2>
+<p class="sub">En el panel de arriba conviven <b>dos cosas distintas</b> que se parecen y
+  no son lo mismo. Si no se distinguen, la pantalla no se entiende.</p>
+
+<div class="dos">
+  <div class="caja a">
+    <div class="rot">Mis pendientes</div>
+    <div class="qes">Lo que tenés que hacer, con fecha.</div>
+    <ul>
+      <li>Alguien las creó: vos, tu supervisor, el cobrador o el sistema.</li>
+      <li>Cada una arranca con <b>el título de lo que hay que hacer</b> y abajo de
+          qué cliente es.</li>
+      <li>Van agrupadas en <b>Vencidas</b>, <b>Hoy</b> y <b>Próximas</b>.</li>
+      <li><b>Se van cuando las cerrás</b> con el botón "Hecha".</li>
+    </ul>
+    <div class="ej">El número naranja de la pestaña "Vista Vendedor" es la cantidad
+      que tenés sin cerrar.</div>
+  </div>
+  <div class="caja b">
+    <div class="rot">Nadie los tiene agendados</div>
+    <div class="qes">NO son tareas. Son clientes sin fecha de contacto.</div>
+    <ul>
+      <li>Son clientes <b>activos</b> a los que <b>nadie</b> les puso fecha: ni vos
+          ni cobranza.</li>
+      <li>Nadie te está pidiendo nada. Es una lista para que mires y decidas.</li>
+      <li>Si hay que ver a alguno, tocás <b>Agendar</b> y recién ahí pasa a ser un
+          pendiente tuyo.</li>
+      <li>Se ve <b>en gris</b> justamente para que no se confunda con lo de al lado.</li>
+    </ul>
+    <div class="ej">Si están todos agendados, esta lista no aparece.</div>
+  </div>
+</div>
+
+<p class="sub" style="margin-top:12px"><b>Los tipos de actividad que vas a ver:</b></p>
+<table>
+  <tr class="cab-t"><th>Qué es</th><th>De dónde sale</th></tr>
+  <tr><td class="q">Marcar el rubro del negocio <span class="nuevo">NUEVO</span></td>
+      <td><b>La crea el sistema solo, todos los lunes</b>, por cada cliente que está por
+          terminar el plan y no sabemos a qué se dedica. No tiene botón "Hecha":
+          <b>se cierra sola</b> cuando cargás el rubro.</td></tr>
+  <tr><td class="q">Cargar el dato corregido en el ERP <span class="nuevo">NUEVO</span></td>
+      <td>La crea el sistema cuando alguien corrige un teléfono o una dirección. Le llega
+          al cobrador para que lo pase a DEBO.</td></tr>
+  <tr><td class="q">Llamada · Visita · WhatsApp · Tarea</td>
+      <td>Las agendás vos desde la ficha o desde la lista, con el botón <b>Agendar</b>.
+          Ponés el título, la fecha y, si querés, la hora.</td></tr>
+  <tr><td class="q">Las que te manda tu supervisor</td>
+      <td>Aparecen igual que las tuyas, y abajo dice quién te la mandó.</td></tr>
+  <tr><td class="q">Los avisos del cobrador</td>
+      <td>El cobrador no recibe tareas: <b>avisa</b> que un cliente de su ruta necesita
+          algo, y eso te llega a vos.</td></tr>
+</table>
+
+<h2><span class="n">5</span>Para supervisión y gerencia</h2>
+<table>
+  <tr class="cab-t"><th>Qué es</th><th>Para qué sirve</th></tr>
+  <tr><td class="q">Vista Supervisor</td>
+      <td>Tres tablas: por vendedor, por departamento y la cartera huérfana.</td></tr>
+  <tr><td class="q">Tabla de cobradores <span class="nuevo">NUEVO</span></td>
+      <td>Con datos de cobranza: a cobrar por semana, a refinanciar, saldo, marcados,
+          sin WhatsApp y datos confirmados.</td></tr>
+  <tr><td class="q">Cartera huérfana <span class="nuevo">NUEVO</span></td>
+      <td>Clientes sin vendedor. Se asignan a mano, o con <b>reparto automático</b> que
+          muestra una vista previa antes de aplicar nada.</td></tr>
+  <tr><td class="q">Cobertura de zonas <span class="nuevo">NUEVO</span></td>
+      <td>Qué departamentos cubre cada vendedor. Lo carga su supervisor y mejora el
+          reparto automático.</td></tr>
+  <tr><td class="q">Pestaña "Vendedores" <span class="nuevo">NUEVO</span></td>
+      <td>Asignarle punto de venta al vendedor que vendió sin estar cargado. Esa misma
+          noche entra en todos los reportes.</td></tr>
+  <tr><td class="q">Editar los mensajes de WhatsApp <span class="nuevo">NUEVO</span></td>
+      <td>Gerencia cambia los cuatro textos desde la app, sin depender de nadie.</td></tr>
+</table>
+
+<h2><span class="n">6</span>La app</h2>
+<table>
+  <tr class="cab-t"><th>Qué es</th><th>Para qué sirve</th></tr>
+  <tr><td class="q">Instalala en el celular <span class="nuevo">NUEVO</span></td>
+      <td>Abrí el link y tocá el botón naranja <b>"Instalar en el celular"</b>. Si no te
+          aparece, tocá <b>"¿Cómo la instalo?"</b>. Te queda con ícono propio.</td></tr>
+  <tr><td class="q">Funciona sin señal <span class="nuevo">NUEVO</span></td>
+      <td>Lo que cargues sin conexión se sincroniza solo cuando volvés a tener.</td></tr>
+  <tr><td class="q">En la tablet, acostada <span class="nuevo">NUEVO</span></td>
+      <td>Girándola entran las seis columnas de una sola vez. Es la mejor vista que tiene.</td></tr>
+  <tr><td class="q">Tu usuario de siempre</td>
+      <td>El mismo que usabas en el funnel. No hay claves nuevas.</td></tr>
+</table>
+
+<div class="ojo"><b>Importante.</b> Lo que cargás en la app —teléfonos, direcciones, rubro,
+  confirmaciones— <b>no pasa solo al sistema DEBO</b>. Queda guardado y a la vista de
+  todos, y le genera la tarea a quien tiene que cargarlo. Nadie pierde el dato.</div>
+
+<div class="pie">
+  <b>Si algo no funciona o no se entiende, avisá. Con una captura de pantalla alcanza.</b><br>
+  Si hiciste un cambio y no lo ves: cerrá la app del todo y volvé a abrirla.<br>
+  <span style="opacity:.7">Ibaceta — Sistema Comercial · Venta Calle</span>
+</div>
+
+</div>
+</body>
+</html>

@@ -1,7 +1,7 @@
 // Cachea solo el armazon de la app (unos 40 KB). Los datos NO se cachean aca: de eso se
 // encarga la persistencia de Firestore, que ademas sincroniza lo que se hizo sin señal.
-const CACHE = "funnel-calle-v45";
-const BASE = ["./", "./index.html", "./manifest.json",
+const CACHE = "funnel-calle-v46";
+const BASE = ["./", "./index.html", "./manifest.json", "./instrucciones.html",
               "./icono-192.png", "./icono-512.png", "./icono-maskable.png"];
 
 self.addEventListener("install", e => {

@@ -237,6 +237,10 @@ a.tel{color:var(--azul);text-decoration:none;font-weight:600}
       <div class="tit"><div class="t1">Funnel Comercial — Calle</div><div class="t2" id="hsub"></div></div>
       <button class="btn-instalar" style="display:none;background:var(--naranja)"
               onclick="instalar()">Instalar</button>
+      <!-- El instructivo vive al lado de la app, en su propia pagina: se abre aparte para
+           no perder lo que la persona estaba mirando, y desde ahi se baja en PDF. Lo ven
+           los cuatro roles, sin excepcion. -->
+      <button onclick="window.open('instrucciones.html','_blank')">Instrucciones</button>
       <button onclick="salir()">Salir</button>
     </header>
     <nav id="nav"></nav>
@@ -352,7 +356,7 @@ const db = firebase.firestore();
 // vendedores. Lo hecho sin conexion sincroniza al volver.
 db.enablePersistence({synchronizeTabs:true}).catch(()=>{});
 
-const VERSION="2026-10-15b";
+const VERSION="2026-10-15c";
 const DOMINIO="funnel.ibaceta.ar";
 // Las 10 mas comunes cubren el 88,9% de los clientes que hoy tienen rubro cargado. Van
 // a la vista. El resto de las conocidas queda detras de "Otro", para no perderlas pero
