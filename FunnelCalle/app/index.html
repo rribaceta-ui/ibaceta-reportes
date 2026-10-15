@@ -111,6 +111,11 @@ nav .pin{display:inline-block;min-width:17px;padding:0 5px;margin-left:4px;backg
 .verif span{flex:1 1 100%}
 .verif .b{padding:3px 8px;font-size:.7rem}
 .wa-botones{display:flex;flex-wrap:wrap;gap:7px;margin-top:6px}
+/* "Nadie los tiene agendados" NO son pendientes: se ve gris y apagado, sin el color
+   de vencida/hoy/proxima, para que a simple vista no se confunda con una tarea. */
+.act.sinact{border-left:3px solid #c3c9d1;background:#fafbfc}
+.sin-ayuda{font-size:.77rem;color:var(--gris);margin:-2px 0 8px;line-height:1.4}
+.sin-ayuda b{color:var(--azul)}
 /* El titulo de la actividad: lo primero que se lee, en toda la fila */
 .act-tit{flex-basis:100%;font-size:.86rem;font-weight:800;color:var(--azul);margin-bottom:1px}
 .act.venc .act-tit{color:var(--rojo)}
@@ -347,7 +352,7 @@ const db = firebase.firestore();
 // vendedores. Lo hecho sin conexion sincroniza al volver.
 db.enablePersistence({synchronizeTabs:true}).catch(()=>{});
 
-const VERSION="2026-10-15a";
+const VERSION="2026-10-15b";
 const DOMINIO="funnel.ibaceta.ar";
 // Las 10 mas comunes cubren el 88,9% de los clientes que hoy tienen rubro cargado. Van
 // a la vista. El resto de las conocidas queda detras de "Otro", para no perderlas pero
@@ -1674,17 +1679,20 @@ function pintarPanelActividades(quien,src){
     arr.sort((a,b)=>(a.fecha||"").localeCompare(b.fecha||"")).map(fila).join(""):"";
   document.getElementById("panel").innerHTML=`<div class="panel">
     <h3>${quien===sesion.usuario?"Mis pendientes":"Pendientes de "+esc(quien)} (${P.length})</h3>
+    ${P.length?`<div class="sin-ayuda">Lo que tenés que hacer, con fecha. Se van
+        cuando las cerrás.</div>`:""}
     ${bloque("Vencidas",venc)}${bloque("Hoy",hoyl)}${bloque("Próximas",fut)}
-    ${P.length?"":`<div class="vacio">Sin pendientes.</div>`}
+    ${P.length?"":`<div class="vacio">No tenés nada pendiente.</div>`}
     ${mandados.length?`<div class="titulo">${quien===sesion.usuario?"Avisos que mandé a los vendedores"
         :"Avisos que mandó "+esc(quien)} (${mandados.length})</div>
       <div style="font-size:.77rem;color:var(--gris);margin-bottom:7px">
         Pedidos abiertos: el cliente necesita algo y el vendedor todavía no lo cerró.</div>
       ${mandados.sort((a,b)=>(a.fecha||"").localeCompare(b.fecha||"")).map(fila).join("")}`:""}
-    ${sin.length?`<div class="titulo">Sin actividad programada (${sin.length})</div>
-      <div style="font-size:.77rem;color:var(--gris);margin-bottom:7px">Clientes activos que
-        nadie tiene agendados: ni el vendedor ni cobranza pidieron contacto.</div>
-      ${sin.slice(0,15).map(c=>`<div class="act">
+    ${sin.length?`<div class="titulo">Nadie los tiene agendados (${sin.length})</div>
+      <div class="sin-ayuda"><b>Esto no son tareas tuyas.</b> Son clientes activos a los que
+        nadie les puso fecha de contacto: ni vos ni cobranza. Si hay que ver a alguno,
+        agendalo acá.</div>
+      ${sin.slice(0,15).map(c=>`<div class="act sinact">
         <b style="flex:1;min-width:130px">${esc(c.nombre)}</b>
         ${c.telefono?`<span>${tel(c.telefono)}</span>`:`<span style="color:var(--rojo);font-size:.73rem">sin teléfono</span>`}
         <span style="color:var(--gris);font-size:.74rem">${esc(c.localidad||"")}</span>
@@ -1692,7 +1700,7 @@ function pintarPanelActividades(quien,src){
           esVend()?"Agendar":esVistaCob?"Avisar al vendedor":"Asignar"}</button>
         <button class="b auto" onclick="ficha('${esc(c.codigo)}')">Ficha</button>
       </div>`).join("")}
-      ${sin.length>15?`<div class="vacio">y ${sin.length-15} más en las columnas</div>`:""}`:""}
+      ${sin.length>15?`<div class="vacio">y ${sin.length-15} más. Están todos en las columnas de abajo.</div>`:""}`:""}
   </div>`;
 }
 
