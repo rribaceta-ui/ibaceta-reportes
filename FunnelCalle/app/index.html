@@ -391,7 +391,7 @@ const db = firebase.firestore();
 // vendedores. Lo hecho sin conexion sincroniza al volver.
 db.enablePersistence({synchronizeTabs:true}).catch(()=>{});
 
-const VERSION="2026-10-15i";
+const VERSION="2026-10-15j";
 const DOMINIO="funnel.ibaceta.ar";
 // Las 10 mas comunes cubren el 88,9% de los clientes que hoy tienen rubro cargado. Van
 // a la vista. El resto de las conocidas queda detras de "Otro", para no perderlas pero
@@ -444,7 +444,7 @@ let tags={}, asignaciones={}, comentarios={}, datos={}, verif={}, cobertura={};
 // ERP) y que sugerencias ya salio a ofrecer alguien. Van en documentos propios: la tabla
 // de canastas pesa 25 KB y los ofrecimientos crecen sin techo, dos cosas que no entran
 // en _shared.
-let canastas={}, ofrecidos={};
+let canastas={}, ofrecidos={}, ingresos={};
 // Desde que ano se reparte. Antes de 2025 son clientes que hace 4 o 5 anos que no
 // compran: repartirlos es darle a cada vendedor 100 fantasmas y que no llame a ninguno.
 const DISTRIB_DESDE=2025;
@@ -661,6 +661,7 @@ firebase.auth().onAuthStateChanged(async u=>{
   if(esVend()) selVend=sesion.usuario;
   if(esCob())  selCob=sesion.usuario;
   pintarNav();
+  anotarIngreso();
   document.getElementById("cols").innerHTML='<div class="cargando">Cargando cartera...</div>';
   escuchar();
 });
@@ -708,6 +709,14 @@ function escuchar(){
     resenas = (r && Object.keys(r).length) ? r : RESENAS_BASE;
     pintar();
   },()=>{}));
+
+  // Solo lo mira quien conduce: un vendedor no necesita saber cuando entro otro.
+  if(conduce()){
+    desus.push(db.collection("funnel_calle").doc("_ingresos").onSnapshot(d=>{
+      ingresos = (d.exists && d.data().u) ? d.data().u : {};
+      pintar();
+    },()=>{}));
+  }
 
   desus.push(db.collection("funnel_calle").doc("_canastas").onSnapshot(d=>{
     canastas = (d.exists && d.data().canastas) ? d.data().canastas : {};
@@ -2069,6 +2078,35 @@ function tarjetasPeriodo(lista){
   </div>`;
 }
 
+// Se anota en el momento del login. Si falla no pasa nada: es un dato de gestion, no
+// puede impedirle a nadie entrar a trabajar.
+function anotarIngreso(){
+  try{
+    if(!sesion||!sesion.usuario) return;
+    const d=new Date();
+    const dosd=n=>String(n).padStart(2,"0");
+    const ahora=d.getFullYear()+"-"+dosd(d.getMonth()+1)+"-"+dosd(d.getDate())
+               +"T"+dosd(d.getHours())+":"+dosd(d.getMinutes());
+    const ref=db.collection("funnel_calle").doc("_ingresos");
+    const fp=new firebase.firestore.FieldPath("u", sesion.usuario);
+    ref.update(fp,ahora).catch(()=>{ const o={}; o[sesion.usuario]=ahora;
+      ref.set({u:o},{merge:true}).catch(()=>{}); });
+  }catch(e){}
+}
+
+// "hace 3 días", "hoy", "nunca entró". Un numero de dias se lee mas rapido que una
+// fecha cuando lo que importa es cuanto hace.
+function haceCuanto(iso){
+  if(!iso) return {txt:"nunca entró", dias:9999};
+  const d=new Date(String(iso).replace(" ","T"));
+  if(isNaN(d)) return {txt:"nunca entró", dias:9999};
+  const hoy=new Date(); hoy.setHours(0,0,0,0);
+  const suyo=new Date(d); suyo.setHours(0,0,0,0);
+  const n=Math.round((hoy-suyo)/86400000);
+  return {txt: n<=0?"hoy":n===1?"ayer":"hace "+n+" días", dias:n,
+          detalle: dmy(String(iso).slice(0,10))+" "+String(iso).slice(11,16)};
+}
+
 // ---------- panel de uso ----------
 // Que se muestra y con que nombre. El orden es el de la pantalla.
 const COLS_USO=[
@@ -2152,8 +2190,10 @@ function panelUso(lista){
   if(!gente.length) return "";
   const conAlgo=gente.filter(u=>(por[u]||{}).total>0);
   const sinNada=gente.filter(u=>!((por[u]||{}).total>0));
-  const fila=u=>{ const t=por[u]||{};
+  const fila=u=>{ const t=por[u]||{}; const e=haceCuanto(ingresos[u]);
+    const col = e.dias>=14?"var(--rojo)" : e.dias>=4?"var(--naranja)" : "var(--verde)";
     return `<tr><td style="color:var(--azul);font-weight:700">${esc(u)}</td>
+      <td style="color:${col};font-weight:700" title="${esc(e.detalle||"")}">${e.txt}</td>
       <td>${t.msj||0}</td><td>${t.neg||0}</td><td>${t.dat||0}</td><td>${t.verif||0}</td>
       <td>${t.tag||0}</td><td>${(t.act||0)}/${(t.actC||0)}</td><td>${t.ofrecido||0}</td>
       <td style="font-weight:800">${t.total||0}</td></tr>`; };
@@ -2164,13 +2204,19 @@ function panelUso(lista){
       <b>${conAlgo.length} de ${gente.length}</b> ${conAlgo.length===1?"persona usó":"personas usaron"}
       la app en este período.
       ${sinNada.length?`<div class="uso-cero"><b>Sin ninguna acción:</b> ${
-        sinNada.map(esc).join(" &middot; ")}</div>`:""}
+        sinNada.map(u=>{ const e=haceCuanto(ingresos[u]);
+          return esc(u)+' <span style="opacity:.75">('+e.txt+')</span>'; })
+        .join(" &middot; ")}<br>
+        <span style="font-size:.74rem;opacity:.85">El que entró y no cargó nada necesita
+        que le muestren para qué sirve. El que hace semanas que no entra, una llamada.
+        No es el mismo problema.</span></div>`:""}
     </div>
     <div style="overflow-x:auto"><table class="tabla">
-      <tr><th>Persona</th>${COLS_USO.map(([k,l,t])=>`<th title="${esc(t)}">${l}</th>`).join("")}
+      <tr><th>Persona</th><th title="Última vez que abrió la app">Entró</th>
+          ${COLS_USO.map(([k,l,t])=>`<th title="${esc(t)}">${l}</th>`).join("")}
           <th>Total</th></tr>
       ${conAlgo.map(fila).join("")}
-      ${conAlgo.length?"":`<tr><td colspan="9" style="color:var(--gris)">Todavía nadie
+      ${conAlgo.length?"":`<tr><td colspan="10" style="color:var(--gris)">Todavía nadie
         registró una acción en este período.</td></tr>`}
     </table></div>
     <div style="font-size:.73rem;color:var(--gris);margin-top:7px">Cuenta acciones, no
