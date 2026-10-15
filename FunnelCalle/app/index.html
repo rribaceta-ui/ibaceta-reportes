@@ -81,11 +81,15 @@ nav .pin{display:inline-block;min-width:17px;padding:0 5px;margin-left:4px;backg
 .per b{font-size:.86rem;color:var(--azul);flex:1;min-width:110px}
 .pk{display:flex;gap:9px;overflow-x:auto;padding-bottom:3px}
 .p1{flex:1 1 0;min-width:122px;background:#f7f9fb;border-radius:8px;padding:8px 10px;
-    border-left:3px solid #9aa5b1}
+    border-left:3px solid #9aa5b1;cursor:pointer;transition:box-shadow .12s}
 .p1.mal{border-left-color:var(--rojo);background:#fef6f6}
 .p1.bien{border-left-color:var(--verde);background:#f2fbf6}
 .p1.nuevo{border-left-color:var(--naranja);background:#fff8f0}
 .p1.saldo{border-left-color:var(--violeta);background:#faf5fd}
+.p1:hover{box-shadow:0 2px 10px rgba(0,0,0,.13)}
+.p1.on{outline:2.5px solid var(--azul);outline-offset:-1px}
+.pfiltro{margin-top:8px;font-size:.76rem;background:#eaf2fb;border-left:3px solid var(--azul);
+         border-radius:6px;padding:6px 9px;color:#23507d}
 .p1 .l{font-size:.64rem;font-weight:700;color:var(--gris);text-transform:uppercase;letter-spacing:.03em}
 .p1 .v{font-size:1.45rem;font-weight:800;color:#111;line-height:1.1}
 .p1 .r{font-size:.66rem;color:var(--gris);line-height:1.25;margin-top:1px}
@@ -392,7 +396,7 @@ const db = firebase.firestore();
 // vendedores. Lo hecho sin conexion sincroniza al volver.
 db.enablePersistence({synchronizeTabs:true}).catch(()=>{});
 
-const VERSION="2026-10-15k";
+const VERSION="2026-10-15l";
 const DOMINIO="funnel.ibaceta.ar";
 // Las 10 mas comunes cubren el 88,9% de los clientes que hoy tienen rubro cargado. Van
 // a la vista. El resto de las conocidas queda detras de "Otro", para no perderlas pero
@@ -1298,8 +1302,9 @@ function baseDe(){
 // ---------- Vista Supervisor ----------
 function pintarSupervisor(){
   document.getElementById("panel").innerHTML="";
-  const lista=filtrar(clientes);   // respeta division/provincia/tipo/busqueda
+  let lista=filtrar(clientes);     // respeta division/provincia/tipo/busqueda
   document.getElementById("periodo").innerHTML = tarjetasPeriodo(lista);
+  lista = aplicarEstado(lista);
   const act=lista.filter(c=>c.estado==="activo");
   const opsA=act.flatMap(opsActivas);
   const cie=act.filter(c=>opsActivas(c).some(o=>o.etapa==="cierre_inminente"));
@@ -1663,6 +1668,15 @@ function pintarKanban(){
     : clientes.filter(c=>(c.cobradores||[]).includes(quien));
   src=filtrar(src);
 
+  // Las tarjetas se arman con la cartera COMPLETA; el filtro se aplica despues, para
+  // que los numeros no cambien al tocarlos. Si se filtrara antes, tocar "se fueron 19"
+  // dejaria la tarjeta en 19 y todo lo demas en cero.
+  document.getElementById("periodo").innerHTML = tarjetasPeriodo(src);
+  // De aca para abajo TODO mira la lista ya filtrada: los KPI, las columnas y los
+  // pendientes. Si los KPI quedaran afuera, la pantalla mostraria 34 clientes en las
+  // columnas y 79 arriba, y no habria forma de saber cual de los dos es el bueno.
+  src = aplicarEstado(src);
+
   const act=src.filter(c=>c.estado==="activo");
   const opsA=act.flatMap(opsActivas);
   kpis([["Clientes activos",act.length],["Operaciones activas",opsA.length],
@@ -1670,7 +1684,6 @@ function pintarKanban(){
         ["Finalizados sin renovar",src.filter(c=>c.estado!=="activo").length],
         ["Cuota total/sem",plata(opsA.reduce((s,o)=>s+(o.cuota_semanal||0),0))]]);
 
-  document.getElementById("periodo").innerHTML = tarjetasPeriodo(src);
   pintarPanelActividades(quien,src);
   document.getElementById("tabla").innerHTML=tablaCob;
 
@@ -1943,6 +1956,16 @@ function sugerenciasDe(c){
 const GRANOS=[[7,"Última semana"],[30,"Último mes"],[90,"Últimos 3 meses"],
               [180,"Últimos 6 meses"],[365,"Último año"]];
 let granoKpi=30, desplKpi=0;
+// Cual de las cinco tarjetas esta tocada. null = sin filtrar.
+let fEstado=null;
+function filtrarEstado(e){ fEstado = (fEstado===e ? null : e); pintar(); }
+// Deja en la lista solo a los del grupo tocado. Usa la MISMA funcion que cuenta.
+function aplicarEstado(lista){
+  if(!fEstado) return lista;
+  const r=rangoKpi();
+  if(fEstado==="conplan") return lista.filter(c=>CON_PLAN.includes(estadoEnPeriodo(c,r)));
+  return lista.filter(c=>estadoEnPeriodo(c,r)===fEstado);
+}
 
 function _fe(txt){            // "dd/mm/aaaa" -> Date, o null
   const p=String(txt||"").split("/");
@@ -1987,6 +2010,25 @@ function _destinoSinPlan(c){
   return ((c.resumen_fin||{}).saldo_pend||0) > 0 ? "refinanciar" : "fue";
 }
 
+// En que grupo cae un cliente dentro de la ventana. Una sola definicion para contar y
+// para filtrar: si fueran dos, el numero y la lista se irian separando sin que nadie lo
+// note.
+function estadoEnPeriodo(c, r){
+  const hs=_hitos(c); if(!hs.length) return null;
+  const D=_ymd(r.desde), H=_ymd(r.hasta);
+  const previo=new Date(r.desde); previo.setDate(previo.getDate()-1);
+  const a0=_abiertos(hs,_ymd(previo)), a1=_abiertos(hs,H);
+  if(a0>0&&a1===0){
+    const d=_destinoSinPlan(c);
+    return d==="fue"?"baja" : d==="refinanciar"?"refin" : "desc";
+  }
+  if(a0===0&&a1>0) return hs.some(h=>h[0]<D) ? "react" : "nuevo";
+  if(a0>0&&a1>0)   return "siguio";
+  return null;
+}
+// Los que tienen plan AL FINAL del periodo: siguieron, volvieron o entraron.
+const CON_PLAN=["siguio","react","nuevo"];
+
 function kpisPeriodo(lista, r){
   r=r||rangoKpi();
   const D=_ymd(r.desde), H=_ymd(r.hasta);
@@ -2000,21 +2042,17 @@ function kpisPeriodo(lista, r){
     const a0=_abiertos(hs,P), a1=_abiertos(hs,H);
     if(a0>0) k.conIni++;
     if(a1>0) k.conFin++;
-    if(a0>0&&a1===0){
-      // Terminado es el que llego a FINALIZADO. El que quedo con saldo no se fue:
-      // esta sin resolver, y por eso tiene tarea.
-      const dest=_destinoSinPlan(c);
-      if(dest==="fue") k.bajas++; else if(dest==="refinanciar") k.refin++; else k.desc++;
-    }
-    else if(a0===0&&a1>0){
-      // Nuevo es el que nunca habia tenido nada antes de la ventana. Si ya habia
-      // comprado y volvio, es una reactivacion: no son lo mismo y no se mezclan.
-      if(hs.some(h=>h[0]<D)) k.react++; else k.nuevos++;
-    }
-    else if(a0===0&&a1===0&&DESCARTE.includes(tagDe(c.codigo))){
-      // No cuenta para recuperar: ya se decidio que no se va a cobrar.
-    }
-    else if(a0>0&&a1>0){
+    const e=estadoEnPeriodo(c,r);
+    // Terminado es el que llego a FINALIZADO. El que quedo con saldo no se fue: esta
+    // sin resolver, y por eso tiene tarea. El descartado ya no se recupera.
+    if(e==="baja")  k.bajas++;
+    else if(e==="refin") k.refin++;
+    else if(e==="desc")  k.desc++;
+    // Nuevo es el que nunca habia tenido nada antes de la ventana. Si ya habia comprado
+    // y volvio, es una reactivacion: no son lo mismo y no se mezclan.
+    else if(e==="react") k.react++;
+    else if(e==="nuevo") k.nuevos++;
+    else if(e==="siguio"){
       k.siguio++;
       // Aviso temprano: sigue con plan, pero cerro uno adentro de la ventana y no
       // arranco ninguno despues. El cliente se esta achicando.
@@ -2029,8 +2067,10 @@ function kpisPeriodo(lista, r){
   return k;
 }
 
-function cambiarGrano(v){ granoKpi=+v; desplKpi=0; pintar(); }
-function moverPeriodo(n){ desplKpi+=n; pintar(); }
+// Al cambiar el periodo el filtro se suelta: "los 19 que se fueron" de otra ventana son
+// otras 19 personas, y dejarlo puesto haria ver una lista que no corresponde al numero.
+function cambiarGrano(v){ granoKpi=+v; desplKpi=0; fEstado=null; pintar(); }
+function moverPeriodo(n){ desplKpi+=n; fEstado=null; pintar(); }
 
 function barraPeriodo(){
   const r=rangoKpi();
@@ -2053,19 +2093,21 @@ function tarjetasPeriodo(lista){
   return `<div class="pbloque">
     ${barraPeriodo()}
     <div class="pk">
-      <div class="p1"><div class="l">Clientes con plan</div>
+      <div class="p1 ${fEstado==="conplan"?"on":""}" onclick="filtrarEstado('conplan')"><div class="l">Clientes con plan</div>
         <div class="v">${k.conIni} &rarr; ${k.conFin}
           <span style="font-size:.95rem;color:${col}">${signo}${k.neto}</span></div>
         <div class="r">al empezar el período &rarr; al terminarlo</div></div>
-      <div class="p1 mal"><div class="l">Se fueron</div><div class="v">${k.bajas}</div>
+      <div class="p1 mal ${fEstado==="baja"?"on":""}" onclick="filtrarEstado('baja')"><div class="l">Se fueron</div><div class="v">${k.bajas}</div>
         <div class="r">terminaron y <b>no deben nada</b>: pasaron a Finalizado</div></div>
-      <div class="p1 saldo"><div class="l">Para refinanciar</div><div class="v">${k.refin}</div>
+      <div class="p1 saldo ${fEstado==="refin"?"on":""}" onclick="filtrarEstado('refin')"><div class="l">Para refinanciar</div><div class="v">${k.refin}</div>
         <div class="r">terminaron <b>con saldo</b>: sin resolver, cada uno con su tarea</div></div>
-      <div class="p1 bien"><div class="l">Reactivados</div><div class="v">${k.react}</div>
+      <div class="p1 bien ${fEstado==="react"?"on":""}" onclick="filtrarEstado('react')"><div class="l">Reactivados</div><div class="v">${k.react}</div>
         <div class="r">estaban <b>sin ningún plan</b> y volvieron a sacar uno</div></div>
-      <div class="p1 nuevo"><div class="l">Clientes nuevos</div><div class="v">${k.nuevos}</div>
+      <div class="p1 nuevo ${fEstado==="nuevo"?"on":""}" onclick="filtrarEstado('nuevo')"><div class="l">Clientes nuevos</div><div class="v">${k.nuevos}</div>
         <div class="r">primera compra en la historia</div></div>
     </div>
+    ${fEstado?`<div class="pfiltro">Estás viendo <b>solo ese grupo</b> en el tablero de
+      abajo. Tocá la tarjeta de nuevo para ver todo.</div>`:""}
     <div class="pnota">
       ${k.desc?`<b>${k.desc}</b> están marcados incobrables o fallecidos: no cuentan para
         recuperar porque ya se decidió sobre ellos.<br>`:""}
