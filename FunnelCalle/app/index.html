@@ -85,6 +85,7 @@ nav .pin{display:inline-block;min-width:17px;padding:0 5px;margin-left:4px;backg
 .p1.mal{border-left-color:var(--rojo);background:#fef6f6}
 .p1.bien{border-left-color:var(--verde);background:#f2fbf6}
 .p1.nuevo{border-left-color:var(--naranja);background:#fff8f0}
+.p1.saldo{border-left-color:var(--violeta);background:#faf5fd}
 .p1 .l{font-size:.64rem;font-weight:700;color:var(--gris);text-transform:uppercase;letter-spacing:.03em}
 .p1 .v{font-size:1.45rem;font-weight:800;color:#111;line-height:1.1}
 .p1 .r{font-size:.66rem;color:var(--gris);line-height:1.25;margin-top:1px}
@@ -391,7 +392,7 @@ const db = firebase.firestore();
 // vendedores. Lo hecho sin conexion sincroniza al volver.
 db.enablePersistence({synchronizeTabs:true}).catch(()=>{});
 
-const VERSION="2026-10-15j";
+const VERSION="2026-10-15k";
 const DOMINIO="funnel.ibaceta.ar";
 // Las 10 mas comunes cubren el 88,9% de los clientes que hoy tienen rubro cargado. Van
 // a la vista. El resto de las conocidas queda detras de "Otro", para no perderlas pero
@@ -2058,16 +2059,16 @@ function tarjetasPeriodo(lista){
         <div class="r">al empezar el período &rarr; al terminarlo</div></div>
       <div class="p1 mal"><div class="l">Se fueron</div><div class="v">${k.bajas}</div>
         <div class="r">terminaron y <b>no deben nada</b>: pasaron a Finalizado</div></div>
+      <div class="p1 saldo"><div class="l">Para refinanciar</div><div class="v">${k.refin}</div>
+        <div class="r">terminaron <b>con saldo</b>: sin resolver, cada uno con su tarea</div></div>
       <div class="p1 bien"><div class="l">Reactivados</div><div class="v">${k.react}</div>
         <div class="r">estaban <b>sin ningún plan</b> y volvieron a sacar uno</div></div>
       <div class="p1 nuevo"><div class="l">Clientes nuevos</div><div class="v">${k.nuevos}</div>
         <div class="r">primera compra en la historia</div></div>
     </div>
     <div class="pnota">
-      Otros <b style="color:var(--violeta)">${k.refin}</b> terminaron <b>con saldo</b>:
-      están en Refinanciar, sin resolver, y cada uno tiene su tarea.
-      ${k.desc?` <b>${k.desc}</b> más están marcados incobrables o fallecidos y no cuentan
-        para recuperar.`:""}<br>
+      ${k.desc?`<b>${k.desc}</b> están marcados incobrables o fallecidos: no cuentan para
+        recuperar porque ya se decidió sobre ellos.<br>`:""}
       De los ${k.siguio} que siguieron con plan,
       <b${k.noRepuso?' style="color:var(--rojo)"':''}>${k.noRepuso}</b> cerraron uno y no
       sacaron otro: siguen adentro, pero con menos. Es el aviso más temprano que hay.</div>
