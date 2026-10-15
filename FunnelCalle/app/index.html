@@ -90,6 +90,10 @@ nav .pin{display:inline-block;min-width:17px;padding:0 5px;margin-left:4px;backg
 .p1 .r{font-size:.66rem;color:var(--gris);line-height:1.25;margin-top:1px}
 .paviso{margin-top:8px;font-size:.73rem;color:#7a5c1e;background:#fff8e6;
         border-radius:6px;padding:6px 9px;line-height:1.4}
+.uso-tope{border-radius:7px;padding:8px 11px;margin:-2px 0 9px;font-size:.84rem}
+.uso-tope.bien{background:#f2fbf6;border-left:3px solid var(--verde)}
+.uso-tope.mal{background:#fef6f6;border-left:3px solid var(--rojo)}
+.uso-cero{margin-top:5px;font-size:.79rem;color:#8a2b2b;line-height:1.4}
 /* KPIs, igual que el funnel */
 .kpis{display:flex;gap:9px;overflow-x:auto;padding:12px 14px 4px}
 .kpi{flex:0 0 auto;min-width:118px;background:#fff;border:1px solid var(--borde);border-top:3px solid var(--naranja);border-radius:9px;padding:9px 13px}
@@ -385,7 +389,7 @@ const db = firebase.firestore();
 // vendedores. Lo hecho sin conexion sincroniza al volver.
 db.enablePersistence({synchronizeTabs:true}).catch(()=>{});
 
-const VERSION="2026-10-15e";
+const VERSION="2026-10-15f";
 const DOMINIO="funnel.ibaceta.ar";
 // Las 10 mas comunes cubren el 88,9% de los clientes que hoy tienen rubro cargado. Van
 // a la vista. El resto de las conocidas queda detras de "Otro", para no perderlas pero
@@ -1408,7 +1412,7 @@ function pintarSupervisor(){
             : `<span style="color:var(--gris)">—</span>`}${
           conduce()?` <button class="b auto" style="padding:2px 7px;font-size:.68rem"
             onclick="abrirZona('${esc(r.v)}')">Editar</button>`:""}</td></tr>`).join("")}
-    </table></div></div>` + deptoHtml + negHtml() + huerfHtml + plantillasHtml();
+    </table></div></div>` + panelUso(lista) + deptoHtml + negHtml() + huerfHtml + plantillasHtml();
 }
 
 // Los textos de WhatsApp los edita quien conduce. Es una restriccion decidida a
@@ -1965,7 +1969,9 @@ function kpisPeriodo(lista, r){
   const en=x=>!!x&&x>=D&&x<=H;
   let term=0, sinVolver=0, volvieron=0, nuevos=0;
   (lista||[]).forEach(c=>{
-    const hs=(c.hitos||[]).filter(h=>h&&h[0]&&h[1]);
+    // Cada hito viaja como "AAAAMMDDFAAAAMMDD" en una sola cadena: Firestore no admite
+    // arreglos anidados. Se parte aca y se sigue comparando como texto.
+    const hs=(c.hitos||[]).map(h=>String(h).split("F")).filter(h=>h.length===2&&h[0]&&h[1]);
     if(!hs.length) return;
     const inicios=hs.map(h=>h[0]).sort();
     const fines  =hs.map(h=>h[1]).sort();
@@ -2034,6 +2040,115 @@ function tarjetasPeriodo(lista){
     ${r.enCurso?`<div class="paviso">Este período todavía no terminó: casi nadie vuelve
       en pocos días, así que <b>"siguen sin volver" va a estar alto</b>. Para comparar,
       mirá un período cerrado con la flecha de la izquierda.</div>`:""}
+  </div>`;
+}
+
+// ---------- panel de uso ----------
+// Que se muestra y con que nombre. El orden es el de la pantalla.
+const COLS_USO=[
+  ["msj","Mensajes","WhatsApp abiertos con un mensaje listo"],
+  ["neg","Rubros","Tipo de negocio cargado"],
+  ["dat","Datos","Teléfonos, direcciones, WhatsApp y correos corregidos"],
+  ["verif","Confirmados","Tocaron \"Están bien\" en teléfono y dirección"],
+  ["tag","Etiquetas","Clientes etiquetados"],
+  ["act","Actividades","Agendadas / cerradas"],
+  ["ofrecido","A ofrecer","Sugerencias marcadas para ofrecer"],
+];
+let _uso={}, _usoPidiendo={};
+
+function _mesesDe(r){
+  const out=[]; const d=new Date(r.desde.getFullYear(), r.desde.getMonth(), 1);
+  while(d<=r.hasta){ out.push(d.getFullYear()+"-"+String(d.getMonth()+1).padStart(2,"0"));
+                     d.setMonth(d.getMonth()+1); }
+  return out;
+}
+const _iso=d=>d.getFullYear()+"-"+String(d.getMonth()+1).padStart(2,"0")+"-"+String(d.getDate()).padStart(2,"0");
+
+function cargarUso(meses){
+  meses.forEach(m=>{
+    if(_uso[m]!==undefined||_usoPidiendo[m]) return;
+    _usoPidiendo[m]=true;
+    db.collection("funnel_calle").doc("_uso_"+m).get()
+      .then(d=>{ _uso[m]=(d.exists&&d.data().d)?d.data().d:{}; pintar(); })
+      .catch(()=>{ _uso[m]={}; });
+  });
+}
+
+// {usuario: {msj, neg, dat, verif, tag, act, actC, ofrecido, total}}
+function usoPeriodo(r){
+  const meses=_mesesDe(r); cargarUso(meses);
+  const D=_iso(r.desde), H=_iso(r.hasta), por={};
+  let faltan=false;
+  meses.forEach(m=>{
+    const doc=_uso[m];
+    if(doc===undefined){ faltan=true; return; }
+    Object.keys(doc).forEach(k=>{
+      const i=k.lastIndexOf("|"); if(i<0) return;
+      const u=k.slice(0,i), dia=k.slice(i+1);
+      if(dia<D||dia>H) return;
+      const t=por[u]||(por[u]={msj:0,neg:0,dat:0,verif:0,tag:0,act:0,actC:0,ofrecido:0,total:0});
+      const v=doc[k]||{};
+      Object.keys(v).forEach(c=>{
+        const n=v[c]||0;
+        // wa_num es el numero de WhatsApp corregido, no un mensaje mandado. Si no se
+        // separa, corregir un telefono se cuenta como haber hablado con el cliente.
+        if(c.indexOf("wa_")===0 && c!=="wa_num") t.msj+=n;
+        else if(c==="neg") t.neg+=n;
+        else if(c==="tel"||c==="dir"||c==="mail"||c==="wa_num") t.dat+=n;
+        else if(c==="verif") t.verif+=n;
+        else if(c==="tag") t.tag+=n;
+        else if(c==="act_nueva") t.act+=n;
+        else if(c==="act_cerrada") t.actC+=n;
+        else if(c==="ofrecido") t.ofrecido+=n;
+        if(c!=="tag_quitada") t.total+=n;
+      });
+    });
+  });
+  return {por, faltan};
+}
+
+// La gente que DEBERIA estar usandola: los vendedores y cobradores de la cartera que
+// esta sesion ve. Un supervisor de San Juan no tiene por que contar a los de Mendoza.
+function _gentePropia(lista){
+  const g=new Set();
+  (lista||[]).forEach(c=>{
+    const v=vendedorDe(c); if(v) g.add(v);
+    (c.cobradores||[]).forEach(x=>x&&g.add(x));
+  });
+  if(vendActivos) [...g].forEach(u=>{ if(!vendActivos.has(u)) g.delete(u); });
+  return [...g].sort();
+}
+
+function panelUso(lista){
+  if(!conduce()) return "";
+  const r=rangoKpi(), {por,faltan}=usoPeriodo(r);
+  const gente=_gentePropia(lista);
+  if(!gente.length) return "";
+  const conAlgo=gente.filter(u=>(por[u]||{}).total>0);
+  const sinNada=gente.filter(u=>!((por[u]||{}).total>0));
+  const fila=u=>{ const t=por[u]||{};
+    return `<tr><td style="color:var(--azul);font-weight:700">${esc(u)}</td>
+      <td>${t.msj||0}</td><td>${t.neg||0}</td><td>${t.dat||0}</td><td>${t.verif||0}</td>
+      <td>${t.tag||0}</td><td>${(t.act||0)}/${(t.actC||0)}</td><td>${t.ofrecido||0}</td>
+      <td style="font-weight:800">${t.total||0}</td></tr>`; };
+  return `<div class="panel">
+    <h3>Uso de la app &middot; ${esc(r.etiqueta)}</h3>
+    ${faltan?`<div class="vacio">Trayendo los datos del período...</div>`:""}
+    <div class="uso-tope ${sinNada.length?"mal":"bien"}">
+      <b>${conAlgo.length} de ${gente.length}</b> ${conAlgo.length===1?"persona usó":"personas usaron"}
+      la app en este período.
+      ${sinNada.length?`<div class="uso-cero"><b>Sin ninguna acción:</b> ${
+        sinNada.map(esc).join(" &middot; ")}</div>`:""}
+    </div>
+    <div style="overflow-x:auto"><table class="tabla">
+      <tr><th>Persona</th>${COLS_USO.map(([k,l,t])=>`<th title="${esc(t)}">${l}</th>`).join("")}
+          <th>Total</th></tr>
+      ${conAlgo.map(fila).join("")}
+      ${conAlgo.length?"":`<tr><td colspan="9" style="color:var(--gris)">Todavía nadie
+        registró una acción en este período.</td></tr>`}
+    </table></div>
+    <div style="font-size:.73rem;color:var(--gris);margin-top:7px">Cuenta acciones, no
+      resultados. Sirve para saber si la herramienta se está usando, no para medir ventas.</div>
   </div>`;
 }
 
