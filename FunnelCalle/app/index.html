@@ -323,6 +323,12 @@ a.tel{color:var(--azul);text-decoration:none;font-weight:600}
     <div style="font-size:.72rem;color:var(--gris);margin-top:3px">Característica + número,
       <b>sin el 0 y sin el 15</b>. Es el que se usa para mandar los mensajes.</div></div>
 
+  <div class="campo"><label>Correo electrónico</label>
+    <input type="email" id="d-mail" placeholder="nombre@correo.com"
+           autocapitalize="off" autocorrect="off" spellcheck="false">
+    <div style="font-size:.72rem;color:var(--gris);margin-top:3px">Para las novedades y
+      el resumen de cuenta. Si no tiene, dejalo vacío.</div></div>
+
   <div class="campo"><label>Nota (opcional)</label><textarea id="d-obs" rows="2"
     placeholder="Ej.: me lo dio el hijo, el anterior no existe más"></textarea></div>
   <div class="acciones"><button class="b auto" onclick="cerrar('m-datos')">Cancelar</button>
@@ -356,7 +362,7 @@ const db = firebase.firestore();
 // vendedores. Lo hecho sin conexion sincroniza al volver.
 db.enablePersistence({synchronizeTabs:true}).catch(()=>{});
 
-const VERSION="2026-10-15c";
+const VERSION="2026-10-15d";
 const DOMINIO="funnel.ibaceta.ar";
 // Las 10 mas comunes cubren el 88,9% de los clientes que hoy tienen rubro cargado. Van
 // a la vista. El resto de las conocidas queda detras de "Otro", para no perderlas pero
@@ -422,6 +428,13 @@ const RESENAS_BASE={
   "San Luis": "https://g.page/r/CbM3Rjp5YHqAEBM/review",
 };
 let resenas=RESENAS_BASE;
+
+// La clave con la que se cuenta cada mensaje. Sale del TITULO y no de la posicion en
+// la lista: gerencia puede reordenar o agregar plantillas, y si se contara por posicion
+// lo contado antes pasaria a contarse como otra cosa sin que nadie se entere.
+const _claveWa = t => String(t||"mensaje").toUpperCase()
+  .normalize("NFD").replace(/[\u0300-\u036f]/g,"")
+  .toLowerCase().replace(/[^a-z0-9]+/g,"_").replace(/^_|_$/g,"").slice(0,28) || "mensaje";
 
 const PLANTILLAS_BASE=[
   {titulo:"Pedido de calificación",
@@ -797,6 +810,15 @@ function dirDe(c){
   return (d&&d.dir) ? {valor:d.dir, corregido:true, por:d.por, fecha:d.fecha}
                     : {valor:c.domicilio||"", corregido:false};
 }
+function mailDe(c){
+  const d=correccionDe(c.codigo);
+  return (d&&d.mail) ? {valor:d.mail, corregido:true, por:d.por, fecha:d.fecha}
+                     : {valor:c.email||"", corregido:false};
+}
+// Minimo indispensable: que tenga un arroba y un punto despues. No se valida mas que
+// eso a proposito -- rebotar un correo raro que el cliente dicto bien es peor que
+// guardarlo y que alguien lo revise.
+const _mailOk = m => /^[^\s@]+@[^\s@]+\.[^\s@]{2,}$/.test(String(m||"").trim());
 // Cuando el ERP ya trae el dato corregido, la correccion se retira sola. Sin esto un
 // numero viejo quedaria tapando al del ERP para siempre, y nadie se acordaria de
 // limpiarlo.
@@ -844,10 +866,11 @@ function limpiarCorregidosYaCargados(){
     if(_erpAbsorbio(d.tel, d.erp_tel, c.telefono,  _mismoTel,   traeTel))     fuera.push("tel");
     if(_erpAbsorbio(d.dir, d.erp_dir, c.domicilio, _mismoTxt,   _mismoTxt))   fuera.push("dir");
     if(_erpAbsorbio(d.neg, d.erp_neg, c.negocio,   _mismaLista, _mismaLista)) fuera.push("neg");
+    if(_erpAbsorbio(d.mail,d.erp_mail,c.email,     _mismoTxt,   _mismoTxt))   fuera.push("mail");
     if(!fuera.length) return;
     const reg={};
     Object.keys(d).forEach(k=>{ if(!fuera.includes(k.replace("erp_",""))) reg[k]=d[k]; });
-    const quedaAlgo=["tel","dir","neg","wa"].some(k=>reg[k]);
+    const quedaAlgo=["tel","dir","neg","wa","mail"].some(k=>reg[k]);
     const fp=new firebase.firestore.FieldPath("datos",String(cod));
     if(quedaAlgo){ datos[cod]=reg; ref.update(fp,reg).catch(()=>{}); }
     else { delete datos[cod];
@@ -889,6 +912,7 @@ const ROL_CORTO={vendedor:"vendedor",cobrador:"cobrador",supervisor_zona:"superv
                  supervisor_cobranza:"cobranza",gerente:"gerencia"};
 const _rolDe=r=>ROL_CORTO[r]||r||"";
 function confirmarDatos(cod){
+  contar("verif");
   const reg={por:sesion.usuario, rol:sesion.rol, fecha:hoyISO()};
   verif[String(cod)]=reg;
   const ref=db.collection("funnel_calle").doc("_verificaciones");
@@ -913,6 +937,7 @@ function limpiarVerificacionesVencidas(){
 }
 
 function ponerTag(cod,val){
+  contar(val?"tag":"tag_quitada");
   const ref=db.collection("funnel_calle").doc("_shared");
   const fp=new firebase.firestore.FieldPath("tags",String(cod));
   // Para quitar se borra la clave: escribir el mapa entero con merge nunca borra nada
@@ -1770,7 +1795,8 @@ function guardarNegocio(cod){
   // Se copia TODO lo que ya estaba corregido. Guardar el rubro no puede borrar el
   // telefono ni el numero de WhatsApp que cargo otra persona.
   const reg={por:sesion.usuario, rol:sesion.rol, fecha:hoyISO()};
-  ["tel","dir","wa","erp_tel","erp_dir"].forEach(k=>{ if(previo[k]!==undefined) reg[k]=previo[k]; });
+  ["tel","dir","wa","mail","erp_tel","erp_dir","erp_mail"]
+    .forEach(k=>{ if(previo[k]!==undefined) reg[k]=previo[k]; });
   if(todos.length){ reg.neg=todos;
     reg.erp_neg = previo.erp_neg!==undefined ? previo.erp_neg : (c?(c.negocio||""):""); }
   datos[String(cod)]=reg;
@@ -1779,7 +1805,7 @@ function guardarNegocio(cod){
      .catch(()=>{ const o={}; o[String(cod)]=reg; ref.set({datos:o},{merge:true}).catch(()=>{}); });
   // La tarea semanal "Marcar rubro" se cierra en el momento, no a la noche cuando corra
   // el pipeline. El vendedor tiene que ver que lo que hizo sirvio para algo.
-  if(todos.length) cerrarTareaRubro(cod);
+  if(todos.length){ cerrarTareaRubro(cod); contar("neg"); }
   _negAbierto=null;
   if(c) ficha(cod);
   pintar();
@@ -1836,6 +1862,24 @@ function sugerenciasDe(c){
   });
   return fuera.sort((a,b)=>b.pct-a.pct);
 }
+// ---------- contadores de uso ----------
+// Cada accion que hace una persona suma uno. Es lo que despues contesta "la estan
+// usando?" con un numero y no con una impresion.
+// Nunca corta nada ni avisa de un error: si falla el contador, la accion ya se hizo.
+function contar(clave, cuantos){
+  try{
+    if(!sesion||!sesion.usuario) return;
+    const hoy=hoyISO();
+    const ref=db.collection("funnel_calle").doc("_uso_"+hoy.slice(0,7));
+    const fp=new firebase.firestore.FieldPath("d", sesion.usuario+"|"+hoy, clave);
+    const inc=firebase.firestore.FieldValue.increment(cuantos||1);
+    ref.update(fp,inc).catch(()=>{
+      // El documento del mes todavia no existe: se crea y se reintenta.
+      ref.set({d:{}},{merge:true}).then(()=>ref.update(fp,inc)).catch(()=>{});
+    });
+  }catch(e){}
+}
+
 const _claveOfr=(cod,cl)=>String(cod)+"|"+cl;
 function ofrecimientoDe(cod,cl){ return ofrecidos[_claveOfr(cod,cl)]||null; }
 
@@ -1843,6 +1887,7 @@ function ofrecimientoDe(cod,cl){ return ofrecidos[_claveOfr(cod,cl)]||null; }
 // se abre una ficha: serian miles de escrituras por dia para medir algo que no es una
 // decision. Lo que interesa medir es cuanto de lo OFRECIDO termina vendido.
 function marcarOfrecido(cod,cl){
+  contar("ofrecido");
   const k=_claveOfr(cod,cl);
   const reg={por:sesion.usuario, rol:sesion.rol, fecha:hoyISO()};
   ofrecidos[k]=reg;
@@ -1963,6 +2008,7 @@ function bloqueWhatsapp(c){
     <div class="wa-botones">${usables.map((p,i)=>
       `<a class="b auto wa" target="_blank" rel="noopener"
           title="${esc(_armarTexto(p.texto,c))}"
+          onclick="contar('wa_${esc(p.clave||("m"+i))}')"
           href="https://wa.me/549${cel}?text=${encodeURIComponent(_armarTexto(p.texto,c))}"
        >${esc(p.titulo)}</a>`).join("")}</div>
     <div style="font-size:.72rem;color:var(--gris);margin-top:3px">
@@ -2002,7 +2048,12 @@ function cabeceraFicha(c){
             <button class="b auto" onclick="confirmarDatos('${esc(c.codigo)}')">Están bien</button></div>`;
      })()}
     <button class="b auto" onclick="abrirDatos('${esc(c.codigo)}')">Corregir teléfono o dirección</button>
-    ${c.email?`<div class="loc"><a href="mailto:${esc(c.email)}" style="color:var(--azul)">${esc(c.email)}</a></div>`:""}
+    ${(()=>{ const m=mailDe(c);
+       if(!m.valor) return `<div class="loc" style="color:var(--rojo)">Sin correo cargado</div>`;
+       return m.corregido
+         ? `<div class="corr"><a href="mailto:${esc(m.valor)}" style="color:#1d6b43">${esc(m.valor)}</a>
+            <span class="de">cargado por ${esc(m.por)} · falta pasarlo al ERP</span></div>`
+         : `<div class="loc"><a href="mailto:${esc(m.valor)}" style="color:var(--azul)">${esc(m.valor)}</a></div>`; })()}
     ${bloqueNegocio(c)}
     <div class="loc">Divisi&oacute;n: ${esc(c.division||(c.div_huerf||[]).filter(Boolean).join(", ")||"Sin asignar")}</div>
     <div class="loc">Vendedor: <b>${esc(vendedorDe(c)||"-")}</b>${
@@ -2259,6 +2310,7 @@ function abrirDatos(cod){
   const w=waDe(c);
   document.getElementById("d-wa").value=w?w.num:"";
 
+  document.getElementById("d-mail").value=mailDe(c).valor||"";
   document.getElementById("d-obs").value="";
   abrir("m-datos");
 }
@@ -2276,11 +2328,19 @@ async function guardarDatos(){
          +"sin el 0 y sin el 15.\n\nEscribiste: "+waCrudo);
     return;
   }
+  const mailNuevo=(document.getElementById("d-mail").value||"").trim().toLowerCase();
+  if(mailNuevo && !_mailOk(mailNuevo)){
+    alert("Ese correo no parece válido: tiene que tener un @ y un punto después.\n\n"
+         +"Escribiste: "+mailNuevo);
+    return;
+  }
+  const cambioMail = mailNuevo && mailNuevo!==String(mailDe(c).valor||"").trim().toLowerCase();
+
   const waViejo=(waDe(c)||{}).num||null;
   const cambioWa = waNuevo && waNuevo!==waViejo;
   const cambioTel = telNuevo && soloDig(telNuevo)!==soloDig(c.telefono);
   const cambioDir = dirNueva && dirNueva.toUpperCase()!==String(c.domicilio||"").trim().toUpperCase();
-  if(!cambioTel&&!cambioDir&&!cambioWa){ alert("No cambiaste ningún dato."); return; }
+  if(!cambioTel&&!cambioDir&&!cambioWa&&!cambioMail){ alert("No cambiaste ningún dato."); return; }
 
   // Se anota como venia el ERP en este momento. Es lo que despues permite distinguir
   // "el cobrador lo cargo en DEBO" de "el dato ya estaba entre los tres numeros que el
@@ -2289,13 +2349,20 @@ async function guardarDatos(){
   if(cambioTel){ reg.tel=telNuevo; reg.erp_tel=c.telefono||""; }
   if(cambioDir){ reg.dir=dirNueva; reg.erp_dir=c.domicilio||""; }
   if(waNuevo) reg.wa=waNuevo;
+  if(cambioMail){ reg.mail=mailNuevo; reg.erp_mail=c.email||""; }
   // Lo que ya estaba corregido no se pierde por tocar otro campo.
   const previo=correccionDe(datCod)||{};
   if(!cambioTel&&previo.tel){ reg.tel=previo.tel; if(previo.erp_tel!==undefined) reg.erp_tel=previo.erp_tel; }
   if(!cambioDir&&previo.dir){ reg.dir=previo.dir; if(previo.erp_dir!==undefined) reg.erp_dir=previo.erp_dir; }
   if(previo.neg){ reg.neg=previo.neg; if(previo.erp_neg!==undefined) reg.erp_neg=previo.erp_neg; }
   if(!waNuevo&&previo.wa) reg.wa=previo.wa;
+  if(!cambioMail&&previo.mail){ reg.mail=previo.mail;
+    if(previo.erp_mail!==undefined) reg.erp_mail=previo.erp_mail; }
   datos[datCod]=reg;
+  if(cambioTel) contar("tel");
+  if(cambioDir) contar("dir");
+  if(cambioWa)  contar("wa_num");
+  if(cambioMail) contar("mail");
 
   const ref=db.collection("funnel_calle").doc("_shared");
   const fp=new firebase.firestore.FieldPath("datos",datCod);
@@ -2305,6 +2372,7 @@ async function guardarDatos(){
   const detalle=[cambioTel?`Teléfono: ${c.telefono||"(vacío)"} → ${telNuevo}`:"",
                  cambioDir?`Dirección: ${c.domicilio||"(vacío)"} → ${dirNueva}`:"",
                  cambioWa?`WhatsApp: +549${waNuevo}`:"",
+                 cambioMail?`Correo: ${c.email||"(vacío)"} → ${mailNuevo}`:"",
                  nota].filter(Boolean).join("\n");
   try{
     await db.collection("actividades").add({
@@ -2359,6 +2427,7 @@ async function guardarAct(){
       observaciones:document.getElementById("a-obs").value||"",
       estado:"pendiente", resultado:null, resultado_nota:"",
       cerrada_en:null, cerrada_por:null, creado_en:ahora, visto_en:null, actividad_origen_id:null });
+    contar("act_nueva");
   }catch(e){}
   cerrar("m-act");
 }
@@ -2376,7 +2445,8 @@ async function guardarCierre(){
   const a=actividades.find(x=>x.id===actId);
   try{ await db.collection("actividades").doc(actId).update({estado:"hecha",resultado:r,
     resultado_nota:document.getElementById("c-nota").value||"",
-    cerrada_en:firebase.firestore.FieldValue.serverTimestamp(),cerrada_por:sesion.usuario}); }catch(e){}
+    cerrada_en:firebase.firestore.FieldValue.serverTimestamp(),cerrada_por:sesion.usuario});
+    contar("act_cerrada"); }catch(e){}
   // Si el circuito sigue abierto se pide la proxima ahi mismo: si no se fuerza en este
   // momento, no se agenda nunca. Se reemplaza la ventana en vez de cerrar y abrir, para
   // que el historial no quede con una entrada de mas.
