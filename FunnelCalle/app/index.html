@@ -111,6 +111,9 @@ nav .pin{display:inline-block;min-width:17px;padding:0 5px;margin-left:4px;backg
 .verif span{flex:1 1 100%}
 .verif .b{padding:3px 8px;font-size:.7rem}
 .wa-botones{display:flex;flex-wrap:wrap;gap:7px;margin-top:6px}
+/* El titulo de la actividad: lo primero que se lee, en toda la fila */
+.act-tit{flex-basis:100%;font-size:.86rem;font-weight:800;color:var(--azul);margin-bottom:1px}
+.act.venc .act-tit{color:var(--rojo)}
 /* Que le falta */
 .sug-ayuda{font-size:.76rem;color:var(--gris);margin:-2px 0 8px}
 .sug-no{font-size:.8rem;color:var(--gris);background:#f6f7f9;border-radius:8px;padding:9px 11px}
@@ -249,6 +252,8 @@ a.tel{color:var(--azul);text-decoration:none;font-weight:600}
   <button class="cierra" onclick="cerrar('m-act')">&times;</button>
   <h2 id="a-tit">Agendar actividad</h2>
   <div id="a-cli" style="font-size:.83rem;color:var(--gris);margin-bottom:12px"></div>
+  <div class="campo"><label>¿Qué hay que hacer?</label>
+    <input id="a-titulo" maxlength="60" placeholder="Ej: Ofrecerle la exhibidora"></div>
   <div class="campo"><label>Acción</label><select id="a-tipo">
     <option value="llamada">Llamada</option><option value="visita">Visita</option>
     <option value="whatsapp">WhatsApp</option><option value="tarea">Tarea</option></select></div>
@@ -342,7 +347,7 @@ const db = firebase.firestore();
 // vendedores. Lo hecho sin conexion sincroniza al volver.
 db.enablePersistence({synchronizeTabs:true}).catch(()=>{});
 
-const VERSION="2026-10-14g";
+const VERSION="2026-10-15a";
 const DOMINIO="funnel.ibaceta.ar";
 // Las 10 mas comunes cubren el 88,9% de los clientes que hoy tienen rubro cargado. Van
 // a la vista. El resto de las conocidas queda detras de "Otro", para no perderlas pero
@@ -361,6 +366,10 @@ const TIPOS={llamada:"Llamada",visita:"Visita",whatsapp:"WhatsApp",tarea:"Tarea"
 // mano: se cierra cuando alguien carga el rubro. Si se pudiera cerrar con un boton, se
 // cerraria sin cargar nada y la tarea no serviria para lo que fue hecha.
 const TIPOS_AUTO=["rubro"];
+// El titulo es lo primero que lee el vendedor: dice QUE HAY QUE HACER. Las actividades
+// viejas no lo tienen cargado, asi que caen al nombre de la accion, que es exactamente
+// lo que se mostraba antes de que esto existiera.
+const tituloDe=a=>String(a&&a.titulo||"").trim() || TIPOS[a&&a.tipo] || (a&&a.tipo) || "Actividad";
 // Una correccion de datos no se cierra con "contactado": se cierra diciendo si se
 // cargo en el ERP o si el dato no servia.
 const RES_DATO=[["cargado_erp","Lo cargué en el ERP",false],
@@ -1589,7 +1598,7 @@ function tarjeta(c,quien){
   const cuo=oa.reduce((s,o)=>s+(o.cuotas_restantes||0),0);
   const prox=oa.slice().sort((a,b)=>String(a.fecha_fin||"").slice(6).localeCompare(String(b.fecha_fin||"").slice(6)))[0];
   const p=proxDe(c.codigo), h=hoyISO();
-  const chip = p ? `<span class="chip ${p.fecha<h?"venc":p.fecha===h?"hoy":"prox"}">${TIPOS[p.tipo]||p.tipo} · ${dmy(p.fecha)}</span>`
+  const chip = p ? `<span class="chip ${p.fecha<h?"venc":p.fecha===h?"hoy":"prox"}">${esc(tituloDe(p))} · ${dmy(p.fecha)}</span>`
                  : `<span class="chip sin">Sin actividad programada</span>`;
   return `<div class="tar"${reasignado?' style="border-left:3px solid #27ae60;background:#fafffe"':''}>
     ${reasignado?`<span class="badge" style="background:#27ae60">Reasignado</span>`:""}
@@ -1652,8 +1661,9 @@ function pintarPanelActividades(quien,src){
   const sin=src.filter(c=>c.estado==="activo"&&!conAct.has(String(c.codigo)));
   if(!P.length&&!mandados.length&&!sin.length){ document.getElementById("panel").innerHTML=""; return; }
   const fila=a=>`<div class="act ${(a.fecha||"")<h?"venc":(a.fecha||"")===h?"hoy":"prox"}">
+    <div class="act-tit">${esc(tituloDe(a))}</div>
     <b style="flex:1;min-width:130px">${esc(a.cliente_nombre)}</b>
-    <span class="chip">${TIPOS[a.tipo]||esc(a.tipo)} · ${dmy(a.fecha)}${a.hora?" "+esc(a.hora):""}</span>
+    <span class="chip">${dmy(a.fecha)}${a.hora?" "+esc(a.hora):""}</span>
     <span style="color:var(--gris);font-size:.72rem">${esVistaCob?"para "+esc(a.asignado_a||"—"):"de "+esc(a.origen_usuario)}</span>
     ${a.observaciones?`<div style="flex-basis:100%;color:#555;font-size:.77rem">${esc(a.observaciones)}</div>`:""}
     ${TIPOS_AUTO.includes(a.tipo)
@@ -2289,6 +2299,7 @@ async function guardarDatos(){
       cliente_cod:datCod, cliente_nombre:c.nombre, provincia:c.provincia||"",
       asignado_a:destinoDato(c), asignado_tipo:"cobrador", historial_asignacion:[],
       origen_tipo:sesion.rol, origen_usuario:sesion.usuario, origen_motivo:"correccion_datos",
+      titulo:"Cargar el dato corregido en el ERP",
       tipo:"dato", fecha:hoyISO(), hora:null, observaciones:detalle,
       estado:"pendiente", resultado:null, resultado_nota:"",
       cerrada_en:null, cerrada_por:null,
@@ -2316,6 +2327,7 @@ function prepararAct(cod){
   document.getElementById("a-tipo").value="llamada";
   document.getElementById("a-fecha").value=hoyISO();
   document.getElementById("a-hora").value=""; document.getElementById("a-obs").value="";
+  const _t=document.getElementById("a-titulo"); if(_t) _t.value="";
   return true;
 }
 async function guardarAct(){
@@ -2328,6 +2340,8 @@ async function guardarAct(){
       cliente_cod:actCod, cliente_nombre:c?c.nombre:"", provincia:c?(c.provincia||""):"",
       asignado_a:destinoDe(c||{}), asignado_tipo:"vendedor", historial_asignacion:[],
       origen_tipo:sesion.rol, origen_usuario:sesion.usuario, origen_motivo:null,
+      // Vacio a proposito si no escribio nada: tituloDe() cae al nombre de la accion.
+      titulo:(document.getElementById("a-titulo").value||"").trim(),
       tipo:document.getElementById("a-tipo").value, fecha:f,
       hora:document.getElementById("a-hora").value||null,
       observaciones:document.getElementById("a-obs").value||"",
