@@ -389,7 +389,7 @@ const db = firebase.firestore();
 // vendedores. Lo hecho sin conexion sincroniza al volver.
 db.enablePersistence({synchronizeTabs:true}).catch(()=>{});
 
-const VERSION="2026-10-15f";
+const VERSION="2026-10-15g";
 const DOMINIO="funnel.ibaceta.ar";
 // Las 10 mas comunes cubren el 88,9% de los clientes que hoy tienen rubro cargado. Van
 // a la vista. El resto de las conocidas queda detras de "Otro", para no perderlas pero
@@ -1392,9 +1392,9 @@ function pintarSupervisor(){
     <div style="overflow-x:auto"><table class="tabla">
       <tr><th>Vendedor</th><th>División</th><th>Activos</th><th>Ops activas</th><th>Cierre inminente</th>
           <th>Final. sin renovar</th><th>Sin agendar</th>
-          <th title="Su último plan cerró en el período elegido">Terminaron</th>
-          <th title="De los que terminaron, los que hoy no tienen nada activo">Sin volver</th>
-          <th title="Estaban parados y arrancaron de nuevo en el período">Volvieron</th>
+          <th title="Cerraron al menos un plan dentro del período elegido">Terminaron</th>
+          <th title="De los que terminaron, los que todavía no arrancaron nada">Todavía no</th>
+          <th title="No tenían ningún plan abierto y sacaron uno nuevo en el período">Volvieron</th>
           <th title="Primera compra en el período">Nuevos</th>
           <th>Cuota prom.</th><th>Zona que cubre</th></tr>
       ${filas.map(r=>`<tr onclick="verVend('${esc(r.v)}')">
@@ -2024,22 +2024,30 @@ function barraPeriodo(){
 // pregunta: aquellos dicen como esta la cartera hoy, estos que paso en un periodo.
 function tarjetasPeriodo(lista){
   const r=rangoKpi(), k=kpisPeriodo(lista,r);
+  const volvio = k.term - k.sinVolver;
   const pct = k.term ? Math.round(100*k.sinVolver/k.term) : 0;
+  // Cuanto del periodo corrio de verdad. Es lo que explica que, a mitad de octubre,
+  // "mes" y "trimestre" traigan el mismo numero: el trimestre recien empezo.
+  const dia=86400000;
+  const total=Math.round((r.hasta-r.desde)/dia)+1;
+  const corridos=Math.min(total, Math.max(0, Math.round((new Date()-r.desde)/dia)+1));
   return `<div class="pbloque">
     ${barraPeriodo()}
     <div class="pk">
       <div class="p1"><div class="l">Terminaron el plan</div><div class="v">${k.term}</div>
-        <div class="r">su último plan cerró en este período</div></div>
-      <div class="p1 mal"><div class="l">Siguen sin volver</div><div class="v">${k.sinVolver}</div>
-        <div class="r">${k.term?pct+"% de los que terminaron":"—"}</div></div>
+        <div class="r">${k.term
+          ? `<b style="color:var(--verde)">${volvio}</b> ya volvió ·
+             <b style="color:var(--rojo)">${k.sinVolver}</b> todavía no (${pct}%)`
+          : "nadie cerró plan en este período"}</div></div>
       <div class="p1 bien"><div class="l">Volvieron</div><div class="v">${k.volvieron}</div>
-        <div class="r">estaban parados y arrancaron de nuevo</div></div>
+        <div class="r">no tenían <b>ningún plan abierto</b> y sacaron uno nuevo</div></div>
       <div class="p1 nuevo"><div class="l">Clientes nuevos</div><div class="v">${k.nuevos}</div>
-        <div class="r">primera compra</div></div>
+        <div class="r">primera compra en la historia</div></div>
     </div>
-    ${r.enCurso?`<div class="paviso">Este período todavía no terminó: casi nadie vuelve
-      en pocos días, así que <b>"siguen sin volver" va a estar alto</b>. Para comparar,
-      mirá un período cerrado con la flecha de la izquierda.</div>`:""}
+    ${r.enCurso?`<div class="paviso"><b>Van ${corridos} de ${total} días de este período.</b>
+      Por eso un período más largo puede traer el mismo número: lo que todavía no pasó no
+      suma. Y casi nadie vuelve en pocos días, así que <b>"todavía no" va a estar alto</b>.
+      Para comparar de verdad, mirá un período cerrado con la flecha de la izquierda.</div>`:""}
   </div>`;
 }
 
