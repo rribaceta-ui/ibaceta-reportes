@@ -389,7 +389,7 @@ const db = firebase.firestore();
 // vendedores. Lo hecho sin conexion sincroniza al volver.
 db.enablePersistence({synchronizeTabs:true}).catch(()=>{});
 
-const VERSION="2026-10-15g";
+const VERSION="2026-10-15h";
 const DOMINIO="funnel.ibaceta.ar";
 // Las 10 mas comunes cubren el 88,9% de los clientes que hoy tienen rubro cargado. Van
 // a la vista. El resto de las conocidas queda detras de "Otro", para no perderlas pero
@@ -1913,11 +1913,11 @@ function sugerenciasDe(c){
 // La semana arranca el LUNES, igual que los planes de la unidad Calle y que la tarea
 // semanal de rubro. Si arrancara el domingo, dos partes del sistema estarian contando
 // semanas distintas.
-const GRANOS=[["semana","Semana"],["mes","Mes"],["trimestre","Trimestre"],
-              ["semestre","Semestre"],["anio","Año"]];
-let granoKpi="mes", desplKpi=0;
-const MESES=["enero","febrero","marzo","abril","mayo","junio","julio","agosto",
-             "septiembre","octubre","noviembre","diciembre"];
+// Ventanas moviles, en dias, que terminan hoy. No son meses ni trimestres de
+// calendario: "trimestre" aca son 90 dias para atras desde hoy.
+const GRANOS=[[7,"Última semana"],[30,"Último mes"],[90,"Últimos 3 meses"],
+              [180,"Últimos 6 meses"],[365,"Último año"]];
+let granoKpi=30, desplKpi=0;
 
 function _fe(txt){            // "dd/mm/aaaa" -> Date, o null
   const p=String(txt||"").split("/");
@@ -1928,31 +1928,18 @@ function _fe(txt){            // "dd/mm/aaaa" -> Date, o null
 const _dm=d=>String(d.getDate()).padStart(2,"0")+"/"+String(d.getMonth()+1).padStart(2,"0");
 
 function rangoKpi(){
-  const h=new Date(); h.setHours(0,0,0,0);
-  let d,f,et;
-  if(granoKpi==="semana"){
-    d=new Date(h); d.setDate(d.getDate()-((d.getDay()+6)%7)+desplKpi*7);
-    f=new Date(d); f.setDate(f.getDate()+6);
-    et=_dm(d)+" al "+_dm(f);
-  }else if(granoKpi==="mes"){
-    d=new Date(h.getFullYear(), h.getMonth()+desplKpi, 1);
-    f=new Date(d.getFullYear(), d.getMonth()+1, 0);
-    et=MESES[d.getMonth()]+" "+d.getFullYear();
-  }else if(granoKpi==="trimestre"){
-    d=new Date(h.getFullYear(), Math.floor(h.getMonth()/3)*3+desplKpi*3, 1);
-    f=new Date(d.getFullYear(), d.getMonth()+3, 0);
-    et="trimestre "+(Math.floor(d.getMonth()/3)+1)+" de "+d.getFullYear();
-  }else if(granoKpi==="semestre"){
-    d=new Date(h.getFullYear(), Math.floor(h.getMonth()/6)*6+desplKpi*6, 1);
-    f=new Date(d.getFullYear(), d.getMonth()+6, 0);
-    et=(Math.floor(d.getMonth()/6)+1)+"º semestre de "+d.getFullYear();
-  }else{
-    d=new Date(h.getFullYear()+desplKpi, 0, 1);
-    f=new Date(d.getFullYear(), 11, 31);
-    et="año "+d.getFullYear();
-  }
-  f.setHours(23,59,59,999);
-  return {desde:d, hasta:f, etiqueta:et, enCurso:(h>=d&&h<=f)};
+  const n=+granoKpi;
+  // desplKpi 0 = la ventana que termina hoy; -1 = la ventana anterior, del mismo largo.
+  const hasta=new Date(); hasta.setHours(0,0,0,0);
+  hasta.setDate(hasta.getDate()+desplKpi*n);
+  const desde=new Date(hasta); desde.setDate(desde.getDate()-n+1);
+  hasta.setHours(23,59,59,999);
+  const nom=(GRANOS.find(g=>g[0]===n)||[n,n+" días"])[1];
+  // En ventanas largas la fecha lleva el año: "16/10 al 15/10" no se entiende.
+  const f = n>=180 ? (d=>_dm(d)+"/"+String(d.getFullYear()).slice(2)) : _dm;
+  const et = desplKpi===0 ? nom.toLowerCase()+" · "+f(desde)+" al "+f(hasta)
+                          : n+" días · "+f(desde)+" al "+f(hasta);
+  return {desde, hasta, etiqueta:et, dias:n, enCurso:(desplKpi===0)};
 }
 
 // Los cuatro numeros del periodo, sobre la linea de tiempo COMPLETA del cliente.
@@ -2005,14 +1992,14 @@ function kpisPeriodo(lista, r){
   return {term, sinVolver, volvieron, nuevos};
 }
 
-function cambiarGrano(v){ granoKpi=v; desplKpi=0; pintar(); }
+function cambiarGrano(v){ granoKpi=+v; desplKpi=0; pintar(); }
 function moverPeriodo(n){ desplKpi+=n; pintar(); }
 
 function barraPeriodo(){
   const r=rangoKpi();
   return `<div class="per">
     <select onchange="cambiarGrano(this.value)">${GRANOS.map(([k,l])=>
-      `<option value="${k}" ${k===granoKpi?"selected":""}>${l}</option>`).join("")}</select>
+      `<option value="${k}" ${k===+granoKpi?"selected":""}>${l}</option>`).join("")}</select>
     <button onclick="moverPeriodo(-1)" title="Período anterior">&#9664;</button>
     <b>${esc(r.etiqueta)}</b>
     <button onclick="moverPeriodo(1)" ${desplKpi>=0?"disabled":""} title="Período siguiente">&#9654;</button>
@@ -2026,11 +2013,6 @@ function tarjetasPeriodo(lista){
   const r=rangoKpi(), k=kpisPeriodo(lista,r);
   const volvio = k.term - k.sinVolver;
   const pct = k.term ? Math.round(100*k.sinVolver/k.term) : 0;
-  // Cuanto del periodo corrio de verdad. Es lo que explica que, a mitad de octubre,
-  // "mes" y "trimestre" traigan el mismo numero: el trimestre recien empezo.
-  const dia=86400000;
-  const total=Math.round((r.hasta-r.desde)/dia)+1;
-  const corridos=Math.min(total, Math.max(0, Math.round((new Date()-r.desde)/dia)+1));
   return `<div class="pbloque">
     ${barraPeriodo()}
     <div class="pk">
@@ -2044,10 +2026,10 @@ function tarjetasPeriodo(lista){
       <div class="p1 nuevo"><div class="l">Clientes nuevos</div><div class="v">${k.nuevos}</div>
         <div class="r">primera compra en la historia</div></div>
     </div>
-    ${r.enCurso?`<div class="paviso"><b>Van ${corridos} de ${total} días de este período.</b>
-      Por eso un período más largo puede traer el mismo número: lo que todavía no pasó no
-      suma. Y casi nadie vuelve en pocos días, así que <b>"todavía no" va a estar alto</b>.
-      Para comparar de verdad, mirá un período cerrado con la flecha de la izquierda.</div>`:""}
+    ${r.enCurso?`<div class="paviso">Son los <b>últimos ${r.dias} días</b>, contados
+      desde hoy. Ojo con <b>"todavía no"</b>: el que terminó el plan hace tres días casi
+      no tuvo tiempo de volver. Con la flecha de la izquierda ves los ${r.dias} días
+      anteriores, que ya tuvieron tiempo, y ahí sí se comparan.</div>`:""}
   </div>`;
 }
 
