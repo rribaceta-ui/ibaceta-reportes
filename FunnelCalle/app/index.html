@@ -396,7 +396,7 @@ const db = firebase.firestore();
 // vendedores. Lo hecho sin conexion sincroniza al volver.
 db.enablePersistence({synchronizeTabs:true}).catch(()=>{});
 
-const VERSION="2026-10-15m";
+const VERSION="2026-10-16a";
 const DOMINIO="funnel.ibaceta.ar";
 // Las 10 mas comunes cubren el 88,9% de los clientes que hoy tienen rubro cargado. Van
 // a la vista. El resto de las conocidas queda detras de "Otro", para no perderlas pero
@@ -835,7 +835,7 @@ const soloDig=x=>String(x||"").replace(/\D/g,"");
 function correccionDe(cod){ return datos[String(cod)]||null; }
 function telDe(c){
   const d=correccionDe(c.codigo);
-  return (d&&d.tel) ? {valor:d.tel, corregido:true, por:d.por, fecha:d.fecha}
+  return (d&&d.tel) ? {valor:d.tel, corregido:true, por:d.por, rol:d.rol, fecha:d.fecha}
                     : {valor:c.telefono||"", corregido:false};
 }
 // El ERP trae "NO DEFINIDO" en 7 de cada 10 clientes activos. Eso cuenta como vacio:
@@ -843,6 +843,10 @@ function telDe(c){
 // Un comercio puede ser mas de una cosa a la vez -- almacen que ademas vende verdura --
 // asi que el rubro es una LISTA. Se acepta el formato viejo (un solo texto) para no
 // perder lo que ya estaba cargado.
+// "por MBARROS 504 (vendedor)". Si la correccion es vieja y no guardo el rol, no se
+// inventa nada: sale solo el usuario, como antes.
+const _firma=(por,rol)=>esc(por||"")+(rol?" ("+esc(_rolDe(rol))+")":"");
+
 function negDe(c){
   const d=correccionDe(c.codigo);
   const aLista=v=>Array.isArray(v)?v.filter(Boolean):(v?[v]:[]);
@@ -854,12 +858,12 @@ function negDe(c){
 const negTexto=c=>negDe(c).valor.join(", ");
 function dirDe(c){
   const d=correccionDe(c.codigo);
-  return (d&&d.dir) ? {valor:d.dir, corregido:true, por:d.por, fecha:d.fecha}
+  return (d&&d.dir) ? {valor:d.dir, corregido:true, por:d.por, rol:d.rol, fecha:d.fecha}
                     : {valor:c.domicilio||"", corregido:false};
 }
 function mailDe(c){
   const d=correccionDe(c.codigo);
-  return (d&&d.mail) ? {valor:d.mail, corregido:true, por:d.por, fecha:d.fecha}
+  return (d&&d.mail) ? {valor:d.mail, corregido:true, por:d.por, rol:d.rol, fecha:d.fecha}
                      : {valor:c.email||"", corregido:false};
 }
 // Minimo indispensable: que tenga un arroba y un punto despues. No se valida mas que
@@ -1740,7 +1744,7 @@ function tarjeta(c,quien){
           :(r.ultima_fin?`<div class="de">Finalizó: ${esc(r.ultima_fin)}</div>`:"")}
     ${(()=>{ const t=telDe(c); if(!t.valor) return "";
        return t.corregido
-         ? `<div class="corr">${tel(t.valor)}<span class="de">corregido por ${esc(t.por)} · falta cargarlo en el ERP</span></div>`
+         ? `<div class="corr">${tel(t.valor)}<span class="de">corregido por ${_firma(t.por,t.rol)} · falta cargarlo en el ERP</span></div>`
          : `<div class="te">${tel(t.valor)}</div>`; })()}
     ${(()=>{ const v=verifDe(c.codigo);
        if(v.estado==="vigente")
@@ -2387,7 +2391,7 @@ const _primerCelu=raw=>{
 // del telefono del ERP.
 function waDe(c){
   const d=correccionDe(c.codigo);
-  if(d&&d.wa) return {num:d.wa, manual:true, por:d.por};
+  if(d&&d.wa) return {num:d.wa, manual:true, por:d.por, rol:d.rol};
   const n=_primerCelu(telDe(c).valor);
   return n ? {num:n, manual:false} : null;
 }
@@ -2424,7 +2428,7 @@ function bloqueWhatsapp(c){
           href="https://wa.me/549${cel}?text=${encodeURIComponent(_armarTexto(p.texto,c))}"
        >${esc(p.titulo)}</a>`).join("")}</div>
     <div style="font-size:.72rem;color:var(--gris);margin-top:3px">
-      Va al +549 ${esc(cel)}${w.manual?` (corregido por ${esc(w.por)})`:""}.
+      Va al +549 ${esc(cel)}${w.manual?` (corregido por ${_firma(w.por,w.rol)})`:""}.
       Abre WhatsApp con el mensaje escrito: lo revisás y lo mandás vos.${
       faltaResena?`<br><span style="color:var(--naranja)">El pedido de calificación no
       aparece: no hay ficha de Google cargada para ${esc(c.provincia||"esta provincia")}.</span>`:""}</div>`;
@@ -2443,11 +2447,11 @@ function cabeceraFicha(c){
     ${(()=>{ const d=dirDe(c);
        const resto=`${esc(c.localidad||"")}${c.provincia?", "+esc(c.provincia):""}${c.depto?" ("+esc(c.depto)+")":""}`;
        return d.corregido
-         ? `<div class="corr">${esc(d.valor)} - ${resto}<span class="de">corregida por ${esc(d.por)} · falta cargarla en el ERP</span></div>`
+         ? `<div class="corr">${esc(d.valor)} - ${resto}<span class="de">corregida por ${_firma(d.por,d.rol)} el ${dmy(d.fecha)} · falta cargarla en el ERP</span></div>`
          : `<div class="loc">${esc(d.valor)} - ${resto}</div>`; })()}
     ${(()=>{ const t=telDe(c); if(!t.valor) return "";
        return t.corregido
-         ? `<div class="corr">${tel(t.valor)}<span class="de">corregido por ${esc(t.por)} el ${dmy(t.fecha)} · falta cargarlo en el ERP</span></div>`
+         ? `<div class="corr">${tel(t.valor)}<span class="de">corregido por ${_firma(t.por,t.rol)} el ${dmy(t.fecha)} · falta cargarlo en el ERP</span></div>`
          : `<div style="margin:8px 0">${tel(t.valor)}</div>`; })()}
     ${(()=>{ const v=verifDe(c.codigo);
        return v.estado==="vigente"
@@ -2464,7 +2468,7 @@ function cabeceraFicha(c){
        if(!m.valor) return `<div class="loc" style="color:var(--rojo)">Sin correo cargado</div>`;
        return m.corregido
          ? `<div class="corr"><a href="mailto:${esc(m.valor)}" style="color:#1d6b43">${esc(m.valor)}</a>
-            <span class="de">cargado por ${esc(m.por)} · falta pasarlo al ERP</span></div>`
+            <span class="de">cargado por ${_firma(m.por,m.rol)} el ${dmy(m.fecha)} · falta pasarlo al ERP</span></div>`
          : `<div class="loc"><a href="mailto:${esc(m.valor)}" style="color:var(--azul)">${esc(m.valor)}</a></div>`; })()}
     ${bloqueNegocio(c)}
     <div class="loc">Divisi&oacute;n: ${esc(c.division||(c.div_huerf||[]).filter(Boolean).join(", ")||"Sin asignar")}</div>
