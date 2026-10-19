@@ -37,6 +37,7 @@ table.resp td{display:flex;justify-content:space-between;gap:10px;border:0;paddi
 <div id="login"><h1>Stock · Ibaceta</h1><p>Entrá con el usuario de tu salón (o Compras / Comercial).</p>
 <input id="lu" placeholder="Usuario (ej.: San Juan)" autocomplete="username">
 <input id="lp" type="password" placeholder="Contraseña" autocomplete="current-password">
+<label style="display:block;font-size:13px;color:#777;margin:-4px 0 10px"><input type="checkbox" id="vp"> Mostrar contraseña (para revisar que la escribiste bien)</label>
 <div id="le" class="error" style="margin-bottom:8px"></div><button id="lb">Entrar</button></div>
 <div id="app" style="display:none">
 <header><div><h1 id="hT">Stock</h1><p id="hS"></p></div><button id="salir">Salir</button></header>
@@ -175,6 +176,7 @@ $("main").addEventListener("click",e=>{
   else if(a==="volver"){verSalon=null;desus.forEach(f=>f&&f());desus=[];escucharGlobal(["comercial","compras"]);}
 });
 $("lb").onclick=entrar;$("lp").onkeydown=e=>{if(e.key==="Enter")entrar();};$("salir").onclick=salir;
+$("vp").onchange=()=>{$("lp").type=$("vp").checked?"text":"password";};
 if(DEMO){const h=(window.STOCK_DEMO_VISTA||location.hash).replace("#","");     // prueba local: salon=san_juan | compras | comercial
   if(h.startsWith("salon="))abrir({usuario:DEMO.salones[h.slice(6)].salon,rol:"stock_salon",salon_id:h.slice(6)});
   else if(h==="compras")abrir({usuario:"Compras",rol:"stock_compras"});
