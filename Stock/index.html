@@ -75,6 +75,7 @@ async function entrar(){
     err.textContent=c.includes("user-not-found")?"Ese usuario no existe. Revisá cómo lo escribís.":
       (c.includes("wrong-password")||c.includes("invalid-credential"))?"Usuario o contraseña incorrectos.":
       c.includes("too-many")?"Demasiados intentos. Esperá unos minutos.":"No se pudo entrar: "+(e.message||c);
+    err.innerHTML=esc(err.textContent)+'<div style="margin-top:6px;font-size:12px;color:#777">usuario probado: '+esc(correo(u))+" · código "+esc(c||"sin código")+"</div>";
     $("lb").disabled=false;}
 }
 function salir(){desus.forEach(f=>f&&f());desus=[];if(DEMO){location.hash="";location.reload();}else firebase.auth().signOut().then(()=>location.reload());}
