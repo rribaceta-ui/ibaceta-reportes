@@ -1,0 +1,184 @@
+<!DOCTYPE html>
+<html lang="es"><head><meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Stock · Ibaceta</title>
+<link href="https://fonts.googleapis.com/css2?family=Montserrat:wght@400;600;700;800&family=Open+Sans:wght@400;600&display=swap" rel="stylesheet">
+<style>
+:root{--azul:#00548A;--naranja:#F1891B;--fondo:#F5F5F5;--blanco:#fff;--texto:#333;--gris:#777;--r:6px;--sombra:0 2px 8px rgba(0,0,0,.08);
+--h:'Montserrat',sans-serif;--b:'Open Sans',sans-serif}
+*{box-sizing:border-box}body{margin:0;background:var(--fondo);color:var(--texto);font-family:var(--b);font-size:15px;line-height:1.45}
+header{background:var(--azul);color:#fff;padding:14px 16px;display:flex;justify-content:space-between;align-items:center;gap:12px}
+header h1{font-family:var(--h);font-weight:800;font-size:18px;margin:0}header p{margin:2px 0 0;font-size:12px;opacity:.9}
+header button{background:transparent;border:1px solid #fff;color:#fff;border-radius:var(--r);padding:6px 10px;font-family:var(--h);cursor:pointer}
+main{max-width:980px;margin:0 auto;padding:14px}
+.kpis{display:grid;grid-template-columns:repeat(auto-fit,minmax(140px,1fr));gap:10px;margin-bottom:16px}
+.kpi{background:var(--blanco);border-top:4px solid var(--naranja);border-radius:var(--r);box-shadow:var(--sombra);padding:10px}
+.kpi b{display:block;font-family:var(--h);font-size:24px;color:var(--azul)}.kpi span{font-size:12px}
+section{background:var(--blanco);border-radius:var(--r);box-shadow:var(--sombra);padding:14px;margin-bottom:16px}
+h2{font-family:var(--h);color:var(--azul);font-size:16px;margin:0 0 4px}.ayuda{margin:0 0 10px;font-size:12px;color:var(--gris)}
+table{width:100%;border-collapse:collapse}th{background:var(--azul);color:#fff;text-align:left;font-family:var(--h);font-size:12px;padding:7px}
+td{padding:7px;border-bottom:1px solid #eee;vertical-align:top}tr:nth-child(even) td{background:var(--fondo)}
+.sub{font-size:12px;color:var(--gris)}.tarea{border:1px solid #e5e5e5;border-radius:var(--r);padding:10px;margin-bottom:10px}
+.tarea.hecha{opacity:.55;background:var(--fondo)}.t-top strong{display:block}.mot{font-size:12px;color:var(--azul);font-weight:600}
+.pedi{margin:6px 0;font-family:var(--h)}.pedi b{color:var(--naranja);font-size:20px}.pedi small{font-family:var(--b);color:var(--gris);font-size:12px}
+.acc{display:flex;gap:8px;flex-wrap:wrap}.acc button{border:1px solid var(--azul);background:#fff;color:var(--azul);border-radius:var(--r);padding:7px 12px;font-family:var(--h);font-size:13px;cursor:pointer}
+.acc button:hover,.acc button.on{background:var(--azul);color:#fff}.tag{background:var(--naranja);color:#fff;font-size:11px;font-family:var(--h);padding:1px 6px;border-radius:3px;margin-left:6px}
+.vacio{color:var(--gris)}.error{color:#b00020}
+#login{max-width:360px;margin:60px auto;background:#fff;border-radius:var(--r);box-shadow:var(--sombra);padding:22px}
+#login h1{font-family:var(--h);color:var(--azul);font-size:20px;margin:0 0 4px}#login p{margin:0 0 14px;color:var(--gris);font-size:13px}
+#login input{width:100%;padding:10px;border:1px solid #ccc;border-radius:var(--r);margin-bottom:10px;font-family:var(--b);font-size:15px}
+#login input:focus{border-color:var(--azul);outline:none}
+#login button{width:100%;background:var(--azul);color:#fff;border:0;border-radius:var(--r);padding:11px;font-family:var(--h);font-weight:700;cursor:pointer}
+#login button:hover{background:var(--naranja)}
+footer{background:#333;color:#ccc;font-size:12px;padding:12px 16px}
+@media(max-width:640px){table.resp thead{display:none}table.resp tr{display:block;border-bottom:2px solid #ddd;padding:6px 0}
+table.resp td{display:flex;justify-content:space-between;gap:10px;border:0;padding:3px 6px}table.resp td::before{content:attr(data-l);font-weight:600;color:var(--gris)}}
+</style></head><body>
+<div id="login"><h1>Stock · Ibaceta</h1><p>Entrá con el usuario de tu salón (o Compras / Comercial).</p>
+<input id="lu" placeholder="Usuario (ej.: San Juan)" autocomplete="username">
+<input id="lp" type="password" placeholder="Contraseña" autocomplete="current-password">
+<div id="le" class="error" style="margin-bottom:8px"></div><button id="lb">Entrar</button></div>
+<div id="app" style="display:none">
+<header><div><h1 id="hT">Stock</h1><p id="hS"></p></div><button id="salir">Salir</button></header>
+<main id="main"></main>
+<footer>Es una sugerencia para que la revises: el pedido lo hacés vos. Los productos son los habituales de Ibaceta (Equipamiento y Hogar).</footer>
+</div>
+
+<script src="https://www.gstatic.com/firebasejs/10.12.2/firebase-app-compat.js"></script>
+<script src="https://www.gstatic.com/firebasejs/10.12.2/firebase-auth-compat.js"></script>
+<script src="https://www.gstatic.com/firebasejs/10.12.2/firebase-firestore-compat.js"></script>
+<script>
+/* Modulo de Stock (19/10/2026). Comparte el proyecto Firebase del Funnel (login y Firestore) pero NO
+   toca esa app. Lee stock_salones / stock_global (los escribe el pipeline) y escribe solo stock_marcas
+   (lo que el salon marca: "ya vendido" y "lo pedi"). La clave web es publica: identifica al proyecto, el
+   acceso lo gobiernan las reglas de Firestore (firestore.rules). */
+const CFG={apiKey:"AIzaSyDw5qyz5bR5zOD-JxH2dbSUuafOiHgFovc",authDomain:"ibaceta-funnel.firebaseapp.com",projectId:"ibaceta-funnel",
+ storageBucket:"ibaceta-funnel.firebasestorage.app",messagingSenderId:"887640429368",appId:"1:887640429368:web:4c732bf5eace6a7498e7cd"};
+const DEMO=window.STOCK_DEMO||null;           // en la prueba local los datos vienen embebidos, sin Firebase
+const slug=(t,s)=>String(t).normalize("NFD").replace(/[̀-ͯ]/g,"").toLowerCase().replace(/[^a-z0-9]+/g,s).replace(/^[._]+|[._]+$/g,"");
+const correo=u=>"stock."+slug(u,".")+"@stock.ibaceta.ar";      // igual que crear_cuentas_stock.py
+const esc=s=>String(s==null?"":s).replace(/[&<>"']/g,c=>({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;","'":"&#39;"}[c]));
+const n=(x,d=0)=>x==null?"—":Number(x).toLocaleString("es-AR",{minimumFractionDigits:d,maximumFractionDigits:d});
+const kf=k=>String(k).replace("*","_");                        // clave de un producto en los mapas de marcas
+let db=null,sesion=null,desus=[],doc=null,marcas={vendidos:{},hechos:{}},verSalon=null,global={compras:null,comercial:null};
+const $=id=>document.getElementById(id);
+
+if(!DEMO){firebase.initializeApp(CFG);db=firebase.firestore();}
+
+/* ---------- entrada ---------- */
+async function entrar(){
+  const u=$("lu").value.trim(),p=$("lp").value.trim(),err=$("le");err.textContent="";
+  if(!u||!p){err.textContent="Completá usuario y contraseña.";return;}
+  $("lb").disabled=true;
+  try{await firebase.auth().signInWithEmailAndPassword(correo(u),p);}
+  catch(e){const c=e.code||"";
+    err.textContent=c.includes("user-not-found")?"Ese usuario no existe. Revisá cómo lo escribís.":
+      (c.includes("wrong-password")||c.includes("invalid-credential"))?"Usuario o contraseña incorrectos.":
+      c.includes("too-many")?"Demasiados intentos. Esperá unos minutos.":"No se pudo entrar: "+(e.message||c);
+    $("lb").disabled=false;}
+}
+function salir(){desus.forEach(f=>f&&f());desus=[];if(DEMO){location.hash="";location.reload();}else firebase.auth().signOut().then(()=>location.reload());}
+function abrir(s){
+  sesion=s;$("login").style.display="none";$("app").style.display="block";
+  $("hT").textContent=s.rol==="stock_salon"?"Salón "+s.usuario:s.usuario;
+  $("hS").textContent={stock_salon:"Pedido sugerido para el próximo camión",stock_compras:"Lo que el central no tiene",stock_comercial:"Vista de todos los salones"}[s.rol]||"";
+  s.rol==="stock_salon"?escucharSalon(s.salon_id,false):s.rol==="stock_compras"?escucharGlobal(["compras"]):escucharGlobal(["comercial","compras"]);
+}
+function escuchar(ref,cb){desus.push(ref.onSnapshot(s=>cb(s.exists?s.data():null),e=>{$("main").innerHTML='<section><p class="error">No se pudo traer la información: '+esc(e.message)+'</p></section>';}));}
+
+/* ---------- datos ---------- */
+function escucharSalon(id,lectura){
+  desus.forEach(f=>f&&f());desus=[];verSalon={id,lectura};
+  if(DEMO){doc=DEMO.salones[id];marcas={vendidos:{},hechos:{}};return pintar();}
+  escuchar(db.doc("stock_salones/"+id),d=>{doc=d;pintar();});
+  escuchar(db.doc("stock_marcas/"+id),m=>{marcas={vendidos:(m&&m.vendidos)||{},hechos:(m&&m.hechos)||{}};pintar();});
+}
+function escucharGlobal(lista){
+  verSalon=null;
+  lista.forEach(k=>{if(DEMO){global[k]=DEMO[k];}else escuchar(db.doc("stock_global/"+k),d=>{global[k]=d;pintar();});});
+  pintar();
+}
+let _quien=null;      // se recuerda aunque el navegador no deje usar almacenamiento
+function quien(){
+  try{_quien=_quien||localStorage.getItem("stock_quien");}catch(e){}
+  if(!_quien){const q=prompt("¿Quién sos? Así queda anotado quién lo marcó (la cuenta es del salón).");if(!q)return null;_quien=q.trim();
+    try{localStorage.setItem("stock_quien",_quien);}catch(e){}}
+  return _quien;}
+async function marcar(tipo,key,valor){
+  const q=quien();if(!q)return;const k=kf(key),c={};c[tipo]={};
+  c[tipo][k]=valor===null?(DEMO?null:firebase.firestore.FieldValue.delete()):(tipo==="hechos"?{por:q,en:Date.now()}:{u:valor,por:q,en:Date.now()});
+  if(DEMO){if(valor===null)delete marcas[tipo][k];else marcas[tipo][k]=c[tipo][k];return pintar();}
+  c.upd=firebase.firestore.FieldValue.serverTimestamp();
+  try{await db.doc("stock_marcas/"+verSalon.id).set(c,{merge:true});}catch(e){alert("No se pudo guardar la marca: "+e.message);}
+}
+
+/* ---------- pantallas ---------- */
+const kpi=(v,t)=>`<div class="kpi"><b>${n(v)}</b><span>${t}</span></div>`;
+function pintar(){
+  const m=$("main");
+  if(sesion.rol==="stock_compras"){m.innerHTML=htmlCompras(global.compras);return;}
+  if(sesion.rol==="stock_comercial"&&!verSalon){m.innerHTML=htmlComercial();return;}
+  m.innerHTML=htmlSalon();
+}
+function htmlSalon(){
+  if(!doc)return '<section><p class="vacio">Todavía no hay información para este salón.</p></section>';
+  const lec=verSalon.lectura,k=doc.kpis||{};
+  const vol=sesion.rol==="stock_comercial"?'<p><a href="#" data-acc="volver">← Volver a todos los salones</a></p>':"";
+  const tareas=(doc.tareas||[]).map(t=>{
+    const h=marcas.hechos[kf(t.key)],v=marcas.vendidos[kf(t.key)],vend=v?v.u:(t.vendido||0);
+    const nota=t.asignado<t.pedir?` <small>(necesitás ${n(t.pedir)}, el central tiene ${n(t.central)})</small>`:"";
+    return `<div class="tarea ${h?"hecha":""}"><div class="t-top"><strong>${esc(t.producto)}</strong><span class="sub">${esc(t.rubro)}</span>${vend?'<span class="tag">YA VENDIDO ×'+n(vend)+"</span>":""}</div>
+      <div class="mot">${esc(t.motivo)}</div><div>Tenés <b>${n(t.stock)}</b> · mínimo <b>${n(t.minimo)}</b></div>
+      <div class="pedi">Pedí <b>${n(t.asignado)}</b>${nota}</div>
+      ${lec?"":`<div class="acc"><button class="${h?"on":""}" data-acc="hecho" data-key="${esc(t.key)}">${h?"✔ Lo pedí ("+esc(h.por)+")":"Lo pedí"}</button>
+      <button data-acc="vendido" data-key="${esc(t.key)}">Ya lo vendí</button></div>`}</div>`;}).join("")||'<p class="vacio">Nada para pedir ahora.</p>';
+  const sin=(doc.sin_stock_en_central||[]).map(t=>[`<strong>${esc(t.producto)}</strong><br><span class="sub">${esc(t.rubro)}</span>`,n(t.stock),n(t.faltante)]);
+  const sob=(doc.excesos||[]).filter(t=>Math.floor((t.un_sobrantes||0)+1e-9)>=1).map(t=>[esc(t.producto),n(t.stock),n(t.minimo_exhibicion),n(Math.floor(t.un_sobrantes+1e-9))]);
+  return vol+`<div class="kpis">${kpi(k.pueden_pedirse,"productos que podés pedir al central")}${kpi((doc.tareas||[]).length,"te muestro ahora (los de más venta)")}
+    ${kpi(doc.en_cola,"quedan en espera para después")}${kpi(k.sin_stock_en_central,"que el central no tiene (Compras ya lo ve)")}</div>
+    <p class="sub">Armado el ${esc(doc.generado)} con ventas hasta el ${esc(doc.ventas_hasta)}.</p>
+    <section><h2>1. Para pedir en el próximo camión</h2><p class="ayuda">Ordenados por lo que más se vende. «Pedí» es lo que el central puede darte hoy. Si ya lo vendiste a un cliente que espera, marcalo: tiene prioridad cuando el central no alcanza.</p>${tareas}</section>
+    <section><h2>2. Los que el central no tiene</h2><p class="ayuda">No hay nada para pedir ahora: ya están avisados a Compras.</p>${tabla(["Producto","Tenés","Te faltan"],sin)}</section>
+    <section><h2>3. Te sobra</h2><p class="ayuda">Tenés más de 15 días de venta y más que el mínimo de exhibición. Lo que sobra se puede mover a otro salón.</p>${tabla(["Producto","Tenés","Mínimo","Sobran"],sob)}</section>`;
+}
+function tabla(cols,filas){
+  if(!filas.length)return '<p class="vacio">Nada para mostrar.</p>';
+  return `<table class="resp"><thead><tr>${cols.map(c=>"<th>"+esc(c)+"</th>").join("")}</tr></thead><tbody>${
+    filas.map(f=>"<tr>"+f.map((v,i)=>`<td data-l="${esc(cols[i])}">${v}</td>`).join("")+"</tr>").join("")}</tbody></table>`;
+}
+function htmlCompras(c){
+  if(!c)return '<section><p class="vacio">Todavía no hay información.</p></section>';
+  const filas=(c.items||[]).map(i=>[`<strong>${esc(i.producto)}</strong><br><span class="sub">${esc(i.rubro)}</span>`,n(i.salones),n(i.faltante_u),n(i.central_hoy)]);
+  return `<p class="sub">Armado el ${esc(c.generado)} con ventas hasta el ${esc(c.ventas_hasta)}.</p>
+    <section><h2>Lo que el central no tiene</h2><p class="ayuda">Productos que los salones necesitan y el central no puede cubrir. Primero los de más valor.</p>
+    ${tabla(["Producto","Salones que lo necesitan","Faltan (unidades)","Central hoy"],filas)}</section>`;
+}
+function htmlComercial(){
+  const c=global.comercial;if(!c)return '<section><p class="vacio">Todavía no hay información.</p></section>';
+  const filas=Object.entries(c.salones||{}).sort((a,b)=>(b[1].sin_stock_en_central||0)-(a[1].sin_stock_en_central||0)).map(([id,s])=>
+    [`<a href="#" data-acc="salon" data-id="${esc(id)}"><strong>${esc(s.salon)}</strong></a>`,n(s.productos_trabajados),n((s.disponibilidad_prom||0)*100),n(s.tareas),n(s.sin_stock_en_central),n(s.excesos)]);
+  return `<p class="sub">Armado el ${esc(c.generado)} con ventas hasta el ${esc(c.ventas_hasta)}. Tocá un salón para ver su pedido.</p>
+    <section><h2>Todos los salones</h2><p class="ayuda">Disponibilidad = porcentaje de días con stock de los productos habituales.</p>
+    ${tabla(["Salón","Productos habituales","Disponibilidad %","Para pedir ya","Sin stock en el central","Excesos"],filas)}</section>`
+    +htmlCompras(global.compras);
+}
+
+/* ---------- eventos ---------- */
+$("main").addEventListener("click",e=>{
+  const b=e.target.closest("[data-acc]");if(!b)return;e.preventDefault();
+  const a=b.dataset.acc,key=b.dataset.key;
+  if(a==="hecho")marcar("hechos",key,marcas.hechos[kf(key)]?null:true);
+  else if(a==="vendido"){const v=prompt("¿Cuántas unidades tenés vendidas con el cliente esperando? (0 para sacar la marca)");
+    if(v===null)return;const u=parseInt(v,10);if(isNaN(u)||u<0){alert("Poné un número.");return;}marcar("vendidos",key,u>0?u:null);}
+  else if(a==="salon"){doc=null;escucharSalon(b.dataset.id,true);}
+  else if(a==="volver"){verSalon=null;desus.forEach(f=>f&&f());desus=[];escucharGlobal(["comercial","compras"]);}
+});
+$("lb").onclick=entrar;$("lp").onkeydown=e=>{if(e.key==="Enter")entrar();};$("salir").onclick=salir;
+if(DEMO){const h=(window.STOCK_DEMO_VISTA||location.hash).replace("#","");     // prueba local: salon=san_juan | compras | comercial
+  if(h.startsWith("salon="))abrir({usuario:DEMO.salones[h.slice(6)].salon,rol:"stock_salon",salon_id:h.slice(6)});
+  else if(h==="compras")abrir({usuario:"Compras",rol:"stock_compras"});
+  else if(h==="comercial")abrir({usuario:"Comercial",rol:"stock_comercial"});}
+else firebase.auth().onAuthStateChanged(async u=>{if(!u)return;const t=await u.getIdTokenResult();
+  if(!t.claims.rol||!String(t.claims.rol).startsWith("stock_")){$("le").textContent="Esta cuenta no tiene acceso a Stock.";firebase.auth().signOut();return;}
+  abrir({usuario:t.claims.usuario,rol:t.claims.rol,salon_id:t.claims.salon_id||""});});
+</script></body></html>
