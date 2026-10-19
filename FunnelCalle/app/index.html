@@ -396,7 +396,7 @@ const db = firebase.firestore();
 // vendedores. Lo hecho sin conexion sincroniza al volver.
 db.enablePersistence({synchronizeTabs:true}).catch(()=>{});
 
-const VERSION="2026-10-16a";
+const VERSION="2026-10-19a";
 const DOMINIO="funnel.ibaceta.ar";
 // Las 10 mas comunes cubren el 88,9% de los clientes que hoy tienen rubro cargado. Van
 // a la vista. El resto de las conocidas queda detras de "Otro", para no perderlas pero
@@ -1018,8 +1018,18 @@ function destinoDe(c){
 // oficina. El pipeline publica aca a los que detecta, y lo que se asigne entra
 // en los reportes de esa misma noche.
 let avPend=[], avLugares={puntos_venta:[],otros:[]}, avSusc=null;
+// Cuando vendio por ultima vez cada vendedor activo. Lo publica el pipeline
+// (asignacion_vendedores.py --publicar). Es lo que permite ofrecer la lista para
+// dar de baja y marcar al que hace rato que no vende.
+let avActividad={}, avCorte=45;
 
 function avEscuchar(){
+  if(!avSusc){
+    db.collection("config").doc("vendedores_actividad").get()
+      .then(d=>{ if(d.exists){ avActividad=d.data().v||{};
+                               avCorte=d.data().corte_dias||45; pintar(); } })
+      .catch(()=>{});
+  }
   if(avSusc) return;
   avSusc = db.collection("vendedores_asignacion").onSnapshot(sn=>{
     avPend=[];
@@ -1085,7 +1095,9 @@ function pintarAsignacion(){
     });
   }
 
-  if(esGerente()){
+  // El alta manual la hace tambien el supervisor de zona desde el 19/10/2026: era
+  // solo del gerente y eso agregaba una espera que no protegia de nada.
+  if(puedeAsignar()){
     h+='<div class="av-h">Dar de alta un vendedor nuevo</div>'
       +'<div class="av-card"><div class="av-fila">'
       +'<input class="av-in" id="av-usr" placeholder="Usuario del ERP (ej: GHUGO)" autocapitalize="characters">'
@@ -1098,8 +1110,49 @@ function pintarAsignacion(){
       +'vale para el contado y para la venta semanal.</p></div>';
   }
 
+  h+=avTablaActivos();
   h+='</div>';
   document.getElementById("cols").innerHTML=h;
+}
+
+// Los vendedores que hoy figuran activos, con cuando vendieron por ultima vez.
+// Primero los que hace mas tiempo que no venden: son los candidatos a que alguien
+// se haya ido sin que el sistema se entere.
+function avTablaActivos(){
+  const us=Object.keys(avActividad);
+  if(!us.length) return '<div class="av-h">Vendedores activos</div>'
+    +'<div class="av-vacio">Todavía no se publicó la actividad. Aparece después de '
+    +'la próxima actualización de la noche.</div>';
+  const zona=(sesion.zona||"").toUpperCase();
+  const mios=us.filter(u=>{
+    if(esGerente()||!zona) return true;
+    // El supervisor ve los de su provincia. El Lugar trae "CALLE MENDOZA", "SAN JUAN".
+    return String(avActividad[u].lugar||"").toUpperCase().includes(zona);
+  });
+  if(!mios.length) return "";
+  const pendBaja=new Set(avPend.filter(x=>x.baja&&!x.aplicado).map(x=>String(x.usuario).toUpperCase()));
+  mios.sort((a,b)=>(avActividad[b].dias??9999)-(avActividad[a].dias??9999));
+  const flojos=mios.filter(u=>(avActividad[u].dias??0)>=avCorte).length;
+  let h='<div class="av-h">Vendedores activos ('+mios.length+')</div>'
+    +'<div class="av-nota" style="margin:-4px 0 8px">Ordenados por hace cuánto que no '
+    +'venden. '+(flojos?'<b style="color:var(--rojo)">'+flojos+' hace '+avCorte+' días o '
+    +'más que no registran venta</b>: puede que ya no estén.':'Todos vendieron hace poco.')
+    +'</div>';
+  mios.forEach(u=>{
+    const a=avActividad[u], d=a.dias;
+    const col = d==null?"var(--gris)" : d>=avCorte?"var(--rojo)" : d>=21?"var(--naranja)":"var(--verde)";
+    const cuando = a.ultima ? esc(a.ultima)+' · hace '+d+' días' : 'sin venta registrada';
+    const ya = pendBaja.has(u.toUpperCase());
+    h+='<div class="av-card"><div class="av-fila">'
+      +'<div style="flex:1 1 180px"><div class="av-u">'+esc(u)+'</div>'
+      +'<div class="av-meta">'+esc(a.lugar||"—")+' · '+(a.clientes||0)+' clientes · '
+      +'<span style="color:'+col+';font-weight:700">'+cuando+'</span></div></div>'
+      +(ya ? '<span class="av-meta" style="color:var(--naranja);font-weight:700">'
+             +'Baja pendiente, se aplica esta noche</span>'
+           : '<button class="av-btn sec" onclick="avBaja(\''+esc(u)+'\')">Dar de baja</button>')
+      +'</div></div>';
+  });
+  return h;
 }
 
 function avAsignar(id){
@@ -1113,6 +1166,34 @@ function avAsignar(id){
 function avDeshacer(id){
   db.collection("vendedores_asignacion").doc(id).update({lugar:null})
     .catch(e=>alert("No se pudo deshacer: "+e.message));
+}
+
+// La baja viaja por la misma coleccion que el alta: son dos momentos del ciclo de
+// vida de la misma persona. El pipeline la aplica esa noche escribiendo
+// "EX VENDEDOR" en Vendedor.xlsx, y ahi sus clientes pasan a la cartera huerfana.
+function avBaja(usuario){
+  const a=avActividad[usuario]||{};
+  const cli=a.clientes||0;
+  const txt=prompt("Dar de baja a "+usuario+".\n\n"
+    +(cli?"Tiene "+cli+" cliente"+(cli===1?"":"s")+" en su cartera. Esta noche pasan a "
+         +"la cartera huérfana y vas a tener que reasignarlos.\n\n"
+      :"No tiene clientes en su cartera.\n\n")
+    +"Su venta histórica NO se pierde: sigue contando para su punto de venta.\n\n"
+    +"Para confirmar, escribí el usuario tal cual: "+usuario);
+  if(txt===null) return;
+  if(String(txt).trim().toUpperCase()!==usuario.toUpperCase()){
+    alert("No coincide. No se dio de baja a nadie."); return;
+  }
+  const id=usuario.replace(/\//g,"_");
+  const ahora=new Date().toISOString().slice(0,16).replace("T"," ");
+  db.collection("vendedores_asignacion").doc(id).set({
+    usuario:usuario, nombre:null, lugar:null, origen:"baja",
+    baja:true, baja_por:sesion.usuario, baja_en:ahora,
+    provincia:sesion.zona||"", detectado:ahora,
+    importe:0, fuente:"baja", aplicado:false
+  }).then(()=>alert("Listo. "+usuario+" queda dado de baja esta noche.\n\n"
+      +"Mañana sus clientes aparecen en la cartera huérfana, en Vista Supervisor."))
+    .catch(e=>alert("No se pudo dar de baja: "+e.message));
 }
 
 function avAlta(){
