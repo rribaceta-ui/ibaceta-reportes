@@ -119,29 +119,32 @@ const kpi=(v,t)=>`<div class="kpi"><b>${n(v)}</b><span>${t}</span></div>`;
 function pintar(){
   const m=$("main");
   if(sesion.rol==="stock_compras"){m.innerHTML=htmlCompras(global.compras);return;}
-  if(sesion.rol==="stock_comercial"&&!verSalon){m.innerHTML=htmlComercial();return;}
+  if(sesion.rol==="stock_comercial"&&!verSalon){$("hT").textContent="Comercial";m.innerHTML=htmlComercial();return;}
+  if(sesion.rol==="stock_comercial"&&doc)$("hT").textContent="Comercial · Salón "+doc.salon;   // que se vea de qué salón es
   m.innerHTML=htmlSalon();
 }
 function htmlSalon(){
   if(!doc)return '<section><p class="vacio">Todavía no hay información para este salón.</p></section>';
   const lec=verSalon.lectura,k=doc.kpis||{};
-  const vol=sesion.rol==="stock_comercial"?'<p><a href="#" data-acc="volver">← Volver a todos los salones</a></p>':"";
+  const imp=sesion.rol==="stock_comercial";          // Comercial mira el salón: se le habla en tercera persona
+  const y=(a,b)=>imp?b:a;
+  const vol=imp?'<p><a href="#" data-acc="volver">← Volver a todos los salones</a></p><h2 style="font-size:20px;margin:0 0 10px">Salón '+esc(doc.salon)+"</h2>":"";
   const tareas=(doc.tareas||[]).map(t=>{
     const h=marcas.hechos[kf(t.key)],v=marcas.vendidos[kf(t.key)],vend=v?v.u:(t.vendido||0);
-    const nota=t.asignado<t.pedir?` <small>(necesitás ${n(t.pedir)}, el central tiene ${n(t.central)})</small>`:"";
+    const nota=t.asignado<t.pedir?` <small>(${y("necesitás","necesita")} ${n(t.pedir)}, el central tiene ${n(t.central)})</small>`:"";
     return `<div class="tarea ${h?"hecha":""}"><div class="t-top"><strong>${esc(t.producto)}</strong><span class="sub">${esc(t.rubro)}</span>${vend?'<span class="tag">YA VENDIDO ×'+n(vend)+"</span>":""}</div>
-      <div class="mot">${esc(t.motivo)}</div><div>Tenés <b>${n(t.stock)}</b> · mínimo <b>${n(t.minimo)}</b></div>
-      <div class="pedi">Pedí <b>${n(t.asignado)}</b>${nota}</div>
+      <div class="mot">${esc(t.motivo)}</div><div>${y("Tenés","Tiene")} <b>${n(t.stock)}</b> · mínimo <b>${n(t.minimo)}</b></div>
+      <div class="pedi">${y("Pedí","Pide")} <b>${n(t.asignado)}</b>${nota}</div>
       ${lec?"":`<div class="acc"><button class="${h?"on":""}" data-acc="hecho" data-key="${esc(t.key)}">${h?"✔ Lo pedí ("+esc(h.por)+")":"Lo pedí"}</button>
       <button data-acc="vendido" data-key="${esc(t.key)}">Ya lo vendí</button></div>`}</div>`;}).join("")||'<p class="vacio">Nada para pedir ahora.</p>';
   const sin=(doc.sin_stock_en_central||[]).map(t=>[`<strong>${esc(t.producto)}</strong><br><span class="sub">${esc(t.rubro)}</span>`,n(t.stock),n(t.faltante)]);
   const sob=(doc.excesos||[]).filter(t=>Math.floor((t.un_sobrantes||0)+1e-9)>=1).map(t=>[esc(t.producto),n(t.stock),n(t.minimo_exhibicion),n(Math.floor(t.un_sobrantes+1e-9))]);
-  return vol+`<div class="kpis">${kpi(k.pueden_pedirse,"productos que podés pedir al central")}${kpi((doc.tareas||[]).length,"te muestro ahora (los de más venta)")}
-    ${kpi(doc.en_cola,"quedan en espera para después")}${kpi(k.sin_stock_en_central,"que el central no tiene (Compras ya lo ve)")}</div>
+  return vol+`<div class="kpis">${kpi(k.pueden_pedirse,y("productos que podés pedir al central","productos que el salón puede pedir ahora (el central tiene stock)"))}${kpi((doc.tareas||[]).length,y("te muestro ahora (los de más venta)","se le muestran al encargado ahora (los de más venta)"))}
+    ${kpi(doc.en_cola,y("quedan en espera para después","quedan en espera: aparecen a medida que se resuelven los primeros"))}${kpi(k.sin_stock_en_central,y("que el central no tiene (Compras ya lo ve)","que el salón necesita y el central no tiene (los ve Compras)"))}</div>
     <p class="sub">Armado el ${esc(doc.generado)} con ventas hasta el ${esc(doc.ventas_hasta)}.</p>
-    <section><h2>1. Para pedir en el próximo camión</h2><p class="ayuda">Ordenados por lo que más se vende. «Pedí» es lo que el central puede darte hoy. Si ya lo vendiste a un cliente que espera, marcalo: tiene prioridad cuando el central no alcanza.</p>${tareas}</section>
-    <section><h2>2. Los que el central no tiene</h2><p class="ayuda">No hay nada para pedir ahora: ya están avisados a Compras.</p>${tabla(["Producto","Tenés","Te faltan"],sin)}</section>
-    <section><h2>3. Te sobra</h2><p class="ayuda">Tenés más de 15 días de venta y más que el mínimo de exhibición. Lo que sobra se puede mover a otro salón.</p>${tabla(["Producto","Tenés","Mínimo","Sobran"],sob)}</section>`;
+    <section><h2>1. Para pedir en el próximo camión</h2><p class="ayuda">${imp?"Ordenados por lo que más se vende. «Pide» es lo que el central puede darle hoy.":"Ordenados por lo que más se vende. «Pedí» es lo que el central puede darte hoy. Si ya lo vendiste a un cliente que espera, marcalo: tiene prioridad cuando el central no alcanza."}</p>${tareas}</section>
+    <section><h2>2. Los que el central no tiene</h2><p class="ayuda">No hay nada para pedir ahora: ya están avisados a Compras.</p>${tabla(["Producto",y("Tenés","Tiene"),y("Te faltan","Le faltan")],sin)}</section>
+    <section><h2>3. ${y("Te sobra","Le sobra")}</h2><p class="ayuda">${y("Tenés","Tiene")} más de 15 días de venta y más que el mínimo de exhibición. Lo que sobra se puede mover a otro salón.</p>${tabla(["Producto",y("Tenés","Tiene"),"Mínimo","Sobran"],sob)}</section>`;
 }
 function tabla(cols,filas){
   if(!filas.length)return '<p class="vacio">Nada para mostrar.</p>';
