@@ -31,6 +31,24 @@ td{padding:7px;border-bottom:1px solid #eee;vertical-align:top}tr:nth-child(even
 #login button{width:100%;background:var(--azul);color:#fff;border:0;border-radius:var(--r);padding:11px;font-family:var(--h);font-weight:700;cursor:pointer}
 #login button:hover{background:var(--naranja)}
 footer{background:#333;color:#ccc;font-size:12px;padding:12px 16px}
+/* gestión (Gerencia Comercial) */
+.tabs{display:flex;flex-wrap:wrap;gap:6px;margin-bottom:12px}.tabs a{border:1px solid var(--azul);color:var(--azul);border-radius:16px;padding:6px 14px;font-family:var(--h);font-size:13px;text-decoration:none}
+.tabs a.on{background:var(--azul);color:#fff}
+.gbar{display:flex;flex-wrap:wrap;gap:8px;align-items:center;margin:10px 0}.gbar select,.gbar input[type=text],.gbar input[type=date],.gbar textarea,.gform input,.gform select,.gform textarea{border:1px solid #ccc;border-radius:var(--r);padding:6px 8px;font-family:var(--b);font-size:13px}
+.gbar label{font-size:13px;color:var(--gris)}.gbar .sp{flex:1}.gbtn{background:var(--azul);color:#fff;border:0;border-radius:var(--r);padding:7px 12px;font-family:var(--h);font-size:13px;cursor:pointer}.gbtn.sec{background:#fff;color:var(--azul);border:1px solid var(--azul)}
+.hero{border-left:6px solid #c0392b}.hero .g{font-size:18px;font-weight:700;font-family:var(--h)}.hero .g span{color:#c0392b}
+.chips{display:flex;flex-wrap:wrap;gap:6px;margin:8px 0}.chips button{border:1px solid #ddd;background:#fff;border-radius:16px;padding:5px 11px;font-size:12.5px;cursor:pointer}.chips button b{margin-left:4px}.chips .al{border-color:#c0392b;color:#c0392b}
+.mwrap{overflow:auto;max-height:70vh;border-radius:var(--r);box-shadow:var(--sombra);background:#fff}
+table.mesa{min-width:1180px;font-size:12.5px}table.mesa th,table.mesa td{white-space:nowrap;text-align:right;padding:6px 8px}
+table.mesa thead th{position:sticky;top:0;z-index:2}table.mesa tr.g1 th{text-align:center;font-size:11px}table.mesa tr.g2 th{top:25px;cursor:pointer;background:#fff;color:var(--azul);border-bottom:1px solid #ddd}
+table.mesa th.l,table.mesa td.l{text-align:left}table.mesa td.p{white-space:normal;min-width:230px;max-width:280px}table.mesa td.sg{white-space:normal;min-width:300px;text-align:left}
+table.mesa tbody tr{cursor:pointer}table.mesa tbody tr:hover td{background:#fff7ec}table.mesa tr.det td{background:#fff7ec;white-space:normal;text-align:left;cursor:default}
+.neg{color:#c0392b}.pos{color:#1a7f37}.bd{display:inline-block;border-radius:10px;padding:1px 8px;font-size:11px;font-weight:600;color:#fff;margin-right:4px}.bd.S{background:#c0392b}.bd.P{background:#1a7f37}
+.pl{display:inline-block;border-radius:4px;padding:0 6px;font-size:11px;border:1px solid var(--azul);color:var(--azul);margin-right:4px}.pl.Pa{border-color:var(--naranja);color:var(--naranja)}.pl.Pr{border-color:#7b4fa3;color:#7b4fa3}
+.mon{display:inline-block;background:var(--naranja);color:#fff;border-radius:10px;padding:0 7px;font-size:11.5px;font-weight:600;margin-left:4px;white-space:nowrap}
+.dg{display:grid;gap:10px;grid-template-columns:repeat(auto-fit,minmax(210px,1fr))}.dg h4{margin:0 0 3px;color:var(--azul);font-size:12px;text-transform:uppercase}
+ul.ev{margin:4px 0 8px 18px;padding:0;font-size:13px}.gform{display:grid;gap:8px}.gform textarea{min-height:70px;width:100%}.gform .fila{display:flex;flex-wrap:wrap;gap:8px}
+.com{border:1px solid #e5e5e5;border-radius:var(--r);padding:10px;margin-bottom:8px}.com.arch{opacity:.55}.com .meta{font-size:12px;color:var(--gris)}
 @media(max-width:640px){table.resp thead{display:none}table.resp tr{display:block;border-bottom:2px solid #ddd;padding:6px 0}
 table.resp td{display:flex;justify-content:space-between;gap:10px;border:0;padding:3px 6px}table.resp td::before{content:attr(data-l);font-weight:600;color:var(--gris)}}
 </style></head><body>
@@ -79,12 +97,13 @@ async function entrar(){
     err.innerHTML=esc(err.textContent)+'<div style="margin-top:6px;font-size:12px;color:#777">usuario probado: '+esc(correo(u))+" · código "+esc(c||"sin código")+"</div>";
     $("lb").disabled=false;}
 }
-function salir(){desus.forEach(f=>f&&f());desus=[];if(DEMO){location.hash="";location.reload();}else firebase.auth().signOut().then(()=>location.reload());}
+function salir(){desus.forEach(f=>f&&f());desus=[];desG.forEach(f=>f&&f());if(desMesa)desMesa();if(DEMO){location.hash="";location.reload();}else firebase.auth().signOut().then(()=>location.reload());}
 function abrir(s){
   sesion=s;$("login").style.display="none";$("app").style.display="block";
   $("hT").textContent=s.rol==="stock_salon"?"Salón "+s.usuario:s.usuario;
   $("hS").textContent={stock_salon:"Pedido sugerido para el próximo camión",stock_compras:"Lo que el central no tiene",stock_comercial:"Vista de todos los salones"}[s.rol]||"";
   s.rol==="stock_salon"?escucharSalon(s.salon_id,false):s.rol==="stock_compras"?escucharGlobal(["compras"]):escucharGlobal(["comercial","compras"]);
+  if(s.rol==="stock_comercial")escucharGestion();      // mesa de trabajo, reemplazos y conocimiento: solo Gerencia Comercial
 }
 function escuchar(ref,cb){desus.push(ref.onSnapshot(s=>cb(s.exists?s.data():null),e=>{$("main").innerHTML='<section><p class="error">No se pudo traer la información: '+esc(e.message)+'</p></section>';}));}
 
@@ -119,7 +138,7 @@ const kpi=(v,t)=>`<div class="kpi"><b>${n(v)}</b><span>${t}</span></div>`;
 function pintar(){
   const m=$("main");
   if(sesion.rol==="stock_compras"){m.innerHTML=htmlCompras(global.compras);return;}
-  if(sesion.rol==="stock_comercial"&&!verSalon){$("hT").textContent="Comercial";m.innerHTML=htmlComercial();return;}
+  if(sesion.rol==="stock_comercial"&&!verSalon){$("hT").textContent="Comercial";m.innerHTML=htmlComercialG();if(vistaC==="mesa")pintarMesaTabla();return;}
   if(sesion.rol==="stock_comercial"&&doc)$("hT").textContent="Comercial · Salón "+doc.salon;   // que se vea de qué salón es
   m.innerHTML=htmlSalon();
 }
@@ -129,7 +148,10 @@ function htmlSalon(){
   const imp=sesion.rol==="stock_comercial";          // Comercial mira el salón: se le habla en tercera persona
   const y=(a,b)=>imp?b:a;
   const vol=imp?'<p><a href="#" data-acc="volver">← Volver a todos los salones</a></p><h2 style="font-size:20px;margin:0 0 10px">Salón '+esc(doc.salon)+"</h2>":"";
-  const tareas=(doc.tareas||[]).map(t=>{
+  const hayCola=Array.isArray(doc.cola)&&doc.cola.length>0,total=(doc.tareas||[]).length+(doc.cola||[]).length;
+  const lista=verTodos&&hayCola?(doc.tareas||[]).concat(doc.cola):(doc.tareas||[]);
+  const selector=hayCola?`<div class="acc" style="margin-bottom:10px"><button data-acc="vertodos" data-v="0" class="${verTodos?"":"on"}">Resumen: los ${n((doc.tareas||[]).length)} de más venta</button><button data-acc="vertodos" data-v="1" class="${verTodos?"on":""}">Ver todos (${n(total)})</button></div>`:"";
+  const tareas=lista.map(t=>{
     const h=marcas.hechos[kf(t.key)],v=marcas.vendidos[kf(t.key)],vend=v?v.u:(t.vendido||0);
     const nota=t.asignado<t.pedir?` <small>(${y("necesitás","necesita")} ${n(t.pedir)}, el central tiene ${n(t.central)})</small>`:"";
     return `<div class="tarea ${h?"hecha":""}"><div class="t-top"><strong>${esc(t.producto)}</strong><span class="sub">${esc(t.rubro)}</span>${vend?'<span class="tag">YA VENDIDO ×'+n(vend)+"</span>":""}</div>
@@ -140,9 +162,9 @@ function htmlSalon(){
   const sin=(doc.sin_stock_en_central||[]).map(t=>[`<strong>${esc(t.producto)}</strong><br><span class="sub">${esc(t.rubro)}</span>`,n(t.stock),n(t.faltante)]);
   const sob=(doc.excesos||[]).filter(t=>Math.floor((t.un_sobrantes||0)+1e-9)>=1).map(t=>[esc(t.producto),n(t.stock),n(t.minimo_exhibicion),n(Math.floor(t.un_sobrantes+1e-9))]);
   return vol+`<div class="kpis">${kpi(k.pueden_pedirse,y("productos que podés pedir al central","productos que el salón puede pedir ahora (el central tiene stock)"))}${kpi((doc.tareas||[]).length,y("te muestro ahora (los de más venta)","se le muestran al encargado ahora (los de más venta)"))}
-    ${kpi(doc.en_cola,y("quedan en espera para después","quedan en espera: aparecen a medida que se resuelven los primeros"))}${kpi(k.sin_stock_en_central,y("que el central no tiene (Compras ya lo ve)","que el salón necesita y el central no tiene (los ve Compras)"))}</div>
+    ${kpi(doc.en_cola,y("quedan fuera del resumen: elegí «Ver todos» para verlos ahora","quedan fuera del resumen: elegí «Ver todos» para verlos ahora"))}${kpi(k.sin_stock_en_central,y("que el central no tiene (Compras ya lo ve)","que el salón necesita y el central no tiene (los ve Compras)"))}</div>
     <p class="sub">Armado el ${esc(doc.generado)} con ventas hasta el ${esc(doc.ventas_hasta)}.</p>
-    <section><h2>1. Para pedir en el próximo camión</h2><p class="ayuda">${imp?"Ordenados por lo que más se vende. «Pide» es lo que el central puede darle hoy.":"Ordenados por lo que más se vende. «Pedí» es lo que el central puede darte hoy. Si ya lo vendiste a un cliente que espera, marcalo: tiene prioridad cuando el central no alcanza."}</p>${tareas}</section>
+    <section><h2>1. Para pedir en el próximo camión</h2>${selector}<p class="ayuda">${imp?"Ordenados por lo que más se vende. «Pide» es lo que el central puede darle hoy.":"Ordenados por lo que más se vende. «Pedí» es lo que el central puede darte hoy. Si ya lo vendiste a un cliente que espera, marcalo: tiene prioridad cuando el central no alcanza."}</p>${tareas}</section>
     <section><h2>2. Los que el central no tiene</h2><p class="ayuda">No hay nada para pedir ahora: ya están avisados a Compras.</p>${tabla(["Producto",y("Tenés","Tiene"),y("Te faltan","Le faltan")],sin)}</section>
     <section><h2>3. ${y("Te sobra","Le sobra")}</h2><p class="ayuda">${y("Tenés","Tiene")} más de 15 días de venta y más que el mínimo de exhibición. Lo que sobra se puede mover a otro salón.</p>${tabla(["Producto",y("Tenés","Tiene"),"Mínimo","Sobran"],sob)}</section>`;
 }
@@ -168,10 +190,219 @@ function htmlComercial(){
     +htmlCompras(global.compras);
 }
 
+/* ---------- gestión (Gerencia Comercial): mesa de trabajo, reemplazos y conocimiento (Fase 1, 25/10/2026) ----------
+   El pipeline escribe gestion_mesa/*, gestion_reemplazos_sug/lista y gestion_catalogo/productos (acá solo se leen).
+   La app escribe únicamente gestion_reemplazos (decisiones) y gestion_comentarios. Solo la cuenta Comercial lo ve. */
+const SALONES=["Alameda","Maipú","Río Cuarto","San Juan","San Luis","San Martín","San Rafael","Villa Krause","Villa Mercedes"];
+const pid=(a,b)=>[kf(a),kf(b)].sort().join("__");
+const TIPOS_C={hecho:"Hecho",regla:"Regla",motivo:"Motivo de una decisión",advertencia:"Advertencia",observacion:"Observación"};
+const ALC_C={producto:"Producto",relacion:"Relación",rubro:"Rubro",general:"General"};
+let verTodos=(()=>{try{return localStorage.getItem("stock_vertodos")==="1";}catch(e){return false;}})();   // resumen o todos los pedidos (se recuerda)
+let vistaC="salones",mesaSalon="alameda",mesaDoc=null,mesaAbierta=null,reempMax=15,desG=[],desMesa=null,_dl=null,
+    mesaF={tipo:"",pal:"",rub:"",q:"",sug:true,k:"plata",dir:-1,ord:"plata"},
+    consF={alc:"",tipo:"",q:"",arch:false},consNew={alc:"producto",ref:"",tipo:"hecho",texto:"",vig:""},
+    G={sug:null,cat:null,reemp:{},coment:[]};
+const fmM=x=>{const a=Math.abs(x);return a<0.1?"$"+n(Math.round(a*1000))+" mil":"$"+n(a,a<10?2:0)+" M";};
+const fmK=k=>k==null||k===0?"—":(k>=1000?"$"+n(k/1000,1)+" M":"$"+n(k)+" mil");
+const pct=(x,inv)=>x==null?'<span class="sub">—</span>':'<span class="'+((inv?x>0:x<0)?"neg":(x!==0?"pos":"sub"))+'">'+(x>0?"+":"")+n(Math.round(x))+"%</span>";
+const cat=sku=>{const v=G.cat&&G.cat.productos&&G.cat.productos[kf(sku)];if(!v)return null;const p=v.split("|");return{desc:p[0],rubro:p[1]||"",marca:p[2]||""};};
+const nombreP=sku=>{const c=cat(sku);return c?c.desc:sku;};
+function escucharG(ref,cb){desG.push(ref.onSnapshot(cb,e=>console.warn("gestión:",e.message)));}
+function escucharMesa(){
+  if(DEMO){mesaDoc=((DEMO.gestion||{}).mesa||{})[mesaSalon]||null;return;}
+  if(desMesa)desMesa();
+  desMesa=db.doc("gestion_mesa/"+mesaSalon).onSnapshot(s=>{mesaDoc=s.exists?s.data():null;pintar();},e=>console.warn("gestión:",e.message));
+}
+function escucharGestion(){
+  desG.forEach(f=>f&&f());desG=[];
+  if(DEMO){const g=DEMO.gestion||{};G.sug=g.sug||null;G.cat=g.cat||null;G.reemp=g.reemp||{};G.coment=g.coment||[];escucharMesa();return;}
+  escucharG(db.doc("gestion_reemplazos_sug/lista"),s=>{G.sug=s.exists?s.data():null;pintar();});
+  escucharG(db.doc("gestion_catalogo/productos"),s=>{G.cat=s.exists?s.data():null;_dl=null;pintar();});
+  escucharG(db.collection("gestion_reemplazos"),q=>{G.reemp={};q.forEach(d=>{G.reemp[d.id]=d.data();});pintar();});
+  escucharG(db.collection("gestion_comentarios").orderBy("en","desc").limit(300),q=>{G.coment=q.docs.map(d=>({id:d.id,...d.data()}));pintar();});
+  escucharMesa();
+}
+function datalistP(){
+  if(_dl)return _dl;const p=(G.cat&&G.cat.productos)||{};
+  _dl='<datalist id="dlp">'+Object.entries(p).map(([k,v])=>'<option value="'+esc(k.replace("_","*"))+'">'+esc(v.split("|")[0])+"</option>").join("")+"</datalist>";return _dl;
+}
+function htmlComercialG(){
+  const t=[["salones","Salones y pedidos"],["mesa","Mesa de trabajo"],["reemplazos","Reemplazos"],["conocimiento","Conocimiento"]];
+  const nav='<nav class="tabs">'+t.map(([k,l])=>`<a href="#" data-acc="vista" data-v="${k}" class="${vistaC===k?"on":""}">${l}</a>`).join("")+"</nav>";
+  return nav+(vistaC==="mesa"?htmlMesa():vistaC==="reemplazos"?htmlReemp():vistaC==="conocimiento"?htmlConoc():htmlComercial());
+}
+/* ----- mesa de trabajo ----- */
+function filasMesa(){return((mesaDoc&&mesaDoc.filas)||[]).map(r=>{r.var_u=r.u_ly>0?(r.u_now/r.u_ly-1)*100:null;r.d_mg=r.mg_now-r.mg_ly;r.ent_n=r.ent_f?r.ent_u:0;return r;});}
+function htmlMesa(){
+  const d=mesaDoc,F=filasMesa();
+  const sel='<select data-mf="salon">'+SALONES.map(s=>`<option value="${slug(s,"_")}" ${slug(s,"_")===mesaSalon?"selected":""}>${esc(s)}</option>`).join("")+"</select>";
+  if(!d)return `<div class="gbar"><label>Salón ${sel}</label></div><section><p class="vacio">Todavía no hay información de la mesa de trabajo para este salón.</p></section>`;
+  const c=(f)=>F.filter(f).length,rubs=[...new Set(F.map(r=>r.rubro))].sort();
+  const chip=(k,l,f,al)=>`<button class="${al?"al":""}" data-acc="mchip" data-c="${k}">${l}<b>${c(f)}</b></button>`;
+  return `<div class="gbar"><label>Salón ${sel}</label></div>
+  <section class="hero"><div class="sub">Reporte · datos de ventas al ${esc(d.ventas_hasta||mesaDoc.generado)}, ${esc(String((G.meta||{}).dias||180))} días contra el mismo período del año pasado</div>
+   <div class="g">Margen de ${esc(d.salon)}: <span>${d.mg_now<d.mg_ly?"−":"+"}${fmM(d.mg_now-d.mg_ly)}</span> vs año pasado ($${n(d.mg_now)} M contra $${n(d.mg_ly)} M)</div>
+   <div class="sub">Pauta del salón en los últimos 30 días: <b>$${n(d.pauta_salon_30d,2)} M</b> (aproximada: el gasto de cada anuncio se reparte entre sus productos). Vigilando ${n(d.n_vigilados)} productos.</div>
+   <div class="chips">${chip("pa","Pauta activa sin stock",r=>r.tipo==="Solucionar"&&r.palanca==="Pauta",1)}${chip("st","Stock: reponer o comprar",r=>r.tipo==="Solucionar"&&r.palanca==="Stock")}${chip("pr","Precio a revisar",r=>r.tipo==="Solucionar"&&r.palanca==="Precio")}${chip("po","Para potenciar",r=>r.tipo==="Potenciar")}${chip("all","Todos los vigilados",()=>true)}</div></section>
+  <div class="gbar"><label>Tipo <select data-mf="tipo"><option value="">Todos</option><option ${mesaF.tipo==="Solucionar"?"selected":""}>Solucionar</option><option ${mesaF.tipo==="Potenciar"?"selected":""}>Potenciar</option></select></label>
+   <label>Palanca <select data-mf="pal"><option value="">Todas</option>${["Stock","Precio","Pauta"].map(x=>`<option ${mesaF.pal===x?"selected":""}>${x}</option>`).join("")}</select></label>
+   <label>Rubro <select data-mf="rub"><option value="">Todos</option>${rubs.map(x=>`<option ${mesaF.rub===x?"selected":""}>${esc(x)}</option>`).join("")}</select></label>
+   <input type="text" data-mf="q" placeholder="Buscar producto, marca o código" value="${esc(mesaF.q)}">
+   <label><input type="checkbox" data-mf="sug" ${mesaF.sug?"checked":""}> Solo con sugerencia</label>
+   <label>Ordenar por <select data-mf="ord"><option value="plata" ${mesaF.ord==="plata"?"selected":""}>Monto (margen en juego)</option><option value="unid" ${mesaF.ord==="unid"?"selected":""}>Cantidad (unidades en juego)</option></select></label>
+   <span class="sp"></span><button class="gbtn sec" data-acc="mlimpiar">Limpiar</button><button class="gbtn" data-acc="mcsv">Bajar a Excel (CSV)</button></div>
+  <div class="sub" id="mcnt"></div>
+  <div class="mwrap"><table class="mesa"><thead>
+   <tr class="g1"><th colspan="4"></th><th colspan="3">VENTAS · 180 días</th><th colspan="4">STOCK</th><th colspan="4">PRECIO (sin IVA)</th><th colspan="3">PAUTA · 30 días</th><th></th></tr>
+   <tr class="g2"><th class="l" data-acc="mord" data-k="prod">Producto</th><th data-acc="mord" data-k="u_now">Unid. año pasado → ahora</th><th data-acc="mord" data-k="var_u">Var.</th><th data-acc="mord" data-k="d_mg">Margen ahora (Δ)</th>
+   <th data-acc="mord" data-k="stA">Salón</th><th data-acc="mord" data-k="stC">Central</th><th data-acc="mord" data-k="cob">Cobertura (días)</th><th data-acc="mord" data-k="ent_n">Entró al central</th>
+   <th data-acc="mord" data-k="p_now">Año pasado → ahora</th><th data-acc="mord" data-k="p_var">Var.</th><th data-acc="mord" data-k="p_red_var">Var. red</th><th data-acc="mord" data-k="mg_u">Margen/u</th>
+   <th data-acc="mord" data-k="pa_salon">${esc(d.salon)}</th><th data-acc="mord" data-k="pa_otros">Web/otros</th><th data-acc="mord" data-k="ads">Anuncios</th><th class="l" data-acc="mord" data-k="plata">Qué sugiere</th></tr></thead>
+   <tbody id="mtb"></tbody></table></div>
+  <p class="ayuda" style="margin-top:8px">Tocá una fila para ver el detalle, sus reemplazos y los comentarios. «Plata en juego» es una estimación: ritmo actual del salón (comprar/reponer), margen que se dejó de ganar (precio) o lo que le toca por tamaño (empujar). Los umbrales de las reglas están por validar con Dirección.</p>`;
+}
+function sustitutosDe(sku){const k=kf(sku),out=[];
+  for(const r of Object.values(G.reemp)){if(r.estado!=="confirmado")continue;if(kf(r.a)===k)out.push(r.b);else if(kf(r.b)===k)out.push(r.a);}return out;}
+function filaMesaHtml(r,por){
+  let sug=r.tipo?`<span class="bd ${r.tipo[0]}">${r.tipo}</span><span class="pl ${r.palanca.slice(0,2)}">${r.palanca}</span>${esc(r.sugiere)}${r.plata>=0.005?`<span class="mon">≈ ${fmM(r.plata)} /mes</span>`:""}`:'<span class="sub">sin señal</span>';
+  if(r.stA===0){const s=sustitutosDe(r.sku).map(x=>{const f=por[kf(x)];return f?{n:f.prod,a:f.stA,c:f.stC}:{n:nombreP(x),a:null,c:null};}).filter(x=>x.a===null||x.a>0||x.c>0);
+    if(s.length)sug+=`<br><span class="tag" style="margin:0">↔ Sustituto</span> ${s.map(x=>esc(x.n)+(x.a===null?" (sin dato de stock acá)":x.a>0?" — hay "+n(x.a)+" en el salón":" — hay "+n(x.c)+" en el central")).join("; ")}`;}
+  return `<tr data-acc="mfila" data-s="${esc(r.sku)}"><td class="l p"><b>${esc(r.prod)}</b><div class="sub">${esc(r.sku)} · ${esc(r.rubro)} · ${esc(r.marca)}</div></td>
+   <td>${r.u_ly} → <b>${r.u_now}</b></td><td>${pct(r.var_u)}</td><td>$${n(r.mg_now,1)} M <small class="${r.d_mg<0?"neg":"pos"}">(${r.d_mg>0?"+":"−"}${n(Math.abs(r.d_mg),1)})</small></td>
+   <td class="${r.stA===0?"neg":""}"><b>${r.stA}</b></td><td>${r.stC}</td><td>${r.cob==null?'<span class="sub">—</span>':n(r.cob)}</td><td>${r.ent_f?esc(r.ent_f)+" · "+n(r.ent_u)+" u":'<span class="sub">—</span>'}</td>
+   <td>${r.p_ly==null?"—":"$"+n(r.p_ly,1)+" mil"} → <b>${r.p_now==null?"—":"$"+n(r.p_now,1)+" mil"}</b></td><td>${pct(r.p_var,true)}</td><td>${pct(r.p_red_var,true)}</td><td>${r.mg_u==null?"—":"$"+n(r.mg_u)+" mil"}</td>
+   <td>${fmK(r.pa_salon)}</td><td>${fmK(r.pa_otros)}</td><td>${r.ads||'<span class="sub">—</span>'}</td><td class="sg">${sug}</td></tr>`;
+}
+function detalleMesaHtml(r,por){
+  const fl=[];if(r.ads>0&&r.stA===0)fl.push("Tiene pauta en curso y no hay stock en el salón.");if(r.ent_f)fl.push("Entró al central el "+r.ent_f+" ("+n(r.ent_u)+" u).");
+  if(r.pr_salon>0||r.pr_otros>0)fl.push("Pauta del rubro (todos sus productos): salón "+fmK(r.pr_salon)+" · Web/otros "+fmK(r.pr_otros)+".");
+  const sus=sustitutosDe(r.sku).map(x=>{const f=por[kf(x)];return "<li>"+esc(nombreP(x)||x)+' <span class="sub">'+esc(x)+"</span>"+(f?" — en este salón: "+n(f.stA)+" · central: "+n(f.stC):" — no está entre los vigilados de este salón")+"</li>";}).join("");
+  const sug=((G.sug&&G.sug.pares)||[]).filter(p=>(kf(p.a)===kf(r.sku)||kf(p.b)===kf(r.sku))&&!G.reemp[pid(p.a,p.b)]).slice(0,3);
+  const cm=G.coment.filter(c=>c.estado!=="archivado"&&((c.alcance==="producto"&&kf(c.ref)===kf(r.sku))||(c.alcance==="rubro"&&c.ref===r.rubro))).slice(0,5);
+  return `<tr class="det"><td colspan="16"><div class="dg">
+   <div><h4>Ventas</h4>${esc(mesaDoc.salon)}: ${r.u_ly} → ${r.u_now} unidades<br>Margen: $${n(r.mg_ly,1)} M → $${n(r.mg_now,1)} M<br>Resto de la red: ${r.red_ly} → ${r.red_now} unidades</div>
+   <div><h4>Stock</h4>Salón: ${r.stA} · Central: ${r.stC}<br>Cobertura: ${r.cob==null?"sin ventas en 60 días":n(r.cob)+" días"}</div>
+   <div><h4>Precio</h4>${r.p_ly==null?"—":"$"+n(r.p_ly,1)+" mil"} → ${r.p_now==null?"—":"$"+n(r.p_now,1)+" mil"}<br>Red: ${r.p_red_var==null?"—":(r.p_red_var>0?"+":"")+n(r.p_red_var)+"%"}<br>Margen por unidad: ${r.mg_u==null?"—":"$"+n(r.mg_u)+" mil"}</div>
+   <div><h4>Pauta (30 días)</h4>Este producto: salón ${fmK(r.pa_salon)} · Web/otros ${fmK(r.pa_otros)}<br>Anuncios en curso: ${r.ads||0}</div>
+   <div><h4>Señales</h4>${fl.length?fl.map(esc).join("<br>"):'<span class="sub">Sin señales adicionales.</span>'}</div>
+   <div><h4>Reemplazos confirmados</h4>${sus?'<ul class="ev">'+sus+"</ul>":'<span class="sub">Ninguno.</span>'}${sug.length?'<div class="sub">El sistema sugiere '+sug.length+' más: <a href="#" data-acc="vista" data-v="reemplazos">verlos en Reemplazos</a></div>':""}
+     <div class="sub"><a href="#" data-acc="vista" data-v="reemplazos">Asociar un reemplazo a mano</a></div></div>
+   <div><h4>Comentarios</h4>${cm.map(c=>'<div class="sub">• '+esc(c.texto)+" — "+esc(c.firma||c.usuario||"")+"</div>").join("")||'<span class="sub">Ninguno.</span>'}
+     <div class="gform" style="margin-top:6px"><textarea placeholder="Un comentario sobre este producto (lo lee el agente)" data-cm="${esc(r.sku)}"></textarea><div><button class="gbtn sec" data-acc="mcom" data-s="${esc(r.sku)}" data-r="${esc(r.rubro)}">Guardar comentario</button></div></div></div>
+  </div></td></tr>`;
+}
+function mesaFiltrada(){
+  const q=mesaF.q.trim().toLowerCase(),F=filasMesa().filter(r=>(!mesaF.tipo||r.tipo===mesaF.tipo)&&(!mesaF.pal||r.palanca===mesaF.pal)&&(!mesaF.rub||r.rubro===mesaF.rub)&&(!mesaF.sug||r.tipo)&&(!q||(r.prod+" "+r.marca+" "+r.sku).toLowerCase().includes(q)));
+  const k=mesaF.k==="plata"?mesaF.ord:mesaF.k,d=mesaF.dir;
+  return F.sort((x,y)=>k==="prod"?d*String(x.prod).localeCompare(String(y.prod)):d*((x[k]==null?-1e12:x[k])-(y[k]==null?-1e12:y[k])));
+}
+function pintarMesaTabla(){
+  const tb=$("mtb");if(!tb)return;const F=mesaFiltrada(),por={};filasMesa().forEach(r=>por[kf(r.sku)]=r);
+  $("mcnt").textContent=F.length+" de "+filasMesa().length+" productos"+(mesaF.sug?" (con sugerencia)":"");
+  tb.innerHTML=F.map(r=>filaMesaHtml(r,por)+(mesaAbierta===r.sku?detalleMesaHtml(r,por):"")).join("");
+}
+function csvMesa(){
+  const F=mesaFiltrada(),H=["Código","Producto","Rubro","Marca","Unid. año pasado","Unid. ahora","Margen año pasado (M$)","Margen ahora (M$)","Stock salón","Stock central","Cobertura (días)","Precio año pasado ($ miles)","Precio ahora ($ miles)","Var. precio %","Var. precio red %","Margen por unidad ($ miles)","Pauta salón ($ miles)","Pauta web/otros ($ miles)","Anuncios en curso","Tipo","Palanca","Qué sugiere","Plata en juego por mes (M$)","Unidades en juego por mes"];
+  const q=v=>'"'+String(v==null?"":v).replace(/"/g,'""')+'"';
+  const L=[H.map(q).join(";")].concat(F.map(r=>[r.sku,r.prod,r.rubro,r.marca,r.u_ly,r.u_now,r.mg_ly,r.mg_now,r.stA,r.stC,r.cob,r.p_ly,r.p_now,r.p_var,r.p_red_var,r.mg_u,r.pa_salon,r.pa_otros,r.ads,r.tipo,r.palanca,r.sugiere,r.plata,r.unid].map(q).join(";")));
+  const a=document.createElement("a");a.href=URL.createObjectURL(new Blob(["﻿"+L.join("\r\n")],{type:"text/csv;charset=utf-8"}));a.download="mesa_"+mesaSalon+".csv";document.body.appendChild(a);a.click();a.remove();
+}
+/* ----- reemplazos ----- */
+function htmlReemp(){
+  const pares=(G.sug&&G.sug.pares)||[],pend=pares.filter(p=>!G.reemp[pid(p.a,p.b)]).sort((x,y)=>(y.util_ahora?1:0)-(x.util_ahora?1:0));
+  const conf=Object.entries(G.reemp).filter(([,r])=>r.estado==="confirmado"),nr=Object.values(G.reemp).filter(r=>r.estado==="rechazado").length;
+  const card=p=>`<div class="tarea"><div class="t-top"><strong>${esc(p.desc_a)}</strong> <span class="sub">${esc(p.a)}</span><br>↔ <strong>${esc(p.desc_b)}</strong> <span class="sub">${esc(p.b)}</span>${p.util_ahora?'<span class="tag">Resuelve un faltante hoy</span>':""}</div>
+    <div class="sub">${esc(p.rubro)} · el sistema sugiere: ${p.tipo_sugerido==="evolucion"?"evolución (mismo producto, código nuevo)":"sustituto (si falta uno se ofrece el otro)"}</div>
+    <ul class="ev">${(p.evidencia||[]).map(e=>"<li>"+esc(e)+"</li>").join("")}</ul>
+    <div class="acc"><button data-acc="rconf" data-tipo="sustituto" data-a="${esc(p.a)}" data-b="${esc(p.b)}">Confirmar como sustituto</button><button data-acc="rconf" data-tipo="evolucion" data-a="${esc(p.a)}" data-b="${esc(p.b)}">Confirmar como evolución</button><button data-acc="rrech" data-a="${esc(p.a)}" data-b="${esc(p.b)}">Rechazar</button></div></div>`;
+  const cf=conf.map(([id,r])=>`<div class="com"><b>${esc(nombreP(r.a))}</b> <span class="sub">${esc(r.a)}</span> ↔ <b>${esc(nombreP(r.b))}</b> <span class="sub">${esc(r.b)}</span> <span class="tag">${r.tipo==="evolucion"?"Evolución":"Sustituto"}</span>
+    <div class="meta">${r.origen==="manual"?"Cargado a mano":"Sugerido por el sistema"} · ${esc(r.firma||r.usuario||"")} · ${new Date(r.en).toLocaleDateString("es-AR")}${r.nota?" · «"+esc(r.nota)+"»":""} · <a href="#" data-acc="rquitar" data-id="${esc(id)}">Quitar</a></div></div>`).join("")||'<p class="vacio">Todavía no hay reemplazos confirmados.</p>';
+  return datalistP()+`<p class="sub">Los reemplazos van en los dos sentidos. Si un producto falta y su sustituto tiene stock, la mesa de trabajo lo muestra. ${G.sug?"Sugerencias armadas el "+esc(G.sug.generado)+".":""} Rechazadas hasta ahora: ${n(nr)} (no vuelven a proponerse).</p>
+   <section><h2>1. Sugeridos por el sistema (${n(pend.length)})</h2><p class="ayuda">Primero los que hoy resuelven un faltante. Qué define «el mismo producto» depende del rubro (se configura en equivalencias_rubro.json). Decide Gerencia Comercial.</p>
+    ${pend.slice(0,reempMax).map(card).join("")||'<p class="vacio">No hay sugerencias pendientes.</p>'}${pend.length>reempMax?`<p><a href="#" data-acc="rmas">Ver más (${n(pend.length-reempMax)})</a></p>`:""}</section>
+   <section><h2>2. Cargar uno a mano</h2><p class="ayuda">Escribí el código (SECTOR*ARTICULO, por ejemplo 3*6704) o parte de la descripción y elegí de la lista.</p>
+    <div class="gform"><div class="fila"><input id="ra" list="dlp" placeholder="Producto A" size="34"><input id="rb" list="dlp" placeholder="Producto B" size="34"><select id="rt"><option value="sustituto">Sustituto</option><option value="evolucion">Evolución</option></select></div>
+     <input id="rn" placeholder="Comentario (opcional)"><div><button class="gbtn" data-acc="rmanual">Guardar reemplazo</button></div></div></section>
+   <section><h2>3. Confirmados (${n(conf.length)})</h2>${cf}</section>`;
+}
+/* ----- conocimiento ----- */
+function htmlConoc(){
+  const q=consF.q.trim().toLowerCase(),hoy=new Date().toISOString().slice(0,10);
+  const L=G.coment.filter(c=>(consF.arch||c.estado!=="archivado")&&(!consF.alc||c.alcance===consF.alc)&&(!consF.tipo||c.tipo===consF.tipo)&&(!q||(c.texto+" "+(c.refNombre||"")+" "+(c.ref||"")).toLowerCase().includes(q)));
+  const rubs=[...new Set(Object.values((G.cat&&G.cat.productos)||{}).map(v=>v.split("|")[1]).filter(Boolean))].sort();
+  const confs=Object.entries(G.reemp).filter(([,r])=>r.estado==="confirmado");
+  const ref=consNew.alc==="producto"?`<input data-cn="ref" list="dlp" placeholder="Producto (código o descripción)" size="38" value="${esc(consNew.ref)}">`:
+    consNew.alc==="rubro"?`<select data-cn="ref"><option value="">Elegí un rubro</option>${rubs.map(x=>`<option ${consNew.ref===x?"selected":""}>${esc(x)}</option>`).join("")}</select>`:
+    consNew.alc==="relacion"?`<select data-cn="ref"><option value="">Elegí un reemplazo</option>${confs.map(([id,r])=>`<option value="${esc(id)}" ${consNew.ref===id?"selected":""}>${esc(nombreP(r.a).slice(0,40))} ↔ ${esc(nombreP(r.b).slice(0,40))}</option>`).join("")}</select>`:"";
+  const card=c=>{const vencido=c.vigencia&&c.vigencia<hoy;return `<div class="com ${c.estado==="archivado"?"arch":""}"><span class="tag" style="margin:0">${esc(ALC_C[c.alcance]||c.alcance)}</span> <span class="tag" style="margin:0;background:var(--azul)">${esc(TIPOS_C[c.tipo]||c.tipo)}</span>
+    ${c.ref?` <b>${esc(c.refNombre||c.ref)}</b>`:""}${vencido?' <span class="tag" style="background:#c0392b">Vencido</span>':""}
+    <div>${esc(c.texto)}</div><div class="meta">${esc(c.firma||c.usuario||"")} · ${c.en?new Date(c.en).toLocaleDateString("es-AR"):""}${c.vigencia?" · vigente hasta "+esc(c.vigencia):""} ${c.estado==="archivado"?"· archivado":`· <a href="#" data-acc="carch" data-id="${esc(c.id)}">Archivar</a>`}</div></div>`;};
+  return datalistP()+`<p class="sub">Lo que escribas acá lo lee el agente antes de analizar y lo cita. Si los datos lo contradicen, avisa. Un comentario aporta contexto: no cambia las reglas por sí solo. <b>Nunca</b> sueldos, comisiones ni claves.</p>
+   <section><h2>Agregar un comentario</h2><div class="gform"><div class="fila">
+    <select data-cn="alc">${Object.entries(ALC_C).map(([k,v])=>`<option value="${k}" ${consNew.alc===k?"selected":""}>${v}</option>`).join("")}</select>${ref}
+    <select data-cn="tipo">${Object.entries(TIPOS_C).map(([k,v])=>`<option value="${k}" ${consNew.tipo===k?"selected":""}>${v}</option>`).join("")}</select>
+    <label class="sub">Vigente hasta (opcional) <input type="date" data-cn="vig" value="${esc(consNew.vig)}"></label></div>
+    <textarea data-cn="texto" placeholder="Qué querés que el agente sepa">${esc(consNew.texto)}</textarea><div><button class="gbtn" data-acc="cguardar">Guardar comentario</button></div></div></section>
+   <section><h2>Comentarios (${n(L.length)})</h2><div class="gbar"><select data-cf="alc"><option value="">Todos los alcances</option>${Object.entries(ALC_C).map(([k,v])=>`<option value="${k}" ${consF.alc===k?"selected":""}>${v}</option>`).join("")}</select>
+    <select data-cf="tipo"><option value="">Todos los tipos</option>${Object.entries(TIPOS_C).map(([k,v])=>`<option value="${k}" ${consF.tipo===k?"selected":""}>${v}</option>`).join("")}</select>
+    <input type="text" data-cf="q" placeholder="Buscar" value="${esc(consF.q)}"><label><input type="checkbox" data-cf="arch" ${consF.arch?"checked":""}> Ver archivados</label></div>
+    ${L.map(card).join("")||'<p class="vacio">Todavía no hay comentarios.</p>'}</section>`;
+}
+/* ----- escrituras ----- */
+async function guardarReemp(id,obj){const q=quien();if(!q)return;obj.firma=q;obj.usuario=sesion.usuario;obj.en=Date.now();
+  if(DEMO){G.reemp[id]=obj;return pintar();}
+  try{await db.doc("gestion_reemplazos/"+id).set(obj);}catch(e){alert("No se pudo guardar: "+e.message);}}
+async function quitarReemp(id){if(!confirm("¿Quitar este reemplazo?"))return;
+  if(DEMO){delete G.reemp[id];return pintar();}
+  try{await db.doc("gestion_reemplazos/"+id).delete();}catch(e){alert("No se pudo quitar: "+e.message);}}
+async function guardarComent(c){const q=quien();if(!q)return;Object.assign(c,{firma:q,usuario:sesion.usuario,en:Date.now(),estado:"vigente"});
+  if(DEMO){c.id="d"+Date.now();G.coment.unshift(c);return pintar();}
+  try{await db.collection("gestion_comentarios").add(c);}catch(e){alert("No se pudo guardar: "+e.message);}}
+async function archivarComent(id){
+  if(DEMO){const c=G.coment.find(x=>x.id===id);if(c)c.estado="archivado";return pintar();}
+  try{await db.doc("gestion_comentarios/"+id).update({estado:"archivado"});}catch(e){alert("No se pudo archivar: "+e.message);}}
+function accG(a,b){
+  if(a==="vista"){vistaC=b.dataset.v;mesaAbierta=null;pintar();return true;}
+  if(a==="mchip"){const c=b.dataset.c;mesaF.tipo=c==="po"?"Potenciar":c==="all"?"":"Solucionar";mesaF.pal=c==="pa"?"Pauta":c==="st"?"Stock":c==="pr"?"Precio":"";mesaF.sug=c!=="all";mesaAbierta=null;pintar();return true;}
+  if(a==="mlimpiar"){mesaF={tipo:"",pal:"",rub:"",q:"",sug:true,k:"plata",dir:-1,ord:mesaF.ord};mesaAbierta=null;pintar();return true;}
+  if(a==="mcsv"){csvMesa();return true;}
+  if(a==="mord"){const k=b.dataset.k;mesaF.dir=mesaF.k===k?-mesaF.dir:(k==="prod"?1:-1);mesaF.k=k;pintarMesaTabla();return true;}
+  if(a==="mfila"){const s=b.dataset.s;mesaAbierta=mesaAbierta===s?null:s;pintarMesaTabla();return true;}
+  if(a==="mcom"){const t=b.closest("td").querySelector("textarea"),txt=t.value.trim();if(!txt){alert("Escribí el comentario.");return true;}
+    guardarComent({alcance:"producto",ref:b.dataset.s,refNombre:nombreP(b.dataset.s)!==b.dataset.s?nombreP(b.dataset.s):(filasMesa().find(r=>r.sku===b.dataset.s)||{}).prod||b.dataset.s,tipo:"observacion",texto:txt,vigencia:""});t.value="";return true;}
+  if(a==="rconf"){const x=b.dataset.a,y=b.dataset.b;guardarReemp(pid(x,y),{a:x,b:y,tipo:b.dataset.tipo,estado:"confirmado",origen:"sugerido",nota:""});return true;}
+  if(a==="rrech"){const x=b.dataset.a,y=b.dataset.b;guardarReemp(pid(x,y),{a:x,b:y,tipo:"",estado:"rechazado",origen:"sugerido",nota:""});return true;}
+  if(a==="rquitar"){quitarReemp(b.dataset.id);return true;}
+  if(a==="rmas"){reempMax+=15;pintar();return true;}
+  if(a==="rmanual"){const x=$("ra").value.trim(),y=$("rb").value.trim();
+    if(!/^\d+\*\d+$/.test(x)||!/^\d+\*\d+$/.test(y)){alert("Elegí los dos productos de la lista o escribí el código con el formato SECTOR*ARTICULO (por ejemplo 3*6704).");return true;}
+    if(x===y){alert("Son el mismo producto.");return true;}
+    if(G.cat&&(!cat(x)||!cat(y))&&!confirm("Alguno de los códigos no figura en el catálogo de productos con ventas. ¿Guardarlo igual?"))return true;
+    guardarReemp(pid(x,y),{a:x,b:y,tipo:$("rt").value,estado:"confirmado",origen:"manual",nota:$("rn").value.trim()});return true;}
+  if(a==="cguardar"){const c={alcance:consNew.alc,ref:consNew.ref,tipo:consNew.tipo,texto:consNew.texto.trim(),vigencia:consNew.vig};
+    if(!c.texto){alert("Escribí el comentario.");return true;}
+    if(c.alcance!=="general"&&!c.ref){alert("Elegí a qué se refiere.");return true;}
+    c.refNombre=c.alcance==="producto"?nombreP(c.ref):c.alcance==="relacion"?(G.reemp[c.ref]?nombreP(G.reemp[c.ref].a)+" ↔ "+nombreP(G.reemp[c.ref].b):c.ref):c.ref;
+    guardarComent(c);consNew.texto="";consNew.ref=c.alcance==="general"?"":consNew.ref;return true;}
+  if(a==="carch"){archivarComent(b.dataset.id);return true;}
+  return false;
+}
+function cambioG(e){
+  const t=e.target;
+  if(t.dataset.mf){const k=t.dataset.mf;
+    if(k==="salon"){mesaSalon=t.value;mesaAbierta=null;escucharMesa();pintar();return;}
+    mesaF[k]=t.type==="checkbox"?t.checked:t.value;if(k==="ord"){mesaF.k="plata";mesaF.dir=-1;}pintarMesaTabla();return;}
+  if(t.dataset.cn){const k=t.dataset.cn;consNew[k]=t.value;if(k==="alc"){consNew.ref="";pintar();}return;}
+  if(t.dataset.cf){const k=t.dataset.cf;consF[k]=t.type==="checkbox"?t.checked:t.value;if(k!=="q")pintar();else{const pos=t.selectionStart;pintar();const i=document.querySelector('[data-cf="q"]');if(i){i.focus();i.setSelectionRange(pos,pos);}}return;}
+}
+
 /* ---------- eventos ---------- */
+$("main").addEventListener("input",cambioG);$("main").addEventListener("change",e=>{if(e.target.tagName==="SELECT"||e.target.type==="checkbox"||e.target.type==="date")cambioG(e);});
 $("main").addEventListener("click",e=>{
   const b=e.target.closest("[data-acc]");if(!b)return;e.preventDefault();
   const a=b.dataset.acc,key=b.dataset.key;
+  if(sesion&&sesion.rol==="stock_comercial"&&accG(a,b))return;
+  if(a==="vertodos"){verTodos=b.dataset.v==="1";try{localStorage.setItem("stock_vertodos",verTodos?"1":"0");}catch(e){}pintar();return;}
   if(a==="hecho")marcar("hechos",key,marcas.hechos[kf(key)]?null:true);
   else if(a==="vendido"){const v=prompt("¿Cuántas unidades tenés vendidas con el cliente esperando? (0 para sacar la marca)");
     if(v===null)return;const u=parseInt(v,10);if(isNaN(u)||u<0){alert("Poné un número.");return;}marcar("vendidos",key,u>0?u:null);}
