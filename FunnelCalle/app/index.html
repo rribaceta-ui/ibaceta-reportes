@@ -224,6 +224,8 @@ a.tel{color:var(--azul);text-decoration:none;font-weight:600}
 .tabla td{padding:7px 9px;border-bottom:1px solid #eee}
 .tabla tr{cursor:pointer}
 .vacio{text-align:center;color:#9ca3af;font-size:.85rem;padding:26px 10px}
+.vermas{display:block;width:100%;margin:8px 0 2px;padding:11px 10px;border:1px dashed #c7cdd4;border-radius:8px;background:#fff;color:var(--azul,#00548A);font-weight:700;font-size:.86rem;cursor:pointer}
+.vermas:active{background:#eef4f9}
 .cargando{text-align:center;padding:40px;color:var(--gris)}
 
 .capa{position:fixed;inset:0;background:rgba(0,0,0,.45);display:none;align-items:flex-end;justify-content:center;z-index:40}
@@ -396,7 +398,7 @@ const db = firebase.firestore();
 // vendedores. Lo hecho sin conexion sincroniza al volver.
 db.enablePersistence({synchronizeTabs:true}).catch(()=>{});
 
-const VERSION="2026-10-19a";
+const VERSION="2026-11-05a";
 const DOMINIO="funnel.ibaceta.ar";
 // Las 10 mas comunes cubren el 88,9% de los clientes que hoy tienen rubro cargado. Van
 // a la vista. El resto de las conocidas queda detras de "Otro", para no perderlas pero
@@ -516,6 +518,12 @@ function _fusionarClientes(){
   }
 }
 let vista="sup", selVend="", selCob="", busca="";
+// Cuantas tarjetas dibuja cada columna antes de ofrecer el resto. El tope es por
+// velocidad: hay carteras de 720 clientes y dibujarlas enteras traba el telefono en
+// cada repintado. Lo que faltaba era la salida: el sobrante se avisaba con un texto
+// que no se podia tocar, asi que esos clientes no existian para el vendedor.
+const TOPE_COL=120;
+let colsAbiertas=new Set();
 let fProv="", fDepto="", fDiv="", fTipo="", fNeg="", soloEtiquetados=false;
 // "Huerfano" = cliente activo cuyo vendedor ya no esta entre los que pueden entrar al
 // sistema. La lista la escribe el sincronizador; si todavia no existe, no se filtra
@@ -1332,7 +1340,7 @@ function pintarBarra(){
     }
   }
 }
-function elegir(v){ if(vista==="vend") selVend=v; else selCob=v; pintar(); }
+function elegir(v){ colsAbiertas.clear(); if(vista==="vend") selVend=v; else selCob=v; pintar(); }
 
 // Buscar sin redibujar en cada tecla. Con 1.170 clientes, volver a armar el tablero
 // entero letra por letra hace que el campo responda tarde. Se espera a que la persona
@@ -1601,7 +1609,7 @@ function negHtml(){
         <td>${esc(d.por||"")}</td><td>${dmy(d.fecha)}</td></tr>`).join("")}
     </table></div></div>`;
 }
-function verVend(v){ selVend=v; vista="vend"; marcarNav(); pintar(); window.scrollTo(0,0); }
+function verVend(v){ colsAbiertas.clear(); selVend=v; vista="vend"; marcarNav(); pintar(); window.scrollTo(0,0); }
 function kpis(l){ document.getElementById("kpis").innerHTML=l.map(([a,b])=>
   `<div class="kpi"><div class="l">${a}</div><div class="v">${b}</div></div>`).join(""); }
 
@@ -1742,9 +1750,19 @@ function tablaCobradores(){
         <td style="font-weight:700;color:var(--naranja)">${sinRuta.length}</td><td>—</td></tr>`:""}
     </table></div></div>`;
 }
-function verCob(c){ selCob=c; vista="cob"; marcarNav(); pintar(); window.scrollTo(0,0); }
+function verCob(c){ colsAbiertas.clear(); selCob=c; vista="cob"; marcarNav(); pintar(); window.scrollTo(0,0); }
 
 // ---------- Vista Vendedor / Cobrador ----------
+function abrirCol(k){ colsAbiertas.add(k); pintarKanban(); }
+function cerrarCol(k){ colsAbiertas.delete(k); pintarKanban(); }
+// El pie de una columna: el boton para abrirla entera o para volver al tope.
+function pieCol(k,total){
+  if(total<=TOPE_COL) return "";
+  return colsAbiertas.has(k)
+    ? `<button class="vermas" onclick="cerrarCol('${k}')">Mostrar solo los primeros ${TOPE_COL}</button>`
+    : `<button class="vermas" onclick="abrirCol('${k}')">Ver los ${total} · faltan ${total-TOPE_COL}</button>`;
+}
+
 function pintarKanban(){
   const quien = vista==="vend" ? (esVend()?sesion.usuario:selVend) : (esCob()?sesion.usuario:selCob);
   const tablaCob = vista==="cob" ? tablaCobradores() : "";
@@ -1789,14 +1807,16 @@ function pintarKanban(){
       <div class="col-h"><div class="t">Reasignado</div><div class="n">${reasig.length}</div>
         <div class="r">Te los pasaron</div></div>
       <div class="col-b">${reasig.sort((a,b)=>String(a.nombre).localeCompare(String(b.nombre)))
-        .slice(0,120).map(c=>tarjeta(c,quien)).join("")}
-      ${reasig.length>120?`<div class="vacio">y ${reasig.length-120} más</div>`:""}</div></div>` : "";
+        .slice(0,colsAbiertas.has("reasignado")?reasig.length:TOPE_COL)
+        .map(c=>tarjeta(c,quien)).join("")}
+      ${pieCol("reasignado",reasig.length)}</div></div>` : "";
   document.getElementById("cols").innerHTML = ETAPAS.map(([k,l,r])=>{
     const lista=por[k].sort((a,b)=>String(a.nombre).localeCompare(String(b.nombre)));
     return `<div class="col c-${k}">
       <div class="col-h"><div class="t">${l}</div><div class="n">${lista.length}</div><div class="r">${r}</div></div>
-      <div class="col-b">${lista.slice(0,120).map(c=>tarjeta(c,quien)).join("")||'<div class="vacio" style="padding:12px">—</div>'}
-      ${lista.length>120?`<div class="vacio">y ${lista.length-120} más</div>`:""}</div></div>`;
+      <div class="col-b">${lista.slice(0,colsAbiertas.has(k)?lista.length:TOPE_COL)
+        .map(c=>tarjeta(c,quien)).join("")||'<div class="vacio" style="padding:12px">—</div>'}
+      ${pieCol(k,lista.length)}</div></div>`;
   }).join("") + colReasig;
 }
 
