@@ -398,7 +398,7 @@ const db = firebase.firestore();
 // vendedores. Lo hecho sin conexion sincroniza al volver.
 db.enablePersistence({synchronizeTabs:true}).catch(()=>{});
 
-const VERSION="2026-11-05a";
+const VERSION="2026-11-21a";
 const DOMINIO="funnel.ibaceta.ar";
 // Las 10 mas comunes cubren el 88,9% de los clientes que hoy tienen rubro cargado. Van
 // a la vista. El resto de las conocidas queda detras de "Otro", para no perderlas pero
@@ -2810,18 +2810,13 @@ function guardarZona(){
 // cobrador la tarea de cargarlo en DEBO, que es quien tiene el acceso y el interes
 // (cobra por Mercado Pago y se comunica por WhatsApp).
 let datCod=null;
-function destinoDato(c){
-  const cobs=(c.cobradores||[]).filter(Boolean);
-  const real=cobs.find(x=>vendActivos ? vendActivos.has(x) : true);
-  return real || "SUP COBRANZA";
-}
 function abrirDatos(cod){
   const c=clientes.find(x=>String(x.codigo)===String(cod)); if(!c) return;
   datCod=String(cod);
   const t=telDe(c), d=dirDe(c);
   document.getElementById("d-cli").textContent=c.nombre+"  (#"+cod+")";
-  document.getElementById("d-dest").textContent="Le va a quedar como tarea a "+destinoDato(c)
-    +" para cargarlo en el ERP.";
+  document.getElementById("d-dest").textContent=
+    "Queda guardado acá y lo ve todo el que abra la ficha. No se carga en el ERP.";
   document.getElementById("d-tel").value=t.valor||"";
   document.getElementById("d-dir").value=d.valor||"";
   const w=waDe(c);
@@ -2886,23 +2881,10 @@ async function guardarDatos(){
   ref.update(fp,reg).catch(()=>{ const o={}; o[datCod]=reg;
     ref.set({datos:o},{merge:true}).catch(()=>{}); });
 
-  const detalle=[cambioTel?`Teléfono: ${c.telefono||"(vacío)"} → ${telNuevo}`:"",
-                 cambioDir?`Dirección: ${c.domicilio||"(vacío)"} → ${dirNueva}`:"",
-                 cambioWa?`WhatsApp: +549${waNuevo}`:"",
-                 cambioMail?`Correo: ${c.email||"(vacío)"} → ${mailNuevo}`:"",
-                 nota].filter(Boolean).join("\n");
-  try{
-    await db.collection("actividades").add({
-      cliente_cod:datCod, cliente_nombre:c.nombre, provincia:c.provincia||"",
-      asignado_a:destinoDato(c), asignado_tipo:"cobrador", historial_asignacion:[],
-      origen_tipo:sesion.rol, origen_usuario:sesion.usuario, origen_motivo:"correccion_datos",
-      titulo:"Cargar el dato corregido en el ERP",
-      tipo:"dato", fecha:hoyISO(), hora:null, observaciones:detalle,
-      estado:"pendiente", resultado:null, resultado_nota:"",
-      cerrada_en:null, cerrada_por:null,
-      creado_en:firebase.firestore.FieldValue.serverTimestamp(),
-      visto_en:null, actividad_origen_id:null });
-  }catch(e){}
+  // Acá se generaba la tarea "Cargar el dato corregido en el ERP". Se sacó el
+  // 21/11/2026: 323 creadas, 0 cerradas y ninguna abierta siquiera. Le caían al
+  // cobrador, y cargar en el ERP no es tarea suya. La corrección se guarda igual
+  // arriba, en _shared; lo que ya no existe es la tarjeta.
   cerrar("m-datos");
   pintar();
 }
