@@ -389,7 +389,7 @@ const db = firebase.firestore();
 // vendedores. Lo hecho sin conexion sincroniza al volver.
 db.enablePersistence({synchronizeTabs:true}).catch(()=>{});
 
-const VERSION="2026-11-21b";
+const VERSION="2026-11-24a";
 const DOMINIO="funnel.ibaceta.ar";
 // Las 10 mas comunes cubren el 88,9% de los clientes que hoy tienen rubro cargado. Van
 // a la vista. El resto de las conocidas queda detras de "Otro", para no perderlas pero
@@ -412,10 +412,25 @@ const TIPOS_AUTO=["rubro","refin"];
 // Que dice el boton de cada tarea automatica. Ninguna se cierra a mano: se cierran
 // cuando el hecho ocurre, asi que el boton lleva a donde hay que hacerlo.
 const BOTON_AUTO={rubro:"Marcar el rubro", refin:"Ver el saldo"};
-// El titulo es lo primero que lee el vendedor: dice QUE HAY QUE HACER. Las actividades
-// viejas no lo tienen cargado, asi que caen al nombre de la accion, que es exactamente
-// lo que se mostraba antes de que esto existiera.
-const tituloDe=a=>String(a&&a.titulo||"").trim() || TIPOS[a&&a.tipo] || (a&&a.tipo) || "Actividad";
+// La tarjeta muestra la ACCION y el ASUNTO, en ese orden: "WhatsApp · enviar CD y PP".
+// Antes era uno o el otro y el titulo tapaba la accion en 318 de las 399 pendientes, asi
+// que la tarjeta decia "Catalogo noviembre" y no se sabia si era para llamar, visitar o
+// mandar un mensaje (Direccion, 24/11/2026). En las tareas que genera el sistema el
+// titulo YA dice la accion ("Marcar el rubro del negocio"), asi que no se le antepone nada.
+const ACC_MANUAL=["llamada","visita","whatsapp","tarea"];
+const tituloDe=a=>{
+  const t=String(a&&a.titulo||"").trim();
+  const acc=TIPOS[a&&a.tipo] || (a&&a.tipo) || "Actividad";
+  if(!t) return acc;
+  return ACC_MANUAL.includes(a&&a.tipo) ? acc+" · "+t : t;
+};
+
+// Una tarea con 15 dias de atraso ya no es una tarea: es ruido que tapa lo que si hay
+// que hacer. Se cierran solas con resultado "vencida" y salen de la pantalla; quedan en
+// la historia para poder medir quien las deja pasar (Direccion, 24/11/2026).
+const DIAS_VENCE_ACT=15;
+const _menosDias=d=>{const x=new Date(); x.setDate(x.getDate()-d);
+  return x.getFullYear()+"-"+String(x.getMonth()+1).padStart(2,"0")+"-"+String(x.getDate()).padStart(2,"0");};
 // Una correccion de datos no se cierra con "contactado": se cierra diciendo si se
 // cargo en el ERP o si el dato no servia.
 const RES_DATO=[["cargado_erp","Lo cargué en el ERP",false],
@@ -687,7 +702,8 @@ function escuchar(){
   }
   let qa=db.collection("actividades");
   if(esVend()) qa=qa.where("asignado_a","==",sesion.usuario);
-  desus.push(qa.onSnapshot(s=>{actividades=s.docs.map(d=>({id:d.id,...d.data()}));pintar();},()=>{}));
+  desus.push(qa.onSnapshot(s=>{actividades=s.docs.map(d=>({id:d.id,...d.data()}));
+    cerrarActividadesVencidas(); pintar();},()=>{}));
 
   db.collection("config").doc("vendedores_activos").get()
     .then(d=>{ if(d.exists){ vendActivos=new Set(d.data().usuarios||[]);
@@ -1848,6 +1864,26 @@ function tarjeta(c,quien){
   </div>`;
 }
 
+// Se corre una sola vez por sesion, cuando llegan las actividades. Cierra las que
+// llevan mas de DIAS_VENCE_ACT vencidas entre las que ESTA SESION puede ver: un vendedor
+// limpia las suyas, un supervisor las de su zona. Tope de 200 por vez para no disparar
+// una tormenta de escrituras la primera vez.
+let _limpioAct=false;
+function cerrarActividadesVencidas(){
+  if(_limpioAct || !sesion || !actividades.length) return;
+  _limpioAct=true;
+  const corte=_menosDias(DIAS_VENCE_ACT);
+  const viejas=actividades.filter(a=>a.estado==="pendiente" && (a.fecha||"9999")<corte).slice(0,200);
+  if(!viejas.length) return;
+  const hoy=hoyISO();
+  viejas.forEach(a=>{
+    a.estado="hecha"; a.resultado="vencida";          // para que la pantalla no espere al servidor
+    db.collection("actividades").doc(a.id).update({
+      estado:"hecha", resultado:"vencida", resultado_nota:"",
+      cerrada_en:hoy, cerrada_por:"automatico"}).catch(()=>{});
+  });
+}
+
 function pintarPanelActividades(quien,src){
   // Las actividades SIEMPRE quedan a cargo de un vendedor: es el que visita al cliente.
   // Por eso el cobrador no "recibe" actividades, las ORIGINA -- avisa que un cliente de
@@ -1874,7 +1910,10 @@ function pintarPanelActividades(quien,src){
     <div class="act-tit">${esc(tituloDe(a))}</div>
     <b style="flex:1;min-width:130px">${esc(a.cliente_nombre)}</b>
     <span class="chip">${dmy(a.fecha)}${a.hora?" "+esc(a.hora):""}</span>
-    <span style="color:var(--gris);font-size:.72rem">${esVistaCob?"para "+esc(a.asignado_a||"—"):"de "+esc(a.origen_usuario)}</span>
+    <span style="color:var(--gris);font-size:.72rem">${esVistaCob ? "para "+esc(a.asignado_a||"—")
+      : (a.origen_motivo || TIPOS_AUTO.includes(a.tipo) ? "del sistema"
+         : a.origen_usuario===a.asignado_a ? "propia"
+         : "la pidió "+esc(a.origen_usuario))}</span>
     ${a.observaciones?`<div style="flex-basis:100%;color:#555;font-size:.77rem">${esc(a.observaciones)}</div>`:""}
     ${TIPOS_AUTO.includes(a.tipo)
         ? `<button class="b auto full" onclick="ficha('${esc(a.cliente_cod)}')">${
@@ -1885,8 +1924,8 @@ function pintarPanelActividades(quien,src){
     arr.sort((a,b)=>(a.fecha||"").localeCompare(b.fecha||"")).map(fila).join(""):"";
   document.getElementById("panel").innerHTML=`<div class="panel">
     <h3>${quien===sesion.usuario?"Mis pendientes":"Pendientes de "+esc(quien)} (${P.length})</h3>
-    ${P.length?`<div class="sin-ayuda">Lo que tenés que hacer, con fecha. Se van
-        cuando las cerrás.</div>`:""}
+    ${P.length?`<div class="sin-ayuda">Lo que tenés que hacer, con fecha. Se van cuando
+        las cerrás, y solas a los ${DIAS_VENCE_ACT} días de vencidas.</div>`:""}
     ${bloque("Vencidas",venc)}${bloque("Hoy",hoyl)}${bloque("Próximas",fut)}
     ${P.length?"":`<div class="vacio">No tenés nada pendiente.</div>`}
     ${mandados.length?`<div class="titulo">${quien===sesion.usuario?"Avisos que mandé a los vendedores"
