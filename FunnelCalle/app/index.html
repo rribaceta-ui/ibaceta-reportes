@@ -152,9 +152,6 @@ nav .pin{display:inline-block;min-width:17px;padding:0 5px;margin-left:4px;backg
 .verif span{flex:1 1 100%}
 .verif .b{padding:3px 8px;font-size:.7rem}
 .wa-botones{display:flex;flex-wrap:wrap;gap:7px;margin-top:6px}
-/* "Nadie los tiene agendados" NO son pendientes: se ve gris y apagado, sin el color
-   de vencida/hoy/proxima, para que a simple vista no se confunda con una tarea. */
-.act.sinact{border-left:3px solid #c3c9d1;background:#fafbfc}
 .sin-ayuda{font-size:.77rem;color:var(--gris);margin:-2px 0 8px;line-height:1.4}
 .sin-ayuda b{color:var(--azul)}
 /* El titulo de la actividad: lo primero que se lee, en toda la fila */
@@ -397,7 +394,7 @@ const db = firebase.firestore();
 // vendedores. Lo hecho sin conexion sincroniza al volver.
 db.enablePersistence({synchronizeTabs:true}).catch(()=>{});
 
-const VERSION="2026-11-26a";
+const VERSION="2026-11-26b";
 const DOMINIO="funnel.ibaceta.ar";
 // Las 10 mas comunes cubren el 88,9% de los clientes que hoy tienen rubro cargado. Van
 // a la vista. El resto de las conocidas queda detras de "Otro", para no perderlas pero
@@ -1837,7 +1834,7 @@ function pintarKanban(){
         ["Cuota total/sem",plata(opsA.reduce((s,o)=>s+(o.cuota_semanal||0),0))]]);
   src = aplicarKpi(src);
 
-  pintarPanelActividades(quien,src);
+  pintarPanelActividades(quien);
   document.getElementById("tabla").innerHTML=tablaCob;
 
   const esVista = vista==="vend";
@@ -1931,7 +1928,13 @@ function cerrarActividadesVencidas(){
   });
 }
 
-function pintarPanelActividades(quien,src){
+// SACADA el 26/11/2026 la lista "Nadie los tiene agendados": repetia lo que ya dice la
+// tarjeta del kanban -- el cartel "Sin actividad programada" y el boton "Asignar
+// actividad" estan ahi, en el cliente, con su plan y su telefono a la vista. La lista
+// mostraba 15 nombres sueltos de 63, sin orden, y empujaba el tablero media pantalla
+// para abajo. El numero por vendedor sigue en la columna "Sin agendar" de la tabla de
+// la Vista Supervisor, que es donde sirve: para ver quien no esta agendando.
+function pintarPanelActividades(quien){
   // Las actividades SIEMPRE quedan a cargo de un vendedor: es el que visita al cliente.
   // Por eso el cobrador no "recibe" actividades, las ORIGINA -- avisa que un cliente de
   // su ruta necesita algo. En su vista lo que sirve es ver lo que mando y si el vendedor
@@ -1946,13 +1949,6 @@ function pintarPanelActividades(quien,src){
     : [];
   const h=hoyISO();
   const venc=P.filter(a=>(a.fecha||"")<h),hoyl=P.filter(a=>(a.fecha||"")===h),fut=P.filter(a=>(a.fecha||"")>h);
-  // "Sin actividad" es sin NINGUNA actividad pendiente, la haya pedido quien la haya
-  // pedido. Mirando solo las de esta persona, un cliente que el vendedor ya tenia
-  // agendado volvia a aparecer como si nadie lo estuviera trabajando.
-  const conAct=new Set(actividades.filter(a=>a.estado==="pendiente")
-                                  .map(a=>String(a.cliente_cod)));
-  const sin=src.filter(c=>c.estado==="activo"&&!conAct.has(String(c.codigo)));
-  if(!P.length&&!mandados.length&&!sin.length){ document.getElementById("panel").innerHTML=""; return; }
   const fila=a=>`<div class="act ${(a.fecha||"")<h?"venc":(a.fecha||"")===h?"hoy":"prox"}">
     <div class="act-tit">${esc(tituloDe(a))}</div>
     <b style="flex:1;min-width:130px">${esc(a.cliente_nombre)}</b>
@@ -1974,23 +1970,12 @@ function pintarPanelActividades(quien,src){
     ${P.length?`<div class="sin-ayuda">Lo que tenés que hacer, con fecha. Se van cuando
         las cerrás, y solas a los ${DIAS_VENCE_ACT} días de vencidas.</div>`:""}
     ${bloque("Vencidas",venc)}${bloque("Hoy",hoyl)}${bloque("Próximas",fut)}
-    ${P.length?"":`<div class="vacio">No tenés nada pendiente.</div>`}
+    ${P.length?"":`<div class="vacio">${quien===sesion.usuario?"No tenés":"No tiene"} nada pendiente.</div>`}
     ${mandados.length?`<div class="titulo">${quien===sesion.usuario?"Avisos que mandé a los vendedores"
         :"Avisos que mandó "+esc(quien)} (${mandados.length})</div>
       <div style="font-size:.77rem;color:var(--gris);margin-bottom:7px">
         Pedidos abiertos: el cliente necesita algo y el vendedor todavía no lo cerró.</div>
       ${mandados.sort((a,b)=>(a.fecha||"").localeCompare(b.fecha||"")).map(fila).join("")}`:""}
-    ${sin.length?`<div class="titulo">Nadie los tiene agendados (${sin.length})</div>
-      <div class="sin-ayuda"><b>Esto no son tareas tuyas.</b> Son clientes activos a los que
-        nadie les puso fecha de contacto: ni vos ni cobranza. Si hay que ver a alguno,
-        abr&iacute; su ficha y agendalo ah&iacute;.</div>
-      ${sin.slice(0,15).map(c=>`<div class="act sinact">
-        <b style="flex:1;min-width:130px">${esc(c.nombre)}</b>
-        ${c.telefono?`<span>${tel(c.telefono)}</span>`:`<span style="color:var(--rojo);font-size:.73rem">sin teléfono</span>`}
-        <span style="color:var(--gris);font-size:.74rem">${esc(c.localidad||"")}</span>
-        <button class="b auto full" onclick="ficha('${esc(c.codigo)}')">Ver ficha</button>
-      </div>`).join("")}
-      ${sin.length>15?`<div class="vacio">y ${sin.length-15} más. Están todos en las columnas de abajo.</div>`:""}`:""}
   </div>`;
 }
 
