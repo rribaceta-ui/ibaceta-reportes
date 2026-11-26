@@ -152,6 +152,10 @@ nav .pin{display:inline-block;min-width:17px;padding:0 5px;margin-left:4px;backg
 .verif span{flex:1 1 100%}
 .verif .b{padding:3px 8px;font-size:.7rem}
 .wa-botones{display:flex;flex-wrap:wrap;gap:7px;margin-top:6px}
+.vercomo{font-size:.78rem;background:#fdf0e3;border-left:4px solid var(--naranja);
+         border-radius:6px;padding:7px 10px;margin:0 0 9px;color:#8a4b12}
+.vercomo b{color:#6d3a0b}
+.vercomo-b{float:right;font-size:.71rem;padding:3px 9px;margin-top:-2px}
 .sin-ayuda{font-size:.77rem;color:var(--gris);margin:-2px 0 8px;line-height:1.4}
 .sin-ayuda b{color:var(--azul)}
 /* El titulo de la actividad: lo primero que se lee, en toda la fila */
@@ -401,7 +405,7 @@ const db = firebase.firestore();
 // vendedores. Lo hecho sin conexion sincroniza al volver.
 db.enablePersistence({synchronizeTabs:true}).catch(()=>{});
 
-const VERSION="2026-11-26c";
+const VERSION="2026-11-26d";
 const DOMINIO="funnel.ibaceta.ar";
 // Las 10 mas comunes cubren el 88,9% de los clientes que hoy tienen rubro cargado. Van
 // a la vista. El resto de las conocidas queda detras de "Otro", para no perderlas pero
@@ -535,6 +539,8 @@ function _fusionarClientes(){
   }
 }
 let vista="sup", selVend="", selCob="", busca="";
+// Modo "ver como el vendedor": solo lo prende quien mira la pantalla de otro.
+let verComo=false;
 // Cuantas tarjetas dibuja cada columna antes de ofrecer el resto. El tope es por
 // velocidad: hay carteras de 720 clientes y dibujarlas enteras traba el telefono en
 // cada repintado. Lo que faltaba era la salida: el sobrante se avisaba con un texto
@@ -1378,7 +1384,8 @@ function pintarBarra(){
     }
   }
 }
-function elegir(v){ colsAbiertas.clear(); if(vista==="vend") selVend=v; else selCob=v; pintar(); }
+function elegir(v){ colsAbiertas.clear(); verComo=false;
+  if(vista==="vend") selVend=v; else selCob=v; pintar(); }
 
 // Buscar sin redibujar en cada tecla. Con 1.170 clientes, volver a armar el tablero
 // entero letra por letra hace que el campo responda tarde. Se espera a que la persona
@@ -1654,7 +1661,7 @@ function negHtml(){
         <td>${esc(d.por||"")}</td><td>${dmy(d.fecha)}</td></tr>`).join("")}
     </table></div></div>`;
 }
-function verVend(v){ colsAbiertas.clear(); fKpi=null; selVend=v; vista="vend"; marcarNav(); pintar(); window.scrollTo(0,0); }
+function verVend(v){ colsAbiertas.clear(); fKpi=null; verComo=false; selVend=v; vista="vend"; marcarNav(); pintar(); window.scrollTo(0,0); }
 // Cada tarjeta puede llevar una tercera cosa: la clave del filtro. Sin clave es un
 // numero y nada mas -- "Operaciones activas" y "Cuota total/sem" no filtran porque
 // filtrarian exactamente lo mismo que "Clientes activos" (una operacion activa sin
@@ -1976,6 +1983,18 @@ function pintarPanelActividades(quien){
   // Por eso el cobrador no "recibe" actividades, las ORIGINA -- avisa que un cliente de
   // su ruta necesita algo. En su vista lo que sirve es ver lo que mando y si el vendedor
   // lo resolvio; listar lo que tiene asignado daba siempre cero y no se entendia nada.
+  // ── Ver como el vendedor (Direccion, 26/11/2026) ─────────────────────────
+  // Para rediseñar esta pantalla y para enseñarsela hay que VERLA como la ve el
+  // vendedor, con sus botones. Entrar con su usuario tambien sirve, pero deja todo
+  // lo que uno toca a nombre de el, y eso arruina la unica medicion que tenemos de
+  // quien usa la app de verdad. Aca la pantalla se pinta igual que la de el, y lo
+  // que se cierra queda a nombre del que lo cerro (campo `cerrada_en_nombre_de`).
+  // Restringido A PROPOSITO a los que miran la pantalla de otro: el vendedor y el
+  // cobrador nunca eligen a otra persona, asi que el boton no existe en su sesion.
+  const puedeVerComo = conduce() && vista==="vend" && quien && quien!==sesion.usuario;
+  const comoEl = !!(puedeVerComo && verComo);
+  const enPrimera = (quien===sesion.usuario) || comoEl;   // tuteo o tercera persona
+
   const esVistaCob = vista==="cob";
   // Hasta ahora el cobrador solo ORIGINABA actividades. Con las correcciones de datos
   // tambien recibe: la tarea de cargarlas en el ERP queda a su nombre. Por eso en su
@@ -1998,16 +2017,23 @@ function pintarPanelActividades(quien){
     ${TIPOS_AUTO.includes(a.tipo)
         ? `<button class="b auto full" onclick="ficha('${esc(a.cliente_cod)}')">${
              BOTON_AUTO[a.tipo]||"Ver la ficha"}</button>`
-        : (a.asignado_a===sesion.usuario?`<button class="b auto full" onclick="abrirCierre('${a.id}')">Hecha</button>`:"")}
+        : ((a.asignado_a===sesion.usuario||comoEl)
+             ? `<button class="b auto full" onclick="abrirCierre('${a.id}',${comoEl})">Hecha</button>`:"")}
     <button class="b auto" onclick="ficha('${esc(a.cliente_cod)}')">Ficha</button></div>`;
   const bloque=(t,arr)=>arr.length?`<div class="titulo">${t} (${arr.length})</div>`+
     arr.sort((a,b)=>(a.fecha||"").localeCompare(b.fecha||"")).map(fila).join(""):"";
   document.getElementById("panel").innerHTML=`<div class="panel">
-    <h3>${quien===sesion.usuario?"Mis pendientes":"Pendientes de "+esc(quien)} (${P.length})</h3>
-    ${P.length?`<div class="sin-ayuda">Lo que tenés que hacer, con fecha. Se van cuando
-        las cerrás, y solas a los ${DIAS_VENCE_ACT} días de vencidas.</div>`:""}
+    ${comoEl?`<div class="vercomo">Estás viendo la app <b>como ${esc(quien)}</b>, igual que
+        la ve él en su teléfono. Lo que cierres acá <b>es real</b>: le desaparece de la
+        pantalla y queda registrado <b>a tu nombre</b>, no al de él.</div>`:""}
+    <h3>${enPrimera?"Mis pendientes":"Pendientes de "+esc(quien)} (${P.length})${
+      puedeVerComo?`<button class="b auto vercomo-b" onclick="alternarVerComo()">${
+        comoEl?"Salir":"Ver como "+esc(quien)}</button>`:""}</h3>
+    ${P.length?`<div class="sin-ayuda">Lo que ${enPrimera?"tenés":"tiene"} que hacer, con fecha.
+        Se van cuando ${enPrimera?"las cerrás":"las cierra"}, y solas a los
+        ${DIAS_VENCE_ACT} días de vencidas.</div>`:""}
     ${bloque("Vencidas",venc)}${bloque("Hoy",hoyl)}${bloque("Próximas",fut)}
-    ${P.length?"":`<div class="vacio">${quien===sesion.usuario?"No tenés":"No tiene"} nada pendiente.</div>`}
+    ${P.length?"":`<div class="vacio">${enPrimera?"No tenés":"No tiene"} nada pendiente.</div>`}
     ${mandados.length?`<div class="titulo">${quien===sesion.usuario?"Avisos que mandé a los vendedores"
         :"Avisos que mandó "+esc(quien)} (${mandados.length})</div>
       <div style="font-size:.77rem;color:var(--gris);margin-bottom:7px">
@@ -2904,6 +2930,9 @@ async function guardarDatos(){
 
 // ---------- actividades ----------
 let actCod=null, actId=null;
+// A nombre de quien se esta cerrando, cuando se cierra desde el modo "ver como".
+let actComo=null;
+function alternarVerComo(){ verComo=!verComo; pintar(); window.scrollTo(0,0); }
 function abrirAct(cod){ if(prepararAct(cod)) abrir("m-act"); }
 function prepararAct(cod){
   const c=clientes.find(x=>String(x.codigo)===String(cod)); if(!c) return false;
@@ -2944,9 +2973,11 @@ async function guardarAct(){
   cerrar("m-act");
   pintarActFicha();
 }
-function abrirCierre(id){
+function abrirCierre(id,como){
   const a=actividades.find(x=>x.id===id); if(!a) return; actId=id;
-  document.getElementById("c-cli").textContent=a.cliente_nombre;
+  actComo = (como && a.asignado_a && a.asignado_a!==sesion.usuario) ? a.asignado_a : null;
+  document.getElementById("c-cli").textContent =
+    a.cliente_nombre + (actComo ? "   ·   tarea de " + actComo : "");
   const lista = a.tipo==="dato" ? RES_DATO : RESULTADOS;
   document.getElementById("c-res").innerHTML='<option value="">¿Qué pasó?</option>'+
     lista.map(([k,l])=>`<option value="${k}">${l}</option>`).join("");
@@ -2956,9 +2987,18 @@ async function guardarCierre(){
   const r=document.getElementById("c-res").value;
   if(!r){ alert("Elegí qué pasó."); return; }
   const a=actividades.find(x=>x.id===actId);
-  try{ await db.collection("actividades").doc(actId).update({estado:"hecha",resultado:r,
+  // Cerrarle una tarea a otro es real y no se puede deshacer desde la app: se pregunta
+  // una vez, con el nombre adelante, porque este modo se usa justo para mostrar como
+  // funciona y es facil cerrar de verdad creyendo que es una demostracion.
+  if(actComo && !confirm("La tarea es de " + actComo + " y es real: al cerrarla se le va de la pantalla, y queda registrada a tu nombre y no al de él. ¿La cerramos igual?")) return;
+  // `cerrada_por` dice SIEMPRE quien apreto el boton; `cerrada_en_nombre_de` dice de
+  // quien era la tarea. Si se guardara el vendedor en `cerrada_por`, el unico dato
+  // que tenemos de quien usa la app pasaria a contar trabajo que el no hizo.
+  const _campos={estado:"hecha",resultado:r,
     resultado_nota:document.getElementById("c-nota").value||"",
-    cerrada_en:firebase.firestore.FieldValue.serverTimestamp(),cerrada_por:sesion.usuario});
+    cerrada_en:firebase.firestore.FieldValue.serverTimestamp(),cerrada_por:sesion.usuario};
+  if(actComo) _campos.cerrada_en_nombre_de=actComo;
+  try{ await db.collection("actividades").doc(actId).update(_campos);
     contar("act_cerrada"); }catch(e){}
   // Si el circuito sigue abierto se pide la proxima ahi mismo: si no se fuerza en este
   // momento, no se agenda nunca. Se reemplaza la ventana en vez de cerrar y abrir, para
