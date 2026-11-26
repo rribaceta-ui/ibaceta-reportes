@@ -133,6 +133,10 @@ nav .pin{display:inline-block;min-width:17px;padding:0 5px;margin-left:4px;backg
 .c-por_cerrar .col-h{background:var(--naranja)}.c-cierre_inminente .col-h{background:var(--rojo)}
 .c-reasignado .col-h{background:#27ae60}
 .c-refinanciar .col-h{background:var(--violeta)}.c-finalizado .col-h{background:#8d96a3}
+/* Prospeccion: del que recien se fue (naranja fuerte) al que hace un año (gris). */
+.c-f1 .col-h{background:#C0392B}.c-f2 .col-h{background:var(--naranja)}
+.c-f3 .col-h{background:#b98b4a}.c-f4 .col-h{background:#7f8c8d}
+.c-viejos .col-h{background:#aab2bb}
 
 .tar{background:#fff;border:1px solid var(--borde);border-radius:8px;padding:10px;margin-bottom:8px}
 .tar .nom{font-weight:700;font-size:.87rem;line-height:1.25;color:var(--azul)}
@@ -405,7 +409,7 @@ const db = firebase.firestore();
 // vendedores. Lo hecho sin conexion sincroniza al volver.
 db.enablePersistence({synchronizeTabs:true}).catch(()=>{});
 
-const VERSION="2026-11-26d";
+const VERSION="2026-11-26f";
 const DOMINIO="funnel.ibaceta.ar";
 // Las 10 mas comunes cubren el 88,9% de los clientes que hoy tienen rubro cargado. Van
 // a la vista. El resto de las conocidas queda detras de "Otro", para no perderlas pero
@@ -548,6 +552,8 @@ let verComo=false;
 const TOPE_COL=120;
 let colsAbiertas=new Set();
 let fProv="", fDepto="", fDiv="", fTipo="", fNeg="", soloEtiquetados=false;
+// Filtro por tamaño del cliente: la cuota semanal mas alta que llego a pagar.
+let fCuota="";
 // "Huerfano" = cliente activo cuyo vendedor ya no esta entre los que pueden entrar al
 // sistema. La lista la escribe el sincronizador; si todavia no existe, no se filtra
 // nada en vez de inventar un criterio.
@@ -1334,6 +1340,18 @@ function pintarBarra(){
        negs.map(v=>`<option value="${esc(v)}" ${v===fNeg?"selected":""}>${esc(v)}</option>`).join("")+
        `<option value="__sin" ${fNeg==="__sin"?"selected":""}>Sin definir (${sinNeg})</option></select>`;
   }
+  // Tamaño del cliente. Solo aparece cuando el dato existe: `cuota_max` lo agrega el
+  // sincronizador, asi que hasta la primera corrida nocturna el desplegable no se dibuja
+  // en vez de mostrar un filtro que no filtra nada.
+  if(base.some(c=>cuotaMaxDe(c)>0)){
+    const cuenta=k=>{ const tr=TRAMOS_CUOTA.find(x=>x[0]===k);
+      return base.filter(c=>{ const v=cuotaMaxDe(c); return v>tr[2]&&v<=tr[3]; }).length; };
+    h+=`<select class="${fCuota?"act":""}" onchange="fCuota=this.value;pintar()" `
+      +`title="La cuota semanal más alta que llegó a pagar">`
+      +`<option value="">Todo tamaño de cliente</option>`
+      +TRAMOS_CUOTA.map(([k,l])=>`<option value="${k}" ${k===fCuota?"selected":""}>`
+         +`${l} (${cuenta(k)})</option>`).join("")+`</select>`;
+  }
   const tipos=[...new Set(base.flatMap(c=>(c.operaciones||[]).map(o=>o.tipo)).filter(Boolean))].sort();
   if(tipos.length>1){
     h+=`<select class="${fTipo?"act":""}" onchange="fTipo=this.value;pintar()"><option value="">Todas las operaciones</option>`+
@@ -1357,7 +1375,7 @@ function pintarBarra(){
                onchange="soloEtiquetados=this.checked;pintar()" style="width:auto"> Solo etiquetados</label>`;
   // Con cinco filtros es facil dejar uno puesto y no entender por que faltan clientes.
   const etqCambiadas = TAGS.some(([k])=>tagsVisibles.has(k)!==(k==="refinanciada"));
-  if(fDiv||fProv||fDepto||fTipo||fNeg||soloEtiquetados||busca||etqCambiadas){
+  if(fDiv||fProv||fDepto||fTipo||fNeg||fCuota||soloEtiquetados||busca||etqCambiadas){
     h+=`<button class="limpiar" onclick="limpiarFiltros()">Quitar filtros</button>`;
   }
   const nEmp=clientes.filter(esEmpleado).length;
@@ -1397,7 +1415,7 @@ function buscar(v){
   _tBusca=setTimeout(()=>pintar(), 200);
 }
 function limpiarFiltros(){
-  fDiv=fProv=fDepto=fTipo=fNeg=busca=""; soloEtiquetados=false;
+  fDiv=fProv=fDepto=fTipo=fNeg=fCuota=busca=""; soloEtiquetados=false;
   tagsVisibles=new Set(["refinanciada"]); pintar();
 }
 function verEtiqueta(k, si){
@@ -1416,6 +1434,9 @@ function filtrar(l){
   if(fTipo)  l=l.filter(c=>(c.operaciones||[]).some(o=>o.tipo===fTipo));
   if(fNeg)   l=l.filter(c=>{ const v=negDe(c).valor;
                              return fNeg==="__sin" ? !v.length : v.includes(fNeg); });
+  if(fCuota){ const tr=TRAMOS_CUOTA.find(x=>x[0]===fCuota);
+              if(tr) l=l.filter(c=>{ const v=cuotaMaxDe(c);
+                                     return v>tr[2] && v<=tr[3]; }); }
   if(soloEtiquetados) l=l.filter(c=>!!tagDe(c.codigo));
   // Un cliente etiquetado se ve si su etiqueta esta tildada. Si no lo esta, igual se ve
   // cuando TIENE OPERACIONES ACTIVAS: alguien le esta cobrando, esconderlo seria peor
@@ -1666,17 +1687,64 @@ function verVend(v){ colsAbiertas.clear(); fKpi=null; verComo=false; selVend=v; 
 // numero y nada mas -- "Operaciones activas" y "Cuota total/sem" no filtran porque
 // filtrarian exactamente lo mismo que "Clientes activos" (una operacion activa sin
 // cliente activo no existe), y dos botones que hacen lo mismo ensucian mas que ayudar.
+// ── Prospeccion: los finalizados, ordenados por hace cuanto se fueron ──────
+// Idea de Direccion (26/11/2026). La medicion mando el corte: con "mas de 12
+// semanas" como ultima columna caian 8.044 de 8.551 clientes (94%) en una sola
+// pila, porque la MEDIANA de los finalizados termino hace 174 semanas -- tres
+// años y medio. Pasadas las 12 semanas el tiempo deja de distinguir nada.
+// Se corta al año y lo mas viejo no se lista: son 5.510 y taparian el resto.
+const COL_FIN=[["f1","Recién se fue","hasta 4 semanas",0,4],
+               ["f2","Hace 1 a 2 meses","4 a 8 semanas",4,8],
+               ["f3","Hace 2 a 3 meses","8 a 12 semanas",8,12],
+               ["f4","Hasta un año","3 a 12 meses",12,52]];
+// Un cliente finalizado viaja SIN operaciones (solo las activas van al cliente),
+// asi que la fecha sale de `resumen_fin.ultima_fin`, que ya viene en el documento.
+const SEM_FIN=c=>{
+  const f=(c.resumen_fin||{}).ultima_fin; if(!f) return null;
+  const p=String(f).split("/"); if(p.length!==3) return null;
+  const d=new Date(+p[2],+p[1]-1,+p[0]);
+  return isNaN(d.getTime()) ? null : (Date.now()-d.getTime())/604800000;
+};
+// Hay 20 clientes sin plan en curso cuya ultima fecha de fin cae en el FUTURO (el
+// estado y `es_activa` no siempre coinciden). Sin esta linea caian en "mas de un año"
+// y quedaban escondidos justo los de contacto mas fresco: se los trata como recien
+// terminados.
+const COL_FIN_DE=c=>{ let s=SEM_FIN(c); if(s===null) return null; if(s<0) s=0;
+  const f=COL_FIN.find(([,,,lo,hi])=>s>=lo&&s<=hi); return f?f[0]:"viejos"; };
+
+// Tramos de cuota. Son los CUARTILES medidos sobre los finalizados del ultimo año
+// (26% / 23% / 27% / 24%), no numeros elegidos a ojo: asi los cuatro tramos traen
+// una cantidad parecida de gente y ninguno queda vacio.
+// `cuota_max` son pesos nominales de cuando pago. Entre el que termino hace un mes y
+// el que termino hace un año hay ~30% de inflacion de por medio, asi que el viejo se
+// ve mas chico de lo que fue. Sirve para ordenar por tamaño, no para comparar plata.
+const TRAMOS_CUOTA=[["c1","Hasta $60.000",0,60000],
+                    ["c2","$60.000 a $100.000",60000,100000],
+                    ["c3","$100.000 a $175.000",100000,175000],
+                    ["c4","Más de $175.000",175000,Infinity]];
+const cuotaMaxDe=c=>{
+  const v=(c.resumen_fin||{}).cuota_max;
+  if(v) return v;
+  // El que todavia tiene plan no necesita el campo: se le mira lo que paga hoy.
+  return (c.operaciones||[]).reduce((m,o)=>Math.max(m,o.cuota_semanal||0),0);
+};
+
 const KPI_NOTA={
   activos:"los clientes con un plan en curso",
   cierre :"los clientes con un plan entre el 90% y el 100%: son los de renovar ahora",
   fin    :"los clientes sin ningún plan en curso, deban o no deban"};
+// Con "Finalizados" las columnas cambian de significado, y eso hay que decirlo: si no,
+// el que mira cree que el tablero se rompio.
+const KPI_NOTA2={fin:"Abajo no están por etapa del plan (no tienen ninguno) sino por "
+  +"<b>hace cuánto se fueron</b>: cuanto más a la izquierda, más fresco el contacto."};
 function kpis(l){
   document.getElementById("kpis").innerHTML=
     `<div class="kpis">`+l.map(([a,b,k])=>
       `<div class="kpi${k?" f":""}${k&&fKpi===k?" on":""}"${k?` onclick="filtrarKpi('${k}')"`:""}>`
       +`<div class="l">${a}</div><div class="v">${b}</div></div>`).join("")+`</div>`
     +(fKpi?`<div class="kfiltro">Abajo estás viendo <b>solo ${KPI_NOTA[fKpi]||""}</b>.
-        Tocá la tarjeta de nuevo para ver todo.</div>`:"");
+        Tocá la tarjeta de nuevo para ver todo.${
+        KPI_NOTA2[fKpi]?"<br>"+KPI_NOTA2[fKpi]:""}</div>`:"");
 }
 
 // ---------- Filtro por tarjeta de arriba ----------
@@ -1884,9 +1952,14 @@ function pintarKanban(){
   const esVista = vista==="vend";
   const reasig = esVista ? src.filter(c=>esReasignado(c,quien)) : [];
   const codsR = new Set(reasig.map(c=>String(c.codigo)));
-  const por={}; ETAPAS.forEach(([k])=>por[k]=[]);
+  // Con el filtro de "Finalizados sin renovar" las columnas dejan de ser las
+  // etapas del plan (no tienen ninguno) y pasan a ser hace cuanto se fueron.
+  const modoFin = fKpi==="fin";
+  const COLS = modoFin ? COL_FIN.map(([k,l,r])=>[k,l,r]) : ETAPAS;
+  const por={}; COLS.forEach(([k])=>por[k]=[]); por.viejos=[];
   src.forEach(c=>{ if(codsR.has(String(c.codigo))) return;
-                   const e=etapaDe(c); (por[e]||por.finalizado).push(c); });
+    if(modoFin){ const k=COL_FIN_DE(c); if(k) (por[k]||por.viejos).push(c); return; }
+    const e=etapaDe(c); (por[e]||por.finalizado).push(c); });
   const colReasig = reasig.length ? `<div class="col c-reasignado">
       <div class="col-h"><div class="t">Reasignado</div><div class="n">${reasig.length}</div>
         <div class="r">Te los pasaron</div></div>
@@ -1894,14 +1967,23 @@ function pintarKanban(){
         .slice(0,colsAbiertas.has("reasignado")?reasig.length:TOPE_COL)
         .map(c=>tarjeta(c,quien)).join("")}
       ${pieCol("reasignado",reasig.length)}</div></div>` : "";
-  document.getElementById("cols").innerHTML = ETAPAS.map(([k,l,r])=>{
+  // Los de mas de un año no se listan, pero SE DICE cuantos son: una pantalla a la
+  // que le faltan clientes sin avisar se lee como un error del sistema.
+  const colViejos = (modoFin && por.viejos.length) ? `<div class="col c-viejos">
+      <div class="col-h"><div class="t">Más de un año</div><div class="n">${por.viejos.length}</div>
+        <div class="r">no se listan</div></div>
+      <div class="col-b"><div class="vacio" style="padding:12px;font-size:.78rem;line-height:1.45">
+        Terminaron hace más de un año. No se muestran acá para que las columnas de la
+        izquierda se puedan trabajar: son ${por.viejos.length} y taparían al resto.
+        <br><br>Se encuentran por el buscador, por nombre.</div></div></div>` : "";
+  document.getElementById("cols").innerHTML = COLS.map(([k,l,r])=>{
     const lista=por[k].sort((a,b)=>String(a.nombre).localeCompare(String(b.nombre)));
     return `<div class="col c-${k}">
       <div class="col-h"><div class="t">${l}</div><div class="n">${lista.length}</div><div class="r">${r}</div></div>
       <div class="col-b">${lista.slice(0,colsAbiertas.has(k)?lista.length:TOPE_COL)
         .map(c=>tarjeta(c,quien)).join("")||'<div class="vacio" style="padding:12px">—</div>'}
       ${pieCol(k,lista.length)}</div></div>`;
-  }).join("") + colReasig;
+  }).join("") + colViejos + colReasig;
 }
 
 function tarjeta(c,quien){
