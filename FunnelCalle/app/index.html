@@ -206,6 +206,13 @@ a.tel{color:var(--azul);text-decoration:none;font-weight:600}
 .av-nota{font-size:.72rem;color:#6b7684;line-height:1.5;margin:6px 0 0}
 .av-ok{background:#e7f3ec;border-color:#bcdcc8}
 .av-vacio{color:#6b7684;font-size:.84rem;padding:14px 2px}
+/* La barra de filtros general no se dibuja en esta pantalla, asi que la division se
+   elige aca. Es la MISMA variable (fDiv): si alguien filtro Mendoza Calle en el
+   tablero, esta pantalla tiene que mostrar Mendoza Calle y no la cartera entera. */
+.av-zonas{display:flex;gap:6px;flex-wrap:wrap;margin:0 0 12px}
+.av-z{padding:6px 12px;border:1.5px solid #cfd6de;border-radius:999px;background:#fff;
+      font-size:.78rem;font-weight:700;color:#55606d;cursor:pointer}
+.av-z.on{border-color:var(--azul);background:var(--azul);color:#fff}
 .sel-tag{width:100%;margin-top:6px;padding:6px;border:1.5px solid #ccd2d9;border-radius:6px;font-size:.74rem;color:#555;background:#fafbfc}
 .chip.prox{background:#eaf2fb;color:#1f6fb2}.chip.sin{background:#f4f4f4;color:#9ca3af;font-style:italic;font-weight:500}
 
@@ -394,7 +401,7 @@ const db = firebase.firestore();
 // vendedores. Lo hecho sin conexion sincroniza al volver.
 db.enablePersistence({synchronizeTabs:true}).catch(()=>{});
 
-const VERSION="2026-11-26b";
+const VERSION="2026-11-26c";
 const DOMINIO="funnel.ibaceta.ar";
 // Las 10 mas comunes cubren el 88,9% de los clientes que hoy tienen rubro cargado. Van
 // a la vista. El resto de las conocidas queda detras de "Otro", para no perderlas pero
@@ -1055,9 +1062,22 @@ function avEscuchar(){
 
 // El supervisor de zona solo ve los de su provincia. Los que el pipeline no
 // pudo ubicar quedan visibles para todos: alguien tiene que resolverlos.
+// Las divisiones salen de los clientes, igual que el selector del tablero, asi que el
+// valor que se guarda en fDiv es siempre uno valido para el resto de la app.
+function avZonas(){
+  const divs=[...new Set(clientes.map(c=>c.division).filter(Boolean))].sort();
+  if(divs.length<2) return "";
+  const p=(v,l)=>`<button class="av-z${fDiv===v?" on":""}" `
+    +`onclick="avFiltrarDiv(&#39;${esc(v)}&#39;)">${esc(l)}</button>`;
+  return '<div class="av-zonas">'+p("","Todas")+divs.map(v=>p(v,v)).join("")+'</div>';
+}
+function avFiltrarDiv(v){ fDiv=(fDiv===v?"":v); fProv=""; fDepto=""; pintar(); }
+
 function avVisibles(){
-  if(esGerente()) return avPend;
-  return avPend.filter(x=>!x.provincia || x.provincia===sesion.zona);
+  const deZona = esGerente() ? avPend
+                             : avPend.filter(x=>!x.provincia || x.provincia===sesion.zona);
+  // Al que todavia no se cargo solo se le conoce la provincia; al cargado, el Lugar.
+  return deZona.filter(x=>mismaZona(fDiv, x.lugar || x.provincia));
 }
 
 function avMarcarPin(){
@@ -1077,7 +1097,7 @@ function pintarAsignacion(){
   document.getElementById("panel").innerHTML="";
   avEscuchar();
   const vis=avVisibles(), sinAsig=vis.filter(x=>!x.lugar), listos=vis.filter(x=>x.lugar);
-  let h='<div class="av-wrap">';
+  let h='<div class="av-wrap">'+avZonas();
 
   h+='<div class="av-h">Detectados vendiendo y sin cargar ('+sinAsig.length+')</div>';
   if(!sinAsig.length){
@@ -1124,6 +1144,21 @@ function pintarAsignacion(){
   document.getElementById("cols").innerHTML=h;
 }
 
+// El filtro de division del tablero dice "Mendoza Calle"; el Lugar de Vendedor.xlsx dice
+// "CALLE MENDOZA", y a un vendedor sin cargar solo se le conoce la provincia, "MENDOZA".
+// Son la misma zona escrita de tres formas, asi que se comparan por palabras: coinciden
+// si las de uno estan contenidas en las del otro. "CALLE SAN JUAN" contra "Mendoza Calle"
+// no coincide, y "SALON SAN JUAN" contra "San Juan Calle" tampoco.
+const _palabras=t=>String(t||"").toUpperCase()
+  .normalize("NFD").replace(/[̀-ͯ]/g,"")
+  .split(/[^A-Z]+/).filter(Boolean);
+function mismaZona(div, lugar){
+  if(!div) return true;                       // sin filtro, entra todo
+  const a=_palabras(div), b=_palabras(lugar);
+  if(!b.length) return false;
+  return a.every(x=>b.includes(x)) || b.every(x=>a.includes(x));
+}
+
 // Los vendedores que hoy figuran activos, con cuando vendieron por ultima vez.
 // Primero los que hace mas tiempo que no venden: son los candidatos a que alguien
 // se haya ido sin que el sistema se entere.
@@ -1134,11 +1169,13 @@ function avTablaActivos(){
     +'la próxima actualización de la noche.</div>';
   const zona=(sesion.zona||"").toUpperCase();
   const mios=us.filter(u=>{
-    if(esGerente()||!zona) return true;
+    const lug=String(avActividad[u].lugar||"");
     // El supervisor ve los de su provincia. El Lugar trae "CALLE MENDOZA", "SAN JUAN".
-    return String(avActividad[u].lugar||"").toUpperCase().includes(zona);
+    if(!(esGerente()||!zona) && !lug.toUpperCase().includes(zona)) return false;
+    return mismaZona(fDiv, lug);              // y ademas el filtro del tablero
   });
-  if(!mios.length) return "";
+  if(!mios.length) return '<div class="av-h">Vendedores activos (0)</div>'
+    +'<div class="av-vacio">Ninguno en <b>'+esc(fDiv)+'</b>. Tocá <b>Todas</b> para verlos todos.</div>';
   const pendBaja=new Set(avPend.filter(x=>x.baja&&!x.aplicado).map(x=>String(x.usuario).toUpperCase()));
   mios.sort((a,b)=>(avActividad[b].dias??9999)-(avActividad[a].dias??9999));
   const flojos=mios.filter(u=>(avActividad[u].dias??0)>=avCorte).length;
