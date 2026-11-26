@@ -106,6 +106,14 @@ nav .pin{display:inline-block;min-width:17px;padding:0 5px;margin-left:4px;backg
 .kpi{flex:0 0 auto;min-width:118px;background:#fff;border:1px solid var(--borde);border-top:3px solid var(--naranja);border-radius:9px;padding:9px 13px}
 .kpi .l{font-size:.64rem;font-weight:700;color:var(--gris);text-transform:uppercase;letter-spacing:.03em}
 .kpi .v{font-size:1.3rem;font-weight:800;color:#111;line-height:1.15}
+/* Las tarjetas que filtran se tocan; las que son solo un numero, no. La diferencia
+   tiene que verse ANTES de tocarlas: una tarjeta que parece boton y no hace nada se
+   prueba tres veces y despues no se confia en ninguna. */
+.kpi.f{cursor:pointer;transition:box-shadow .12s}
+.kpi.f:hover{box-shadow:0 2px 10px rgba(0,0,0,.13)}
+.kpi.on{outline:2.5px solid var(--azul);outline-offset:-1px;background:#f4f9ff}
+.kfiltro{margin:2px 14px 0;font-size:.76rem;background:#eaf2fb;border-left:3px solid var(--azul);
+         border-radius:6px;padding:6px 9px;color:#23507d}
 
 /* Columnas del funnel */
 .cols{display:flex;gap:11px;overflow-x:auto;padding:12px 14px 28px;-webkit-overflow-scrolling:touch;align-items:flex-start}
@@ -273,7 +281,7 @@ a.tel{color:var(--azul);text-decoration:none;font-weight:600}
   </div>
   <div id="barra" class="barra" style="display:none"></div>
   <div id="periodo"></div>
-  <div class="kpis" id="kpis"></div>
+  <div id="kpis"></div>
   <div id="panel"></div>
   <div class="cols" id="cols"></div>
   <div id="tabla"></div>
@@ -389,7 +397,7 @@ const db = firebase.firestore();
 // vendedores. Lo hecho sin conexion sincroniza al volver.
 db.enablePersistence({synchronizeTabs:true}).catch(()=>{});
 
-const VERSION="2026-11-24a";
+const VERSION="2026-11-26a";
 const DOMINIO="funnel.ibaceta.ar";
 // Las 10 mas comunes cubren el 88,9% de los clientes que hoy tienen rubro cargado. Van
 // a la vista. El resto de las conocidas queda detras de "Otro", para no perderlas pero
@@ -703,7 +711,7 @@ function escuchar(){
   let qa=db.collection("actividades");
   if(esVend()) qa=qa.where("asignado_a","==",sesion.usuario);
   desus.push(qa.onSnapshot(s=>{actividades=s.docs.map(d=>({id:d.id,...d.data()}));
-    cerrarActividadesVencidas(); pintar();},()=>{}));
+    cerrarActividadesVencidas(); pintar(); pintarActFicha();},()=>{}));
 
   db.collection("config").doc("vendedores_activos").get()
     .then(d=>{ if(d.exists){ vendActivos=new Set(d.data().usuarios||[]);
@@ -1398,9 +1406,10 @@ function pintarSupervisor(){
   const opsA=act.flatMap(opsActivas);
   const cie=act.filter(c=>opsActivas(c).some(o=>o.etapa==="cierre_inminente"));
   const fin=lista.filter(c=>c.estado!=="activo");
-  kpis([["Clientes activos",act.length],["Operaciones activas",opsA.length],
-        ["Cierre inminente",cie.length],["Finalizados sin renovar",fin.length],
+  kpis([["Clientes activos",act.length,"activos"],["Operaciones activas",opsA.length],
+        ["Cierre inminente",cie.length,"cierre"],["Finalizados sin renovar",fin.length,"fin"],
         ["Cuota total/sem",plata(opsA.reduce((s,o)=>s+(o.cuota_semanal||0),0))]]);
+  lista = aplicarKpi(lista);
 
   const por={};
   ETAPAS.forEach(([k])=>por[k]=0);
@@ -1537,7 +1546,7 @@ function pintarSupervisor(){
             : `<span style="color:var(--gris)">—</span>`}${
           conduce()?` <button class="b auto" style="padding:2px 7px;font-size:.68rem"
             onclick="abrirZona('${esc(r.v)}')">Editar</button>`:""}</td></tr>`).join("")}
-    </table></div></div>` + panelUso(lista) + deptoHtml + negHtml() + huerfHtml + plantillasHtml();
+    </table></div></div>` + huerfHtml + panelUso(lista) + deptoHtml + plantillasHtml();
 }
 
 // Los textos de WhatsApp los edita quien conduce. Es una restriccion decidida a
@@ -1581,9 +1590,15 @@ function guardarPlantillas(){
     .catch(e=>alert("No se pudieron guardar: "+e.message));
 }
 
-// Los tipos de negocio cargados desde la calle NO generan una tarea por cliente: serian
-// cientos. Se juntan aca para pasarlos al ERP de una sola vez. La lista desaparece sola
-// a medida que la corrida diaria trae cada uno ya cargado.
+// RETIRADA DE LA PANTALLA el 26/11/2026. La funcion queda: para volver atras alcanza
+// con sumar negHtml() otra vez a la linea que arma #tabla en pintarSupervisor().
+// Por que salio: juntaba los tipos de negocio informados desde la calle para cargarlos
+// en el ERP de una sola vez, y la lista se vacia sola cuando el ERP los trae. Seis
+// semanas despues seguian ahi los del 14 y 15 de octubre: nadie los carga. Es la misma
+// historia que la tarea "Cargar el dato corregido en el ERP" que se saco el 21/11 --
+// cargar en el ERP no es trabajo de nadie que mire esta pantalla. Mientras tanto
+// ocupaba media pantalla arriba de la Cartera huerfana, que es lo que si se usa.
+// El dato NO se pierde: sigue en funnel_calle/_shared y la app lo usa para segmentar.
 function negHtml(){
   const filas=Object.keys(datos).map(cod=>{
     const d=datos[cod]; if(!d||!d.neg) return null;
@@ -1605,9 +1620,40 @@ function negHtml(){
         <td>${esc(d.por||"")}</td><td>${dmy(d.fecha)}</td></tr>`).join("")}
     </table></div></div>`;
 }
-function verVend(v){ colsAbiertas.clear(); selVend=v; vista="vend"; marcarNav(); pintar(); window.scrollTo(0,0); }
-function kpis(l){ document.getElementById("kpis").innerHTML=l.map(([a,b])=>
-  `<div class="kpi"><div class="l">${a}</div><div class="v">${b}</div></div>`).join(""); }
+function verVend(v){ colsAbiertas.clear(); fKpi=null; selVend=v; vista="vend"; marcarNav(); pintar(); window.scrollTo(0,0); }
+// Cada tarjeta puede llevar una tercera cosa: la clave del filtro. Sin clave es un
+// numero y nada mas -- "Operaciones activas" y "Cuota total/sem" no filtran porque
+// filtrarian exactamente lo mismo que "Clientes activos" (una operacion activa sin
+// cliente activo no existe), y dos botones que hacen lo mismo ensucian mas que ayudar.
+const KPI_NOTA={
+  activos:"los clientes con un plan en curso",
+  cierre :"los clientes con un plan entre el 90% y el 100%: son los de renovar ahora",
+  fin    :"los clientes sin ningún plan en curso, deban o no deban"};
+function kpis(l){
+  document.getElementById("kpis").innerHTML=
+    `<div class="kpis">`+l.map(([a,b,k])=>
+      `<div class="kpi${k?" f":""}${k&&fKpi===k?" on":""}"${k?` onclick="filtrarKpi('${k}')"`:""}>`
+      +`<div class="l">${a}</div><div class="v">${b}</div></div>`).join("")+`</div>`
+    +(fKpi?`<div class="kfiltro">Abajo estás viendo <b>solo ${KPI_NOTA[fKpi]||""}</b>.
+        Tocá la tarjeta de nuevo para ver todo.</div>`:"");
+}
+
+// ---------- Filtro por tarjeta de arriba ----------
+// Los numeros se calculan SIEMPRE sobre la cartera entera y recien despues se filtra el
+// tablero. Si se recalcularan sobre lo filtrado, tocar "Cierre inminente" dejaria esa
+// tarjeta en 6 y las otras cuatro en cero, y no quedaria contra que comparar.
+// Las tarjetas de periodo (fEstado) y estas son una sola cosa a la vez a proposito:
+// combinadas dan cero en casi todos los cruces -- el que "se fue" nunca esta en cierre
+// inminente -- y un cero sin explicacion parece un error del sistema.
+let fKpi=null;
+function filtrarKpi(k){ fKpi=(fKpi===k?null:k); if(fKpi) fEstado=null; colsAbiertas.clear(); pintar(); }
+function aplicarKpi(l){
+  if(fKpi==="activos") return l.filter(c=>c.estado==="activo");
+  if(fKpi==="cierre")  return l.filter(c=>c.estado==="activo"
+                                       && opsActivas(c).some(o=>o.etapa==="cierre_inminente"));
+  if(fKpi==="fin")     return l.filter(c=>c.estado!=="activo");
+  return l;
+}
 
 // ---------- Reparto de la cartera huerfana ----------
 // La afinidad NO viene precalculada: se saca de los clientes que la app ya tiene. Un
@@ -1746,7 +1792,7 @@ function tablaCobradores(){
         <td style="font-weight:700;color:var(--naranja)">${sinRuta.length}</td><td>—</td></tr>`:""}
     </table></div></div>`;
 }
-function verCob(c){ colsAbiertas.clear(); selCob=c; vista="cob"; marcarNav(); pintar(); window.scrollTo(0,0); }
+function verCob(c){ colsAbiertas.clear(); fKpi=null; selCob=c; vista="cob"; marcarNav(); pintar(); window.scrollTo(0,0); }
 
 // ---------- Vista Vendedor / Cobrador ----------
 function abrirCol(k){ colsAbiertas.add(k); pintarKanban(); }
@@ -1785,10 +1831,11 @@ function pintarKanban(){
 
   const act=src.filter(c=>c.estado==="activo");
   const opsA=act.flatMap(opsActivas);
-  kpis([["Clientes activos",act.length],["Operaciones activas",opsA.length],
-        ["Cierre inminente",act.filter(c=>opsActivas(c).some(o=>o.etapa==="cierre_inminente")).length],
-        ["Finalizados sin renovar",src.filter(c=>c.estado!=="activo").length],
+  kpis([["Clientes activos",act.length,"activos"],["Operaciones activas",opsA.length],
+        ["Cierre inminente",act.filter(c=>opsActivas(c).some(o=>o.etapa==="cierre_inminente")).length,"cierre"],
+        ["Finalizados sin renovar",src.filter(c=>c.estado!=="activo").length,"fin"],
         ["Cuota total/sem",plata(opsA.reduce((s,o)=>s+(o.cuota_semanal||0),0))]]);
+  src = aplicarKpi(src);
 
   pintarPanelActividades(quien,src);
   document.getElementById("tabla").innerHTML=tablaCob;
@@ -1936,14 +1983,12 @@ function pintarPanelActividades(quien,src){
     ${sin.length?`<div class="titulo">Nadie los tiene agendados (${sin.length})</div>
       <div class="sin-ayuda"><b>Esto no son tareas tuyas.</b> Son clientes activos a los que
         nadie les puso fecha de contacto: ni vos ni cobranza. Si hay que ver a alguno,
-        agendalo acá.</div>
+        abr&iacute; su ficha y agendalo ah&iacute;.</div>
       ${sin.slice(0,15).map(c=>`<div class="act sinact">
         <b style="flex:1;min-width:130px">${esc(c.nombre)}</b>
         ${c.telefono?`<span>${tel(c.telefono)}</span>`:`<span style="color:var(--rojo);font-size:.73rem">sin teléfono</span>`}
         <span style="color:var(--gris);font-size:.74rem">${esc(c.localidad||"")}</span>
-        <button class="b auto verde full" onclick="abrirAct('${esc(c.codigo)}')">${
-          esVend()?"Agendar":esVistaCob?"Avisar al vendedor":"Asignar"}</button>
-        <button class="b auto" onclick="ficha('${esc(c.codigo)}')">Ficha</button>
+        <button class="b auto full" onclick="ficha('${esc(c.codigo)}')">Ver ficha</button>
       </div>`).join("")}
       ${sin.length>15?`<div class="vacio">y ${sin.length-15} más. Están todos en las columnas de abajo.</div>`:""}`:""}
   </div>`;
@@ -1961,6 +2006,7 @@ async function ficha(cod){
   fCod=String(cod); fOps=null; fCuotas={}; fAbiertas=new Set();
   document.getElementById("f-nom").textContent=c.nombre;
   document.getElementById("f-cuerpo").innerHTML=cabeceraFicha(c);
+  pintarActFicha();
   pintarOps(c);
   abrir("m-ficha");
   const [h,q]=await Promise.allSettled([
@@ -2051,7 +2097,7 @@ const GRANOS=[[7,"Última semana"],[30,"Último mes"],[90,"Últimos 3 meses"],
 let granoKpi=30, desplKpi=0;
 // Cual de las cinco tarjetas esta tocada. null = sin filtrar.
 let fEstado=null;
-function filtrarEstado(e){ fEstado = (fEstado===e ? null : e); pintar(); }
+function filtrarEstado(e){ fEstado = (fEstado===e ? null : e); if(fEstado) fKpi=null; pintar(); }
 // Deja en la lista solo a los del grupo tocado. Usa la MISMA funcion que cuenta.
 function aplicarEstado(lista){
   if(!fEstado) return lista;
@@ -2460,6 +2506,27 @@ function bloqueWhatsapp(c){
 
 const ffNum=f=>{const p=String(f||"").split("/");return p.length===3?+(p[2]+p[1].padStart(2,"0")+p[0].padStart(2,"0")):0;};
 
+// La tarea se agenda ACA, desde la ficha: es el unico lugar donde esta todo el cliente
+// junto -- telefono, plan, cuotas, saldo, observaciones -- antes de decidir que hay que
+// hacer con el. En la lista de "nadie los tiene agendados" el boton pedia decidir con un
+// nombre y una localidad a la vista, nada mas.
+// Se repinta SOLO este bloque, nunca la ficha entera: Observaciones es un campo de texto
+// que guarda recien al salir, y repintar la ficha mientras el vendedor escribe le borra
+// lo que escribio.
+function bloqueActFicha(){
+  const c=clientes.find(x=>String(x.codigo)===String(fCod)); if(!c) return "";
+  const p=proxDe(c.codigo);
+  const lab=esVend()?"Agendar actividad":vista==="cob"?"Avisar al vendedor":"Asignar actividad";
+  return (p
+    ? `<div class="verif ok">Ya tiene agendado: <b>${esc(tituloDe(p))}</b> para el
+         <b>${dmy(p.fecha)}</b>${p.asignado_a&&!esVend()?" ("+esc(p.asignado_a)+")":""}.</div>`
+    : `<div class="loc">Nadie le agend&oacute; todav&iacute;a una visita ni un llamado.</div>`)
+    +`<button class="b verde full" onclick="abrirAct('${esc(c.codigo)}')">${lab}</button>`;
+}
+function pintarActFicha(){
+  const el=document.getElementById("f-act");
+  if(el) el.innerHTML=bloqueActFicha();
+}
 function cabeceraFicha(c){
   const oa=opsActivas(c), r=c.resumen_fin||{};
   const cuotaAct=oa.reduce((s,o)=>s+(o.cuota_semanal||0),0);
@@ -2510,6 +2577,8 @@ function cabeceraFicha(c){
         <div style="font-size:1.1rem;font-weight:800;color:var(--naranja)">${esc(refVal)}</div>
       </div>
     </div>
+    <div class="titulo">Tarea</div>
+    <div id="f-act"></div>
     <div class="titulo">Observaciones</div>
     <textarea id="f-coment" rows="3" placeholder="Escrib&iacute; lo que haya que saber de este cliente..."
       onchange="guardarComentario('${esc(c.codigo)}',this.value)"
@@ -2851,6 +2920,7 @@ async function guardarAct(){
     contar("act_nueva");
   }catch(e){}
   cerrar("m-act");
+  pintarActFicha();
 }
 function abrirCierre(id){
   const a=actividades.find(x=>x.id===id); if(!a) return; actId=id;
