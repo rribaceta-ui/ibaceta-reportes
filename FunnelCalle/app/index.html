@@ -427,7 +427,7 @@ const db = firebase.firestore();
 // vendedores. Lo hecho sin conexion sincroniza al volver.
 db.enablePersistence({synchronizeTabs:true}).catch(()=>{});
 
-const VERSION="2026-11-27a";
+const VERSION="2026-11-27b";
 const DOMINIO="funnel.ibaceta.ar";
 // Las 10 mas comunes cubren el 88,9% de los clientes que hoy tienen rubro cargado. Van
 // a la vista. El resto de las conocidas queda detras de "Otro", para no perderlas pero
@@ -1357,30 +1357,35 @@ function pintarBarra(){
   }
   // Tipo de negocio: la razon por la que se carga desde la calle es poder segmentar.
   // De a varios: un vendedor recorre almacenes y kioscos en la misma salida.
-  const negCuenta={}; base.forEach(c=>negDe(c).valor.forEach(v=>negCuenta[v]=(negCuenta[v]||0)+1));
-  const sinNeg=base.filter(c=>!negDe(c).valor.length).length;
-  const negs=Object.keys(negCuenta).sort();
+  // Las OPCIONES salen de la cartera entera (si no, tildar una escondería a las
+  // demás); los NUMEROS salen de lo que realmente va a quedar en pantalla.
+  const uNeg=universoBarra("neg");
+  const negCuenta={}; uNeg.forEach(c=>negDe(c).valor.forEach(v=>negCuenta[v]=(negCuenta[v]||0)+1));
+  const sinNeg=uNeg.filter(c=>!negDe(c).valor.length).length;
+  const negs=[...new Set(base.flatMap(c=>negDe(c).valor))].sort();
   if(negs.length>1){
     h+=multiCaja("neg","Tipo de negocio",
-      negs.map(v=>[v,v,negCuenta[v]]).concat(sinNeg?[["__sin","Sin definir",sinNeg]]:[]),fNeg);
+      negs.map(v=>[v,v,negCuenta[v]||0]).concat(sinNeg?[["__sin","Sin definir",sinNeg]]:[]),fNeg);
   }
   // Sectores que el cliente YA compro. El sector sale del catalogo del ERP cruzado
   // por descripcion (`sectores`, lo arma sincronizar_firestore.py): acierta en el
   // 80% de los clientes, asi que los que no cruzan se ofrecen aparte en vez de
   // desaparecer sin explicacion.
-  const secCuenta={}; base.forEach(c=>(c.sectores||[]).forEach(v=>secCuenta[v]=(secCuenta[v]||0)+1));
-  const sinSec=base.filter(c=>!(c.sectores||[]).length).length;
-  const secs=Object.keys(secCuenta).sort();
+  const uSec=universoBarra("sector");
+  const secCuenta={}; uSec.forEach(c=>(c.sectores||[]).forEach(v=>secCuenta[v]=(secCuenta[v]||0)+1));
+  const sinSec=uSec.filter(c=>!(c.sectores||[]).length).length;
+  const secs=[...new Set(base.flatMap(c=>c.sectores||[]))].sort();
   if(secs.length){
     h+=multiCaja("sector","Sectores comprados",
-      secs.map(v=>[v,v,secCuenta[v]]).concat(sinSec?[["__sin","Sin clasificar",sinSec]]:[]),fSector);
+      secs.map(v=>[v,v,secCuenta[v]||0]).concat(sinSec?[["__sin","Sin clasificar",sinSec]]:[]),fSector);
   }
   // Tamaño del cliente. Solo aparece cuando el dato existe: `cuota_max` lo agrega el
   // sincronizador, asi que hasta la primera corrida nocturna el desplegable no se dibuja
   // en vez de mostrar un filtro que no filtra nada.
   if(base.some(c=>cuotaMaxDe(c)>0)){
+    const uCuo=universoBarra("cuota");
     const cuenta=k=>{ const tr=TRAMOS_CUOTA.find(x=>x[0]===k);
-      return base.filter(c=>{ const v=cuotaMaxDe(c); return v>tr[2]&&v<=tr[3]; }).length; };
+      return uCuo.filter(c=>{ const v=cuotaMaxDe(c); return v>tr[2]&&v<=tr[3]; }).length; };
     h+=multiCaja("cuota","Tamaño de cliente",
       TRAMOS_CUOTA.map(([k,l])=>[k,l,cuenta(k)]),fCuota);
   }
@@ -1465,7 +1470,7 @@ function verEtiqueta(k, si){
 // Mismos filtros para las tres vistas: division, provincia, departamento, tipo de
 // operacion, etiquetados y buscador. En el funnel estaban en la vista supervisor y
 // faltaban aca.
-function filtrar(l){
+function filtrar(l, saltar){
   if(!verEmpleados) l=l.filter(c=>!esEmpleado(c));
   if(fDiv)   l=l.filter(c=>c.division===fDiv);
   if(fProv)  l=l.filter(c=>c.provincia===fProv);
@@ -1473,13 +1478,16 @@ function filtrar(l){
   if(fTipo)  l=l.filter(c=>(c.operaciones||[]).some(o=>o.tipo===fTipo));
   // Varios tildados = cualquiera de ellos (O), no todos a la vez: el vendedor que
   // elige ALMACEN y KIOSCO quiere ver los dos, no los que son las dos cosas.
-  if(fNeg.size)   l=l.filter(c=>{ const v=negDe(c).valor;
+  if(fNeg.size && saltar!=="neg")
+                  l=l.filter(c=>{ const v=negDe(c).valor;
                                   return fNeg.has("__sin") && !v.length
                                       || v.some(x=>fNeg.has(x)); });
-  if(fSector.size)l=l.filter(c=>{ const v=c.sectores||[];
+  if(fSector.size && saltar!=="sector")
+                  l=l.filter(c=>{ const v=c.sectores||[];
                                   return fSector.has("__sin") && !v.length
                                       || v.some(x=>fSector.has(x)); });
-  if(fCuota.size) l=l.filter(c=>{ const v=cuotaMaxDe(c);
+  if(fCuota.size && saltar!=="cuota")
+                  l=l.filter(c=>{ const v=cuotaMaxDe(c);
                                   return TRAMOS_CUOTA.some(([k,,lo,hi])=>
                                     fCuota.has(k) && v>lo && v<=hi); });
   if(soloEtiquetados) l=l.filter(c=>!!tagDe(c.codigo));
@@ -1801,6 +1809,11 @@ function multiCaja(id, rotulo, opciones, sel){
     +`</div>`;
 }
 const _setDe=id=>id==="neg"?fNeg:id==="sector"?fSector:fCuota;
+// El numero de cada casilla tiene que ser el de TARJETAS que vas a ver si tildas
+// solo esa. Antes se contaba sobre la cartera entera y decia 252 donde aparecian
+// 160: los etiquetados y el filtro de las tarjetas de arriba ya habian sacado al
+// resto. Un numero que no coincide con lo que se ve hace dudar de todo el tablero.
+const universoBarra = saltar => aplicarKpi(aplicarEstado(filtrar(baseDe(), saltar)));
 function abrirMulti(id){ multiAbierto=(multiAbierto===id?null:id); _multiScroll=0; pintar(); }
 function marcarMulti(id,v,si){ const s=_setDe(id); si?s.add(v):s.delete(v); pintar(); }
 function limpiarMulti(id){ _setDe(id).clear(); pintar(); }
