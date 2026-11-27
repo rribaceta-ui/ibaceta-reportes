@@ -52,6 +52,24 @@ nav .pin{display:inline-block;min-width:17px;padding:0 5px;margin-left:4px;backg
 .barra input{flex:1 1 100%;min-width:150px}
 /* Un filtro puesto se tiene que notar sin leerlo */
 .barra select.act{border-color:var(--azul);color:var(--azul);font-weight:700;background:#f0f6ff}
+/* Desplegable con casillas: se puede elegir mas de uno. El panel queda por encima
+   del tablero (position:absolute) para no empujarlo hacia abajo al abrirse. */
+.multi{position:relative;flex:1 1 168px;min-width:168px;max-width:300px}
+.multi-b{width:100%;padding:8px 12px;border:1.5px solid #ccd2d9;border-radius:18px;
+         font-size:.84rem;background:#fff;text-align:left;cursor:pointer;color:#333}
+.multi-b.act{border-color:var(--azul);color:var(--azul);font-weight:700;background:#f0f6ff}
+.multi-b .fl{float:right;opacity:.55}
+.multi-p{position:absolute;z-index:40;top:calc(100% + 4px);left:0;min-width:100%;
+         max-height:300px;overflow:auto;background:#fff;border:1px solid var(--borde);
+         border-radius:10px;box-shadow:0 8px 24px rgba(0,0,0,.14);padding:7px}
+.multi-p label{display:flex;align-items:center;gap:7px;padding:5px 7px;border-radius:6px;
+               font-size:.82rem;white-space:nowrap;cursor:pointer}
+.multi-p label:hover{background:#f2f6fb}
+.multi-p input[type=checkbox]{width:auto;flex:0 0 auto}
+.multi-p .pie{display:flex;gap:6px;border-top:1px solid var(--borde);margin-top:5px;padding-top:6px}
+.multi-p .pie button{flex:1;padding:5px;font-size:.76rem;border:1px solid #ccd2d9;
+                     border-radius:14px;background:#fff;cursor:pointer}
+@media(max-width:620px){ .multi{flex:1 1 100%;max-width:none} }
 /* Las casillas no se parten en dos renglones ni se desalinean del cuadradito */
 .barra label{flex:0 0 auto;white-space:nowrap}
 /* Casillas de etiquetas: compactas, con el color de cada una */
@@ -409,7 +427,7 @@ const db = firebase.firestore();
 // vendedores. Lo hecho sin conexion sincroniza al volver.
 db.enablePersistence({synchronizeTabs:true}).catch(()=>{});
 
-const VERSION="2026-11-26f";
+const VERSION="2026-11-27a";
 const DOMINIO="funnel.ibaceta.ar";
 // Las 10 mas comunes cubren el 88,9% de los clientes que hoy tienen rubro cargado. Van
 // a la vista. El resto de las conocidas queda detras de "Otro", para no perderlas pero
@@ -551,9 +569,14 @@ let verComo=false;
 // que no se podia tocar, asi que esos clientes no existian para el vendedor.
 const TOPE_COL=120;
 let colsAbiertas=new Set();
-let fProv="", fDepto="", fDiv="", fTipo="", fNeg="", soloEtiquetados=false;
-// Filtro por tamaño del cliente: la cuota semanal mas alta que llego a pagar.
-let fCuota="";
+let fProv="", fDepto="", fDiv="", fTipo="", soloEtiquetados=false;
+// Los tres filtros de abajo son de ELECCION MULTIPLE (Direccion, 27/11/2026): un
+// vendedor recorre dos o tres rubros parecidos en la misma salida, y con un solo
+// valor tenia que mirar la pantalla una vez por rubro. Conjunto vacio = todos.
+let fNeg=new Set(), fSector=new Set(), fCuota=new Set();
+// Cual de los tres paneles esta abierto, y donde iba su scroll: la barra se redibuja
+// entera en cada tilde y sin esto el panel se cerraba y volvia al principio.
+let multiAbierto=null, _multiScroll=0;
 // "Huerfano" = cliente activo cuyo vendedor ya no esta entre los que pueden entrar al
 // sistema. La lista la escribe el sincronizador; si todavia no existe, no se filtra
 // nada en vez de inventar un criterio.
@@ -1333,12 +1356,24 @@ function pintarBarra(){
        deptos.map(v=>`<option value="${esc(v)}" ${v===fDepto?"selected":""}>${esc(v)}</option>`).join("")+`</select>`;
   }
   // Tipo de negocio: la razon por la que se carga desde la calle es poder segmentar.
-  const negs=[...new Set(base.flatMap(c=>negDe(c).valor))].sort();
-  const sinNeg=base.filter(c=>c.estado==="activo"&&!negDe(c).valor.length).length;
+  // De a varios: un vendedor recorre almacenes y kioscos en la misma salida.
+  const negCuenta={}; base.forEach(c=>negDe(c).valor.forEach(v=>negCuenta[v]=(negCuenta[v]||0)+1));
+  const sinNeg=base.filter(c=>!negDe(c).valor.length).length;
+  const negs=Object.keys(negCuenta).sort();
   if(negs.length>1){
-    h+=`<select class="${fNeg?"act":""}" onchange="fNeg=this.value;pintar()"><option value="">Todo tipo de negocio</option>`+
-       negs.map(v=>`<option value="${esc(v)}" ${v===fNeg?"selected":""}>${esc(v)}</option>`).join("")+
-       `<option value="__sin" ${fNeg==="__sin"?"selected":""}>Sin definir (${sinNeg})</option></select>`;
+    h+=multiCaja("neg","Tipo de negocio",
+      negs.map(v=>[v,v,negCuenta[v]]).concat(sinNeg?[["__sin","Sin definir",sinNeg]]:[]),fNeg);
+  }
+  // Sectores que el cliente YA compro. El sector sale del catalogo del ERP cruzado
+  // por descripcion (`sectores`, lo arma sincronizar_firestore.py): acierta en el
+  // 80% de los clientes, asi que los que no cruzan se ofrecen aparte en vez de
+  // desaparecer sin explicacion.
+  const secCuenta={}; base.forEach(c=>(c.sectores||[]).forEach(v=>secCuenta[v]=(secCuenta[v]||0)+1));
+  const sinSec=base.filter(c=>!(c.sectores||[]).length).length;
+  const secs=Object.keys(secCuenta).sort();
+  if(secs.length){
+    h+=multiCaja("sector","Sectores comprados",
+      secs.map(v=>[v,v,secCuenta[v]]).concat(sinSec?[["__sin","Sin clasificar",sinSec]]:[]),fSector);
   }
   // Tamaño del cliente. Solo aparece cuando el dato existe: `cuota_max` lo agrega el
   // sincronizador, asi que hasta la primera corrida nocturna el desplegable no se dibuja
@@ -1346,17 +1381,12 @@ function pintarBarra(){
   if(base.some(c=>cuotaMaxDe(c)>0)){
     const cuenta=k=>{ const tr=TRAMOS_CUOTA.find(x=>x[0]===k);
       return base.filter(c=>{ const v=cuotaMaxDe(c); return v>tr[2]&&v<=tr[3]; }).length; };
-    h+=`<select class="${fCuota?"act":""}" onchange="fCuota=this.value;pintar()" `
-      +`title="La cuota semanal más alta que llegó a pagar">`
-      +`<option value="">Todo tamaño de cliente</option>`
-      +TRAMOS_CUOTA.map(([k,l])=>`<option value="${k}" ${k===fCuota?"selected":""}>`
-         +`${l} (${cuenta(k)})</option>`).join("")+`</select>`;
+    h+=multiCaja("cuota","Tamaño de cliente",
+      TRAMOS_CUOTA.map(([k,l])=>[k,l,cuenta(k)]),fCuota);
   }
-  const tipos=[...new Set(base.flatMap(c=>(c.operaciones||[]).map(o=>o.tipo)).filter(Boolean))].sort();
-  if(tipos.length>1){
-    h+=`<select class="${fTipo?"act":""}" onchange="fTipo=this.value;pintar()"><option value="">Todas las operaciones</option>`+
-       tipos.map(v=>`<option value="${esc(v)}" ${v===fTipo?"selected":""}>${esc(v)}</option>`).join("")+`</select>`;
-  }
+  // El desplegable "Todas las operaciones" (credito / prestamo) salio el 27/11/2026:
+  // Direccion pidio los sectores en su lugar. `fTipo` sigue en el codigo y en
+  // filtrar(), asi que devolverlo es volver a dibujar este control.
   // Dos controles distintos a proposito:
   //   - las casillas de abajo dicen QUE ETIQUETADOS se ven (los sin etiqueta se ven siempre)
   //   - "Solo etiquetados" hace lo contrario: esconde a los que NO tienen etiqueta
@@ -1375,7 +1405,8 @@ function pintarBarra(){
                onchange="soloEtiquetados=this.checked;pintar()" style="width:auto"> Solo etiquetados</label>`;
   // Con cinco filtros es facil dejar uno puesto y no entender por que faltan clientes.
   const etqCambiadas = TAGS.some(([k])=>tagsVisibles.has(k)!==(k==="refinanciada"));
-  if(fDiv||fProv||fDepto||fTipo||fNeg||fCuota||soloEtiquetados||busca||etqCambiadas){
+  if(fDiv||fProv||fDepto||fTipo||fNeg.size||fSector.size||fCuota.size
+     ||soloEtiquetados||busca||etqCambiadas){
     h+=`<button class="limpiar" onclick="limpiarFiltros()">Quitar filtros</button>`;
   }
   const nEmp=clientes.filter(esEmpleado).length;
@@ -1393,6 +1424,13 @@ function pintarBarra(){
   const _pos = _enBuscador ? _act.selectionStart : null;
 
   b.innerHTML=h;
+
+  // El panel de casillas se redibuja con la barra: sin devolverle el scroll, tildar
+  // el tercer tipo de negocio de una lista de 41 te manda de vuelta al principio.
+  if(multiAbierto && _multiScroll){
+    const p=document.getElementById("mp-"+multiAbierto);
+    if(p) p.scrollTop=_multiScroll;
+  }
 
   if(_enBuscador){
     const _nuevo=b.querySelector('input[placeholder^="Buscar"]');
@@ -1415,7 +1453,8 @@ function buscar(v){
   _tBusca=setTimeout(()=>pintar(), 200);
 }
 function limpiarFiltros(){
-  fDiv=fProv=fDepto=fTipo=fNeg=fCuota=busca=""; soloEtiquetados=false;
+  fDiv=fProv=fDepto=fTipo=busca=""; soloEtiquetados=false;
+  fNeg.clear(); fSector.clear(); fCuota.clear(); multiAbierto=null;
   tagsVisibles=new Set(["refinanciada"]); pintar();
 }
 function verEtiqueta(k, si){
@@ -1432,11 +1471,17 @@ function filtrar(l){
   if(fProv)  l=l.filter(c=>c.provincia===fProv);
   if(fDepto) l=l.filter(c=>c.depto===fDepto);
   if(fTipo)  l=l.filter(c=>(c.operaciones||[]).some(o=>o.tipo===fTipo));
-  if(fNeg)   l=l.filter(c=>{ const v=negDe(c).valor;
-                             return fNeg==="__sin" ? !v.length : v.includes(fNeg); });
-  if(fCuota){ const tr=TRAMOS_CUOTA.find(x=>x[0]===fCuota);
-              if(tr) l=l.filter(c=>{ const v=cuotaMaxDe(c);
-                                     return v>tr[2] && v<=tr[3]; }); }
+  // Varios tildados = cualquiera de ellos (O), no todos a la vez: el vendedor que
+  // elige ALMACEN y KIOSCO quiere ver los dos, no los que son las dos cosas.
+  if(fNeg.size)   l=l.filter(c=>{ const v=negDe(c).valor;
+                                  return fNeg.has("__sin") && !v.length
+                                      || v.some(x=>fNeg.has(x)); });
+  if(fSector.size)l=l.filter(c=>{ const v=c.sectores||[];
+                                  return fSector.has("__sin") && !v.length
+                                      || v.some(x=>fSector.has(x)); });
+  if(fCuota.size) l=l.filter(c=>{ const v=cuotaMaxDe(c);
+                                  return TRAMOS_CUOTA.some(([k,,lo,hi])=>
+                                    fCuota.has(k) && v>lo && v<=hi); });
   if(soloEtiquetados) l=l.filter(c=>!!tagDe(c.codigo));
   // Un cliente etiquetado se ve si su etiqueta esta tildada. Si no lo esta, igual se ve
   // cuando TIENE OPERACIONES ACTIVAS: alguien le esta cobrando, esconderlo seria peor
@@ -1718,16 +1763,47 @@ const COL_FIN_DE=c=>{ let s=SEM_FIN(c); if(s===null) return null; if(s<0) s=0;
 // `cuota_max` son pesos nominales de cuando pago. Entre el que termino hace un mes y
 // el que termino hace un año hay ~30% de inflacion de por medio, asi que el viejo se
 // ve mas chico de lo que fue. Sirve para ordenar por tamaño, no para comparar plata.
-const TRAMOS_CUOTA=[["c1","Hasta $60.000",0,60000],
-                    ["c2","$60.000 a $100.000",60000,100000],
-                    ["c3","$100.000 a $175.000",100000,175000],
-                    ["c4","Más de $175.000",175000,Infinity]];
+const TRAMOS_CUOTA=[["c1","Hasta $50.000",0,50000],
+                    ["c2","$50.000 a $100.000",50000,100000],
+                    ["c3","$100.000 a $200.000",100000,200000],
+                    ["c4","$200.000 a $400.000",200000,400000],
+                    ["c5","$400.000 a $600.000",400000,600000],
+                    ["c6","Más de $600.000",600000,Infinity]];
 const cuotaMaxDe=c=>{
   const v=(c.resumen_fin||{}).cuota_max;
   if(v) return v;
   // El que todavia tiene plan no necesita el campo: se le mira lo que paga hoy.
   return (c.operaciones||[]).reduce((m,o)=>Math.max(m,o.cuota_semanal||0),0);
 };
+
+// ── Desplegable con casillas (elegir mas de uno) ──────────────────────────
+// Un solo motor para los tres filtros: asi los tres se comportan igual y no hay
+// tres maneras distintas de tildar lo mismo.
+//   id      : cual de los tres
+//   rotulo  : lo que dice el boton cuando no hay nada tildado
+//   opciones: [[valor, etiqueta, cuantos]]
+//   sel     : el Set del filtro
+function multiCaja(id, rotulo, opciones, sel){
+  if(!opciones.length) return "";
+  const n=sel.size;
+  const txt = n===0 ? rotulo
+            : n===1 ? (opciones.find(o=>sel.has(o[0]))||[,rotulo])[1]
+            : `${rotulo} (${n})`;
+  const abierto = multiAbierto===id;
+  return `<div class="multi"><button class="multi-b${n?" act":""}" `
+    +`onclick="abrirMulti('${id}')">${esc(txt)}<span class="fl">▾</span></button>`
+    +(abierto?`<div class="multi-p" id="mp-${id}" onscroll="_multiScroll=this.scrollTop">`
+       +opciones.map(([v,l,c])=>`<label><input type="checkbox" ${sel.has(v)?"checked":""} `
+         +`onchange="marcarMulti('${id}','${esc(String(v)).replace(/'/g,"&#39;")}',this.checked)">`
+         +`<span>${esc(l)}${c===undefined?"":" ("+c+")"}</span></label>`).join("")
+       +`<div class="pie"><button onclick="limpiarMulti('${id}')">Ninguno</button>`
+       +`<button onclick="abrirMulti(null)">Listo</button></div></div>`:"")
+    +`</div>`;
+}
+const _setDe=id=>id==="neg"?fNeg:id==="sector"?fSector:fCuota;
+function abrirMulti(id){ multiAbierto=(multiAbierto===id?null:id); _multiScroll=0; pintar(); }
+function marcarMulti(id,v,si){ const s=_setDe(id); si?s.add(v):s.delete(v); pintar(); }
+function limpiarMulti(id){ _setDe(id).clear(); pintar(); }
 
 const KPI_NOTA={
   activos:"los clientes con un plan en curso",
