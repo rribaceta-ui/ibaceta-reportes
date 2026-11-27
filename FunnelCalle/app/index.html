@@ -441,7 +441,7 @@ const db = firebase.firestore();
 // vendedores. Lo hecho sin conexion sincroniza al volver.
 db.enablePersistence({synchronizeTabs:true}).catch(()=>{});
 
-const VERSION="2026-11-27c";
+const VERSION="2026-11-27d";
 const DOMINIO="funnel.ibaceta.ar";
 // Las 10 mas comunes cubren el 88,9% de los clientes que hoy tienen rubro cargado. Van
 // a la vista. El resto de las conocidas queda detras de "Otro", para no perderlas pero
@@ -908,6 +908,24 @@ const comentarioDe=cod=>comentarios[String(cod)]||"";
 // mañana tenga el dato bueno sin esperar a que alguien lo cargue en DEBO.
 const soloDig=x=>String(x||"").replace(/\D/g,"");
 function correccionDe(cod){ return datos[String(cod)]||null; }
+// Un cliente puede estar en las dos carteras o en una sola: el plan semanal trae solo a
+// los que tienen operaciones y el contado a los que compraron en el anio. Todo lo que se
+// guarda a mano -- verificacion, rubro, tarea, observaciones, telefono corregido -- va
+// por CODIGO DE CLIENTE, que es el mismo en las dos, asi que lo unico que hacia falta
+// para reusar los bloques del funnel era encontrar al cliente en cualquiera de las dos.
+function cliDe(cod){
+  const k=String(cod);
+  return clientes.find(x=>String(x.codigo)===k)
+      || contado.find(x=>String(x.codigo)===k) || null;
+}
+// Abre la ficha que corresponda. Una tarea agendada desde contado tiene que volver a la
+// ficha de contado: la del plan se dibuja sin operaciones y parece rota. Si el cliente
+// esta en las dos, manda la del plan: es la que tiene cuotas que seguir.
+function abrirFicha(cod){
+  const k=String(cod);
+  if(clientes.some(x=>String(x.codigo)===k)) return ficha(k);
+  if(contado.some(x=>String(x.codigo)===k)) return fichaContado(k);
+}
 function telDe(c){
   const d=correccionDe(c.codigo);
   return (d&&d.tel) ? {valor:d.tel, corregido:true, por:d.por, rol:d.rol, fecha:d.fecha}
@@ -2185,23 +2203,85 @@ function tarjetaContado(c){
   </div>`;
 }
 
-// La ficha: todo lo que le vendimos en el año, de lo mas nuevo a lo mas viejo.
+// La ficha de contado. Es la MISMA ficha del funnel con los bloques que aca tienen
+// sentido: quien confirmo los datos, el telefono corregido a mano, el rubro, la tarea
+// agendada, las observaciones y el WhatsApp. Todo eso se guarda por codigo de cliente,
+// asi que lo que el vendedor corrige o anota aca lo ve tambien en el plan semanal si el
+// cliente esta en las dos carteras, y al reves. Lo que NO esta son las cuotas, el
+// cobrador y el saldo: en contado no existen.
 function fichaContado(cod){
   const c=contado.find(x=>String(x.codigo)===String(cod)); if(!c) return;
+  fCod=String(cod); fOps=null; fCuotas={}; fAbiertas=new Set();
   document.getElementById("f-nom").textContent=c.nombre||"";
-  const dom=[c.domicilio,c.localidad,c.provincia].filter(Boolean).map(esc).join(", ");
-  document.getElementById("f-cuerpo").innerHTML=`
-    <div class="titulo">Contacto</div>
-    ${c.telefono?`<div class="te">${tel(c.telefono)}</div>`
-                :`<div class="loc" style="color:var(--rojo)">Sin teléfono en el ERP</div>`}
-    ${dom?`<div class="loc">${dom}</div>`:""}
-    ${c.email?`<div class="loc">${esc(c.email)}</div>`:""}
-    ${c.negocio&&c.negocio!=="NO DEFINIDO"?`<div class="loc">Rubro: ${esc(c.negocio)}</div>`:""}
-    <div class="titulo">Resumen</div>
-    <div class="loc">Última compra el <b>${esc(c.ultima)}</b> ·
-      ${c.compras_n} compra${c.compras_n===1?"":"s"} · ${plata(c.monto)} en el año</div>
-    ${(c.sectores||[]).length?`<div class="loc">Sectores: ${c.sectores.map(esc).join(" · ")}</div>`:""}
-    <div class="titulo">Qué le vendí</div>
+  document.getElementById("f-cuerpo").innerHTML=cabeceraContado(c);
+  pintarActFicha();
+  abrir("m-ficha");
+}
+
+// Hace cuanto le compro, en las palabras en que lo diria el vendedor.
+function _desdeUltima(sem){
+  const s=Math.round(Number(sem)||0);
+  if(s<=1) return "esta semana";
+  if(s<5)  return "hace "+s+" semanas";
+  const m=Math.round(s/4.35);
+  return m<12 ? "hace "+m+(m===1?" mes":" meses") : "hace casi un año";
+}
+
+function cabeceraContado(c){
+  const d=dirDe(c), t=telDe(c), m=mailDe(c), v=verifDe(c.codigo);
+  const resto=`${esc(c.localidad||"")}${c.provincia?", "+esc(c.provincia):""}${c.depto?" ("+esc(c.depto)+")":""}`;
+  return `
+    ${d.corregido
+      ? `<div class="corr">${esc(d.valor)} - ${resto}<span class="de">corregida por ${_firma(d.por,d.rol)} el ${dmy(d.fecha)} &middot; falta cargarla en el ERP</span></div>`
+      : `<div class="loc">${esc(d.valor||"Sin domicilio")} - ${resto}</div>`}
+    ${t.valor
+      ? (t.corregido
+         ? `<div class="corr">${tel(t.valor)}<span class="de">corregido por ${_firma(t.por,t.rol)} el ${dmy(t.fecha)} &middot; falta cargarlo en el ERP</span></div>`
+         : `<div style="margin:8px 0">${tel(t.valor)}</div>`)
+      : `<div class="loc" style="color:var(--rojo)">Sin tel&eacute;fono en el ERP</div>`}
+    ${v.estado==="vigente"
+      ? `<div class="verif ok">Datos confirmados por <b>${esc(v.por)}</b>${
+           v.rol?" ("+esc(v.rol)+")":""} el <b>${dmy(v.fecha)}</b>. Se vuelven a pedir a los ${MESES_VERIF} meses.</div>`
+      : `<div class="verif"><span>${v.estado==="vencida"
+           ? "La última confirmación fue hace más de "+MESES_VERIF+" meses: "+esc(v.por)
+             +(v.rol?" ("+esc(v.rol)+")":"")+", "+dmy(v.fecha)+"."
+           : "Nadie confirmó todavía que estos datos sigan vigentes."}</span>
+         <button class="b auto" onclick="confirmarDatos('${esc(c.codigo)}')">Están bien</button></div>`}
+    <button class="b auto" onclick="abrirDatos('${esc(c.codigo)}')">Corregir teléfono o dirección</button>
+    ${m.valor
+      ? (m.corregido
+         ? `<div class="corr"><a href="mailto:${esc(m.valor)}" style="color:#1d6b43">${esc(m.valor)}</a>
+            <span class="de">cargado por ${_firma(m.por,m.rol)} el ${dmy(m.fecha)} &middot; falta pasarlo al ERP</span></div>`
+         : `<div class="loc"><a href="mailto:${esc(m.valor)}" style="color:var(--azul)">${esc(m.valor)}</a></div>`)
+      : `<div class="loc" style="color:var(--rojo)">Sin correo cargado</div>`}
+    ${bloqueNegocio(c)}
+    <div class="loc">Divisi&oacute;n: ${esc(c.division||"Sin asignar")} &middot;
+      Vendedor: <b>${esc(vendedorDe(c)||"-")}</b></div>
+    <div style="display:flex;gap:10px;margin:12px 0;flex-wrap:wrap">
+      <div style="flex:1;min-width:140px;background:#fff8f0;border:1.5px solid var(--naranja);border-radius:10px;padding:10px;text-align:center">
+        <div style="font-size:.66rem;font-weight:700;color:#666;text-transform:uppercase">&Uacute;ltima compra</div>
+        <div style="font-size:1.35rem;font-weight:800;color:var(--naranja)">${esc(c.ultima||"-")}</div>
+        <div style="font-size:.68rem;color:#888">${esc(_desdeUltima(c.semanas))}</div>
+      </div>
+      <div style="flex:1;min-width:140px;background:#f0f6ff;border:1.5px solid var(--azul);border-radius:10px;padding:10px;text-align:center">
+        <div style="font-size:.66rem;font-weight:700;color:#666;text-transform:uppercase">Vendido en el a&ntilde;o</div>
+        <div style="font-size:1.35rem;font-weight:800;color:var(--azul)">${plata(c.monto||0)}</div>
+        <div style="font-size:.68rem;color:#888">${c.compras_n||0} compra${c.compras_n===1?"":"s"}</div>
+      </div>
+    </div>
+    <div class="titulo">Tarea</div>
+    <div id="f-act"></div>
+    <div class="titulo">Observaciones</div>
+    <textarea id="f-coment" rows="3" placeholder="Escrib&iacute; lo que haya que saber de este cliente..."
+      onchange="guardarComentario('${esc(c.codigo)}',this.value)"
+      style="width:100%;padding:9px;border:1.5px solid #ccd2d9;border-radius:7px;
+             font-size:.85rem;font-family:inherit;resize:vertical;box-sizing:border-box"
+      >${esc(comentarioDe(c.codigo))}</textarea>
+    <div style="font-size:.72rem;color:var(--gris);margin-top:3px">Lo ven tambi&eacute;n en el funnel.</div>
+    ${bloqueWhatsapp(c)}
+    ${(c.sectores||[]).length?`<div class="titulo">Sectores que compra</div>
+      <div class="loc">${c.sectores.map(esc).join(" &middot; ")}</div>`:""}
+    <div class="titulo">Qu&eacute; le vend&iacute;</div>
     ${(c.compras||[]).map(x=>`<div class="act prox">
        <b style="flex:1;min-width:110px">${esc(x.fecha)}</b>
        <span class="chip">${plata(x.monto)}</span>
@@ -2209,7 +2289,6 @@ function fichaContado(cod){
        <div style="flex-basis:100%;color:#555;font-size:.78rem;line-height:1.4">
          ${(x.items||[]).map(esc).join("<br>")}</div></div>`).join("")
      ||'<div class="vacio">Sin detalle de compras.</div>'}`;
-  abrir("m-ficha");
 }
 
 function tarjeta(c,quien){
@@ -2323,11 +2402,11 @@ function pintarPanelActividades(quien){
          : "la pidió "+esc(a.origen_usuario))}</span>
     ${a.observaciones?`<div style="flex-basis:100%;color:#555;font-size:.77rem">${esc(a.observaciones)}</div>`:""}
     ${TIPOS_AUTO.includes(a.tipo)
-        ? `<button class="b auto full" onclick="ficha('${esc(a.cliente_cod)}')">${
+        ? `<button class="b auto full" onclick="abrirFicha('${esc(a.cliente_cod)}')">${
              BOTON_AUTO[a.tipo]||"Ver la ficha"}</button>`
         : ((a.asignado_a===sesion.usuario||comoEl)
              ? `<button class="b auto full" onclick="abrirCierre('${a.id}',${comoEl})">Hecha</button>`:"")}
-    <button class="b auto" onclick="ficha('${esc(a.cliente_cod)}')">Ficha</button></div>`;
+    <button class="b auto" onclick="abrirFicha('${esc(a.cliente_cod)}')">Ficha</button></div>`;
   const bloque=(t,arr)=>arr.length?`<div class="titulo">${t} (${arr.length})</div>`+
     arr.sort((a,b)=>(a.fecha||"").localeCompare(b.fecha||"")).map(fila).join(""):"";
   document.getElementById("panel").innerHTML=`<div class="panel">
@@ -2384,7 +2463,7 @@ function bloqueNegocio(c){
     return `<div class="verif ok" style="display:flex;gap:8px;align-items:center;flex-wrap:wrap">
       <span style="flex:1">Negocio: <b>${esc(puestos.join(", "))}</b>${
         n.corregido?` — cargado por ${esc(n.por)}, todavía no está en el ERP`:""}</span>
-      <button class="b auto" onclick="_negAbierto='${esc(cod)}';ficha('${esc(cod)}')">Cambiar</button>
+      <button class="b auto" onclick="_negAbierto='${esc(cod)}';abrirFicha('${esc(cod)}')">Cambiar</button>
     </div>`;
   }
   const otras = puestos.filter(v=>!NEGOCIOS_TOP.includes(v));
@@ -2408,7 +2487,7 @@ function guardarNegocio(cod){
   const libre=(document.getElementById("n-otro").value||"").split(",")
               .map(x=>x.trim().toUpperCase()).filter(Boolean);
   const todos=[...new Set(sel.concat(libre))];
-  const c=clientes.find(x=>String(x.codigo)===String(cod));
+  const c=cliDe(cod);
   const previo=correccionDe(cod)||{};
   // Se copia TODO lo que ya estaba corregido. Guardar el rubro no puede borrar el
   // telefono ni el numero de WhatsApp que cargo otra persona.
@@ -2425,7 +2504,7 @@ function guardarNegocio(cod){
   // el pipeline. El vendedor tiene que ver que lo que hizo sirvio para algo.
   if(todos.length){ cerrarTareaRubro(cod); contar("neg"); }
   _negAbierto=null;
-  if(c) ficha(cod);
+  if(c) abrirFicha(cod);
   pintar();
 }
 
@@ -2843,8 +2922,11 @@ function bloqueWhatsapp(c){
      Tienen que ser 10 dígitos: característica + número, sin 0 y sin 15.</span>
      <button class="b auto" onclick="abrirDatos('${esc(c.codigo)}')">Cargar el número</button></div>`;
   const cel=w.num;
+  // En contado no hay cuota, ni restantes, ni vencimiento: una plantilla que los use
+  // saldria diciendo "tu cuota es $0". Se esconde en vez de mandar un mensaje absurdo.
   const usables=plantillas.slice(0,4).filter(p=>
-    !String(p.texto||"").includes("{resena}") || resenas[c.provincia]);
+    (!String(p.texto||"").includes("{resena}") || resenas[c.provincia])
+    && !(enContado() && /\{(cuota|restantes|vence)\}/.test(String(p.texto||""))));
   const faltaResena = usables.length<plantillas.slice(0,4).length;
   return `<div class="titulo">Mandarle un WhatsApp</div>
     <div class="wa-botones">${usables.map((p,i)=>
@@ -2870,7 +2952,7 @@ const ffNum=f=>{const p=String(f||"").split("/");return p.length===3?+(p[2]+p[1]
 // que guarda recien al salir, y repintar la ficha mientras el vendedor escribe le borra
 // lo que escribio.
 function bloqueActFicha(){
-  const c=clientes.find(x=>String(x.codigo)===String(fCod)); if(!c) return "";
+  const c=cliDe(fCod); if(!c) return "";
   const p=proxDe(c.codigo);
   const lab=esVend()?"Agendar actividad":vista==="cob"?"Avisar al vendedor":"Asignar actividad";
   return (p
@@ -3158,7 +3240,7 @@ function guardarZona(){
 // (cobra por Mercado Pago y se comunica por WhatsApp).
 let datCod=null;
 function abrirDatos(cod){
-  const c=clientes.find(x=>String(x.codigo)===String(cod)); if(!c) return;
+  const c=cliDe(cod); if(!c) return;
   datCod=String(cod);
   const t=telDe(c), d=dirDe(c);
   document.getElementById("d-cli").textContent=c.nombre+"  (#"+cod+")";
@@ -3174,7 +3256,7 @@ function abrirDatos(cod){
   abrir("m-datos");
 }
 async function guardarDatos(){
-  const c=clientes.find(x=>String(x.codigo)===datCod); if(!c) return;
+  const c=cliDe(datCod); if(!c) return;
   const telNuevo=document.getElementById("d-tel").value.trim();
   const dirNueva=document.getElementById("d-dir").value.trim();
   const nota=document.getElementById("d-obs").value.trim();
@@ -3233,6 +3315,7 @@ async function guardarDatos(){
   // cobrador, y cargar en el ERP no es tarea suya. La corrección se guarda igual
   // arriba, en _shared; lo que ya no existe es la tarjeta.
   cerrar("m-datos");
+  if(fCod===datCod) abrirFicha(datCod);   // la ficha quedo abierta detras: que muestre el dato nuevo
   pintar();
 }
 
@@ -3243,7 +3326,7 @@ let actComo=null;
 function alternarVerComo(){ verComo=!verComo; pintar(); window.scrollTo(0,0); }
 function abrirAct(cod){ if(prepararAct(cod)) abrir("m-act"); }
 function prepararAct(cod){
-  const c=clientes.find(x=>String(x.codigo)===String(cod)); if(!c) return false;
+  const c=cliDe(cod); if(!c) return false;
   actCod=String(cod);
   const d=destinoDe(c);
   document.getElementById("a-tit").textContent=
@@ -3260,7 +3343,7 @@ function prepararAct(cod){
   return true;
 }
 async function guardarAct(){
-  const c=clientes.find(x=>String(x.codigo)===actCod);
+  const c=cliDe(actCod);
   const f=document.getElementById("a-fecha").value;
   if(!f){ alert("Poné una fecha."); return; }
   const ahora=firebase.firestore.FieldValue.serverTimestamp();
