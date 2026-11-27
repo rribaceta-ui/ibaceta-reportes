@@ -178,6 +178,20 @@ nav .pin{display:inline-block;min-width:17px;padding:0 5px;margin-left:4px;backg
          border-radius:6px;padding:7px 10px;margin:0 0 9px;color:#8a4b12}
 .vercomo b{color:#6d3a0b}
 .vercomo-b{float:right;font-size:.71rem;padding:3px 9px;margin-top:-2px}
+/* Interruptor de cartera: plan semanal o contado. Van juntos y pegados para que
+   se lean como dos caras de lo mismo, no como dos botones sueltos. */
+.modos{display:flex;gap:0;margin:12px 14px 0;border:1.5px solid #ccd2d9;
+       border-radius:20px;overflow:hidden;background:#fff}
+.modos .mb{flex:1;padding:9px 6px;border:0;background:#fff;cursor:pointer;
+           font-size:.84rem;font-weight:700;color:#5b6775}
+.modos .mb span{display:inline-block;margin-left:5px;font-weight:800;opacity:.6}
+.modos .mb.on{background:var(--azul);color:#fff}
+.modos .mb.on span{opacity:.85}
+.c-k1 .col-h{background:var(--verde)}.c-k2 .col-h{background:#3498DB}
+.c-k3 .col-h{background:#b98b4a}.c-k4 .col-h{background:var(--naranja)}
+.c-k5 .col-h{background:#8d96a3}
+.tar .comp{font-size:.76rem;color:#555;margin:3px 0;line-height:1.35}
+.tar .comp b{color:var(--azul)}
 .sin-ayuda{font-size:.77rem;color:var(--gris);margin:-2px 0 8px;line-height:1.4}
 .sin-ayuda b{color:var(--azul)}
 /* El titulo de la actividad: lo primero que se lee, en toda la fila */
@@ -427,7 +441,7 @@ const db = firebase.firestore();
 // vendedores. Lo hecho sin conexion sincroniza al volver.
 db.enablePersistence({synchronizeTabs:true}).catch(()=>{});
 
-const VERSION="2026-11-27b";
+const VERSION="2026-11-27c";
 const DOMINIO="funnel.ibaceta.ar";
 // Las 10 mas comunes cubren el 88,9% de los clientes que hoy tienen rubro cargado. Van
 // a la vista. El resto de las conocidas queda detras de "Otro", para no perderlas pero
@@ -747,6 +761,16 @@ function escuchar(){
     desus.push(db.collection("clientes").where("vendedor_asig","==",sesion.usuario)
       .onSnapshot(s=>{_cliAsig=s.docs.map(d=>d.data());_fusionarClientes();pintar();},()=>{}));
   }
+  // La cartera de contado. Las reglas filtran igual que en clientes, pero el
+  // vendedor necesita su where() propio: sin el, Firestore rechaza la lectura.
+  let qc=db.collection("contado");
+  if(esVend())      qc=qc.where("vendedor","==",sesion.usuario);
+  else if(sesion.rol==="supervisor_zona") qc=qc.where("provincia","==",sesion.zona);
+  if(!esCob()){
+    desus.push(qc.onSnapshot(s=>{contado=s.docs.map(d=>d.data()); pintar();},
+      e=>{ console.warn("contado:", e.message); }));
+  }
+
   let qa=db.collection("actividades");
   if(esVend()) qa=qa.where("asignado_a","==",sesion.usuario);
   desus.push(qa.onSnapshot(s=>{actividades=s.docs.map(d=>({id:d.id,...d.data()}));
@@ -1382,7 +1406,9 @@ function pintarBarra(){
   // Tamaño del cliente. Solo aparece cuando el dato existe: `cuota_max` lo agrega el
   // sincronizador, asi que hasta la primera corrida nocturna el desplegable no se dibuja
   // en vez de mostrar un filtro que no filtra nada.
-  if(base.some(c=>cuotaMaxDe(c)>0)){
+  // En contado no hay cuota semanal: el filtro dejaria la pantalla vacia sin
+  // que se entienda por que.
+  if(!enContado() && base.some(c=>cuotaMaxDe(c)>0)){
     const uCuo=universoBarra("cuota");
     const cuenta=k=>{ const tr=TRAMOS_CUOTA.find(x=>x[0]===k);
       return uCuo.filter(c=>{ const v=cuotaMaxDe(c); return v>tr[2]&&v<=tr[3]; }).length; };
@@ -1405,7 +1431,10 @@ function pintarBarra(){
            <i style="background:${col}"></i>${esc(corto)} (${cuenta[k]})</label>`).join("")+
       `</div>`;
   }
-  h+=`<label style="display:flex;align-items:center;gap:6px;font-size:.8rem;color:#555">
+  // Las etiquetas (incobrable, sin local...) son del plan semanal: en contado el
+  // filtro dejaria la pantalla en cero y no hay nada que marcar.
+  if(!enContado())
+    h+=`<label style="display:flex;align-items:center;gap:6px;font-size:.8rem;color:#555">
         <input type="checkbox" ${soloEtiquetados?"checked":""}
                onchange="soloEtiquetados=this.checked;pintar()" style="width:auto"> Solo etiquetados</label>`;
   // Con cinco filtros es facil dejar uno puesto y no entender por que faltan clientes.
@@ -1505,10 +1534,11 @@ function filtrar(l, saltar){
 
 function baseDe(){
   const q = vista==="vend" ? (esVend()?sesion.usuario:selVend) : (esCob()?sesion.usuario:selCob);
-  if(!q) return clientes;
+  const fuente = enContado() ? contado : clientes;
+  if(!q) return fuente;
   return vista==="vend"
-    ? clientes.filter(c=>esDe(c,q))
-    : clientes.filter(c=>(c.cobradores||[]).includes(q));
+    ? fuente.filter(c=>esDe(c,q))
+    : fuente.filter(c=>(c.cobradores||[]).includes(q));
 }
 
 // ---------- Vista Supervisor ----------
@@ -1818,6 +1848,47 @@ function abrirMulti(id){ multiAbierto=(multiAbierto===id?null:id); _multiScroll=
 function marcarMulti(id,v,si){ const s=_setDe(id); si?s.add(v):s.delete(v); pintar(); }
 function limpiarMulti(id){ _setDe(id).clear(); pintar(); }
 
+// ── La otra cartera: los clientes de CONTADO (Direccion, 27/11/2026) ──────
+// El Funnel mostraba solo la venta financiada por semana. El vendedor de calle
+// tambien vende de contado y esos clientes no estaban en ninguna pantalla: no
+// habia forma de saber a quien le vendio ni de volver a visitarlo.
+// Es un MODO, no un filtro mas: son dos trabajos distintos. En el plan semanal
+// se siguen cuotas y renovaciones; aca lo unico que importa es hace cuanto no
+// le vendo, que le vendi y como lo llamo. Las etapas del plan no aplican.
+let modo="plan", contado=[];
+const enContado=()=>modo==="contado";
+
+// Ventana de 12 meses (lo arma contado_calle.py). Con dos anios el universo
+// pasa de 793 a 1.520 clientes pero mas de la mitad no compra desde hace mas de
+// un anio: volvia la columna basurero que se saco del tablero de finalizados.
+const COL_CONT=[["k1","Recién le vendí","hasta 4 semanas",0,4],
+                ["k2","Hace 1 a 2 meses","4 a 8 semanas",4,8],
+                ["k3","Hace 2 a 3 meses","8 a 12 semanas",8,12],
+                ["k4","Hace 3 a 6 meses","12 a 26 semanas",12,26],
+                ["k5","Hace 6 a 12 meses","26 a 52 semanas",26,52]];
+const COL_CONT_DE=c=>{
+  const s=Number(c.semanas); if(!isFinite(s)) return null;
+  const f=COL_CONT.find(([,,,lo,hi])=>s>=lo&&s<=hi); return f?f[0]:null;
+};
+function interruptorModo(){
+  const nPlan=clientes.filter(c=>esDe(c,_quienKanban())).length;
+  const nCont=contado.filter(c=>esDe(c,_quienKanban())).length;
+  if(!nCont && !enContado()) return "";       // sin cartera de contado no se ofrece
+  const b=(k,l,n)=>`<button class="mb${modo===k?" on":""}" onclick="irModo('${k}')">`
+    +`${l} <span>${n}</span></button>`;
+  return `<div class="modos">${b("plan","Plan semanal",nPlan)}`
+    +`${b("contado","Contado",nCont)}</div>`;
+}
+const _quienKanban=()=>vista==="vend" ? (esVend()?sesion.usuario:selVend)
+                                      : (esCob()?sesion.usuario:selCob);
+function irModo(k){
+  modo=k; fKpi=null; fEstado=null; colsAbiertas.clear();
+  // El tamanio de cliente es la cuota semanal: en contado no existe y dejaria la
+  // pantalla vacia sin que se entienda por que.
+  if(enContado()) fCuota.clear();
+  multiAbierto=null; pintar(); window.scrollTo(0,0);
+}
+
 const KPI_NOTA={
   activos:"los clientes con un plan en curso",
   cierre :"los clientes con un plan entre el 90% y el 100%: son los de renovar ahora",
@@ -2013,40 +2084,57 @@ function pintarKanban(){
     document.getElementById("cols").innerHTML=`<div class="vacio">Seleccioná un ${vista==="vend"?"vendedor":"cobrador"} para ver su cartera.</div>`;
     return;
   }
+  const fuente = enContado() ? contado : clientes;
   let src = vista==="vend"
-    ? clientes.filter(c=>esDe(c,quien))
-    : clientes.filter(c=>(c.cobradores||[]).includes(quien));
+    ? fuente.filter(c=>esDe(c,quien))
+    : fuente.filter(c=>(c.cobradores||[]).includes(quien));
   src=filtrar(src);
 
   // Las tarjetas se arman con la cartera COMPLETA; el filtro se aplica despues, para
   // que los numeros no cambien al tocarlos. Si se filtrara antes, tocar "se fueron 19"
   // dejaria la tarjeta en 19 y todo lo demas en cero.
-  document.getElementById("periodo").innerHTML = tarjetasPeriodo(src);
+  // El interruptor va arriba de todo y en los dos modos: es el que explica que
+  // estas mirando una de dos carteras y no un filtro.
+  document.getElementById("periodo").innerHTML =
+    interruptorModo() + (enContado() ? "" : tarjetasPeriodo(src));
   // De aca para abajo TODO mira la lista ya filtrada: los KPI, las columnas y los
   // pendientes. Si los KPI quedaran afuera, la pantalla mostraria 34 clientes en las
   // columnas y 79 arriba, y no habria forma de saber cual de los dos es el bueno.
   src = aplicarEstado(src);
 
-  const act=src.filter(c=>c.estado==="activo");
-  const opsA=act.flatMap(opsActivas);
-  kpis([["Clientes activos",act.length,"activos"],["Operaciones activas",opsA.length],
-        ["Cierre inminente",act.filter(c=>opsActivas(c).some(o=>o.etapa==="cierre_inminente")).length,"cierre"],
-        ["Finalizados sin renovar",src.filter(c=>c.estado!=="activo").length,"fin"],
-        ["Cuota total/sem",plata(opsA.reduce((s,o)=>s+(o.cuota_semanal||0),0))]]);
-  src = aplicarKpi(src);
+  if(enContado()){
+    // Numeros propios: en contado no hay plan, ni cuota, ni etapa.
+    const frios=src.filter(c=>Number(c.semanas)>12).length;
+    kpis([["Clientes",src.length],
+          ["Compras del año",src.reduce((s,c)=>s+(c.compras_n||0),0)],
+          ["Vendido",plata(src.reduce((s,c)=>s+(c.monto||0),0))],
+          ["Sin comprar hace +3 meses",frios],
+          ["Sin teléfono",src.filter(c=>!c.telefono).length]]);
+  } else {
+    const act=src.filter(c=>c.estado==="activo");
+    const opsA=act.flatMap(opsActivas);
+    kpis([["Clientes activos",act.length,"activos"],["Operaciones activas",opsA.length],
+          ["Cierre inminente",act.filter(c=>opsActivas(c).some(o=>o.etapa==="cierre_inminente")).length,"cierre"],
+          ["Finalizados sin renovar",src.filter(c=>c.estado!=="activo").length,"fin"],
+          ["Cuota total/sem",plata(opsA.reduce((s,o)=>s+(o.cuota_semanal||0),0))]]);
+    src = aplicarKpi(src);
+  }
 
-  pintarPanelActividades(quien);
+  if(enContado()) document.getElementById("panel").innerHTML="";
+  else            pintarPanelActividades(quien);
   document.getElementById("tabla").innerHTML=tablaCob;
 
-  const esVista = vista==="vend";
+  const esVista = vista==="vend" && !enContado();
   const reasig = esVista ? src.filter(c=>esReasignado(c,quien)) : [];
   const codsR = new Set(reasig.map(c=>String(c.codigo)));
   // Con el filtro de "Finalizados sin renovar" las columnas dejan de ser las
   // etapas del plan (no tienen ninguno) y pasan a ser hace cuanto se fueron.
-  const modoFin = fKpi==="fin";
-  const COLS = modoFin ? COL_FIN.map(([k,l,r])=>[k,l,r]) : ETAPAS;
+  const modoFin = !enContado() && fKpi==="fin";
+  const COLS = enContado() ? COL_CONT.map(([k,l,r])=>[k,l,r])
+             : modoFin    ? COL_FIN.map(([k,l,r])=>[k,l,r]) : ETAPAS;
   const por={}; COLS.forEach(([k])=>por[k]=[]); por.viejos=[];
   src.forEach(c=>{ if(codsR.has(String(c.codigo))) return;
+    if(enContado()){ const k=COL_CONT_DE(c); if(k) por[k].push(c); return; }
     if(modoFin){ const k=COL_FIN_DE(c); if(k) (por[k]||por.viejos).push(c); return; }
     const e=etapaDe(c); (por[e]||por.finalizado).push(c); });
   const colReasig = reasig.length ? `<div class="col c-reasignado">
@@ -2070,9 +2158,58 @@ function pintarKanban(){
     return `<div class="col c-${k}">
       <div class="col-h"><div class="t">${l}</div><div class="n">${lista.length}</div><div class="r">${r}</div></div>
       <div class="col-b">${lista.slice(0,colsAbiertas.has(k)?lista.length:TOPE_COL)
-        .map(c=>tarjeta(c,quien)).join("")||'<div class="vacio" style="padding:12px">—</div>'}
+        .map(c=>enContado()?tarjetaContado(c):tarjeta(c,quien)).join("")
+        ||'<div class="vacio" style="padding:12px">—</div>'}
       ${pieCol(k,lista.length)}</div></div>`;
   }).join("") + colViejos + colReasig;
+}
+
+// La tarjeta de contado. A proposito trae MENOS cosas que la del plan: lo que
+// pidieron los vendedores es encontrarlos, ver que les vendieron y llamarlos.
+// No hay cuotas, ni etapas, ni etiquetas, ni actividades: nada de eso existe en
+// una venta de contado.
+function tarjetaContado(c){
+  const u=(c.compras||[])[0];
+  const items=(u&&u.items||[]).slice(0,3);
+  return `<div class="tar">
+    <div class="nom">${esc(c.nombre)}</div>
+    <div class="loc">${esc(c.localidad||"")}${c.negocio&&c.negocio!=="NO DEFINIDO"
+        ?" · "+esc(c.negocio):""}</div>
+    ${u?`<div class="comp"><b>${esc(u.fecha)}</b> · ${plata(u.monto)}
+         ${items.length?"<br>"+items.map(esc).join("<br>"):""}</div>`:""}
+    <div class="de">${c.compras_n||0} compra${c.compras_n===1?"":"s"} ·
+        ${plata(c.monto)} en el año</div>
+    ${c.telefono?`<div class="te">${tel(c.telefono)}</div>`
+                :`<div class="loc" style="color:var(--rojo)">Sin teléfono cargado</div>`}
+    <button class="b full" onclick="fichaContado('${esc(c.codigo)}')">Ver qué le vendí</button>
+  </div>`;
+}
+
+// La ficha: todo lo que le vendimos en el año, de lo mas nuevo a lo mas viejo.
+function fichaContado(cod){
+  const c=contado.find(x=>String(x.codigo)===String(cod)); if(!c) return;
+  document.getElementById("f-nom").textContent=c.nombre||"";
+  const dom=[c.domicilio,c.localidad,c.provincia].filter(Boolean).map(esc).join(", ");
+  document.getElementById("f-cuerpo").innerHTML=`
+    <div class="titulo">Contacto</div>
+    ${c.telefono?`<div class="te">${tel(c.telefono)}</div>`
+                :`<div class="loc" style="color:var(--rojo)">Sin teléfono en el ERP</div>`}
+    ${dom?`<div class="loc">${dom}</div>`:""}
+    ${c.email?`<div class="loc">${esc(c.email)}</div>`:""}
+    ${c.negocio&&c.negocio!=="NO DEFINIDO"?`<div class="loc">Rubro: ${esc(c.negocio)}</div>`:""}
+    <div class="titulo">Resumen</div>
+    <div class="loc">Última compra el <b>${esc(c.ultima)}</b> ·
+      ${c.compras_n} compra${c.compras_n===1?"":"s"} · ${plata(c.monto)} en el año</div>
+    ${(c.sectores||[]).length?`<div class="loc">Sectores: ${c.sectores.map(esc).join(" · ")}</div>`:""}
+    <div class="titulo">Qué le vendí</div>
+    ${(c.compras||[]).map(x=>`<div class="act prox">
+       <b style="flex:1;min-width:110px">${esc(x.fecha)}</b>
+       <span class="chip">${plata(x.monto)}</span>
+       ${x.pago?`<span style="color:var(--gris);font-size:.72rem">${esc(x.pago)}</span>`:""}
+       <div style="flex-basis:100%;color:#555;font-size:.78rem;line-height:1.4">
+         ${(x.items||[]).map(esc).join("<br>")}</div></div>`).join("")
+     ||'<div class="vacio">Sin detalle de compras.</div>'}`;
+  abrir("m-ficha");
 }
 
 function tarjeta(c,quien){
