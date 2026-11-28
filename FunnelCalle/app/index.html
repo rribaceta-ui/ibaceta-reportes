@@ -464,7 +464,7 @@ const db = firebase.firestore();
 // vendedores. Lo hecho sin conexion sincroniza al volver.
 db.enablePersistence({synchronizeTabs:true}).catch(()=>{});
 
-const VERSION="2026-11-28f";
+const VERSION="2026-11-28g";
 const DOMINIO="funnel.ibaceta.ar";
 // Las 10 mas comunes cubren el 88,9% de los clientes que hoy tienen rubro cargado. Van
 // a la vista. El resto de las conocidas queda detras de "Otro", para no perderlas pero
@@ -2511,23 +2511,40 @@ function pintarPanelActividades(quien){
 // La regla deja leer solo el documento propio (mas el supervisor de su zona y gerencia).
 let metricasCache={};
 
-function _tarjetaMet(rot, valor, unidad, ref, detalle, explica, sub){
-  // Tres bandas, no un puesto. La medicion del 27/11/2026 mostro que el 1o y el 5o de
-  // cada metrica tienen intervalos de confianza que se superponen: un ranking de 20
-  // puestos seria mayormente azar y el que saliera cuarto tendria razon en quejarse.
+// Con cuantos vendedores de la zona se puede usar cuartiles. Con menos, "arriba del
+// 75%" es falsa precision: solo se dice si esta arriba o abajo de la mitad.
+const MET_MIN_CUARTIL=8;
+
+function _tarjetaMet(rot, valor, unidad, ref, refZ, zona, detalle, explica, sub){
+  // **La banda compara contra la ZONA, no contra toda Calle** (Direccion, 28/11/2026).
+  // Las zonas no se parecen: un vendedor de San Juan hace 48,5 clientes nuevos de
+  // mediana contra 20 en Mendoza. Con una sola referencia el de Mendoza con 28 parecia
+  // promedio estando arriba de su zona, y el de San Juan con 28 parecia promedio
+  // estando muy abajo. La diferencia es de VOLUMEN: los porcentajes son casi iguales
+  // en las tres (mix de renovacion 52,2 / 53,4 / 52,2).
+  // Nunca un puesto: el 1o y el 5o de cada metrica tienen intervalos que se superponen.
+  const base = refZ || ref;
   let b=null;
-  if(valor!=null&&ref){
-    b = valor>=ref.p75 ? {cls:"met-alto",  txt:"Arriba de la mayoría"}
-      : valor>=ref.p25 ? {cls:"met-medio", txt:"En el medio del grupo"}
-      :                  {cls:"met-bajo",  txt:"Abajo de la mayoría"};
+  if(valor!=null&&base){
+    const donde = refZ ? " de "+esc(zona) : "";
+    if(refZ && refZ.vendedores < MET_MIN_CUARTIL){
+      b = valor>=base.mediana ? {cls:"met-alto", txt:"Arriba de la mitad"+donde}
+                              : {cls:"met-bajo", txt:"Abajo de la mitad"+donde};
+    } else {
+      b = valor>=base.p75 ? {cls:"met-alto",  txt:"Arriba de la mayoría"+donde}
+        : valor>=base.p25 ? {cls:"met-medio", txt:donde?"En el medio de"+donde.slice(3):"En el medio del grupo"}
+        :                   {cls:"met-bajo",  txt:"Abajo de la mayoría"+donde};
+    }
   }
+  const medianas = [];
+  if(refZ) medianas.push(`tu zona (${esc(zona)}): <b>${refZ.mediana}${unidad}</b>`);
+  if(ref)  medianas.push(`toda Calle: <b>${ref.mediana}${unidad}</b>`);
   return `<div class="met-card${b?" "+b.cls:""}">
     <div class="met-rot">${rot}</div>
     <div class="met-num">${valor==null?"—":valor}${valor==null?"":unidad}</div>
     ${sub?`<div class="met-sub">${sub}</div>`:""}
     ${b?`<div class="met-banda">${b.txt}</div>`:""}
-    ${ref?`<div class="met-med">La mediana de Calle es <b>${ref.mediana}${unidad}</b>
-       · ${ref.vendedores} vendedores medidos</div>`:""}
+    ${medianas.length?`<div class="met-med">Mediana de ${medianas.join(" · ")}</div>`:""}
     <div class="met-det">${detalle}</div>
     <div class="met-exp">${explica}</div></div>`;
 }
@@ -2561,6 +2578,10 @@ function pintarMetricas(){
     +"entró al sistema, aparecen mañana.");
 
   const R=metricasRed||{};
+  // La referencia de su zona. Si la zona tiene muy pocos vendedores el script no la
+  // publica, y la tarjeta compara contra toda Calle como antes.
+  const Z=((R.zonas||{})[m.zona])||{};
+  const zona=m.zona||"";
   const promMes=Math.round(10*(m.nuevos||0)/12)/10;
   const r3=Math.round(10*(m.u3||0)/3)/10, r9=Math.round(10*(m.a9||0)/9)/10;
   const flecha = r9>0&&r3>=r9*1.2 ? ' <span class="met-sube">▲</span>'
@@ -2582,21 +2603,21 @@ function pintarMetricas(){
       historia arrastra clientes de hace años que ya no compran. Sirve para mirar
       cómo te va moviendo a vos, no para ver quién lo tiene más alto.</div>`:""}
     <div class="met-grid">
-      ${_tarjetaMet("Clientes nuevos", m.nuevos, "", R.nuevos,
+      ${_tarjetaMet("Clientes nuevos", m.nuevos, "", R.nuevos, Z.nuevos, zona,
         `${dePct(m.nuevos)}Les vendiste por primera vez: nunca le habían comprado a
          la empresa.`,
         `Es el único que no depende del tamaño de tu cartera. Si está bajo, el trabajo
          es prospectar.`, sub)}
-      ${_tarjetaMet("Renovaciones", m.renovaciones, "", R.renovaciones,
+      ${_tarjetaMet("Renovaciones", m.renovaciones, "", R.renovaciones, Z.renovaciones, zona,
         `${dePct(m.renovaciones)}Le vendiste de nuevo a alguien que <b>estaba
          pagando</b>, o que había terminado de saldar hace menos de dos semanas.`,
         `Incluye la venta anticipada: el plan nuevo antes de que termine el que corre.`)}
-      ${_tarjetaMet("Recuperos", m.recuperos, "", R.recuperos,
+      ${_tarjetaMet("Recuperos", m.recuperos, "", R.recuperos, Z.recuperos, zona,
         `${dePct(m.recuperos)}Volviste a venderle a alguien que había saldado hace
          <b>más de dos semanas</b>: lo tuviste que ir a buscar.`,
         `No es lo mismo que renovar. Un cliente que ya se había ido cuesta más trabajo,
          y acá se ve aparte en vez de mezclarse con las renovaciones.`)}
-      ${_tarjetaMet("Recompra de contado", m.recompra, "%", R.recompra,
+      ${_tarjetaMet("Recompra de contado", m.recompra, "%", R.recompra, Z.recompra, zona,
         m.cont_den>=20 ? `De <b>${m.cont_den}</b> clientes de contado, te compraron más
           de una vez <b>${m.cont_num}</b>.`
         : `Todavía no alcanza para medirlo: hacen falta al menos 20 clientes de contado
