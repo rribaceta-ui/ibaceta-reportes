@@ -472,7 +472,7 @@ const db = firebase.firestore();
 // vendedores. Lo hecho sin conexion sincroniza al volver.
 db.enablePersistence({synchronizeTabs:true}).catch(()=>{});
 
-const VERSION="2026-11-28h";
+const VERSION="2026-11-28i";
 const DOMINIO="funnel.ibaceta.ar";
 // Las 10 mas comunes cubren el 88,9% de los clientes que hoy tienen rubro cargado. Van
 // a la vista. El resto de las conocidas queda detras de "Otro", para no perderlas pero
@@ -2676,6 +2676,13 @@ function pintarMetricas(){
     </div>
     <div class="met-titulo">Cómo vendés</div>
     <div class="met-grid">
+      ${_tarjetaMet("Tasa de renovación", m.tasa_reno, "%", R.tasa_reno, Z.tasa_reno, zona,
+        `De <b>${m.reno_den||0}</b> clientes a los que se les terminó de pagar el plan,
+         le vendiste de nuevo a <b>${m.reno_num||0}</b> dentro de las dos semanas.`,
+        `Es el momento que más se repite en tu trabajo: se termina un plan y hay que
+         vender el siguiente. En toda Calle <b>7 de cada 10</b> clientes que terminan de
+         pagar no reciben una venta nueva en esas dos semanas. Cuenta la venta
+         anticipada: el plan nuevo antes de que termine el que corre.`)}
       ${_tarjetaMet("Ventas con 2 o más artículos", m.multi, "%", R.multi, Z.multi, zona,
         `De tus ventas con detalle, <b>${m.multi_art||0}</b> de <b>${m.ops_con_prod||0}</b>
          llevaron más de un artículo.`,
