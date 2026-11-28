@@ -462,7 +462,7 @@ const db = firebase.firestore();
 // vendedores. Lo hecho sin conexion sincroniza al volver.
 db.enablePersistence({synchronizeTabs:true}).catch(()=>{});
 
-const VERSION="2026-11-28d";
+const VERSION="2026-11-28e";
 const DOMINIO="funnel.ibaceta.ar";
 // Las 10 mas comunes cubren el 88,9% de los clientes que hoy tienen rubro cargado. Van
 // a la vista. El resto de las conocidas queda detras de "Otro", para no perderlas pero
@@ -2498,194 +2498,104 @@ function pintarPanelActividades(quien){
   </div>`;
 }
 
-// ---------- metricas del vendedor (27/11/2026) ----------
-// Las tres salen de datos que la app YA TIENE: el campo `hitos` de cada cliente trae
-// TODAS sus operaciones (no solo las activas) como pares inicio/fin, y los clientes de
-// contado traen `compras_n`. Por eso no hace falta ni coleccion nueva ni regla nueva.
-//
-// ESTAS DEFINICIONES SON EL ESPEJO EXACTO de metricas_calle.py, que calcula las
-// medianas con la vista completa. Si una cambia y la otra no, el vendedor compara su
-// numero contra una mediana medida de otra forma y la pantalla miente sin avisar.
-const MET_VENTANA=365;
-// Debajo de esta base el porcentaje es ruido: un vendedor con 6 clientes de contado dio
-// 33,3% con un margen de error de ±37,7 puntos. Eso no es una medicion, es una moneda.
-const MET_MIN_BASE=20;
+// ---------- metricas del vendedor ----------
+// Desde el 28/11/2026 la app NO CALCULA NADA: lee lo que publico metricas_calle.py en
+// `metricas/{usuario}`. El motivo es la definicion de Direccion -- una venta es
+// renovacion si el cliente estaba pagando o si salio hace <=2 semanas **de SALDAR**, no
+// de la fecha de fin del plan-, y la fecha de saldado vive en las cuotas: 24 MB que no
+// viajan al telefono.
+// Efecto lateral bueno: la definicion queda en UN SOLO LUGAR. Antes estaba tambien aca
+// y habia que verificar que fueran espejo cada vez que se tocaba una.
+// La regla deja leer solo el documento propio (mas el supervisor de su zona y gerencia).
+let metricasCache={};
 
-// Cuando y como ENTRO el cliente a la cartera dentro de la ventana. Espejo exacto de
-// entrada() en metricas_calle.py.
-//   nuevo      = su primera operacion de la vida cae adentro de la ventana
-//   recuperado = tomo una operacion despues de pasar MET_BRECHA dias o mas sin ningun
-//                plan abierto, y eso ocurrio adentro de la ventana
-//
-// **La brecha se mide contra su propia historia, NO contra el borde de la ventana.**
-// La primera version preguntaba "¿estaba sin plan hace 365 dias?" y eso tiene un sesgo
-// que casi se publica: ese grupo es fijo y se agota durante el año, asi que los
-// primeros meses cosechan de un pozo lleno y los ultimos de uno vacio. El ritmo daba
-// -19% para la unidad y 15 de 21 vendedores con flecha para abajo, cuando midiendo solo
-// los nuevos daba +15%. Con la brecha propia da +1% y las flechas quedan 4/10/6.
-//
-// Los dos tipos cuentan juntos: en 12 meses entraron 653 nuevos y 670 recuperados.
-// Contando solo los nuevos, la metrica no veia la mitad del trabajo de prospeccion, y
-// no lo repartia parejo (hay vendedores con el 3% de lo que entra recuperado y otros
-// con el 71%).
-const MET_BRECHA=90;
-const _fy=y=>new Date(+y.slice(0,4), +y.slice(4,6)-1, +y.slice(6));
-function _entrada(hs, desde){
-  let finMax=null;
-  for(const h of hs.slice().sort((x,y)=>x[0]<y[0]?-1:x[0]>y[0]?1:0)){
-    const a=h[0], b=h[1];
-    if(finMax===null){
-      if(a>=desde) return {tipo:"nuevo", cuando:a};
-    } else if((_fy(a)-_fy(finMax))/86400000 >= MET_BRECHA){
-      if(a>=desde) return {tipo:"recuperado", cuando:a};
-    }
-    if(finMax===null||b>finMax) finMax=b;
+function _tarjetaMet(rot, valor, unidad, ref, detalle, explica, sub){
+  // Tres bandas, no un puesto. La medicion del 27/11/2026 mostro que el 1o y el 5o de
+  // cada metrica tienen intervalos de confianza que se superponen: un ranking de 20
+  // puestos seria mayormente azar y el que saliera cuarto tendria razon en quejarse.
+  let b=null;
+  if(valor!=null&&ref){
+    b = valor>=ref.p75 ? {cls:"met-alto",  txt:"Arriba de la mayoría"}
+      : valor>=ref.p25 ? {cls:"met-medio", txt:"En el medio del grupo"}
+      :                  {cls:"met-bajo",  txt:"Abajo de la mayoría"};
   }
-  return null;
-}
-
-function metricasDe(quien){
-  const d=new Date(); d.setDate(d.getDate()-MET_VENTANA);
-  const desde=_ymd(d), hasta=_ymd(new Date());
-  // Ritmo: ultimos 90 dias contra los 275 anteriores. En dias y no en meses de
-  // calendario para que no quede un mes partido en la punta.
-  const dc=new Date(); dc.setDate(dc.getDate()-90);
-  const corte=_ymd(dc);
-  const m={cartera:0, nuevos:0, recuperados:0, entraron:0, u3:0, a9:0,
-           retDen:0, retNum:0, contDen:0, contNum:0};
-  (clientes||[]).forEach(c=>{
-    if(!esDe(c,quien)) return;
-    if(DESCARTE.includes(tagDe(c.codigo))) return;   // incobrable / fallecido no son cartera
-    if(esEmpleado(c)) return;                        // el beneficio interno tampoco
-    const hs=_hitos(c); if(!hs.length) return;
-    m.cartera++;
-    // Se cuenta en NUMERO y no en tasa: la tasa tiene correlacion -0,76 con el tamaño
-    // de la cartera, o sea que mide hace cuanto entro el vendedor y no lo que hizo. El
-    // numero absoluto da -0,05.
-    const e=_entrada(hs, desde);
-    if(e){
-      m.entraron++;
-      if(e.tipo==="nuevo"){
-        m.nuevos++;
-        if(e.cuando>=corte) m.u3++; else m.a9++;
-      } else m.recuperados++;
-    }
-    // RETENCION: se le vencio un plan en la ventana y SIGUE con vos -- tomo otro
-    // despues, o tiene un plan abierto hoy.
-    // Lo segundo no es un agregado: es el caso normal de Calle. El vendedor vende el
-    // plan siguiente ANTES de que termine el que corre (el cliente en cierre
-    // inminente). Contando solo el que arranca despues del fin, esas renovaciones
-    // anticipadas figuraban como "no renovo": de 120 de HLEPEZ, 51 tenian plan activo
-    // hoy y solo 30 contaban. La mediana de la unidad pasa de 24% a 38%.
-    const fines=hs.filter(h=>h[1]>=desde&&h[1]<=hasta).map(h=>h[1]).sort();
-    if(fines.length){
-      m.retDen++;
-      const ult=fines[fines.length-1];
-      const abiertoHoy=hs.some(h=>h[0]<=hasta&&hasta<=h[1]);
-      if(abiertoHoy||hs.some(h=>h[0]>ult)) m.retNum++;
-    }
-  });
-  (contado||[]).forEach(c=>{
-    if(!esDe(c,quien)) return;
-    m.contDen++;
-    if((c.compras_n||0)>=2) m.contNum++;
-  });
-  // El promedio mensual NO es una metrica aparte: es el mismo numero dividido por 12,
-  // mismo ranking y misma correlacion. Va como linea de apoyo porque es el ritmo en que
-  // el vendedor piensa ("tengo que traer 2 por mes"), no como tarjeta propia.
-  m.promMes = Math.round(10*m.nuevos/12)/10;
-  m.ritmo3  = Math.round(10*m.u3/3)/10;
-  m.ritmo9  = Math.round(10*m.a9/9)/10;
-  m.retencion = m.retDen>=MET_MIN_BASE ? Math.round(1000*m.retNum/m.retDen)/10 : null;
-  m.recompra  = m.contDen>=MET_MIN_BASE ? Math.round(1000*m.contNum/m.contDen)/10 : null;
-  return m;
-}
-
-// Tres bandas, no un puesto. La medicion del 27/11/2026 mostro que el 1o y el 5o de
-// cada metrica tienen intervalos de confianza que se superponen: un ranking de 20
-// puestos seria mayormente azar y el que saliera cuarto tendria razon en quejarse.
-function _banda(valor, ref){
-  if(valor==null||!ref) return null;
-  if(valor>=ref.p75) return {cls:"met-alto",  txt:"Arriba de la mayoría"};
-  if(valor>=ref.p25) return {cls:"met-medio", txt:"En el medio del grupo"};
-  return {cls:"met-bajo", txt:"Abajo de la mayoría"};
-}
-
-function _tarjetaMet(rot, valor, unidad, ref, detalle, explica, base, minimo, sub){
-  if(base!=null && base<minimo){
-    return `<div class="met-card"><div class="met-rot">${rot}</div>
-      <div class="met-faltan">Todavía no alcanza para medirlo: hacen falta al menos
-        ${minimo} y tenés ${base}. Con menos, el número es azar y no dice nada.</div>
-      <div class="met-exp">${explica}</div></div>`;
-  }
-  const b=_banda(valor, ref);
-  const med = ref ? `<div class="met-med">La mediana de Calle es
-      <b>${ref.mediana}${unidad}</b> · ${ref.vendedores} vendedores medidos</div>` : "";
   return `<div class="met-card${b?" "+b.cls:""}">
     <div class="met-rot">${rot}</div>
     <div class="met-num">${valor==null?"—":valor}${valor==null?"":unidad}</div>
     ${sub?`<div class="met-sub">${sub}</div>`:""}
     ${b?`<div class="met-banda">${b.txt}</div>`:""}
-    ${med}
+    ${ref?`<div class="met-med">La mediana de Calle es <b>${ref.mediana}${unidad}</b>
+       · ${ref.vendedores} vendedores medidos</div>`:""}
     <div class="met-det">${detalle}</div>
     <div class="met-exp">${explica}</div></div>`;
 }
 
 function pintarMetricas(){
-  // El tablero deja contenido en cuatro contenedores, no en uno: si no se limpian todos,
-  // Metricas aparece DEBAJO del kanban, del interruptor y de las tarjetas de periodo.
+  // El tablero deja contenido en cuatro contenedores, no en uno: si no se limpian
+  // todos, Metricas aparece DEBAJO del kanban y de las tarjetas de periodo.
   ["cols","periodo","kpis","tabla"].forEach(id=>{
     const e=document.getElementById(id); if(e) e.innerHTML="";
   });
+  const panel=document.getElementById("panel");
   const quien = esVend() ? sesion.usuario : selVend;
-  const panel = document.getElementById("panel");
-  if(!quien){
-    panel.innerHTML=`<div class="panel"><h3>Métricas</h3>
-      <div class="sin-ayuda">Elegí un vendedor en <b>Vista Vendedor</b> y volvé acá:
-      las métricas son de una persona, no del total.</div></div>`;
+  const caja = (t,c)=>panel.innerHTML=`<div class="panel"><h3>${t}</h3>
+      <div class="sin-ayuda">${c}</div></div>`;
+  if(!quien) return caja("Métricas",
+    "Elegí un vendedor en <b>Vista Vendedor</b> y volvé acá: las métricas son de una "
+    +"persona, no del total.");
+
+  const m=metricasCache[quien];
+  if(m===undefined){
+    caja(esVend()?"Tus números":"Métricas de "+esc(quien), "Buscando tus números...");
+    db.collection("metricas").doc(String(quien).replace(/\//g,"_")).get()
+      .then(d=>{ metricasCache[quien]= d.exists ? d.data() : null;
+                 if(vista==="metricas") pintarMetricas(); })
+      .catch(()=>{ metricasCache[quien]=null;
+                   if(vista==="metricas") pintarMetricas(); });
     return;
   }
-  const m=metricasDe(quien), R=metricasRed||{};
-  const quien_txt = esVend() ? "Tus números" : "Métricas de "+esc(quien);
+  if(!m) return caja(esVend()?"Tus números":"Métricas de "+esc(quien),
+    "Todavía no hay métricas de "+esc(quien)+". Se calculan todas las noches; si recién "
+    +"entró al sistema, aparecen mañana.");
+
+  const R=metricasRed||{};
+  const promMes=Math.round(10*(m.nuevos||0)/12)/10;
+  const r3=Math.round(10*(m.u3||0)/3)/10, r9=Math.round(10*(m.a9||0)/9)/10;
+  const flecha = r9>0&&r3>=r9*1.2 ? ' <span class="met-sube">▲</span>'
+               : r9>0&&r3<=r9*0.8 ? ' <span class="met-baja">▼</span>' : "";
+  const sub=`<b>${promMes}</b> por mes · en los últimos 3 venís a <b>${r3}</b>${flecha}`;
+
   panel.innerHTML=`<div class="panel">
-    <h3>${quien_txt}</h3>
-    <div class="sin-ayuda">Últimos 12 meses sobre tu cartera de ${m.cartera}
-      cliente${m.cartera===1?"":"s"}.${R.generado?` Las medianas son al ${esc(R.generado)}.`:""}
-      Son tres cosas distintas y ninguna se arregla con la otra.</div>
+    <h3>${esVend()?"Tus números":"Métricas de "+esc(quien)}</h3>
+    <div class="sin-ayuda">Últimos 12 meses: <b>${m.ventas||0}</b> ventas sobre una
+      cartera de ${m.cartera||0} clientes.${m.generado?` Al ${esc(m.generado)}.`:""}
+      Cada venta entra en una sola de las tres primeras.</div>
     <div class="met-grid">
-      ${(()=>{
-         // El ritmo es lo UNICO nuevo que aporta el corte mensual: el promedio es el
-         // numero del año dividido por 12. Se marca con flecha solo si la diferencia
-         // llega al 20%: por debajo de eso, con 2 por mes, es ruido.
-         const sube = m.ritmo9>0 && m.ritmo3>=m.ritmo9*1.2;
-         const baja = m.ritmo9>0 && m.ritmo3<=m.ritmo9*0.8;
-         const sub = `<b>${m.promMes}</b> por mes · en los últimos 3 venís a
-            <b>${m.ritmo3}</b>${sube?' <span class="met-sube">▲</span>'
-                               :baja?' <span class="met-baja">▼</span>':""}`;
-         return _tarjetaMet("Clientes nuevos", m.nuevos, "", R.nuevos,
-           `Les vendiste por primera vez: nunca le habían comprado a la empresa.`,
-           `Es el único que no depende del tamaño de tu cartera: cuenta gente que antes
-            no era cliente. Si está bajo, el trabajo es prospectar. No entra el que
-            vuelve después de estar parado — eso es recuperar, no conseguir.`,
-           null, 0, sub);
-       })()}
-      ${_tarjetaMet("Renovación", m.retencion, "%", R.retencion,
-         m.retDen ? `De <b>${m.retDen}</b> a los que se les venció un plan,
-                     <b>${m.retNum}</b> siguen con vos.` : "Todavía no se te venció ningún plan.",
-         `Cuenta también al que le vendiste el plan nuevo antes de que terminara el
-          anterior. El que se va se pierde entero: hay que salir a buscar uno nuevo
-          para reemplazarlo, y renovar es más barato que conseguir.`,
-         m.retDen, MET_MIN_BASE)}
+      ${_tarjetaMet("Clientes nuevos", m.nuevos, "", R.nuevos,
+        `Les vendiste por primera vez: nunca le habían comprado a la empresa.`,
+        `Es el único que no depende del tamaño de tu cartera. Si está bajo, el trabajo
+         es prospectar.`, sub)}
+      ${_tarjetaMet("Renovaciones", m.renovaciones, "", R.renovaciones,
+        `Le vendiste de nuevo a alguien que <b>estaba pagando</b>, o que había
+         terminado de saldar hace menos de dos semanas.`,
+        `Es ${m.mix_renov!=null?"el <b>"+m.mix_renov+"%</b>":"una parte"} de tus ventas.
+         Incluye la venta anticipada: el plan nuevo antes de que termine el que corre.`)}
+      ${_tarjetaMet("Recuperos", m.recuperos, "", R.recuperos,
+        `Volviste a venderle a alguien que había saldado hace <b>más de dos
+         semanas</b>: lo tuviste que ir a buscar.`,
+        `No es lo mismo que renovar. Un cliente que ya se había ido cuesta más trabajo,
+         y acá se ve aparte en vez de mezclarse con las renovaciones.`)}
       ${_tarjetaMet("Recompra de contado", m.recompra, "%", R.recompra,
-         m.contDen ? `De <b>${m.contDen}</b> clientes de contado, te compraron más de una
-                      vez <b>${m.contNum}</b>.` : "Todavía no tenés cartera de contado.",
-         `En contado 7 de cada 10 compran una sola vez en todo el año. El que vuelve es
-          el que te tiene de proveedor, no de changa.`,
-         m.contDen, MET_MIN_BASE)}
+        m.cont_den>=20 ? `De <b>${m.cont_den}</b> clientes de contado, te compraron más
+          de una vez <b>${m.cont_num}</b>.`
+        : `Todavía no alcanza para medirlo: hacen falta al menos 20 clientes de contado
+           y tenés ${m.cont_den||0}.`,
+        `En contado 7 de cada 10 compran una sola vez en el año. El que vuelve te tiene
+         de proveedor, no de changa.`)}
     </div>
-    <div class="met-pie">Las tres se miden sobre los últimos 12 meses y se actualizan
-      todas las noches. <b>No hay ranking ni puesto</b>: la medición no da para distinguir
-      al primero del quinto, sí para ver si estás arriba, en el medio o abajo del grupo.</div>
+    <div class="met-pie">Se calculan todas las noches sobre los últimos 12 meses.
+      <b>No hay ranking ni puesto</b>: la medición no da para distinguir al primero del
+      quinto, sí para ver si estás arriba, en el medio o abajo del grupo.</div>
   </div>`;
 }
 
