@@ -304,6 +304,8 @@ a.tel{color:var(--azul);text-decoration:none;font-weight:600}
 .met-sube{color:#1d6b43;font-weight:800}
 .met-baja{color:var(--naranja);font-weight:800}
 .met-faltan{font-size:.82rem;color:var(--naranja);margin:6px 0}
+.met-aviso{font-size:.74rem;color:#7a5200;background:#fff8e6;border:1px solid #f0dca8;
+  border-radius:8px;padding:7px 9px;margin-top:7px;line-height:1.45}
 .met-pie{font-size:.74rem;color:var(--gris);margin-top:12px;line-height:1.5}
 </style>
 </head>
@@ -462,7 +464,7 @@ const db = firebase.firestore();
 // vendedores. Lo hecho sin conexion sincroniza al volver.
 db.enablePersistence({synchronizeTabs:true}).catch(()=>{});
 
-const VERSION="2026-11-28e";
+const VERSION="2026-11-28f";
 const DOMINIO="funnel.ibaceta.ar";
 // Las 10 mas comunes cubren el 88,9% de los clientes que hoy tienen rubro cargado. Van
 // a la vista. El resto de las conocidas queda detras de "Otro", para no perderlas pero
@@ -2564,25 +2566,34 @@ function pintarMetricas(){
   const flecha = r9>0&&r3>=r9*1.2 ? ' <span class="met-sube">▲</span>'
                : r9>0&&r3<=r9*0.8 ? ' <span class="met-baja">▼</span>' : "";
   const sub=`<b>${promMes}</b> por mes · en los últimos 3 venís a <b>${r3}</b>${flecha}`;
+  // Cada tarjeta con su % de las ventas, para que las tres se puedan comparar entre si.
+  const pct = n => m.ventas ? Math.round(1000*(n||0)/m.ventas)/10 : null;
+  const dePct = n => { const p=pct(n); return p==null?"":`Es el <b>${p}%</b> de tus ventas. `; };
 
   panel.innerHTML=`<div class="panel">
     <h3>${esVend()?"Tus números":"Métricas de "+esc(quien)}</h3>
-    <div class="sin-ayuda">Últimos 12 meses: <b>${m.ventas||0}</b> ventas sobre una
-      cartera de ${m.cartera||0} clientes.${m.generado?` Al ${esc(m.generado)}.`:""}
+    <div class="sin-ayuda">Últimos 12 meses: <b>${m.ventas||0}</b> ventas a
+      <b>${m.clientes_con_venta||0}</b> clientes distintos${
+      m.pct_cartera!=null?` — el <b>${m.pct_cartera}%</b> de tu cartera de ${m.cartera||0}`:""}.${
+      m.generado?` Al ${esc(m.generado)}.`:""}
       Cada venta entra en una sola de las tres primeras.</div>
+    ${m.pct_cartera!=null?`<div class="met-aviso">Ese porcentaje <b>no se compara entre
+      vendedores</b>: baja sola con el tamaño de la cartera, porque el que tiene más
+      historia arrastra clientes de hace años que ya no compran. Sirve para mirar
+      cómo te va moviendo a vos, no para ver quién lo tiene más alto.</div>`:""}
     <div class="met-grid">
       ${_tarjetaMet("Clientes nuevos", m.nuevos, "", R.nuevos,
-        `Les vendiste por primera vez: nunca le habían comprado a la empresa.`,
+        `${dePct(m.nuevos)}Les vendiste por primera vez: nunca le habían comprado a
+         la empresa.`,
         `Es el único que no depende del tamaño de tu cartera. Si está bajo, el trabajo
          es prospectar.`, sub)}
       ${_tarjetaMet("Renovaciones", m.renovaciones, "", R.renovaciones,
-        `Le vendiste de nuevo a alguien que <b>estaba pagando</b>, o que había
-         terminado de saldar hace menos de dos semanas.`,
-        `Es ${m.mix_renov!=null?"el <b>"+m.mix_renov+"%</b>":"una parte"} de tus ventas.
-         Incluye la venta anticipada: el plan nuevo antes de que termine el que corre.`)}
+        `${dePct(m.renovaciones)}Le vendiste de nuevo a alguien que <b>estaba
+         pagando</b>, o que había terminado de saldar hace menos de dos semanas.`,
+        `Incluye la venta anticipada: el plan nuevo antes de que termine el que corre.`)}
       ${_tarjetaMet("Recuperos", m.recuperos, "", R.recuperos,
-        `Volviste a venderle a alguien que había saldado hace <b>más de dos
-         semanas</b>: lo tuviste que ir a buscar.`,
+        `${dePct(m.recuperos)}Volviste a venderle a alguien que había saldado hace
+         <b>más de dos semanas</b>: lo tuviste que ir a buscar.`,
         `No es lo mismo que renovar. Un cliente que ya se había ido cuesta más trabajo,
          y acá se ve aparte en vez de mezclarse con las renovaciones.`)}
       ${_tarjetaMet("Recompra de contado", m.recompra, "%", R.recompra,
