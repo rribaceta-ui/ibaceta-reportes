@@ -304,6 +304,14 @@ a.tel{color:var(--azul);text-decoration:none;font-weight:600}
 .met-sube{color:#1d6b43;font-weight:800}
 .met-baja{color:var(--naranja);font-weight:800}
 .met-faltan{font-size:.82rem;color:var(--naranja);margin:6px 0}
+.met-titulo{font-size:.76rem;font-weight:800;color:#555;text-transform:uppercase;
+  letter-spacing:.05em;margin:14px 0 2px;padding-top:8px;border-top:1px solid #e6e9ed}
+.met-card.met-neutra{border-left-color:#ccd2d9;background:#fafbfc}
+.met-num.met-gris{color:#444}
+.met-torta{display:flex;align-items:center;gap:12px;margin:8px 0;flex-wrap:wrap}
+.met-legs{flex:1;min-width:120px}
+.met-leg{font-size:.78rem;color:#333;line-height:1.7;white-space:nowrap}
+.met-pto{display:inline-block;width:10px;height:10px;border-radius:3px;margin-right:6px}
 .met-aviso{font-size:.74rem;color:#7a5200;background:#fff8e6;border:1px solid #f0dca8;
   border-radius:8px;padding:7px 9px;margin-top:7px;line-height:1.45}
 .met-pie{font-size:.74rem;color:var(--gris);margin-top:12px;line-height:1.5}
@@ -464,7 +472,7 @@ const db = firebase.firestore();
 // vendedores. Lo hecho sin conexion sincroniza al volver.
 db.enablePersistence({synchronizeTabs:true}).catch(()=>{});
 
-const VERSION="2026-11-28g";
+const VERSION="2026-11-28h";
 const DOMINIO="funnel.ibaceta.ar";
 // Las 10 mas comunes cubren el 88,9% de los clientes que hoy tienen rubro cargado. Van
 // a la vista. El resto de las conocidas queda detras de "Otro", para no perderlas pero
@@ -2549,6 +2557,53 @@ function _tarjetaMet(rot, valor, unidad, ref, refZ, zona, detalle, explica, sub)
     <div class="met-exp">${explica}</div></div>`;
 }
 
+// Colores de la torta. Se fijan por SECTOR y no por posicion: si un vendedor no vende
+// usados, el resto no se corre de color y las tortas se comparan de un vistazo.
+const MET_COLOR={"Equipamiento":"var(--azul)","Préstamos":"var(--naranja)",
+                 "Hogar":"var(--verde)","Usados":"#8e6fb5","Otros":"#9aa5b1"};
+
+// Torta de mix por sector, en SVG a mano: la app no carga librerias.
+function _torta(sec){
+  const ent=Object.entries(sec||{}).filter(([,v])=>v>0).sort((a,b)=>b[1]-a[1]);
+  const tot=ent.reduce((a,[,v])=>a+v,0);
+  if(!ent.length||tot<=0) return "";
+  const R=52, C=60;
+  let ang=-Math.PI/2, partes="";
+  ent.forEach(([k,v])=>{
+    const da=2*Math.PI*(v/tot), fin=ang+da;
+    const x1=C+R*Math.cos(ang), y1=C+R*Math.sin(ang);
+    const x2=C+R*Math.cos(fin), y2=C+R*Math.sin(fin);
+    // Una porcion de 100% no se puede dibujar con un arco: se usa un circulo.
+    partes += (da>=2*Math.PI-0.001)
+      ? `<circle cx="${C}" cy="${C}" r="${R}" fill="${MET_COLOR[k]||"#9aa5b1"}"/>`
+      : `<path d="M${C},${C} L${x1.toFixed(1)},${y1.toFixed(1)} A${R},${R} 0 ${
+          da>Math.PI?1:0},1 ${x2.toFixed(1)},${y2.toFixed(1)} Z"
+          fill="${MET_COLOR[k]||"#9aa5b1"}"/>`;
+    ang=fin;
+  });
+  const leyenda=ent.map(([k,v])=>`<div class="met-leg">
+      <span class="met-pto" style="background:${MET_COLOR[k]||"#9aa5b1"}"></span>
+      ${esc(k)} <b>${v}%</b></div>`).join("");
+  return `<div class="met-torta"><svg viewBox="0 0 120 120" width="120" height="120"
+      role="img" aria-label="Mix por sector">${partes}</svg>
+    <div class="met-legs">${leyenda}</div></div>`;
+}
+
+// Tarjeta SIN banda ni color: para los numeros que no tienen direccion. No hay un "mas
+// contado es mejor" ni un "mas hogar es mejor" hasta que Direccion fije el mix que
+// quiere, asi que pintarlos de verde o naranja seria afirmar algo que nadie decidio.
+function _tarjetaMix(rot, valor, unidad, ref, refZ, zona, cuerpo, explica){
+  const medianas=[];
+  if(refZ) medianas.push(`tu zona (${esc(zona)}): <b>${refZ.mediana}${unidad}</b>`);
+  if(ref)  medianas.push(`toda Calle: <b>${ref.mediana}${unidad}</b>`);
+  return `<div class="met-card met-neutra">
+    <div class="met-rot">${rot}</div>
+    ${valor!=null?`<div class="met-num met-gris">${valor}${unidad}</div>`:""}
+    ${medianas.length?`<div class="met-med">Mediana de ${medianas.join(" · ")}</div>`:""}
+    ${cuerpo||""}
+    <div class="met-exp">${explica}</div></div>`;
+}
+
 function pintarMetricas(){
   // El tablero deja contenido en cuatro contenedores, no en uno: si no se limpian
   // todos, Metricas aparece DEBAJO del kanban y de las tarjetas de periodo.
@@ -2602,6 +2657,7 @@ function pintarMetricas(){
       vendedores</b>: baja sola con el tamaño de la cartera, porque el que tiene más
       historia arrastra clientes de hace años que ya no compran. Sirve para mirar
       cómo te va moviendo a vos, no para ver quién lo tiene más alto.</div>`:""}
+    <div class="met-titulo">Cuánto vendés</div>
     <div class="met-grid">
       ${_tarjetaMet("Clientes nuevos", m.nuevos, "", R.nuevos, Z.nuevos, zona,
         `${dePct(m.nuevos)}Les vendiste por primera vez: nunca le habían comprado a
@@ -2617,6 +2673,20 @@ function pintarMetricas(){
          <b>más de dos semanas</b>: lo tuviste que ir a buscar.`,
         `No es lo mismo que renovar. Un cliente que ya se había ido cuesta más trabajo,
          y acá se ve aparte en vez de mezclarse con las renovaciones.`)}
+    </div>
+    <div class="met-titulo">Cómo vendés</div>
+    <div class="met-grid">
+      ${_tarjetaMet("Ventas con 2 o más artículos", m.multi, "%", R.multi, Z.multi, zona,
+        `De tus ventas con detalle, <b>${m.multi_art||0}</b> de <b>${m.ops_con_prod||0}</b>
+         llevaron más de un artículo.`,
+        `Es la palanca más barata que hay: no necesitás un cliente nuevo ni una visita
+         más, es ofrecer la segunda cosa en la misma puerta. En toda Calle el 92% de las
+         ventas son de un solo artículo.`)}
+      ${_tarjetaMet("La cuota sube", m.sube, "%", R.sube, Z.sube, zona,
+        `En <b>${m.cuota_sube||0}</b> de <b>${m.comparables||0}</b> ventas a clientes que
+         ya te habían comprado, la cuota quedó más alta que la más alta que ya pagaba.`,
+        `Mide si hacés crecer al cliente o lo dejás igual. En toda Calle solo 3 de cada 10
+         renovaciones suben la cuota: ahí hay cartera que crece sin un cliente nuevo.`)}
       ${_tarjetaMet("Recompra de contado", m.recompra, "%", R.recompra, Z.recompra, zona,
         m.cont_den>=20 ? `De <b>${m.cont_den}</b> clientes de contado, te compraron más
           de una vez <b>${m.cont_num}</b>.`
@@ -2624,6 +2694,19 @@ function pintarMetricas(){
            y tenés ${m.cont_den||0}.`,
         `En contado 7 de cada 10 compran una sola vez en el año. El que vuelve te tiene
          de proveedor, no de changa.`)}
+    </div>
+    <div class="met-titulo">Qué vendés</div>
+    <div class="met-grid">
+      ${_tarjetaMix("Venta de contado", m.pct_contado, "%", R.pct_contado, Z.pct_contado,
+        zona, "",
+        `Qué parte de todo lo que vendés es de contado y no en plan semanal.
+         <b>No hay un número bueno ni uno malo</b>: es para que veas cómo está repartido
+         lo tuyo.`)}
+      ${m.sectores?_tarjetaMix("Mix por sector", null, "", null, null, zona,
+        _torta(m.sectores),
+        `En qué se va lo que vendés. <b>Tampoco tiene un número correcto</b> — mirá si
+         está muy cargado hacia un lado. En toda Calle: Equipamiento 45%, Préstamos 38%,
+         Hogar 14%.`):""}
     </div>
     <div class="met-pie">Se calculan todas las noches sobre los últimos 12 meses.
       <b>No hay ranking ni puesto</b>: la medición no da para distinguir al primero del
