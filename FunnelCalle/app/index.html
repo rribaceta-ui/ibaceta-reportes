@@ -462,7 +462,7 @@ const db = firebase.firestore();
 // vendedores. Lo hecho sin conexion sincroniza al volver.
 db.enablePersistence({synchronizeTabs:true}).catch(()=>{});
 
-const VERSION="2026-11-28c";
+const VERSION="2026-11-28d";
 const DOMINIO="funnel.ibaceta.ar";
 // Las 10 mas comunes cubren el 88,9% de los clientes que hoy tienen rubro cargado. Van
 // a la vista. El resto de las conocidas queda detras de "Otro", para no perderlas pero
@@ -2570,12 +2570,19 @@ function metricasDe(quien){
         if(e.cuando>=corte) m.u3++; else m.a9++;
       } else m.recuperados++;
     }
-    // RETENCION: se le termino un plan en la ventana y despues tomo otro.
+    // RETENCION: se le vencio un plan en la ventana y SIGUE con vos -- tomo otro
+    // despues, o tiene un plan abierto hoy.
+    // Lo segundo no es un agregado: es el caso normal de Calle. El vendedor vende el
+    // plan siguiente ANTES de que termine el que corre (el cliente en cierre
+    // inminente). Contando solo el que arranca despues del fin, esas renovaciones
+    // anticipadas figuraban como "no renovo": de 120 de HLEPEZ, 51 tenian plan activo
+    // hoy y solo 30 contaban. La mediana de la unidad pasa de 24% a 38%.
     const fines=hs.filter(h=>h[1]>=desde&&h[1]<=hasta).map(h=>h[1]).sort();
     if(fines.length){
       m.retDen++;
       const ult=fines[fines.length-1];
-      if(hs.some(h=>h[0]>ult)) m.retNum++;
+      const abiertoHoy=hs.some(h=>h[0]<=hasta&&hasta<=h[1]);
+      if(abiertoHoy||hs.some(h=>h[0]>ult)) m.retNum++;
     }
   });
   (contado||[]).forEach(c=>{
@@ -2663,10 +2670,11 @@ function pintarMetricas(){
            null, 0, sub);
        })()}
       ${_tarjetaMet("Renovación", m.retencion, "%", R.retencion,
-         m.retDen ? `De <b>${m.retDen}</b> que terminaron el plan, volvieron
-                     <b>${m.retNum}</b>.` : "Todavía no se te terminó ningún plan.",
-         `El cliente que termina y no vuelve se pierde entero: hay que salir a buscar uno
-          nuevo para reemplazarlo. Renovar es más barato que conseguir.`,
+         m.retDen ? `De <b>${m.retDen}</b> a los que se les venció un plan,
+                     <b>${m.retNum}</b> siguen con vos.` : "Todavía no se te venció ningún plan.",
+         `Cuenta también al que le vendiste el plan nuevo antes de que terminara el
+          anterior. El que se va se pierde entero: hay que salir a buscar uno nuevo
+          para reemplazarlo, y renovar es más barato que conseguir.`,
          m.retDen, MET_MIN_BASE)}
       ${_tarjetaMet("Recompra de contado", m.recompra, "%", R.recompra,
          m.contDen ? `De <b>${m.contDen}</b> clientes de contado, te compraron más de una
