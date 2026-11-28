@@ -308,16 +308,18 @@ a.tel{color:var(--azul);text-decoration:none;font-weight:600}
   letter-spacing:.05em;margin:14px 0 2px;padding-top:8px;border-top:1px solid #e6e9ed}
 .met-card.met-neutra{border-left-color:#ccd2d9;background:#fafbfc}
 .met-num.met-gris{color:#444}
-.met-tortas{display:flex;gap:6px;margin:8px 0;justify-content:space-around;flex-wrap:wrap}
-.met-tcol{text-align:center}
-.met-tlab{font-size:.72rem;font-weight:700;color:#555;margin-top:2px}
-.met-tsec{width:100%;border-collapse:collapse;font-size:.78rem;margin-top:6px}
-.met-tsec th{font-size:.68rem;color:#888;font-weight:700;text-align:right;padding:2px 4px}
-.met-tsec th:first-child{text-align:left}
-.met-tsec td{padding:3px 4px;text-align:right;color:#333;border-top:1px solid #eef1f4}
-.met-tsec td:first-child{text-align:left;white-space:nowrap}
-.met-tsec td:nth-child(2){font-weight:800}
-.met-pto{display:inline-block;width:10px;height:10px;border-radius:3px;margin-right:6px}
+.met-barras{margin:10px 0 8px}
+.met-bfila{margin-bottom:9px}
+.met-blab{font-size:.74rem;font-weight:700;color:#666;margin-bottom:3px}
+.met-bfila.mio .met-blab{color:var(--azul);font-size:.8rem}
+.met-barra{display:flex;height:30px;border-radius:7px;overflow:hidden;
+  box-shadow:inset 0 0 0 1px rgba(0,0,0,.06)}
+.met-bfila.mio .met-barra{height:40px}
+.met-seg{display:flex;align-items:center;justify-content:center;color:#fff;
+  font-size:.74rem;font-weight:800;overflow:hidden;white-space:nowrap}
+.met-legs{display:flex;flex-wrap:wrap;gap:4px 14px;margin-top:2px}
+.met-leg{font-size:.76rem;color:#444;white-space:nowrap}
+.met-pto{display:inline-block;width:10px;height:10px;border-radius:3px;margin-right:5px}
 .met-aviso{font-size:.74rem;color:#7a5200;background:#fff8e6;border:1px solid #f0dca8;
   border-radius:8px;padding:7px 9px;margin-top:7px;line-height:1.45}
 .met-pie{font-size:.74rem;color:var(--gris);margin-top:12px;line-height:1.5}
@@ -478,7 +480,7 @@ const db = firebase.firestore();
 // vendedores. Lo hecho sin conexion sincroniza al volver.
 db.enablePersistence({synchronizeTabs:true}).catch(()=>{});
 
-const VERSION="2026-11-28k";
+const VERSION="2026-11-28m";
 const DOMINIO="funnel.ibaceta.ar";
 // Las 10 mas comunes cubren el 88,9% de los clientes que hoy tienen rubro cargado. Van
 // a la vista. El resto de las conocidas queda detras de "Otro", para no perderlas pero
@@ -2568,53 +2570,49 @@ function _tarjetaMet(rot, valor, unidad, ref, refZ, zona, detalle, explica, sub)
 const MET_COLOR={"Equipamiento":"var(--azul)","Préstamos":"var(--naranja)",
                  "Hogar":"var(--verde)","Usados":"#8e6fb5","Otros":"#9aa5b1"};
 
-// Torta de mix por sector, en SVG a mano: la app no carga librerias.
-function _tortaSvg(sec, px){
-  const ent=Object.entries(sec||{}).filter(([,v])=>v>0).sort((a,b)=>b[1]-a[1]);
+// Mix por sector en BARRAS APILADAS, no en torta (Direccion, 28/11/2026: las tortas
+// "se ven chicas" y no se comparan). Tres tortas de 84 px pelean por el ancho del
+// telefono; tres barras apiladas lo usan entero, se apilan una sobre otra y el ojo
+// compara donde termina cada color sin tener que girar la cabeza. Es la forma correcta
+// de comparar composicion entre grupos.
+// `orden` es el MISMO para las tres barras, y eso no es un detalle: si cada barra se
+// ordenara por su propio tamaño, la del vendedor arrancaria con naranja y las otras con
+// azul, y comparar donde termina cada color se vuelve imposible. Con el orden fijo el
+// ojo sigue una linea vertical.
+function _barraMix(sec, orden){
+  const ent=(orden||Object.keys(sec||{}))
+    .filter(k=>(sec||{})[k]>0).map(k=>[k, sec[k]]);
   const tot=ent.reduce((a,[,v])=>a+v,0);
   if(!ent.length||tot<=0) return "";
-  const R=52, C=60;
-  let ang=-Math.PI/2, partes="";
-  ent.forEach(([k,v])=>{
-    const da=2*Math.PI*(v/tot), fin=ang+da;
-    const x1=C+R*Math.cos(ang), y1=C+R*Math.sin(ang);
-    const x2=C+R*Math.cos(fin), y2=C+R*Math.sin(fin);
-    // Una porcion de 100% no se puede dibujar con un arco: se usa un circulo.
-    partes += (da>=2*Math.PI-0.001)
-      ? `<circle cx="${C}" cy="${C}" r="${R}" fill="${MET_COLOR[k]||"#9aa5b1"}"/>`
-      : `<path d="M${C},${C} L${x1.toFixed(1)},${y1.toFixed(1)} A${R},${R} 0 ${
-          da>Math.PI?1:0},1 ${x2.toFixed(1)},${y2.toFixed(1)} Z"
-          fill="${MET_COLOR[k]||"#9aa5b1"}"/>`;
-    ang=fin;
-  });
-  return `<svg viewBox="0 0 120 120" width="${px}" height="${px}">${partes}</svg>`;
+  return ent.map(([k,v])=>{
+    const p=100*v/tot;
+    // El numero adentro solo si entra: debajo del 9% queda pisado contra el borde.
+    return `<div class="met-seg" style="width:${p.toFixed(2)}%;background:${
+      MET_COLOR[k]||"#9aa5b1"}" title="${esc(k)} ${v}%">${p>=9?v+"%":""}</div>`;
+  }).join("");
 }
 
-// Las TRES tortas juntas: la suya, la de su zona y la de toda Calle (Direccion,
-// 28/11/2026). Un porcentaje solo no dice nada; lo que dice algo es la forma
-// comparada. Las zonas difieren de verdad -- San Juan vende 48,5% de prestamos contra
-// 34% en Mendoza y San Luis-, asi que hacen falta las dos referencias y no una.
-// Debajo va la tabla con los numeros: la torta muestra la forma, la tabla la distancia.
+// Las TRES comparaciones juntas: la suya, la de su zona y la de toda Calle (Direccion,
+// 28/11/2026). Un porcentaje solo no dice nada; lo que dice algo es la forma comparada.
+// Las zonas difieren de verdad -- San Juan vende 48,5% de prestamos contra 34% en
+// Mendoza y San Luis-, asi que hacen falta las dos referencias y no una.
 function _tortasComparadas(propio, zona, calle, nomZona){
   if(!propio) return "";
-  const cols=[["Vos",propio]];
-  if(zona)  cols.push([nomZona||"Tu zona", zona]);
-  if(calle) cols.push(["Toda Calle", calle]);
-  const tortas=cols.map(([rot,d])=>`<div class="met-tcol">
-      ${_tortaSvg(d, cols.length>2?84:110)}
-      <div class="met-tlab">${esc(rot)}</div></div>`).join("");
-  // Las filas salen del orden de toda Calle, o del propio si no hay referencia: asi
-  // las tres columnas se leen en el mismo orden siempre.
+  const filas=[["Vos",propio,true]];
+  if(zona)  filas.push([nomZona||"Tu zona", zona, false]);
+  if(calle) filas.push(["Toda Calle", calle, false]);
+  // El orden sale de toda Calle (o del propio si no hay referencia) y se usa en las
+  // TRES barras: asi los colores quedan alineados y se comparan de un vistazo.
   const guia=calle||propio;
   const secs=Object.keys(guia).sort((a,b)=>(guia[b]||0)-(guia[a]||0));
-  Object.keys(propio).forEach(k=>{ if(!secs.includes(k)) secs.push(k); });
-  const filas=secs.map(k=>`<tr><td><span class="met-pto"
-      style="background:${MET_COLOR[k]||"#9aa5b1"}"></span>${esc(k)}</td>${
-      cols.map(([,d])=>`<td>${d[k]!=null?d[k]+"%":"—"}</td>`).join("")}</tr>`).join("");
-  return `<div class="met-tortas">${tortas}</div>
-    <table class="met-tsec"><thead><tr><th></th>${
-      cols.map(([rot])=>`<th>${esc(rot)}</th>`).join("")}</tr></thead>
-      <tbody>${filas}</tbody></table>`;
+  filas.forEach(([,d])=>Object.keys(d).forEach(k=>{ if(!secs.includes(k)) secs.push(k); }));
+  const barras=filas.map(([rot,d,mio])=>`<div class="met-bfila${mio?" mio":""}">
+      <div class="met-blab">${esc(rot)}</div>
+      <div class="met-barra">${_barraMix(d, secs)}</div></div>`).join("");
+  const leyenda=secs.map(k=>`<span class="met-leg"><span class="met-pto"
+      style="background:${MET_COLOR[k]||"#9aa5b1"}"></span>${esc(k)}</span>`).join("");
+  return `<div class="met-barras">${barras}</div>
+    <div class="met-legs">${leyenda}</div>`;
 }
 
 // Tarjeta SIN banda ni color: para los numeros que no tienen direccion. No hay un "mas
@@ -2744,8 +2742,8 @@ function pintarMetricas(){
       ${m.sectores?_tarjetaMix("Mix por sector", null, "", null, null, zona,
         _tortasComparadas(m.sectores, (R.sectores_zona||{})[m.zona], R.sectores, zona),
         `En qué se va lo que vendés, al lado de tu zona y de toda Calle. <b>No tiene un
-         número correcto</b> — lo que se mira es si tu torta tiene otra forma que las de
-         al lado, y hacia dónde.`):""}
+         número correcto</b> — lo que se mira es si tu barra está repartida distinto que
+         las de abajo, y hacia qué lado.`):""}
     </div>
     <div class="met-pie">Se calculan todas las noches sobre los últimos 12 meses.
       <b>No hay ranking ni puesto</b>: la medición no da para distinguir al primero del
