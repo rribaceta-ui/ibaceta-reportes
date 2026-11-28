@@ -472,7 +472,7 @@ const db = firebase.firestore();
 // vendedores. Lo hecho sin conexion sincroniza al volver.
 db.enablePersistence({synchronizeTabs:true}).catch(()=>{});
 
-const VERSION="2026-11-28i";
+const VERSION="2026-11-28j";
 const DOMINIO="funnel.ibaceta.ar";
 // Las 10 mas comunes cubren el 88,9% de los clientes que hoy tienen rubro cargado. Van
 // a la vista. El resto de las conocidas queda detras de "Otro", para no perderlas pero
@@ -2678,11 +2678,15 @@ function pintarMetricas(){
     <div class="met-grid">
       ${_tarjetaMet("Tasa de renovación", m.tasa_reno, "%", R.tasa_reno, Z.tasa_reno, zona,
         `De <b>${m.reno_den||0}</b> clientes a los que se les terminó de pagar el plan,
-         le vendiste de nuevo a <b>${m.reno_num||0}</b> dentro de las dos semanas.`,
+         <b>${m.reno_num||0}</b> se llevaron otro — <b>antes de que terminara el
+         anterior, el mismo día, o hasta dos semanas después</b>.${
+         m.reno_perdidos ? ` De los ${(m.reno_den||0)-(m.reno_num||0)} que no,
+           <b>${m.reno_perdidos}</b> todavía no volvieron: están en
+           <b>Finalizados sin renovar</b>, ordenados por hace cuánto se fueron.` : ""}`,
         `Es el momento que más se repite en tu trabajo: se termina un plan y hay que
-         vender el siguiente. En toda Calle <b>7 de cada 10</b> clientes que terminan de
-         pagar no reciben una venta nueva en esas dos semanas. Cuenta la venta
-         anticipada: el plan nuevo antes de que termine el que corre.`)}
+         vender el siguiente. <b>La venta anticipada cuenta</b> — de hecho es como se
+         renueva casi siempre. Pasadas las dos semanas ya no es renovar: es recuperar,
+         y va en la otra tarjeta.`)}
       ${_tarjetaMet("Ventas con 2 o más artículos", m.multi, "%", R.multi, Z.multi, zona,
         `De tus ventas con detalle, <b>${m.multi_art||0}</b> de <b>${m.ops_con_prod||0}</b>
          llevaron más de un artículo.`,
@@ -2870,7 +2874,12 @@ const _abiertos=(hs,dia)=>hs.reduce((n,h)=>n+((h[0]<=dia&&dia<=h[1])?1:0),0);
 // Un cliente sin plan no esta en un solo lugar. Puede haberse ido limpio (FINALIZADO),
 // haber quedado debiendo (REFINANCIAR, sin resolver) o estar descartado. Son tres cosas
 // distintas y juntarlas daba mas bajas de las que hay.
-const DESCARTE=["incobrable","fallecido"];
+// Clientes que NO son cartera: no son una baja, ya no existen como negocio.
+// `sin_local` entro el 28/11/2026 por decision de Direccion -- la etiqueta significa
+// que el NEGOCIO CERRO, no que no lo encontraron ese dia-, alineado con las Metricas.
+// Antes un `sin_local` sin plan contaba como "se fue", que inflaba las bajas con
+// locales que ya no existen.
+const DESCARTE=["incobrable","fallecido","sin_local"];
 function _destinoSinPlan(c){
   if(DESCARTE.includes(tagDe(c.codigo))) return "descarte";
   return ((c.resumen_fin||{}).saldo_pend||0) > 0 ? "refinanciar" : "fue";
