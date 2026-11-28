@@ -462,7 +462,7 @@ const db = firebase.firestore();
 // vendedores. Lo hecho sin conexion sincroniza al volver.
 db.enablePersistence({synchronizeTabs:true}).catch(()=>{});
 
-const VERSION="2026-11-28b";
+const VERSION="2026-11-28c";
 const DOMINIO="funnel.ibaceta.ar";
 // Las 10 mas comunes cubren el 88,9% de los clientes que hoy tienen rubro cargado. Van
 // a la vista. El resto de las conocidas queda detras de "Otro", para no perderlas pero
@@ -2565,8 +2565,10 @@ function metricasDe(quien){
     const e=_entrada(hs, desde);
     if(e){
       m.entraron++;
-      if(e.tipo==="nuevo") m.nuevos++; else m.recuperados++;
-      if(e.cuando>=corte) m.u3++; else m.a9++;
+      if(e.tipo==="nuevo"){
+        m.nuevos++;
+        if(e.cuando>=corte) m.u3++; else m.a9++;
+      } else m.recuperados++;
     }
     // RETENCION: se le termino un plan en la ventana y despues tomo otro.
     const fines=hs.filter(h=>h[1]>=desde&&h[1]<=hasta).map(h=>h[1]).sort();
@@ -2584,7 +2586,7 @@ function metricasDe(quien){
   // El promedio mensual NO es una metrica aparte: es el mismo numero dividido por 12,
   // mismo ranking y misma correlacion. Va como linea de apoyo porque es el ritmo en que
   // el vendedor piensa ("tengo que traer 2 por mes"), no como tarjeta propia.
-  m.promMes = Math.round(10*m.entraron/12)/10;
+  m.promMes = Math.round(10*m.nuevos/12)/10;
   m.ritmo3  = Math.round(10*m.u3/3)/10;
   m.ritmo9  = Math.round(10*m.a9/9)/10;
   m.retencion = m.retDen>=MET_MIN_BASE ? Math.round(1000*m.retNum/m.retDen)/10 : null;
@@ -2653,12 +2655,11 @@ function pintarMetricas(){
          const sub = `<b>${m.promMes}</b> por mes · en los últimos 3 venís a
             <b>${m.ritmo3}</b>${sube?' <span class="met-sube">▲</span>'
                                :baja?' <span class="met-baja">▼</span>':""}`;
-         return _tarjetaMet("Clientes que entraron", m.entraron, "", R.entraron,
-           `De los <b>${m.entraron}</b>, <b>${m.nuevos}</b> nunca habían comprado y
-            <b>${m.recuperados}</b> volvieron después de estar parados.`,
-           `Es el único que no depende del tamaño de tu cartera: cuenta personas que
-            este año no te compraban. Recuperar a uno que se fue cuenta igual que
-            traer uno de cero — es el mismo trabajo de salir a buscar.`,
+         return _tarjetaMet("Clientes nuevos", m.nuevos, "", R.nuevos,
+           `Les vendiste por primera vez: nunca le habían comprado a la empresa.`,
+           `Es el único que no depende del tamaño de tu cartera: cuenta gente que antes
+            no era cliente. Si está bajo, el trabajo es prospectar. No entra el que
+            vuelve después de estar parado — eso es recuperar, no conseguir.`,
            null, 0, sub);
        })()}
       ${_tarjetaMet("Renovación", m.retencion, "%", R.retencion,
