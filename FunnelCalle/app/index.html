@@ -300,6 +300,9 @@ a.tel{color:var(--azul);text-decoration:none;font-weight:600}
 .met-med{font-size:.74rem;color:var(--gris);margin-top:3px}
 .met-det{font-size:.8rem;color:#333;margin-top:7px;border-top:1px solid #e6e9ed;padding-top:7px}
 .met-exp{font-size:.74rem;color:var(--gris);margin-top:5px;line-height:1.45}
+.met-sub{font-size:.76rem;color:#444;margin:1px 0 4px;line-height:1.4}
+.met-sube{color:#1d6b43;font-weight:800}
+.met-baja{color:var(--naranja);font-weight:800}
 .met-faltan{font-size:.82rem;color:var(--naranja);margin:6px 0}
 .met-pie{font-size:.74rem;color:var(--gris);margin-top:12px;line-height:1.5}
 </style>
@@ -459,7 +462,7 @@ const db = firebase.firestore();
 // vendedores. Lo hecho sin conexion sincroniza al volver.
 db.enablePersistence({synchronizeTabs:true}).catch(()=>{});
 
-const VERSION="2026-11-27f";
+const VERSION="2026-11-28b";
 const DOMINIO="funnel.ibaceta.ar";
 // Las 10 mas comunes cubren el 88,9% de los clientes que hoy tienen rubro cargado. Van
 // a la vista. El resto de las conocidas queda detras de "Otro", para no perderlas pero
@@ -2508,20 +2511,63 @@ const MET_VENTANA=365;
 // 33,3% con un margen de error de ±37,7 puntos. Eso no es una medicion, es una moneda.
 const MET_MIN_BASE=20;
 
+// Cuando y como ENTRO el cliente a la cartera dentro de la ventana. Espejo exacto de
+// entrada() en metricas_calle.py.
+//   nuevo      = su primera operacion de la vida cae adentro de la ventana
+//   recuperado = tomo una operacion despues de pasar MET_BRECHA dias o mas sin ningun
+//                plan abierto, y eso ocurrio adentro de la ventana
+//
+// **La brecha se mide contra su propia historia, NO contra el borde de la ventana.**
+// La primera version preguntaba "¿estaba sin plan hace 365 dias?" y eso tiene un sesgo
+// que casi se publica: ese grupo es fijo y se agota durante el año, asi que los
+// primeros meses cosechan de un pozo lleno y los ultimos de uno vacio. El ritmo daba
+// -19% para la unidad y 15 de 21 vendedores con flecha para abajo, cuando midiendo solo
+// los nuevos daba +15%. Con la brecha propia da +1% y las flechas quedan 4/10/6.
+//
+// Los dos tipos cuentan juntos: en 12 meses entraron 653 nuevos y 670 recuperados.
+// Contando solo los nuevos, la metrica no veia la mitad del trabajo de prospeccion, y
+// no lo repartia parejo (hay vendedores con el 3% de lo que entra recuperado y otros
+// con el 71%).
+const MET_BRECHA=90;
+const _fy=y=>new Date(+y.slice(0,4), +y.slice(4,6)-1, +y.slice(6));
+function _entrada(hs, desde){
+  let finMax=null;
+  for(const h of hs.slice().sort((x,y)=>x[0]<y[0]?-1:x[0]>y[0]?1:0)){
+    const a=h[0], b=h[1];
+    if(finMax===null){
+      if(a>=desde) return {tipo:"nuevo", cuando:a};
+    } else if((_fy(a)-_fy(finMax))/86400000 >= MET_BRECHA){
+      if(a>=desde) return {tipo:"recuperado", cuando:a};
+    }
+    if(finMax===null||b>finMax) finMax=b;
+  }
+  return null;
+}
+
 function metricasDe(quien){
   const d=new Date(); d.setDate(d.getDate()-MET_VENTANA);
   const desde=_ymd(d), hasta=_ymd(new Date());
-  const m={cartera:0, nuevos:0, retDen:0, retNum:0, contDen:0, contNum:0};
+  // Ritmo: ultimos 90 dias contra los 275 anteriores. En dias y no en meses de
+  // calendario para que no quede un mes partido en la punta.
+  const dc=new Date(); dc.setDate(dc.getDate()-90);
+  const corte=_ymd(dc);
+  const m={cartera:0, nuevos:0, recuperados:0, entraron:0, u3:0, a9:0,
+           retDen:0, retNum:0, contDen:0, contNum:0};
   (clientes||[]).forEach(c=>{
     if(!esDe(c,quien)) return;
     if(DESCARTE.includes(tagDe(c.codigo))) return;   // incobrable / fallecido no son cartera
     if(esEmpleado(c)) return;                        // el beneficio interno tampoco
     const hs=_hitos(c); if(!hs.length) return;
     m.cartera++;
-    // NUEVO: su primera operacion cae dentro de la ventana. Se cuenta en NUMERO y no en
-    // tasa: la tasa tiene correlacion -0,76 con el tamaño de la cartera, o sea que mide
-    // hace cuanto entro el vendedor y no lo que hizo. El numero absoluto da -0,05.
-    if(hs.map(h=>h[0]).sort()[0] >= desde) m.nuevos++;
+    // Se cuenta en NUMERO y no en tasa: la tasa tiene correlacion -0,76 con el tamaño
+    // de la cartera, o sea que mide hace cuanto entro el vendedor y no lo que hizo. El
+    // numero absoluto da -0,05.
+    const e=_entrada(hs, desde);
+    if(e){
+      m.entraron++;
+      if(e.tipo==="nuevo") m.nuevos++; else m.recuperados++;
+      if(e.cuando>=corte) m.u3++; else m.a9++;
+    }
     // RETENCION: se le termino un plan en la ventana y despues tomo otro.
     const fines=hs.filter(h=>h[1]>=desde&&h[1]<=hasta).map(h=>h[1]).sort();
     if(fines.length){
@@ -2535,6 +2581,12 @@ function metricasDe(quien){
     m.contDen++;
     if((c.compras_n||0)>=2) m.contNum++;
   });
+  // El promedio mensual NO es una metrica aparte: es el mismo numero dividido por 12,
+  // mismo ranking y misma correlacion. Va como linea de apoyo porque es el ritmo en que
+  // el vendedor piensa ("tengo que traer 2 por mes"), no como tarjeta propia.
+  m.promMes = Math.round(10*m.entraron/12)/10;
+  m.ritmo3  = Math.round(10*m.u3/3)/10;
+  m.ritmo9  = Math.round(10*m.a9/9)/10;
   m.retencion = m.retDen>=MET_MIN_BASE ? Math.round(1000*m.retNum/m.retDen)/10 : null;
   m.recompra  = m.contDen>=MET_MIN_BASE ? Math.round(1000*m.contNum/m.contDen)/10 : null;
   return m;
@@ -2550,7 +2602,7 @@ function _banda(valor, ref){
   return {cls:"met-bajo", txt:"Abajo de la mayoría"};
 }
 
-function _tarjetaMet(rot, valor, unidad, ref, detalle, explica, base, minimo){
+function _tarjetaMet(rot, valor, unidad, ref, detalle, explica, base, minimo, sub){
   if(base!=null && base<minimo){
     return `<div class="met-card"><div class="met-rot">${rot}</div>
       <div class="met-faltan">Todavía no alcanza para medirlo: hacen falta al menos
@@ -2563,6 +2615,7 @@ function _tarjetaMet(rot, valor, unidad, ref, detalle, explica, base, minimo){
   return `<div class="met-card${b?" "+b.cls:""}">
     <div class="met-rot">${rot}</div>
     <div class="met-num">${valor==null?"—":valor}${valor==null?"":unidad}</div>
+    ${sub?`<div class="met-sub">${sub}</div>`:""}
     ${b?`<div class="met-banda">${b.txt}</div>`:""}
     ${med}
     <div class="met-det">${detalle}</div>
@@ -2591,10 +2644,23 @@ function pintarMetricas(){
       cliente${m.cartera===1?"":"s"}.${R.generado?` Las medianas son al ${esc(R.generado)}.`:""}
       Son tres cosas distintas y ninguna se arregla con la otra.</div>
     <div class="met-grid">
-      ${_tarjetaMet("Clientes nuevos", m.nuevos, "", R.nuevos,
-         `Les vendiste por primera vez en el año.`,
-         `Es el único que no depende del tamaño de tu cartera: cuenta personas que antes
-          no te compraban. Si está bajo, el trabajo es prospectar.`, null, 0)}
+      ${(()=>{
+         // El ritmo es lo UNICO nuevo que aporta el corte mensual: el promedio es el
+         // numero del año dividido por 12. Se marca con flecha solo si la diferencia
+         // llega al 20%: por debajo de eso, con 2 por mes, es ruido.
+         const sube = m.ritmo9>0 && m.ritmo3>=m.ritmo9*1.2;
+         const baja = m.ritmo9>0 && m.ritmo3<=m.ritmo9*0.8;
+         const sub = `<b>${m.promMes}</b> por mes · en los últimos 3 venís a
+            <b>${m.ritmo3}</b>${sube?' <span class="met-sube">▲</span>'
+                               :baja?' <span class="met-baja">▼</span>':""}`;
+         return _tarjetaMet("Clientes que entraron", m.entraron, "", R.entraron,
+           `De los <b>${m.entraron}</b>, <b>${m.nuevos}</b> nunca habían comprado y
+            <b>${m.recuperados}</b> volvieron después de estar parados.`,
+           `Es el único que no depende del tamaño de tu cartera: cuenta personas que
+            este año no te compraban. Recuperar a uno que se fue cuenta igual que
+            traer uno de cero — es el mismo trabajo de salir a buscar.`,
+           null, 0, sub);
+       })()}
       ${_tarjetaMet("Renovación", m.retencion, "%", R.retencion,
          m.retDen ? `De <b>${m.retDen}</b> que terminaron el plan, volvieron
                      <b>${m.retNum}</b>.` : "Todavía no se te terminó ningún plan.",
