@@ -284,6 +284,24 @@ a.tel{color:var(--azul);text-decoration:none;font-weight:600}
 .campo label{display:block;font-size:.77rem;font-weight:700;margin-bottom:4px;color:#374151}
 .campo input,.campo select,.campo textarea{width:100%;padding:10px;border:1.5px solid #ccd2d9;border-radius:7px}
 .acciones{display:flex;gap:9px;justify-content:flex-end;margin-top:15px}
+
+/* --- pestaña Metricas --- */
+.met-grid{display:flex;flex-wrap:wrap;gap:10px;margin-top:10px}
+.met-card{flex:1 1 230px;min-width:210px;background:#fff;border:1.5px solid #ccd2d9;
+  border-left-width:5px;border-radius:10px;padding:12px}
+.met-card.met-alto{border-left-color:#1d6b43;background:#f2faf5}
+.met-card.met-medio{border-left-color:var(--azul);background:#f5f9ff}
+.met-card.met-bajo{border-left-color:var(--naranja);background:#fffaf4}
+.met-rot{font-size:.68rem;font-weight:800;color:#666;text-transform:uppercase;letter-spacing:.03em}
+.met-num{font-size:2.1rem;font-weight:800;color:var(--azul);line-height:1.1;margin:2px 0}
+.met-card.met-alto .met-num{color:#1d6b43}
+.met-card.met-bajo .met-num{color:var(--naranja)}
+.met-banda{font-size:.75rem;font-weight:700;color:#444}
+.met-med{font-size:.74rem;color:var(--gris);margin-top:3px}
+.met-det{font-size:.8rem;color:#333;margin-top:7px;border-top:1px solid #e6e9ed;padding-top:7px}
+.met-exp{font-size:.74rem;color:var(--gris);margin-top:5px;line-height:1.45}
+.met-faltan{font-size:.82rem;color:var(--naranja);margin:6px 0}
+.met-pie{font-size:.74rem;color:var(--gris);margin-top:12px;line-height:1.5}
 </style>
 </head>
 <body>
@@ -441,7 +459,7 @@ const db = firebase.firestore();
 // vendedores. Lo hecho sin conexion sincroniza al volver.
 db.enablePersistence({synchronizeTabs:true}).catch(()=>{});
 
-const VERSION="2026-11-27e";
+const VERSION="2026-11-27f";
 const DOMINIO="funnel.ibaceta.ar";
 // Las 10 mas comunes cubren el 88,9% de los clientes que hoy tienen rubro cargado. Van
 // a la vista. El resto de las conocidas queda detras de "Otro", para no perderlas pero
@@ -649,6 +667,12 @@ function tel(raw){
 const esVend=()=>sesion&&sesion.rol==="vendedor";
 const esCob=()=>sesion&&sesion.rol==="cobrador";
 const conduce=()=>sesion&&["gerente","supervisor_zona","supervisor_cobranza"].includes(sesion.rol);
+// Quien entra a Metricas. Es una RESTRICCION EXPLICITA de Direccion (27/11/2026), no el
+// efecto lateral de una condicion: el vendedor ve las suyas, y el supervisor de zona y
+// gerencia las del vendedor que tengan elegido. Supervision de cobranza y el cobrador
+// quedan afuera a proposito -- las tres metricas son de VENTA, no de cobranza, y el
+// cobrador ademas no tiene cartera propia ni elige vendedor.
+const veMetricas=()=>!!sesion&&(esVend()||["gerente","supervisor_zona"].includes(sesion.rol));
 // Asignar vendedores es de gerencia y supervision de zona: cobranza no define
 // a que punto de venta pertenece un vendedor. Restriccion explicita, no efecto
 // lateral de una condicion (ver REGLA DE PARIDAD DE ROLES en CLAUDE.md).
@@ -775,6 +799,14 @@ function escuchar(){
   if(esVend()) qa=qa.where("asignado_a","==",sesion.usuario);
   desus.push(qa.onSnapshot(s=>{actividades=s.docs.map(d=>({id:d.id,...d.data()}));
     cerrarActividadesVencidas(); pintar(); pintarActFicha();},()=>{}));
+
+  // Las medianas de la unidad. Si el documento no existe todavia, la pantalla muestra
+  // el numero propio sin comparacion, en vez de romperse.
+  if(veMetricas()){
+    db.collection("config").doc("metricas_calle").get()
+      .then(d=>{ if(d.exists){ metricasRed=d.data(); pintar(); } })
+      .catch(()=>{});
+  }
 
   db.collection("config").doc("vendedores_activos").get()
     .then(d=>{ if(d.exists){ vendActivos=new Set(d.data().usuarios||[]);
@@ -1116,6 +1148,11 @@ let avPend=[], avLugares={puntos_venta:[],otros:[]}, avSusc=null;
 // dar de baja y marcar al que hace rato que no vende.
 let avActividad={}, avCorte=45;
 
+// Las MEDIANAS de la unidad Calle, publicadas por metricas_calle.py en
+// config/metricas_calle. El vendedor no las puede calcular: las reglas solo lo dejan
+// leer SUS clientes. Su propio numero sí se calcula aca, con los datos que ya tiene.
+let metricasRed=null;
+
 function avEscuchar(){
   if(!avSusc){
     db.collection("config").doc("vendedores_actividad").get()
@@ -1343,6 +1380,7 @@ function pintarNav(){
   if(conduce()) h+=`<button data-v="sup" onclick="irA('sup')">Vista Supervisor</button>`;
   if(conduce()||esVend()) h+=`<button data-v="vend" onclick="irA('vend')">Vista Vendedor<span class="pin" id="pin" style="display:none">0</span></button>`;
   if(conduce()||esCob())  h+=`<button data-v="cob" onclick="irA('cob')">Vista Cobrador</button>`;
+  if(veMetricas())        h+=`<button data-v="metricas" onclick="irA('metricas')">Métricas</button>`;
   if(puedeAsignar()) h+=`<button data-v="asig" onclick="irA('asig')">Vendedores<span class="pin" id="pin-asig" style="display:none">0</span></button>`;
   n.innerHTML=h; marcarNav();
 }
@@ -1355,6 +1393,7 @@ function pintar(){
   if(p){ p.textContent=n; p.style.display=n?"inline-block":"none"; }
   pintarBarra();
   if(vista==="asig"){ pintarAsignacion(); document.getElementById("barra").style.display="none"; }
+  else if(vista==="metricas"){ pintarMetricas(); document.getElementById("barra").style.display="none"; }
   else if(vista==="sup") pintarSupervisor();
   else pintarKanban();
 }
@@ -2453,6 +2492,125 @@ function pintarPanelActividades(quien){
       <div style="font-size:.77rem;color:var(--gris);margin-bottom:7px">
         Pedidos abiertos: el cliente necesita algo y el vendedor todavía no lo cerró.</div>
       ${mandados.sort((a,b)=>(a.fecha||"").localeCompare(b.fecha||"")).map(fila).join("")}`:""}
+  </div>`;
+}
+
+// ---------- metricas del vendedor (27/11/2026) ----------
+// Las tres salen de datos que la app YA TIENE: el campo `hitos` de cada cliente trae
+// TODAS sus operaciones (no solo las activas) como pares inicio/fin, y los clientes de
+// contado traen `compras_n`. Por eso no hace falta ni coleccion nueva ni regla nueva.
+//
+// ESTAS DEFINICIONES SON EL ESPEJO EXACTO de metricas_calle.py, que calcula las
+// medianas con la vista completa. Si una cambia y la otra no, el vendedor compara su
+// numero contra una mediana medida de otra forma y la pantalla miente sin avisar.
+const MET_VENTANA=365;
+// Debajo de esta base el porcentaje es ruido: un vendedor con 6 clientes de contado dio
+// 33,3% con un margen de error de ±37,7 puntos. Eso no es una medicion, es una moneda.
+const MET_MIN_BASE=20;
+
+function metricasDe(quien){
+  const d=new Date(); d.setDate(d.getDate()-MET_VENTANA);
+  const desde=_ymd(d), hasta=_ymd(new Date());
+  const m={cartera:0, nuevos:0, retDen:0, retNum:0, contDen:0, contNum:0};
+  (clientes||[]).forEach(c=>{
+    if(!esDe(c,quien)) return;
+    if(DESCARTE.includes(tagDe(c.codigo))) return;   // incobrable / fallecido no son cartera
+    if(esEmpleado(c)) return;                        // el beneficio interno tampoco
+    const hs=_hitos(c); if(!hs.length) return;
+    m.cartera++;
+    // NUEVO: su primera operacion cae dentro de la ventana. Se cuenta en NUMERO y no en
+    // tasa: la tasa tiene correlacion -0,76 con el tamaño de la cartera, o sea que mide
+    // hace cuanto entro el vendedor y no lo que hizo. El numero absoluto da -0,05.
+    if(hs.map(h=>h[0]).sort()[0] >= desde) m.nuevos++;
+    // RETENCION: se le termino un plan en la ventana y despues tomo otro.
+    const fines=hs.filter(h=>h[1]>=desde&&h[1]<=hasta).map(h=>h[1]).sort();
+    if(fines.length){
+      m.retDen++;
+      const ult=fines[fines.length-1];
+      if(hs.some(h=>h[0]>ult)) m.retNum++;
+    }
+  });
+  (contado||[]).forEach(c=>{
+    if(!esDe(c,quien)) return;
+    m.contDen++;
+    if((c.compras_n||0)>=2) m.contNum++;
+  });
+  m.retencion = m.retDen>=MET_MIN_BASE ? Math.round(1000*m.retNum/m.retDen)/10 : null;
+  m.recompra  = m.contDen>=MET_MIN_BASE ? Math.round(1000*m.contNum/m.contDen)/10 : null;
+  return m;
+}
+
+// Tres bandas, no un puesto. La medicion del 27/11/2026 mostro que el 1o y el 5o de
+// cada metrica tienen intervalos de confianza que se superponen: un ranking de 20
+// puestos seria mayormente azar y el que saliera cuarto tendria razon en quejarse.
+function _banda(valor, ref){
+  if(valor==null||!ref) return null;
+  if(valor>=ref.p75) return {cls:"met-alto",  txt:"Arriba de la mayoría"};
+  if(valor>=ref.p25) return {cls:"met-medio", txt:"En el medio del grupo"};
+  return {cls:"met-bajo", txt:"Abajo de la mayoría"};
+}
+
+function _tarjetaMet(rot, valor, unidad, ref, detalle, explica, base, minimo){
+  if(base!=null && base<minimo){
+    return `<div class="met-card"><div class="met-rot">${rot}</div>
+      <div class="met-faltan">Todavía no alcanza para medirlo: hacen falta al menos
+        ${minimo} y tenés ${base}. Con menos, el número es azar y no dice nada.</div>
+      <div class="met-exp">${explica}</div></div>`;
+  }
+  const b=_banda(valor, ref);
+  const med = ref ? `<div class="met-med">La mediana de Calle es
+      <b>${ref.mediana}${unidad}</b> · ${ref.vendedores} vendedores medidos</div>` : "";
+  return `<div class="met-card${b?" "+b.cls:""}">
+    <div class="met-rot">${rot}</div>
+    <div class="met-num">${valor==null?"—":valor}${valor==null?"":unidad}</div>
+    ${b?`<div class="met-banda">${b.txt}</div>`:""}
+    ${med}
+    <div class="met-det">${detalle}</div>
+    <div class="met-exp">${explica}</div></div>`;
+}
+
+function pintarMetricas(){
+  // El tablero deja contenido en cuatro contenedores, no en uno: si no se limpian todos,
+  // Metricas aparece DEBAJO del kanban, del interruptor y de las tarjetas de periodo.
+  ["cols","periodo","kpis","tabla"].forEach(id=>{
+    const e=document.getElementById(id); if(e) e.innerHTML="";
+  });
+  const quien = esVend() ? sesion.usuario : selVend;
+  const panel = document.getElementById("panel");
+  if(!quien){
+    panel.innerHTML=`<div class="panel"><h3>Métricas</h3>
+      <div class="sin-ayuda">Elegí un vendedor en <b>Vista Vendedor</b> y volvé acá:
+      las métricas son de una persona, no del total.</div></div>`;
+    return;
+  }
+  const m=metricasDe(quien), R=metricasRed||{};
+  const quien_txt = esVend() ? "Tus números" : "Métricas de "+esc(quien);
+  panel.innerHTML=`<div class="panel">
+    <h3>${quien_txt}</h3>
+    <div class="sin-ayuda">Últimos 12 meses sobre tu cartera de ${m.cartera}
+      cliente${m.cartera===1?"":"s"}.${R.generado?` Las medianas son al ${esc(R.generado)}.`:""}
+      Son tres cosas distintas y ninguna se arregla con la otra.</div>
+    <div class="met-grid">
+      ${_tarjetaMet("Clientes nuevos", m.nuevos, "", R.nuevos,
+         `Les vendiste por primera vez en el año.`,
+         `Es el único que no depende del tamaño de tu cartera: cuenta personas que antes
+          no te compraban. Si está bajo, el trabajo es prospectar.`, null, 0)}
+      ${_tarjetaMet("Renovación", m.retencion, "%", R.retencion,
+         m.retDen ? `De <b>${m.retDen}</b> que terminaron el plan, volvieron
+                     <b>${m.retNum}</b>.` : "Todavía no se te terminó ningún plan.",
+         `El cliente que termina y no vuelve se pierde entero: hay que salir a buscar uno
+          nuevo para reemplazarlo. Renovar es más barato que conseguir.`,
+         m.retDen, MET_MIN_BASE)}
+      ${_tarjetaMet("Recompra de contado", m.recompra, "%", R.recompra,
+         m.contDen ? `De <b>${m.contDen}</b> clientes de contado, te compraron más de una
+                      vez <b>${m.contNum}</b>.` : "Todavía no tenés cartera de contado.",
+         `En contado 7 de cada 10 compran una sola vez en todo el año. El que vuelve es
+          el que te tiene de proveedor, no de changa.`,
+         m.contDen, MET_MIN_BASE)}
+    </div>
+    <div class="met-pie">Las tres se miden sobre los últimos 12 meses y se actualizan
+      todas las noches. <b>No hay ranking ni puesto</b>: la medición no da para distinguir
+      al primero del quinto, sí para ver si estás arriba, en el medio o abajo del grupo.</div>
   </div>`;
 }
 
