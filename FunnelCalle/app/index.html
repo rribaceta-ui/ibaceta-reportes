@@ -308,9 +308,15 @@ a.tel{color:var(--azul);text-decoration:none;font-weight:600}
   letter-spacing:.05em;margin:14px 0 2px;padding-top:8px;border-top:1px solid #e6e9ed}
 .met-card.met-neutra{border-left-color:#ccd2d9;background:#fafbfc}
 .met-num.met-gris{color:#444}
-.met-torta{display:flex;align-items:center;gap:12px;margin:8px 0;flex-wrap:wrap}
-.met-legs{flex:1;min-width:120px}
-.met-leg{font-size:.78rem;color:#333;line-height:1.7;white-space:nowrap}
+.met-tortas{display:flex;gap:6px;margin:8px 0;justify-content:space-around;flex-wrap:wrap}
+.met-tcol{text-align:center}
+.met-tlab{font-size:.72rem;font-weight:700;color:#555;margin-top:2px}
+.met-tsec{width:100%;border-collapse:collapse;font-size:.78rem;margin-top:6px}
+.met-tsec th{font-size:.68rem;color:#888;font-weight:700;text-align:right;padding:2px 4px}
+.met-tsec th:first-child{text-align:left}
+.met-tsec td{padding:3px 4px;text-align:right;color:#333;border-top:1px solid #eef1f4}
+.met-tsec td:first-child{text-align:left;white-space:nowrap}
+.met-tsec td:nth-child(2){font-weight:800}
 .met-pto{display:inline-block;width:10px;height:10px;border-radius:3px;margin-right:6px}
 .met-aviso{font-size:.74rem;color:#7a5200;background:#fff8e6;border:1px solid #f0dca8;
   border-radius:8px;padding:7px 9px;margin-top:7px;line-height:1.45}
@@ -472,7 +478,7 @@ const db = firebase.firestore();
 // vendedores. Lo hecho sin conexion sincroniza al volver.
 db.enablePersistence({synchronizeTabs:true}).catch(()=>{});
 
-const VERSION="2026-11-28j";
+const VERSION="2026-11-28k";
 const DOMINIO="funnel.ibaceta.ar";
 // Las 10 mas comunes cubren el 88,9% de los clientes que hoy tienen rubro cargado. Van
 // a la vista. El resto de las conocidas queda detras de "Otro", para no perderlas pero
@@ -2563,7 +2569,7 @@ const MET_COLOR={"Equipamiento":"var(--azul)","Préstamos":"var(--naranja)",
                  "Hogar":"var(--verde)","Usados":"#8e6fb5","Otros":"#9aa5b1"};
 
 // Torta de mix por sector, en SVG a mano: la app no carga librerias.
-function _torta(sec){
+function _tortaSvg(sec, px){
   const ent=Object.entries(sec||{}).filter(([,v])=>v>0).sort((a,b)=>b[1]-a[1]);
   const tot=ent.reduce((a,[,v])=>a+v,0);
   if(!ent.length||tot<=0) return "";
@@ -2581,12 +2587,34 @@ function _torta(sec){
           fill="${MET_COLOR[k]||"#9aa5b1"}"/>`;
     ang=fin;
   });
-  const leyenda=ent.map(([k,v])=>`<div class="met-leg">
-      <span class="met-pto" style="background:${MET_COLOR[k]||"#9aa5b1"}"></span>
-      ${esc(k)} <b>${v}%</b></div>`).join("");
-  return `<div class="met-torta"><svg viewBox="0 0 120 120" width="120" height="120"
-      role="img" aria-label="Mix por sector">${partes}</svg>
-    <div class="met-legs">${leyenda}</div></div>`;
+  return `<svg viewBox="0 0 120 120" width="${px}" height="${px}">${partes}</svg>`;
+}
+
+// Las TRES tortas juntas: la suya, la de su zona y la de toda Calle (Direccion,
+// 28/11/2026). Un porcentaje solo no dice nada; lo que dice algo es la forma
+// comparada. Las zonas difieren de verdad -- San Juan vende 48,5% de prestamos contra
+// 34% en Mendoza y San Luis-, asi que hacen falta las dos referencias y no una.
+// Debajo va la tabla con los numeros: la torta muestra la forma, la tabla la distancia.
+function _tortasComparadas(propio, zona, calle, nomZona){
+  if(!propio) return "";
+  const cols=[["Vos",propio]];
+  if(zona)  cols.push([nomZona||"Tu zona", zona]);
+  if(calle) cols.push(["Toda Calle", calle]);
+  const tortas=cols.map(([rot,d])=>`<div class="met-tcol">
+      ${_tortaSvg(d, cols.length>2?84:110)}
+      <div class="met-tlab">${esc(rot)}</div></div>`).join("");
+  // Las filas salen del orden de toda Calle, o del propio si no hay referencia: asi
+  // las tres columnas se leen en el mismo orden siempre.
+  const guia=calle||propio;
+  const secs=Object.keys(guia).sort((a,b)=>(guia[b]||0)-(guia[a]||0));
+  Object.keys(propio).forEach(k=>{ if(!secs.includes(k)) secs.push(k); });
+  const filas=secs.map(k=>`<tr><td><span class="met-pto"
+      style="background:${MET_COLOR[k]||"#9aa5b1"}"></span>${esc(k)}</td>${
+      cols.map(([,d])=>`<td>${d[k]!=null?d[k]+"%":"—"}</td>`).join("")}</tr>`).join("");
+  return `<div class="met-tortas">${tortas}</div>
+    <table class="met-tsec"><thead><tr><th></th>${
+      cols.map(([rot])=>`<th>${esc(rot)}</th>`).join("")}</tr></thead>
+      <tbody>${filas}</tbody></table>`;
 }
 
 // Tarjeta SIN banda ni color: para los numeros que no tienen direccion. No hay un "mas
@@ -2714,10 +2742,10 @@ function pintarMetricas(){
          <b>No hay un número bueno ni uno malo</b>: es para que veas cómo está repartido
          lo tuyo.`)}
       ${m.sectores?_tarjetaMix("Mix por sector", null, "", null, null, zona,
-        _torta(m.sectores),
-        `En qué se va lo que vendés. <b>Tampoco tiene un número correcto</b> — mirá si
-         está muy cargado hacia un lado. En toda Calle: Equipamiento 45%, Préstamos 38%,
-         Hogar 14%.`):""}
+        _tortasComparadas(m.sectores, (R.sectores_zona||{})[m.zona], R.sectores, zona),
+        `En qué se va lo que vendés, al lado de tu zona y de toda Calle. <b>No tiene un
+         número correcto</b> — lo que se mira es si tu torta tiene otra forma que las de
+         al lado, y hacia dónde.`):""}
     </div>
     <div class="met-pie">Se calculan todas las noches sobre los últimos 12 meses.
       <b>No hay ranking ni puesto</b>: la medición no da para distinguir al primero del
