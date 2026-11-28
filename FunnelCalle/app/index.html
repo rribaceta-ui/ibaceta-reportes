@@ -306,6 +306,8 @@ a.tel{color:var(--azul);text-decoration:none;font-weight:600}
 .met-faltan{font-size:.82rem;color:var(--naranja);margin:6px 0}
 .met-titulo{font-size:.76rem;font-weight:800;color:#555;text-transform:uppercase;
   letter-spacing:.05em;margin:14px 0 2px;padding-top:8px;border-top:1px solid #e6e9ed}
+.met-card.met-rojo{border-left-color:var(--rojo);background:#fdf3f2}
+.met-card.met-rojo .met-num{color:var(--rojo)}
 .met-card.met-neutra{border-left-color:#ccd2d9;background:#fafbfc}
 .met-num.met-gris{color:#444}
 .met-barras{margin:10px 0 8px}
@@ -480,7 +482,7 @@ const db = firebase.firestore();
 // vendedores. Lo hecho sin conexion sincroniza al volver.
 db.enablePersistence({synchronizeTabs:true}).catch(()=>{});
 
-const VERSION="2026-11-28m";
+const VERSION="2026-11-28o";
 const DOMINIO="funnel.ibaceta.ar";
 // Las 10 mas comunes cubren el 88,9% de los clientes que hoy tienen rubro cargado. Van
 // a la vista. El resto de las conocidas queda detras de "Otro", para no perderlas pero
@@ -2630,6 +2632,26 @@ function _tarjetaMix(rot, valor, unidad, ref, refZ, zona, cuerpo, explica){
     <div class="met-exp">${explica}</div></div>`;
 }
 
+// Los cuatro niveles del cumplimiento son los de Direccion del 12/08/2026, los mismos
+// del semaforo trimestral: no se inventa una escala nueva para la misma pregunta.
+const MET_NIVEL=[[100,"met-alto","Cumple"],[85,"met-medio","Cerca"],
+                 [70,"met-bajo","Atención"],[0,"met-rojo","Crítico"]];
+
+// Tarjeta de cumplimiento contra objetivo. A diferencia de las de mix, estas SI tienen
+// direccion -mas es mejor-, asi que se pintan. La referencia es el cumplimiento del
+// EQUIPO en el mismo periodo, que la planilla ya calcula: es el numero de ellos y no
+// una mediana inventada aca.
+function _tarjetaObj(rot, pct, equipo, detalle, explica){
+  const n = pct==null ? null : (MET_NIVEL.find(x=>pct>=x[0]) || MET_NIVEL[3]);
+  return `<div class="met-card${n?" "+n[1]:" met-neutra"}">
+    <div class="met-rot">${rot}</div>
+    <div class="met-num">${pct==null?"—":pct+"%"}</div>
+    ${n?`<div class="met-banda">${n[2]}</div>`:""}
+    ${equipo!=null?`<div class="met-med">Tu equipo: <b>${equipo}%</b></div>`:""}
+    ${detalle?`<div class="met-det">${detalle}</div>`:""}
+    ${explica?`<div class="met-exp">${explica}</div>`:""}</div>`;
+}
+
 function pintarMetricas(){
   // El tablero deja contenido en cuatro contenedores, no en uno: si no se limpian
   // todos, Metricas aparece DEBAJO del kanban y de las tarjetas de periodo.
@@ -2745,6 +2767,30 @@ function pintarMetricas(){
          número correcto</b> — lo que se mira es si tu barra está repartida distinto que
          las de abajo, y hacia qué lado.`):""}
     </div>
+    ${(()=>{
+       const E=((R.objetivos_equipo||{})[m.zona])||{};
+       const hayQ=[1,2,3,4].filter(q=>m["obj_q"+q]!=null||E["q"+q]!=null);
+       if(m.obj_mensual==null && m.obj_anual==null && !hayQ.length) return "";
+       const Q=["1er","2do","3er","4to"];
+       return `<div class="met-titulo">Cómo venís contra tu objetivo</div>
+         <div class="met-grid">
+         ${_tarjetaObj("Mes de "+esc(m.obj_mes||R.objetivos_mes||""), m.obj_mensual,
+            E.mensual, "", "El último mes con el objetivo ya cargado.")}
+         ${hayQ.map(q=>{
+            // "En curso" y "le falta un mes" son cosas distintas: el trimestre esta en
+            // curso si alguno de sus meses todavia no cerro; que a este vendedor le
+            // falte el objetivo de un mes ya pasado es otra cosa y se dice distinto.
+            const n=m["obj_q"+q+"_meses"]||0, curso=!!m["obj_q"+q+"_curso"];
+            const det = curso ? `Va <b>${n}</b> de 3 meses.`
+                      : n && n<3 ? `Sin objetivo cargado en ${3-n} mes${3-n>1?"es":""}.`
+                      : "";
+            return _tarjetaObj(Q[q-1]+" trimestre", m["obj_q"+q], E["q"+q], det,
+              curso ? "Todavía está en curso." : "");
+          }).join("")}
+         ${_tarjetaObj("Promedio del año", m.obj_anual, E.anual, "",
+            "Es el promedio que calcula la planilla, no uno recalculado acá.")}
+         </div>`;
+     })()}
     <div class="met-pie">Se calculan todas las noches sobre los últimos 12 meses.
       <b>No hay ranking ni puesto</b>: la medición no da para distinguir al primero del
       quinto, sí para ver si estás arriba, en el medio o abajo del grupo.</div>
